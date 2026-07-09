@@ -1,8 +1,21 @@
 param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
-  [string]$GlobalPath = $(if ($env:UEEF_GLOBAL_PATH) { $env:UEEF_GLOBAL_PATH } elseif ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "ueef" } else { Join-Path (Split-Path -Parent $RepositoryPath) "ueef-runtime" })
+  [string]$GlobalPath = ""
 )
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($GlobalPath)) {
+  $repoLeaf = Split-Path -Leaf $RepositoryPath
+  $repoParent = Split-Path -Parent $RepositoryPath
+  if ($repoLeaf -eq "codex" -and (Split-Path -Leaf $repoParent) -eq "ueef") {
+    $GlobalPath = $repoParent
+  } elseif ($env:UEEF_GLOBAL_PATH) {
+    $GlobalPath = $env:UEEF_GLOBAL_PATH
+  } elseif ($env:CODEX_HOME) {
+    $GlobalPath = Join-Path $env:CODEX_HOME "ueef"
+  } else {
+    $GlobalPath = Join-Path (Split-Path -Parent $RepositoryPath) "ueef-runtime"
+  }
+}
 
 function Test-Item($path) { return [bool](Test-Path -LiteralPath $path) }
 function PassFail($condition) { if ($condition) { "PASS" } else { "FAIL" } }
@@ -33,11 +46,12 @@ $activationProofPass = Test-Item (Join-Path $RepositoryPath "framework/01-core/1
 $activationGatePass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates/16-ueef-activation-gate.md")
 $qualityGatesPass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates")
 $validationPass = Test-Item (Join-Path $RepositoryPath "scripts/validate-framework.ps1")
-$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
+$codexHome = if ((Split-Path -Leaf $RepositoryPath) -eq "codex" -and (Split-Path -Leaf $GlobalPath) -eq "ueef") { Split-Path -Parent $GlobalPath } elseif ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
 $isCodexRuntime = (Split-Path -Leaf $RepositoryPath) -eq "codex"
 if ($isCodexRuntime) {
-  $agentsPass = (Test-Item $agentsPath) -and ((Get-Content -LiteralPath $agentsPath -Raw) -match [regex]::Escape($GlobalPath))
+  $agentsText = if (Test-Item $agentsPath) { Get-Content -LiteralPath $agentsPath -Raw } else { "" }
+  $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath)))
   $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
   $activeStatePass = Test-Item $activeStatePath
 } else {

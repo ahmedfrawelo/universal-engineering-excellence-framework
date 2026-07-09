@@ -53,3 +53,13 @@ Run:
 ```
 
 The selector prints relevant modules, required quality gates, UI UX Pro Max status, and the activation gate.
+## Exact Codex installation
+
+For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:
+
+- `CODEX_HOME/AGENTS.md`
+- `CODEX_HOME/ueef/codex`
+- `CODEX_HOME/ueef/codex/UEEF-LOADER.md`
+- `CODEX_HOME/ueef/UEEF-ACTIVE.json`
+
+If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-codex.sh` must fail instead of installing to a fallback path.

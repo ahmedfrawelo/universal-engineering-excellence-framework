@@ -57,3 +57,13 @@ After installation, run:
 `
 
 UEEF is active only when the result shows Installed: YES, Global loader: PASS, and Overall: ACTIVE. If the global AI rules path cannot be detected, follow docs/verify-ueef-is-active.md and set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md.
+## Exact Codex installation
+
+For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:
+
+- `CODEX_HOME/AGENTS.md`
+- `CODEX_HOME/ueef/codex`
+- `CODEX_HOME/ueef/codex/UEEF-LOADER.md`
+- `CODEX_HOME/ueef/UEEF-ACTIVE.json`
+
+If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-codex.sh` must fail instead of installing to a fallback path.

@@ -1,8 +1,11 @@
 param(
-  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { "E:\shared folder\codex-home" }),
+  [string]$CodexHome = $env:CODEX_HOME,
   [string]$Agent = "codex"
 )
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($CodexHome)) {
+  throw "CODEX_HOME is required for exact Codex installation. Run inside Codex or pass -CodexHome explicitly."
+}
 $SourceRoot = Split-Path -Parent $PSScriptRoot
 $RuntimeRoot = Join-Path $CodexHome "ueef"
 $Target = Join-Path $RuntimeRoot $Agent
@@ -16,6 +19,7 @@ if (Test-Path -LiteralPath $Target) {
   Copy-Item -LiteralPath $Target -Destination (Join-Path $BackupRoot "$Agent-$(Get-Date -Format yyyyMMddHHmmss)") -Recurse -Force
 }
 & (Join-Path $SourceRoot "scripts\sync-runtime.ps1") -SourcePath $SourceRoot -CodexHome $CodexHome -Agent $Agent
-Write-Host "UEEF Codex runtime installed from repository source."
+Write-Host "UEEF Codex runtime installed exactly from repository source."
 Write-Host "Runtime: $Target"
 Write-Host "Codex AGENTS: $(Join-Path $CodexHome 'AGENTS.md')"
+Write-Host "Active state: $(Join-Path $RuntimeRoot 'UEEF-ACTIVE.json')"
