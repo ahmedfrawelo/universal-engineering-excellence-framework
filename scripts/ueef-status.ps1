@@ -35,9 +35,16 @@ $qualityGatesPass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-g
 $validationPass = Test-Item (Join-Path $RepositoryPath "scripts/validate-framework.ps1")
 $codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
-$agentsPass = (Test-Item $agentsPath) -and ((Get-Content -LiteralPath $agentsPath -Raw) -match [regex]::Escape($GlobalPath))
-$activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
-$activeStatePass = Test-Item $activeStatePath
+$isCodexRuntime = (Split-Path -Leaf $RepositoryPath) -eq "codex"
+if ($isCodexRuntime) {
+  $agentsPass = (Test-Item $agentsPath) -and ((Get-Content -LiteralPath $agentsPath -Raw) -match [regex]::Escape($GlobalPath))
+  $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
+  $activeStatePass = Test-Item $activeStatePath
+} else {
+  $agentsPass = $true
+  $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
+  $activeStatePass = $true
+}
 $oldHomePath = Join-Path $HOME ".ueef"
 $oldHomeAbsent = !(Test-Item $oldHomePath)
 $markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch "\\.git\\" }).Count } else { 0 }
