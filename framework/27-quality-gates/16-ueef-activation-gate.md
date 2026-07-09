@@ -37,12 +37,15 @@ This gate fails if:
 - UI UX Pro Max was not checked for UI tasks.
 - Quality Gates were skipped.
 - Final response does not include UEEF verification evidence.
+- The final response `Loaded` line contains anything except `boot-loader, core-system`.
 
 ## Pass Criteria
 
 The gate passes only when the runtime check block is complete, status is READY, and the final response uses the compact UEEF Verification fields: `UEEF`, `Loaded`, `Selected`, `Gates`, `Tools`, `Skills`, `UIUX`, and `Status`.
 
 The `Loaded` field must only report always-loaded runtime modules: `boot-loader, core-system`. Selector, index, runtime-sequence, and activation-proof files belong under `Selected` or `Gates` when relevant, never under `Loaded`.
+
+This gate fails if `Loaded` contains `loader`, `UEEF-LOADER`, `AGENTS`, `master-loader`, `master-index`, `runtime-sequence`, or `activation-proof`.
 
 ## Required Evidence
 

@@ -26,6 +26,8 @@ Status: PASS / PARTIAL / BLOCKED
 ## Strict Rules
 
 - `Loaded` must only list always-loaded modules: `boot-loader, core-system`.
+- The exact valid line is `Loaded: boot-loader, core-system`.
+- Reading or using `UEEF-LOADER.md`, `AGENTS.md`, `master-loader`, `master-index`, `runtime-sequence`, or `activation-proof` does not make those files loaded modules.
 - Do not list `master-loader`, `master-index`, `runtime-sequence`, or `activation proof` under `Loaded` for normal tasks.
 - The Master Loader is a selector. If used, mention its output under `Selected`, not `Loaded`.
 - Use module paths or compact counts under `Selected`.
@@ -38,7 +40,8 @@ Status: PASS / PARTIAL / BLOCKED
 Do not use:
 
 ```text
-Do not use the old verbose Loaded modules line with selector/runtime files.
+Loaded: loader, core-system, master-loader, master-index
+Loaded: boot-loader, core-system, master-loader
 ```
 
 ## Correct Example

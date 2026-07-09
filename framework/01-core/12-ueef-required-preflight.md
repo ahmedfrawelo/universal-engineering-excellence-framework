@@ -18,7 +18,9 @@ Only these are always loaded:
 
 ## Selector Rule
 
-Use `framework/01-core/01-master-loader.md` only to select relevant modules. Do not report it as loaded unless the task specifically required reading the full selector content.
+Use `framework/01-core/01-master-loader.md` only to select relevant modules. Never report it as loaded.
+
+Reading a file is not the same as loading it as an always-loaded runtime module. `UEEF-LOADER.md`, `AGENTS.md`, `master-loader`, `master-index`, `runtime-sequence`, and `activation-proof` must never appear in `Loaded`.
 
 ## Compact Runtime Check
 
@@ -44,3 +46,10 @@ If status is `BLOCKED`, do not edit project files.
 ## Final Response Rule
 
 Use the compact final format from `framework/03-runtime/10-final-response-format.md`. Never use the old verbose loaded-modules format.
+
+Invalid examples:
+
+```text
+Loaded: loader, core-system, master-loader, master-index
+Loaded: boot-loader, core-system, master-loader
+```
