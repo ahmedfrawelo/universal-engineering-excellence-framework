@@ -78,3 +78,15 @@ Run:
 `
 
 See docs/verify-ueef-is-active.md.
+
+## Runtime Hardening
+
+UEEF can be synchronized into Codex home as a self-contained runtime:
+
+```powershell
+.\scripts\sync-runtime.ps1
+.\scripts\check-runtime-drift.ps1
+.\scripts\write-active-state.ps1
+```
+
+The runtime is active only when `scripts\ueef-status.ps1` reports `Overall: ACTIVE`.

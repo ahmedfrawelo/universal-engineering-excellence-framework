@@ -60,3 +60,12 @@ Documentation:
 - UI UX Pro Max required: NO
 - Quality gates planned: documentation, activation
 - Activation Gate status: PASS when status script reports ACTIVE
+
+## Runtime Hardening Additions
+
+- Added `scripts/sync-runtime.ps1` to create a self-contained Codex runtime under `CODEX_HOME/ueef/codex`.
+- Added `scripts/check-runtime-drift.ps1` to compare critical source/runtime files.
+- Added `scripts/write-active-state.ps1` to produce `UEEF-ACTIVE.json`.
+- Added `scripts/select-quality-gates.ps1` for task-based module and gate selection.
+- Added runtime hardening documentation and enforcement examples.
+- Strengthened status checks to verify Codex `AGENTS.md`, active-state JSON, and absence of the old HOME `.ueef` runtime.
