@@ -1,3 +1,3 @@
 # Usage
 
-Load the global UEEF loader before engineering work. The assistant should inspect the project, detect stack and architecture, choose relevant modules, plan edits, perform verification, and report evidence.
+Load the master loader before engineering tasks. The assistant should inspect the project, detect architecture and tools, load relevant modules, plan, implement, validate, and report evidence.

@@ -1,7 +1,10 @@
 # Version
 
-UEEF Enterprise Edition v1.0.0
+UEEF Enterprise Edition version: 1.0.0.
 
-Release date: 2026-07-09
+Semantic versioning: MAJOR.MINOR.PATCH.
 
-Compatibility: Markdown-based AI coding assistants and rule loaders.
+- 1.0.0: Core Enterprise Edition baseline.
+- 1.1.x: compatible improvements and refined guidance.
+- 2.0.0: intelligence pack expansion or breaking framework structure changes.
+- Technology pack additions should be minor releases unless they change core contracts.

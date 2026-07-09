@@ -1,47 +1,49 @@
-# Install UEEF
+# Installation
 
-Clone the repository, open a terminal at the repository root, and run the installer for your assistant.
+UEEF installs globally by copying the framework and writing an assistant loader. Use PowerShell on Windows and shell scripts on macOS/Linux. Installers detect likely global rule locations, ask before overwriting, back up existing files, print verification steps, and fail safely.
 
 ## Codex
 
-```powershell
+``powershell
 .\scripts\install-codex.ps1
-```
+``
 
-```sh
+``sh
 ./scripts/install-codex.sh
-```
+``
 
 ## Cursor
 
-```powershell
+``powershell
 .\scripts\install-cursor.ps1
-```
+``
 
-```sh
+``sh
 ./scripts/install-cursor.sh
-```
+``
 
-## Generic Agents
+## Generic AI
 
-```powershell
+``powershell
 .\scripts\install-generic.ps1
-```
+``
 
-```sh
+``sh
 ./scripts/install-generic.sh
-```
+``
 
-## What Installers Do
+## Manual Installation
 
-1. Confirm the source repository path.
-2. Create a global UEEF directory.
-3. Ask before overwriting an existing loader.
-4. Back up existing global rules.
-5. Copy `framework/` into the global location.
-6. Write a loader that tells the AI assistant how to load UEEF.
-7. Print the final installation path.
+Copy ramework/ to a global assistant rules folder and create a loader that points to ramework/01-core/01-master-loader.md.
 
-## Verify Installation
+## Update
 
-Run the installer again and confirm it detects the existing loader. You can also open the printed global path and verify that `framework/MASTER_INDEX.md` and the assistant loader file exist.
+Run scripts/update.ps1 or scripts/update.sh from the repository root.
+
+## Uninstall
+
+Remove the copied UEEF folder from the printed install location after confirming backups exist.
+
+## Troubleshooting
+
+Run scripts/validate-framework.ps1 or scripts/validate-framework.sh and verify ramework/00-foundation/README.md, ramework/01-core/01-master-loader.md, and the global loader exist.

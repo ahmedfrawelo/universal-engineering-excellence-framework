@@ -1,3 +1,3 @@
 # Security Policy
 
-Report security issues privately to the repository maintainers. Do not include secrets in issues, commits, examples, or test fixtures. UEEF guidance requires secure defaults, input validation, dependency review, secret handling, and disclosure of verification limits.
+Report vulnerabilities privately to maintainers. Do not include credentials in issues, examples, commits, or logs. UEEF requires secure defaults, backend authorization, input validation, secret protection, and dependency review.

@@ -1,3 +1,3 @@
 # Versioning
 
-UEEF uses semantic versioning. Patch versions refine wording, minor versions add compatible modules, and major versions may change loading contracts or folder structure.
+UEEF uses semantic versioning. Minor versions add compatible packs; major versions may change loading contracts or structure.

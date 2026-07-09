@@ -2,26 +2,22 @@
 set -eu
 AGENT="${1:-cursor}"
 INSTALL_ROOT="${UEEF_HOME:-$HOME/.ueef}"
-SOURCE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-FRAMEWORK="$SOURCE_DIR/framework"
+SOURCE_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 TARGET="$INSTALL_ROOT/$AGENT"
-BACKUP="$INSTALL_ROOT/backups/$AGENT-$(date +%Y%m%d%H%M%S)"
-if [ ! -d "$FRAMEWORK" ]; then
-  echo "Cannot find framework directory at $FRAMEWORK" >&2
-  exit 1
-fi
+BACKUP_ROOT="$INSTALL_ROOT/backups"
+[ -d "$SOURCE_ROOT/framework" ] || { echo "framework directory not found" >&2; exit 1; }
 if [ -e "$TARGET" ]; then
-  printf "Existing UEEF installation found at %s. Back it up and replace it? (y/N) " "$TARGET"
+  printf "Existing UEEF install found at %s. Back up and replace? (y/N) " "$TARGET"
   read ans
-  case "$ans" in y|Y|yes|YES) mkdir -p "$(dirname "$BACKUP")"; cp -R "$TARGET" "$BACKUP" ;; *) echo "Install cancelled."; exit 1 ;; esac
+  case "$ans" in y|Y|yes|YES) mkdir -p "$BACKUP_ROOT"; cp -R "$TARGET" "$BACKUP_ROOT/$AGENT-$(date +%Y%m%d%H%M%S)" ;; *) echo "Install cancelled."; exit 1 ;; esac
 fi
 mkdir -p "$TARGET"
 rm -rf "$TARGET/framework"
-cp -R "$FRAMEWORK" "$TARGET/framework"
+cp -R "$SOURCE_ROOT/framework" "$TARGET/framework"
 cat > "$TARGET/UEEF-LOADER.md" <<EOF
-# UEEF Loader For $AGENT
+# UEEF Loader
 
-Load UEEF before every engineering task. Read framework/MASTER_INDEX.md, inspect the project, detect stack and architecture, detect tools and skills, apply relevant modules, plan before editing, protect user work, run quality gates, and finish with evidence.
+Load UEEF before every engineering task. Start with framework/01-core/01-master-loader.md and framework/MASTER_INDEX.md. Inspect the project, detect stack and architecture, detect tools and skills, plan before editing, avoid duplication, prioritize security and performance, run quality gates, and finish with evidence.
 EOF
 echo "UEEF installed for $AGENT at $TARGET"
-echo "Loader: $TARGET/UEEF-LOADER.md"
+echo "Verify loader: $TARGET/UEEF-LOADER.md"

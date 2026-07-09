@@ -1,70 +1,68 @@
 # Universal Engineering Excellence Framework
 
-## What UEEF Is
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting.
 
-UEEF is a reusable Engineering Operating System for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared set of enforceable engineering rules.
+## Why UEEF Exists
 
-## Who It Is For
+AI coding assistants can generate code quickly, but professional engineering requires consistent architecture, security, performance, testing, documentation, maintainability, and product judgment. UEEF turns those expectations into reusable Markdown modules, checklists, templates, installers, validation scripts, and runtime rules.
 
-- Engineers who want AI assistants to inspect projects before editing.
-- Teams that need consistent code quality, architecture, testing, security, performance, and documentation behavior.
-- Maintainers who want global rules that can be installed once and reused across repositories.
+## Who Should Use It
 
-## Why It Exists
+- Engineers who want AI assistants to inspect before editing.
+- Teams that need repeatable quality gates across projects.
+- Maintainers who want global assistant rules with safe backup behavior.
+- Enterprise teams that need governance, scorecards, review systems, and production readiness.
 
-AI assistants can move fast, but speed without operating rules creates duplicated code, inconsistent UI, weak verification, and shallow completion claims. UEEF turns expert review habits into reusable loading instructions, checklists, decision graphs, templates, and technology packs.
+## What Problem It Solves
 
-## Install
+UEEF prevents shallow completion, duplicated code, duplicated UI, random files, weak security, unverified changes, inconsistent naming, architecture drift, and vague final reports.
 
-Windows PowerShell:
+## How AI Coding Assistants Use It
 
-```powershell
+Assistants load the core framework, inspect the project, detect stack and architecture, detect tools and skills, load only relevant modules, produce a plan, edit safely, run quality gates, and finish with evidence.
+
+## Global Installation
+
+Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI agents. Installers ask before overwriting, back up existing rules, copy the framework, and create a global loader.
+
+## Quick Install
+
+`powershell
 .\scripts\install-codex.ps1
 .\scripts\install-cursor.ps1
 .\scripts\install-generic.ps1
-```
+`
 
-Unix shell:
-
-```sh
+`sh
 ./scripts/install-codex.sh
 ./scripts/install-cursor.sh
 ./scripts/install-generic.sh
-```
-
-Each installer asks before overwriting existing global rules, creates a timestamped backup, copies the framework, and writes a global loader file.
-
-## Update
-
-Run `.\scripts\update.ps1` on Windows or `./scripts/update.sh` on Unix from a cloned repository. The update scripts prefer `git pull` when the repository is a Git checkout and then refresh the global framework copy.
-
-## Use With Codex
-
-Install the Codex loader, then instruct Codex to load the global UEEF loader before engineering work. The loader requires project inspection, stack detection, tool and skill detection, a plan before editing, quality gates, and a final engineering review.
-
-## Use With Cursor
-
-Install the Cursor loader to global rules. Cursor should load UEEF before code generation, refactoring, UI work, and review. The Cursor example in `examples/cursor/` shows a practical rule file.
-
-## Use With Other AI Agents
-
-Use the generic installer and copy the loader text into the agent's global instruction mechanism. The framework is Markdown-first so it can be consumed by agents that support filesystem-based rules, project memories, or prompt imports.
+`
 
 ## Folder Structure
 
-- `framework/`: enforceable modules, technology packs, templates, decision graphs, and checklists.
-- `scripts/`: installers, updater scripts, and validators.
-- `examples/`: agent-specific loader examples.
-- `docs/`: architecture, usage, installation, pack creation, and versioning documentation.
+- ramework/: sequential engineering packs from foundation through future expansion.
+- scripts/: installers, backup helpers, agent detection, update, and validation scripts.
+- docs/: architecture, usage, installation, governance, and contribution documentation.
+- examples/: assistant and project usage examples.
+- 	ools/: validation, generation, and maintenance support areas.
 
-## Versioning
+## Versioning Strategy
 
-UEEF follows semantic versioning. Version `1.0.0` is the Enterprise Edition baseline. Patch releases fix guidance, minor releases add compatible modules, and major releases may reorganize contracts.
+UEEF uses semantic versioning. Version 1.0.0 is the Enterprise Edition core. Version 1.1 should refine existing packs. Version 2.0 may expand intelligence packs, memory systems, and machine-readable metadata.
 
-## Contribution Rules
+## Security Philosophy
 
-Contributions must improve practical engineering behavior, include meaningful documentation, avoid empty outlines, and pass the validation scripts. New modules must include purpose, required behavior, inspection protocol, quality gates, and review questions.
+UEEF requires security by default, backend authorization, safe secret handling, secure file uploads, dependency review, secure logging, and honest disclosure of validation limits.
 
-## Safety And Security Philosophy
+## Quality Philosophy
 
-UEEF never asks users to commit credentials. Installers back up existing global rules before writing. Agents are instructed to preserve user work, avoid destructive commands without explicit approval, inspect security-sensitive paths carefully, and disclose verification limits.
+Quality means clear architecture, understandable code, minimal duplication, measurable verification, production readiness, accessibility, and maintainability under long-term ownership.
+
+## Examples
+
+See examples/codex/, examples/cursor/, examples/claude-code/, and examples/generic-ai/ for assistant loaders. See project examples for frontend, backend, fullstack, and enterprise usage.
+
+## Contributing
+
+Contributions must improve enforceable engineering behavior. Do not add placeholder files. Every new module must include practical rules, decision guidance, anti-patterns, quality gates, and success criteria.

@@ -1,3 +1,3 @@
 # Creating New Packs
 
-A technology pack must include stack detection signals, architecture guidance, common risks, quality gates, testing expectations, and examples of acceptable verification.
+A new pack must have README, INDEX, metadata, purpose, rules, decision guidance, anti-patterns, checklist, quality gate, and success criteria.

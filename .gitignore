@@ -1,8 +1,8 @@
 .DS_Store
 Thumbs.db
+*.log
+*.tmp
 .ueef-local/
 node_modules/
 dist/
 build/
-*.log
-*.tmp

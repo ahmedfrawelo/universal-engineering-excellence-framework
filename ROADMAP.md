@@ -1,12 +1,12 @@
 # Roadmap
 
-## 1.x
+## 1.1
 
-- Expand technology packs with framework-specific examples.
 - Add machine-readable module metadata.
-- Add additional validator coverage for broken relative links.
-- Add release artifact checks for package managers.
+- Expand technology-pack examples.
+- Improve broken-link validation.
 
-## 2.x
+## 2.0
 
-- Add profile-based loading for teams, regulated environments, and product domains.
+- Expand AI intelligence, memory, and evaluation systems.
+- Add profile-based enterprise governance.

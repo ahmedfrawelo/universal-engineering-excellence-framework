@@ -1,11 +1,9 @@
 # Quick Start
 
-1. Clone this repository.
-2. Run the installer for your AI assistant.
-3. Start a new engineering task and ask the assistant to load UEEF first.
-4. Require the assistant to inspect the repository before editing.
-5. Require the assistant to run relevant verification before finishing.
+1. Clone the repository: git clone https://github.com/ahmedfrawelo/universal-engineering-excellence-framework.git.
+2. Enter it: cd universal-engineering-excellence-framework.
+3. Install for Codex: .\scripts\install-codex.ps1 on Windows or ./scripts/install-codex.sh on Unix.
+4. Verify: run .\scripts\validate-framework.ps1.
+5. First use: tell Codex to load UEEF before the task and follow the master loader.
 
-## Minimal Agent Instruction
-
-Load UEEF from the global loader. Inspect the project, detect stack and architecture, detect available tools and skills, apply relevant modules, plan before editing, preserve user work, run quality gates, and provide a final engineering review.
+UEEF is active when the assistant inspects the project, detects stack and architecture, produces a plan, applies relevant modules, and runs quality gates before finishing.
