@@ -1,5 +1,5 @@
 param(
-  [string]$InstallRoot = "$HOME\.ueef",
+  [string]$InstallRoot = $(if ($env:UEEF_INSTALL_ROOT) { $env:UEEF_INSTALL_ROOT } elseif ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "ueef" } else { Join-Path (Split-Path -Parent $PSScriptRoot) "ueef-runtime" }),
   [string]$Agent = "generic"
 )
 $ErrorActionPreference = "Stop"

@@ -1,7 +1,13 @@
 #!/usr/bin/env sh
 set -eu
 AGENT="${1:-generic}"
-INSTALL_ROOT="${UEEF_HOME:-$HOME/.ueef}"
+if [ -n "${UEEF_INSTALL_ROOT:-}" ]; then
+  INSTALL_ROOT="$UEEF_INSTALL_ROOT"
+elif [ -n "${CODEX_HOME:-}" ]; then
+  INSTALL_ROOT="$CODEX_HOME/ueef"
+else
+  INSTALL_ROOT="$(dirname "$SOURCE_ROOT")/ueef-runtime"
+fi
 SOURCE_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 TARGET="$INSTALL_ROOT/$AGENT"
 BACKUP_ROOT="$INSTALL_ROOT/backups"

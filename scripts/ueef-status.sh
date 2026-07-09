@@ -2,7 +2,13 @@
 set -eu
 
 REPOSITORY_PATH="${1:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
-GLOBAL_PATH="${UEEF_GLOBAL_PATH:-$HOME/.ueef}"
+if [ -n "${UEEF_GLOBAL_PATH:-}" ]; then
+  GLOBAL_PATH="$UEEF_GLOBAL_PATH"
+elif [ -n "${CODEX_HOME:-}" ]; then
+  GLOBAL_PATH="$CODEX_HOME/ueef"
+else
+  GLOBAL_PATH="$(dirname "$REPOSITORY_PATH")/ueef-runtime"
+fi
 
 exists() { [ -e "$1" ]; }
 passfail() { if [ "$1" = "1" ]; then printf "PASS"; else printf "FAIL"; fi; }
@@ -67,7 +73,7 @@ printf "%s\n" "Quality gates: $(passfail "$quality_gates")"
 printf "%s\n" "Markdown file count: $markdown_count"
 printf "%s\n" "Global loader: $global_loader"
 if [ "$global_loader" != "PASS" ]; then
-  printf "%s\n" "Required action: Run scripts/install-codex.sh, scripts/install-cursor.sh, or scripts/install-generic.sh, or set UEEF_GLOBAL_PATH to a path containing UEEF-LOADER.md."
+  printf "%s\n" "Required action: Run scripts/install-codex.sh, scripts/install-cursor.sh, or scripts/install-generic.sh from Codex with CODEX_HOME set, or set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md."
 fi
 printf "%s\n" "Validation script: $(passfail "$validation")"
 printf "%s\n" "Overall: $overall"

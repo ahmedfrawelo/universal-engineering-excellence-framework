@@ -22,7 +22,7 @@ Overall: ACTIVE
 
 ## 2. Verify UEEF Is Global
 
-UEEF is global when a configured global path, normally $HOME\.ueef, contains at least one UEEF-LOADER.md file. The loader must instruct the assistant to load UEEF core, run the runtime check, select modules, check tools and skills, apply UI UX Pro Max for UI work, and apply quality gates.
+UEEF is global when a configured global path, normally CODEX_HOME\ueef, contains at least one UEEF-LOADER.md file. The loader must instruct the assistant to load UEEF core, run the runtime check, select modules, check tools and skills, apply UI UX Pro Max for UI work, and apply quality gates.
 
 ## 3. Run Status Scripts
 

@@ -1,6 +1,6 @@
 param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
-  [string]$GlobalPath = $(if ($env:UEEF_GLOBAL_PATH) { $env:UEEF_GLOBAL_PATH } else { Join-Path $HOME ".ueef" })
+  [string]$GlobalPath = $(if ($env:UEEF_GLOBAL_PATH) { $env:UEEF_GLOBAL_PATH } elseif ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "ueef" } else { Join-Path (Split-Path -Parent $RepositoryPath) "ueef-runtime" })
 )
 $ErrorActionPreference = "Stop"
 
@@ -58,7 +58,7 @@ Write-Output "Quality gates: $(PassFail $qualityGatesPass)"
 Write-Output "Markdown file count: $markdownCount"
 Write-Output "Global loader: $globalLoaderStatus"
 if ($globalLoaderStatus -ne "PASS") {
-  Write-Output "Required action: Run scripts/install-codex.ps1, scripts/install-cursor.ps1, or scripts/install-generic.ps1, or set UEEF_GLOBAL_PATH to a path containing UEEF-LOADER.md."
+  Write-Output "Required action: Run scripts/install-codex.ps1, scripts/install-cursor.ps1, or scripts/install-generic.ps1 from Codex with CODEX_HOME set, or set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md."
 }
 Write-Output "Validation script: $(PassFail $validationPass)"
 Write-Output "Overall: $overall"

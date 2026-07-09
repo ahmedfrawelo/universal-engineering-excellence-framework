@@ -56,4 +56,4 @@ After installation, run:
 .\scripts\ueef-status.ps1
 `
 
-UEEF is active only when the result shows Installed: YES, Global loader: PASS, and Overall: ACTIVE. If the global AI rules path cannot be detected, follow docs/verify-ueef-is-active.md and set UEEF_GLOBAL_PATH to the path containing UEEF-LOADER.md.
+UEEF is active only when the result shows Installed: YES, Global loader: PASS, and Overall: ACTIVE. If the global AI rules path cannot be detected, follow docs/verify-ueef-is-active.md and set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md.
