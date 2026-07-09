@@ -1,87 +1,56 @@
-# final response format
+# Final Response Format
 
-Version: 1.0  
-Pack: 03-runtime  
-Status: Stable  
-Applies To: runtime
+Version: 1.0
+Pack: 03-runtime
+Status: Stable
+Applies To: final responses
 
 ## Purpose
 
-final response format defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+This module defines compact final UEEF verification. It prevents old verbose output and avoids claiming that selector modules were loaded as always-loaded runtime modules.
 
-## When To Use This Module
+## Required Compact Format
 
-Use this module when the task touches runtime concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+```text
+UEEF Verification
+UEEF: ACTIVE / INACTIVE
+Loaded: boot-loader, core-system
+Selected: <task-specific module paths or compact count>
+Gates: <task-specific gate paths or compact count>
+Tools: <checked tools, compact>
+Skills: <checked skills, compact>
+UIUX: YES / NO / NA
+Status: PASS / PARTIAL / BLOCKED
+```
 
-## Core Principles
+## Strict Rules
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+- `Loaded` must only list always-loaded modules: `boot-loader, core-system`.
+- Do not list `master-loader`, `master-index`, `runtime-sequence`, or `activation proof` under `Loaded` for normal tasks.
+- The Master Loader is a selector. If used, mention its output under `Selected`, not `Loaded`.
+- Use module paths or compact counts under `Selected`.
+- Keep quality gates under `Gates`.
+- Keep UI UX Pro Max as `UIUX: YES`, `NO`, or `NA`.
+- Do not repeat full framework rules in the final response.
 
-## Mandatory Rules
+## Bad Old Format
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
+Do not use:
 
-## Decision Guidance
+```text
+Do not use the old verbose Loaded modules line with selector/runtime files.
+```
 
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
+## Correct Example
 
-## Anti-Patterns
-
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
-
-## Review Checklist
-
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
-
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
-
-## Required UEEF Verification Section
-
-## UEEF Verification
-
-UEEF Active:
-Core Modules Loaded:
-Relevant Modules Used:
-Quality Gates Applied:
-MCPs / Tools Checked:
-Skills Checked:
-UI UX Pro Max Applied:
-Activation Gate:
-
-If UEEF was not active, state that clearly and include the reason and required action.
+```text
+UEEF Verification
+UEEF: ACTIVE
+Loaded: boot-loader, core-system
+Selected: framework/10-frontend/00-frontend-architecture.md, framework/14-ui/00-ui-excellence.md
+Gates: activation, UI, UX, accessibility, performance
+Tools: shell, test runner
+Skills: UI UX Pro Max checked
+UIUX: YES
+Status: PASS
+```

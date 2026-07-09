@@ -19,7 +19,7 @@ $Loader = Join-Path $Target "UEEF-LOADER.md"
 @"
 # UEEF Loader
 
-Load UEEF before every engineering task. Start with framework/01-core/01-master-loader.md and framework/MASTER_INDEX.md. Inspect the project, detect stack and architecture, detect tools and skills, plan before editing, avoid duplication, prioritize security and performance, run quality gates, and finish with evidence.
+Load UEEF before every non-trivial engineering task. Always load only framework/01-core/00-boot-loader.md and framework/01-core/00-core-system.md. Use framework/01-core/01-master-loader.md only to select relevant modules. Do not load the full framework unless the task is about UEEF audit, update, install, validation, or rebuild. Finish with compact UEEF Verification.
 "@ | Set-Content -LiteralPath $Loader -Encoding utf8
 Write-Host "UEEF installed for $Agent at $Target"
 Write-Host "Verify loader: $Loader"

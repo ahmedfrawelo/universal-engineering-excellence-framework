@@ -100,7 +100,7 @@ Write-Utf8File $agents @(
   "8. Apply UI UX Pro Max whenever UI, UX, frontend, design, layout, accessibility, or visual polish is involved.",
   "9. Plan before editing non-trivial files.",
   "10. Apply UEEF Quality Gates before final response, including $activationGate.",
-  "11. Include a UEEF Verification block in final engineering responses.",
+  "11. Include compact UEEF Verification: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status.",
   "",
   "If UEEF cannot be verified, state:",
   "",

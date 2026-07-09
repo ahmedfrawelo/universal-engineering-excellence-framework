@@ -2,120 +2,63 @@
 
 ## Purpose
 
-This document explains how to prove UEEF is installed globally, loadable, and actively used before engineering work starts.
+This document explains how to prove UEEF is installed, global, active, and token-efficient.
 
-## 1. Verify UEEF Is Installed
+## Verify Status
 
-From the repository root, run:
+Run from the runtime or repository:
 
-`powershell
+```powershell
 .\scripts\ueef-status.ps1
-`
+```
 
-Expected active result:
+Required result:
 
-`	ext
-Installed: YES
-Global loader: PASS
+```text
 Overall: ACTIVE
-`
+```
 
-## 2. Verify UEEF Is Global
+## Verify Runtime Location
 
-UEEF is global when a configured global path, normally CODEX_HOME\ueef, contains at least one UEEF-LOADER.md file. The loader must instruct the assistant to load UEEF core, run the runtime check, select modules, check tools and skills, apply UI UX Pro Max for UI work, and apply quality gates.
+UEEF must run from Codex home:
 
-## 3. Run Status Scripts
+```text
+E:\shared folder\codex-home\ueef\codex
+```
 
-Windows:
+The old home runtime must be absent:
 
-`powershell
+```text
+C:\Users\ahmed\.ueef = absent
+```
+
+## Valid Compact Runtime Check
+
+```text
+UEEF: ACTIVE
+Loaded: boot-loader, core-system
+Selected: <task-specific module paths or count>
+Gates: <task-specific gates>
+UIUX: YES / NO / NA
+Status: READY
+```
+
+## Detect Fake Or Old Activation
+
+Activation is fake or outdated when final output says:
+
+```text
+Do not use the old verbose Loaded modules line with selector/runtime files.
+```
+
+Correct behavior: `master-loader` is a selector; it belongs under `Selected` only when relevant, not under `Loaded`.
+
+## If UEEF Is Inactive
+
+Run:
+
+```powershell
+.\scripts\sync-runtime.ps1
 .\scripts\ueef-status.ps1
-`
-
-Unix-like systems:
-
-`ash
-./scripts/ueef-status.sh
-`
-
-## 4. Valid Runtime Check
-
-## UEEF Runtime Check
-
-UEEF Active: YES / NO
-
-Global UEEF Path:
-...
-
-UEEF Version:
-...
-
-Core Loaded:
-- framework/01-core/00-core-system.md
-- framework/01-core/01-master-loader.md
-- framework/01-core/02-master-index.md
-
-Relevant Modules Selected:
-- ...
-
-MCPs Checked:
-- ...
-
-Skills Checked:
-- ...
-
-UI UX Pro Max:
-Required: YES / NO
-Available: YES / NO / UNKNOWN
-Applied: YES / NO / NOT APPLICABLE
-
-Quality Gates Planned:
-- ...
-
-Status:
-READY / BLOCKED
-
-## 5. Detect Fake Activation
-
-Activation is fake when the assistant says UEEF is active but does not provide a status result, global path, loaded core modules, selected relevant modules, MCP/tool/skill checks, UI UX Pro Max status, and quality gates.
-
-## 6. If UEEF Is Inactive
-
-Run one installer:
-
-`powershell
-.\scripts\install-codex.ps1
-.\scripts\install-cursor.ps1
-.\scripts\install-generic.ps1
-`
-
-Then rerun:
-
-`powershell
-.\scripts\ueef-status.ps1
-`
-
-## 7. Test With A New Empty Project
-
-Ask the assistant to create a small project. Before editing, it must show UEEF Active: YES, load core modules, detect tools, select relevant modules, and plan quality gates.
-
-## 8. Test With A Frontend Task
-
-Ask for a UI layout or React component change. UI UX Pro Max must be required, available status must be reported, and UI, UX, accessibility, frontend, performance, and activation gates must be selected.
-
-## 9. Test With A Backend Task
-
-Ask for an API endpoint. The assistant must select architecture, backend, API, security, performance, testing, and activation gates.
-
-## 10. Verify UI UX Pro Max
-
-For UI work, the runtime check must say:
-
-`	ext
-UI UX Pro Max:
-Required: YES
-Available: YES / NO / UNKNOWN
-Applied: YES
-`
-
-If UI UX Pro Max is not available, the assistant must report the limitation and still apply UEEF UI, UX, accessibility, and frontend modules.
+.\scripts\check-runtime-drift.ps1
+```

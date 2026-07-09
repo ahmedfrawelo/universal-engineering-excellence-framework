@@ -7,47 +7,40 @@ Applies To: every non-trivial engineering task
 
 ## Mandatory Rule
 
-Before every non-trivial engineering task, the AI must run a UEEF Preflight Check. The AI must not start implementation until it can produce:
+Before every non-trivial engineering task, the AI must run a compact UEEF Preflight Check. The AI must not start implementation until it can produce `UEEF: ACTIVE` with evidence.
 
-`	ext
-UEEF Active: YES
-`
+## Always Loaded
 
-If UEEF cannot be verified, the AI must report:
+Only these are always loaded:
 
-`	ext
-UEEF Active: NO
+- `framework/01-core/00-boot-loader.md`
+- `framework/01-core/00-core-system.md`
+
+## Selector Rule
+
+Use `framework/01-core/01-master-loader.md` only to select relevant modules. Do not report it as loaded unless the task specifically required reading the full selector content.
+
+## Compact Runtime Check
+
+```text
+UEEF: ACTIVE / INACTIVE
+Loaded: boot-loader, core-system
+Selected: <task-specific modules>
+Gates: <task-specific gates>
+UIUX: YES / NO / NA
+Status: READY / BLOCKED
+```
+
+If UEEF cannot be verified, report:
+
+```text
+UEEF: INACTIVE
 Reason:
 Required action:
-`
+```
 
-The AI must not pretend UEEF is active.
-
-## Preflight Procedure
-
-1. Locate UEEF in the repository or global install path.
-2. Load the core system, master loader, master index, runtime sequence, and activation proof.
-3. Detect project stack, architecture, tools, MCPs, connectors, scripts, installed skills, and package managers.
-4. Select relevant UEEF modules for the task.
-5. Decide whether UI UX Pro Max is required.
-6. Plan the quality gates that must pass before final response.
-7. Emit the UEEF Runtime Check block.
-
-## Blocking Rule
-
-If the runtime check status is BLOCKED, do not edit project files. Report the missing evidence and the smallest corrective action.
+If status is `BLOCKED`, do not edit project files.
 
 ## Final Response Rule
 
-Every completed task must include UEEF verification evidence:
-
-## UEEF Verification
-
-UEEF Active:
-Core Modules Loaded:
-Relevant Modules Used:
-Quality Gates Applied:
-MCPs / Tools Checked:
-Skills Checked:
-UI UX Pro Max Applied:
-Activation Gate:
+Use the compact final format from `framework/03-runtime/10-final-response-format.md`. Never use the old verbose loaded-modules format.
