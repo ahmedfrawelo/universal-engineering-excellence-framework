@@ -4,3 +4,4 @@ Relationships:
 
 - README.md: pack purpose and usage.
 - Module files: enforceable operating guidance.
+- [Documentation](00-documentation-system.md)

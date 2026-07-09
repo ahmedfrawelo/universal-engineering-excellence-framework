@@ -4,3 +4,4 @@ Relationships:
 
 - README.md: pack purpose and usage.
 - Module files: enforceable operating guidance.
+- [Scalability](00-scalability-by-default.md)
