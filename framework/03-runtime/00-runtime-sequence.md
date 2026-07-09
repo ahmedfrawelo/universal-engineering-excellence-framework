@@ -70,3 +70,40 @@ This module passes when the final implementation is understandable, maintainable
 - No unrelated user work is changed.
 - No placeholders, empty guidance, or fake completion claims remain.
 - Residual limitations are explicit and actionable.
+
+## UEEF Runtime Check
+
+UEEF Active: YES / NO
+
+Global UEEF Path:
+...
+
+UEEF Version:
+...
+
+Core Loaded:
+- framework/01-core/00-core-system.md
+- framework/01-core/01-master-loader.md
+- framework/01-core/02-master-index.md
+
+Relevant Modules Selected:
+- ...
+
+MCPs Checked:
+- ...
+
+Skills Checked:
+- ...
+
+UI UX Pro Max:
+Required: YES / NO
+Available: YES / NO / UNKNOWN
+Applied: YES / NO / NOT APPLICABLE
+
+Quality Gates Planned:
+- ...
+
+Status:
+READY / BLOCKED
+
+If status is `BLOCKED`, stop before editing project files.

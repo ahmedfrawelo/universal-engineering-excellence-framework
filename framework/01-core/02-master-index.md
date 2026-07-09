@@ -70,3 +70,19 @@ This module passes when the final implementation is understandable, maintainable
 - No unrelated user work is changed.
 - No placeholders, empty guidance, or fake completion claims remain.
 - Residual limitations are explicit and actionable.
+
+## Runtime Activation Requirement
+
+Before every non-trivial engineering task, UEEF requires a preflight check. The assistant must not start implementation until it can produce `UEEF Active: YES` with evidence from repository files, the global loader, or the status script.
+
+## Activation Modules
+
+- `framework/01-core/10-runtime-activation-proof.md`
+- `framework/01-core/11-ueef-status-check.md`
+- `framework/01-core/12-ueef-required-preflight.md`
+- `framework/03-runtime/00-runtime-sequence.md`
+- `framework/27-quality-gates/16-ueef-activation-gate.md`
+
+## Runtime Selection Rule
+
+Use this index to select exact modules for the task before implementation. UI, UX, frontend, design, accessibility, and visual-polish tasks must include UI UX Pro Max status plus the UI, UX, accessibility, frontend, performance, and activation gates.

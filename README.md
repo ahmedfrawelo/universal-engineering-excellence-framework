@@ -66,3 +66,15 @@ See examples/codex/, examples/cursor/, examples/claude-code/, and examples/gener
 ## Contributing
 
 Contributions must improve enforceable engineering behavior. Do not add placeholder files. Every new module must include practical rules, decision guidance, anti-patterns, quality gates, and success criteria.
+
+## Runtime Activation Verification
+
+UEEF includes a runtime activation layer. Before every non-trivial engineering task, the assistant must prove UEEF is active, list loaded core modules, select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, and apply quality gates.
+
+Run:
+
+`powershell
+.\scripts\ueef-status.ps1
+`
+
+See docs/verify-ueef-is-active.md.

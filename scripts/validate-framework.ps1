@@ -6,6 +6,12 @@ foreach ($f in $requiredRoot) { if (!(Test-Path (Join-Path $Root $f))) { $missin
 $requiredDirs = @("framework","scripts","docs","examples","tools")
 foreach ($d in $requiredDirs) { if (!(Test-Path (Join-Path $Root $d))) { $missing += $d } }
 $requiredAcceptance = @(
+  "examples/generic-ai/runtime-check-example.md",
+  "framework/27-quality-gates/16-ueef-activation-gate.md",
+  "framework/01-core/10-runtime-activation-proof.md",
+  "docs/verify-ueef-is-active.md",
+  "scripts/ueef-status.sh",
+  "scripts/ueef-status.ps1",
   "framework/38-templates/feature-implementation-template.md",
   "framework/38-templates/component-creation-template.md",
   "framework/38-templates/api-creation-template.md",

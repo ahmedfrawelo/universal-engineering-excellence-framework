@@ -70,3 +70,18 @@ This module passes when the final implementation is understandable, maintainable
 - No unrelated user work is changed.
 - No placeholders, empty guidance, or fake completion claims remain.
 - Residual limitations are explicit and actionable.
+
+## Required UEEF Verification Section
+
+## UEEF Verification
+
+UEEF Active:
+Core Modules Loaded:
+Relevant Modules Used:
+Quality Gates Applied:
+MCPs / Tools Checked:
+Skills Checked:
+UI UX Pro Max Applied:
+Activation Gate:
+
+If UEEF was not active, state that clearly and include the reason and required action.

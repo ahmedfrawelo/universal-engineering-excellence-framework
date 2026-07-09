@@ -47,3 +47,13 @@ Remove the copied UEEF folder from the printed install location after confirming
 ## Troubleshooting
 
 Run scripts/validate-framework.ps1 or scripts/validate-framework.sh and verify ramework/00-foundation/README.md, ramework/01-core/01-master-loader.md, and the global loader exist.
+
+## Verify Activation
+
+After installation, run:
+
+`powershell
+.\scripts\ueef-status.ps1
+`
+
+UEEF is active only when the result shows Installed: YES, Global loader: PASS, and Overall: ACTIVE. If the global AI rules path cannot be detected, follow docs/verify-ueef-is-active.md and set UEEF_GLOBAL_PATH to the path containing UEEF-LOADER.md.

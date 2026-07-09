@@ -70,3 +70,20 @@ This module passes when the final implementation is understandable, maintainable
 - No unrelated user work is changed.
 - No placeholders, empty guidance, or fake completion claims remain.
 - Residual limitations are explicit and actionable.
+
+## Runtime Activation Requirement
+
+Before every non-trivial engineering task, UEEF requires a preflight check. The assistant must not start implementation until it can produce UEEF Active: YES with evidence from repository files, a global loader, or the status script.
+
+Required core load order:
+
+- ramework/01-core/00-core-system.md
+- ramework/01-core/01-master-loader.md
+- ramework/01-core/02-master-index.md
+- ramework/01-core/10-runtime-activation-proof.md
+- ramework/01-core/11-ueef-status-check.md
+- ramework/01-core/12-ueef-required-preflight.md
+- ramework/03-runtime/00-runtime-sequence.md
+- ramework/27-quality-gates/16-ueef-activation-gate.md
+
+The assistant must select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, plan quality gates, and include UEEF verification in the final response.

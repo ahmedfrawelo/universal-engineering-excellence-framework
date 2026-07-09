@@ -7,3 +7,13 @@
 5. First use: tell Codex to load UEEF before the task and follow the master loader.
 
 UEEF is active when the assistant inspects the project, detects stack and architecture, produces a plan, applies relevant modules, and runs quality gates before finishing.
+
+## Runtime Check
+
+Before asking an AI assistant to modify a project, verify UEEF:
+
+`powershell
+.\scripts\ueef-status.ps1
+`
+
+The assistant must start non-trivial engineering work with the UEEF Runtime Check block and finish with the UEEF Verification block.

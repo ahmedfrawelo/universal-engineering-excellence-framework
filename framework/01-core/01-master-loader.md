@@ -70,3 +70,44 @@ This module passes when the final implementation is understandable, maintainable
 - No unrelated user work is changed.
 - No placeholders, empty guidance, or fake completion claims remain.
 - Residual limitations are explicit and actionable.
+
+## Runtime Activation Requirement
+
+Before every non-trivial engineering task, UEEF requires a preflight check. The assistant must not start implementation until it can produce UEEF Active: YES with evidence from repository files, a global loader, or the status script.
+
+Required core load order:
+
+- ramework/01-core/00-core-system.md
+- ramework/01-core/01-master-loader.md
+- ramework/01-core/02-master-index.md
+- ramework/01-core/10-runtime-activation-proof.md
+- ramework/01-core/11-ueef-status-check.md
+- ramework/01-core/12-ueef-required-preflight.md
+- ramework/03-runtime/00-runtime-sequence.md
+- ramework/27-quality-gates/16-ueef-activation-gate.md
+
+The assistant must select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, plan quality gates, and include UEEF verification in the final response.
+## Global Loader Instruction
+# UEEF Global Loader
+
+Before every engineering task:
+1. Load UEEF Core System: `framework/01-core/00-core-system.md`.
+2. Load UEEF Master Loader: `framework/01-core/01-master-loader.md`.
+3. Load UEEF Master Index: `framework/01-core/02-master-index.md` and `framework/MASTER_INDEX.md`.
+4. Run the UEEF Runtime Check before implementation.
+5. Select exact relevant UEEF modules for the request.
+6. Check MCPs, tools, connectors, local scripts, and installed skills.
+7. Apply UI UX Pro Max whenever UI, UX, frontend, design, layout, accessibility, or visual polish is involved.
+8. Produce a plan before editing non-trivial work.
+9. Apply UEEF Quality Gates before the final answer.
+10. Include UEEF verification evidence in the final response.
+
+If the runtime check cannot produce `UEEF Active: YES`, report:
+
+```text
+UEEF Active: NO
+Reason:
+Required action:
+```
+
+When status is `BLOCKED`, do not edit project files.
