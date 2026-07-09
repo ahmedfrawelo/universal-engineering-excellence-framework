@@ -169,3 +169,7 @@ This index links framework packs and modules for assistant loading.
 - [32-dotnet/00-dotnet-pack.md](32-dotnet/00-dotnet-pack.md)
 - [19-devops/00-devops-system.md](19-devops/00-devops-system.md)
 - [10-frontend/00-frontend-engineering.md](10-frontend/00-frontend-engineering.md)
+- [framework/38-templates/feature-implementation-template.md](../framework/38-templates/feature-implementation-template.md)
+- [framework/26-decision-graphs/architecture-decision-graph.md](../framework/26-decision-graphs/architecture-decision-graph.md)
+- [framework/27-quality-gates/final-gate.md](../framework/27-quality-gates/final-gate.md)
+- [framework/28-scorecards/final-review-scorecard.md](../framework/28-scorecards/final-review-scorecard.md)
