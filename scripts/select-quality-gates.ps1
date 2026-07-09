@@ -14,10 +14,8 @@ function Add-Unique($list, [string[]]$items) {
 }
 
 Add-Unique $modules @(
-  "framework/01-core/00-core-system.md",
-  "framework/01-core/01-master-loader.md",
-  "framework/01-core/02-master-index.md",
-  "framework/01-core/12-ueef-required-preflight.md"
+  "framework/01-core/00-boot-loader.md",
+  "framework/01-core/00-core-system.md"
 )
 Add-Unique $gates @("framework/27-quality-gates/16-ueef-activation-gate.md")
 

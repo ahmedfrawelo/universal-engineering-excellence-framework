@@ -1,109 +1,58 @@
-# runtime sequence
+# Runtime Sequence
 
-Version: 1.0  
-Pack: 03-runtime  
-Status: Stable  
-Applies To: runtime
+Version: 1.0
+Pack: 03-runtime
+Status: Stable
+Applies To: runtime execution
 
 ## Purpose
 
-runtime sequence defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+The runtime sequence defines how UEEF is applied without wasting context. It prioritizes activation proof, selective loading, targeted inspection, and compact verification.
 
-## When To Use This Module
+## Sequence
 
-Use this module when the task touches runtime concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+1. Load `framework/01-core/00-boot-loader.md`.
+2. Load `framework/01-core/00-core-system.md`.
+3. Confirm UEEF runtime is active.
+4. Use `framework/01-core/01-master-loader.md` only to select relevant modules.
+5. Load the minimum useful module set for the task.
+6. Inspect the project and current implementation path.
+7. Plan edits for non-trivial work.
+8. Apply selected quality gates before final response.
+9. Return compact UEEF verification.
 
-## Core Principles
+## Compact Runtime Check
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+```text
+UEEF: ACTIVE/INACTIVE
+Runtime: <path>
+Loaded: boot-loader, core-system
+Selected Modules: <paths or count>
+Quality Gates: <paths or count>
+UI UX Pro Max: YES/NO/NA
+Status: READY/BLOCKED
+```
 
-## Mandatory Rules
+If status is `BLOCKED`, do not edit project files.
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
+## Loading Rules
 
-## Decision Guidance
+- Normal coding task: load only relevant modules.
+- Frontend UI task: frontend, UI, UX, accessibility, performance, and relevant quality gates.
+- Backend API task: architecture, backend, API, security, performance, database only if needed, and relevant quality gates.
+- Documentation task: documentation and review modules only.
+- UEEF maintenance task: full framework loading is allowed only when the task requires it.
 
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
+## Final Verification
 
-## Anti-Patterns
+Use compact final verification:
 
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
+```text
+UEEF: ACTIVE
+Loaded: boot-loader, core-system
+Selected: <task-specific modules>
+Gates: <task-specific gates>
+UIUX: YES/NO/NA
+```
 
-## Review Checklist
-
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
-
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
-
-## UEEF Runtime Check
-
-UEEF Active: YES / NO
-
-Global UEEF Path:
-...
-
-UEEF Version:
-...
-
-Core Loaded:
-- framework/01-core/00-core-system.md
-- framework/01-core/01-master-loader.md
-- framework/01-core/02-master-index.md
-
-Relevant Modules Selected:
-- ...
-
-MCPs Checked:
-- ...
-
-Skills Checked:
-- ...
-
-UI UX Pro Max:
-Required: YES / NO
-Available: YES / NO / UNKNOWN
-Applied: YES / NO / NOT APPLICABLE
-
-Quality Gates Planned:
-- ...
-
-Status:
-READY / BLOCKED
-
-If status is `BLOCKED`, stop before editing project files.
+Avoid repeating full framework rules in every response.

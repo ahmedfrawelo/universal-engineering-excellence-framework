@@ -1,113 +1,86 @@
-# master loader
+# Master Loader
 
-Version: 1.0  
-Pack: 01-core  
-Status: Stable  
-Applies To: core
+Version: 1.0
+Pack: 01-core
+Status: Stable
+Applies To: selective module loading
 
 ## Purpose
 
-master loader defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+The Master Loader chooses the minimum useful UEEF module set for the current task. It is a selector, not a command to load every UEEF file.
 
-## When To Use This Module
+## Always Loaded Before This Selector
 
-Use this module when the task touches core concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+- `framework/01-core/00-boot-loader.md`
+- `framework/01-core/00-core-system.md`
 
-## Core Principles
+## Selection Policy
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+- Select by task type, risk, stack, and files touched.
+- Load module paths first; load full module content only when needed.
+- Never load all UEEF files for normal coding tasks.
+- Load the full framework only for UEEF audits, UEEF updates, UEEF rebuilds, or explicit full-framework requests.
+- Keep runtime and final verification compact.
 
-## Mandatory Rules
+## Frontend UI Tasks
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
+Load only:
 
-## Decision Guidance
+- `framework/08-performance/01-frontend-performance.md`
+- `framework/10-frontend/00-frontend-architecture.md`
+- `framework/14-ui/00-ui-excellence.md`
+- `framework/15-ux/00-ux-excellence.md`
+- `framework/16-accessibility/00-accessibility-excellence.md`
+- `framework/27-quality-gates/08-ui-gate.md`
+- `framework/27-quality-gates/09-ux-gate.md`
+- `framework/27-quality-gates/10-accessibility-gate.md`
+- `framework/27-quality-gates/05-performance-gate.md`
+- `framework/27-quality-gates/16-ueef-activation-gate.md`
 
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
+Apply UI UX Pro Max when available. Do not load backend, database, enterprise, or unrelated technology packs unless the task touches them.
 
-## Anti-Patterns
+## Backend API Tasks
 
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
+Load only:
 
-## Review Checklist
+- `framework/05-architecture/00-clean-architecture.md`
+- `framework/07-security/00-security-by-default.md`
+- `framework/08-performance/03-backend-performance.md`
+- `framework/11-backend/00-backend-architecture.md`
+- `framework/13-api/00-api-design.md`
+- `framework/27-quality-gates/04-security-gate.md`
+- `framework/27-quality-gates/05-performance-gate.md`
+- `framework/27-quality-gates/07-api-gate.md`
+- `framework/27-quality-gates/11-testing-gate.md`
+- `framework/27-quality-gates/16-ueef-activation-gate.md`
 
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
+Add database modules only when schema, query, persistence, migration, or transaction behavior is involved.
 
-## Quality Gate
+## Database Tasks
 
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
+Load only database, security, performance, migration, testing, and activation gates relevant to the database change.
 
-## Related Modules
+## Documentation Tasks
 
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
+Load only:
 
-## Success Criteria
+- `framework/18-documentation/00-documentation-engineering.md`
+- `framework/24-ai-review/00-ai-review-system.md` when review quality matters
+- `framework/27-quality-gates/12-documentation-gate.md`
+- `framework/27-quality-gates/16-ueef-activation-gate.md`
 
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
+## UEEF Maintenance Tasks
 
-## Runtime Activation Requirement
+For UEEF-specific audit, install, validation, runtime, or rebuild work, broader loading is allowed. Still prefer targeted packs first, then expand only as needed.
 
-Before every non-trivial engineering task, UEEF requires a preflight check. The assistant must not start implementation until it can produce UEEF Active: YES with evidence from repository files, a global loader, or the status script.
-
-Required core load order:
-
-- ramework/01-core/00-core-system.md
-- ramework/01-core/01-master-loader.md
-- ramework/01-core/02-master-index.md
-- ramework/01-core/10-runtime-activation-proof.md
-- ramework/01-core/11-ueef-status-check.md
-- ramework/01-core/12-ueef-required-preflight.md
-- ramework/03-runtime/00-runtime-sequence.md
-- ramework/27-quality-gates/16-ueef-activation-gate.md
-
-The assistant must select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, plan quality gates, and include UEEF verification in the final response.
-## Global Loader Instruction
-# UEEF Global Loader
-
-Before every engineering task:
-1. Load UEEF Core System: `framework/01-core/00-core-system.md`.
-2. Load UEEF Master Loader: `framework/01-core/01-master-loader.md`.
-3. Load UEEF Master Index: `framework/01-core/02-master-index.md` and `framework/MASTER_INDEX.md`.
-4. Run the UEEF Runtime Check before implementation.
-5. Select exact relevant UEEF modules for the request.
-6. Check MCPs, tools, connectors, local scripts, and installed skills.
-7. Apply UI UX Pro Max whenever UI, UX, frontend, design, layout, accessibility, or visual polish is involved.
-8. Produce a plan before editing non-trivial work.
-9. Apply UEEF Quality Gates before the final answer.
-10. Include UEEF verification evidence in the final response.
-
-If the runtime check cannot produce `UEEF Active: YES`, report:
+## Compact Verification Format
 
 ```text
-UEEF Active: NO
-Reason:
-Required action:
+UEEF: ACTIVE
+Loaded: boot-loader, core-system
+Selected: <count> modules
+Gates: <count> gates
+UIUX: YES/NO/NA
 ```
 
-When status is `BLOCKED`, do not edit project files.
+Do not repeat full module rules in the final response unless the user asks for them.
