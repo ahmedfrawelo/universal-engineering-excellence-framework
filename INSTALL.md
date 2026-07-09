@@ -34,7 +34,7 @@ UEEF installs globally by copying the framework and writing an assistant loader.
 
 ## Manual Installation
 
-Copy ramework/ to a global assistant rules folder and create a loader that points to ramework/01-core/01-master-loader.md.
+Copy framework/ to a global assistant rules folder and create a loader that points to framework/01-core/01-master-loader.md.
 
 ## Update
 
@@ -46,7 +46,7 @@ Remove the copied UEEF folder from the printed install location after confirming
 
 ## Troubleshooting
 
-Run scripts/validate-framework.ps1 or scripts/validate-framework.sh and verify ramework/00-foundation/README.md, ramework/01-core/01-master-loader.md, and the global loader exist.
+Run scripts/validate-framework.ps1 or scripts/validate-framework.sh and verify framework/00-foundation/README.md, framework/01-core/01-master-loader.md, and the global loader exist.
 
 ## Verify Activation
 

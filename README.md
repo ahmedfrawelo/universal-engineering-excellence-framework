@@ -41,7 +41,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Folder Structure
 
-- ramework/: sequential engineering packs from foundation through future expansion.
+- framework/: sequential engineering packs from foundation through future expansion.
 - scripts/: installers, backup helpers, agent detection, update, and validation scripts.
 - docs/: architecture, usage, installation, governance, and contribution documentation.
 - examples/: assistant and project usage examples.
@@ -69,7 +69,7 @@ Contributions must improve enforceable engineering behavior. Do not add placehol
 
 ## Runtime Activation Verification
 
-UEEF includes a runtime activation layer. Before every non-trivial engineering task, the assistant must prove UEEF is active, list loaded core modules, select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, and apply quality gates.
+UEEF includes a runtime activation layer. Before every non-trivial engineering task, the assistant must prove UEEF is active, keep `Loaded` limited to `boot-loader, core-system`, select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, and apply quality gates.
 
 Run:
 

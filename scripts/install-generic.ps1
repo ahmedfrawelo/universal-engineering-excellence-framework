@@ -18,7 +18,7 @@ New-Item -ItemType Directory -Path $Target -Force | Out-Null
 Get-ChildItem -LiteralPath $SourceRoot -Force | Where-Object { $_.Name -ne ".git" } | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $Target -Recurse -Force }
 $Loader = Join-Path $Target "UEEF-LOADER.md"
 $loaderLines = @("# UEEF Loader", "", "
-Load UEEF before every non-trivial engineering task. Always load only framework/01-core/00-boot-loader.md and framework/01-core/00-core-system.md. Use framework/01-core/01-master-loader.md only to select relevant modules. Do not load the full framework unless the task is about UEEF audit, update, install, validation, or rebuild. Finish with compact UEEF Verification.
+Activate UEEF before every non-trivial engineering task. Report only framework/01-core/00-boot-loader.md and framework/01-core/00-core-system.md under Loaded. Use framework/01-core/01-master-loader.md only to select relevant modules. Do not load the full framework unless the task is about UEEF audit, update, install, validation, or rebuild. Finish with compact UEEF Verification.
 ")
 [System.IO.File]::WriteAllLines($Loader, $loaderLines, [System.Text.UTF8Encoding]::new($false))
 & (Join-Path $Target "scripts\write-active-state.ps1") -RepositoryPath $Target -CodexHome (Split-Path -Parent $InstallRoot) -SourceRepositoryPath $SourceRoot | Out-Null

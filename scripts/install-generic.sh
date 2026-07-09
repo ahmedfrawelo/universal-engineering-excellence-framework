@@ -28,7 +28,7 @@ fi
 cat > "$TARGET/UEEF-LOADER.md" <<'EOF'
 # UEEF Loader
 
-Load UEEF before every non-trivial engineering task. Always load only framework/01-core/00-boot-loader.md and framework/01-core/00-core-system.md. Use framework/01-core/01-master-loader.md only to select relevant modules. Do not load the full framework unless the task is about UEEF audit, update, install, validation, or rebuild. Finish with compact UEEF Verification.
+Activate UEEF before every non-trivial engineering task. Report only framework/01-core/00-boot-loader.md and framework/01-core/00-core-system.md under Loaded. Use framework/01-core/01-master-loader.md only to select relevant modules. Do not load the full framework unless the task is about UEEF audit, update, install, validation, or rebuild. Finish with compact UEEF Verification.
 EOF
 if [ "$AGENT" = "codex" ] && [ -n "${CODEX_HOME:-}" ] && command -v pwsh >/dev/null 2>&1; then
   pwsh -NoProfile -File "$TARGET/scripts/sync-runtime.ps1" -SourcePath "$TARGET" -CodexHome "$CODEX_HOME" -Agent "$AGENT" >/dev/null

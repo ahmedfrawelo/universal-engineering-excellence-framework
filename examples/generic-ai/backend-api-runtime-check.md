@@ -2,21 +2,21 @@
 
 ## UEEF Runtime Check
 
-UEEF Active: YES
+UEEF: ACTIVE
 
-Relevant Modules Selected:
+Selected:
 - framework/05-architecture/00-clean-architecture.md
 - framework/07-security/00-security-by-default.md
 - framework/08-performance/03-backend-performance.md
 - framework/11-backend/00-backend-architecture.md
 - framework/13-api/00-api-design.md
 
-UI UX Pro Max:
+UIUX:
 Required: NO
 Available: UNKNOWN
 Applied: NOT APPLICABLE
 
-Quality Gates Planned:
+Gates:
 - framework/27-quality-gates/04-security-gate.md
 - framework/27-quality-gates/05-performance-gate.md
 - framework/27-quality-gates/07-api-gate.md

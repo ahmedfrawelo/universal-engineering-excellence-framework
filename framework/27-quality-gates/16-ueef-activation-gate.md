@@ -12,11 +12,11 @@ This gate prevents fake activation claims. A task is incomplete if UEEF was not 
 ## Gate Checks
 
 - UEEF global path or repository path exists.
-- Core System file exists: ramework/01-core/00-core-system.md.
-- Master Loader file exists: ramework/01-core/01-master-loader.md.
-- Master Index file exists: ramework/01-core/02-master-index.md or ramework/MASTER_INDEX.md.
-- Runtime sequence exists: ramework/03-runtime/00-runtime-sequence.md.
-- Runtime activation proof exists: ramework/01-core/10-runtime-activation-proof.md.
+- Core System file exists: framework/01-core/00-core-system.md.
+- Master Loader file exists: framework/01-core/01-master-loader.md.
+- Master Index file exists: framework/01-core/02-master-index.md or framework/MASTER_INDEX.md.
+- Runtime sequence exists: framework/03-runtime/00-runtime-sequence.md.
+- Runtime activation proof exists: framework/01-core/10-runtime-activation-proof.md.
 - Relevant modules were selected for the task.
 - MCPs, tools, connectors, local scripts, and installed skills were checked.
 - UI UX Pro Max was checked for UI, UX, frontend, design, layout, or accessibility work.
@@ -40,7 +40,9 @@ This gate fails if:
 
 ## Pass Criteria
 
-The gate passes only when the runtime check block is complete, status is READY, and the final response reports UEEF Active status, core modules loaded, relevant modules used, quality gates applied, MCPs/tools checked, skills checked, UI UX Pro Max status, and this activation gate result.
+The gate passes only when the runtime check block is complete, status is READY, and the final response uses the compact UEEF Verification fields: `UEEF`, `Loaded`, `Selected`, `Gates`, `Tools`, `Skills`, `UIUX`, and `Status`.
+
+The `Loaded` field must only report always-loaded runtime modules: `boot-loader, core-system`. Selector, index, runtime-sequence, and activation-proof files belong under `Selected` or `Gates` when relevant, never under `Loaded`.
 
 ## Required Evidence
 

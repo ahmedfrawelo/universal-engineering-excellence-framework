@@ -48,7 +48,7 @@ On Unix-like systems:
 If the status check is inactive, respond with:
 
 `	ext
-UEEF Active: NO
+UEEF: INACTIVE
 Reason:
 Required action:
 `

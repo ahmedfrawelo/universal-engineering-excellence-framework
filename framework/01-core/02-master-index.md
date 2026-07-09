@@ -73,7 +73,7 @@ This module passes when the final implementation is understandable, maintainable
 
 ## Runtime Activation Requirement
 
-Before every non-trivial engineering task, UEEF requires a preflight check. The assistant must not start implementation until it can produce `UEEF Active: YES` with evidence from repository files, the global loader, or the status script.
+Before every non-trivial engineering task, UEEF requires a preflight check. The assistant must not start implementation until it can produce `UEEF: ACTIVE` with evidence from repository files, the global loader, or the status script.
 
 ## Activation Modules
 

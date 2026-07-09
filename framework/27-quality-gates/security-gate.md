@@ -31,7 +31,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - Link or commit reference when the change is pushed.
 
 ## Related Scorecard
-Use the matching scorecard in ramework/28-scorecards/ to grade depth and consistency after this gate passes.
+Use the matching scorecard in framework/28-scorecards/ to grade depth and consistency after this gate passes.
 
 ## Related Checklist
 Use the relevant checklist pack before final response, especially for security, performance, production, testing, and documentation work.

@@ -97,9 +97,9 @@ if ($text -match "doc|readme|manual|guide|documentation|changelog") {
 Write-Output "UEEF Quality Gate Selection"
 Write-Output "---------------------------"
 Write-Output "Task: $Task"
-Write-Output "UI UX Pro Max Required: $(if ($uiRequired) { 'YES' } else { 'NO' })"
-Write-Output "Relevant Modules Selected:"
+Write-Output "UIUX: $(if ($uiRequired) { 'YES' } else { 'NO' })"
+Write-Output "Selected:"
 foreach ($m in $modules) { Write-Output "- $m" }
-Write-Output "Quality Gates Planned:"
+Write-Output "Gates:"
 foreach ($g in $gates) { Write-Output "- $g" }
-Write-Output "Activation Gate: framework/27-quality-gates/16-ueef-activation-gate.md"
+Write-Output "Gates include framework/27-quality-gates/16-ueef-activation-gate.md"
