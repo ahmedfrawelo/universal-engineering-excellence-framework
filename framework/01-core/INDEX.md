@@ -16,3 +16,4 @@ Relationships:
 - [module selection](08-module-selection.md)
 - [framework activation](09-framework-activation.md)
 - [autonomy and confirmation policy](13-autonomy-and-confirmation-policy.md)
+- [delivery continuation policy](14-delivery-continuation-policy.md)

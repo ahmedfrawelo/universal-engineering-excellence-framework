@@ -9,6 +9,7 @@ $requiredAcceptance = @(
   "docs/token-efficiency.md",
   "framework/01-core/00-boot-loader.md",
   "framework/01-core/13-autonomy-and-confirmation-policy.md",
+  "framework/01-core/14-delivery-continuation-policy.md",
   "examples/generic-ai/deploy-runtime-check.md",
   "examples/generic-ai/database-runtime-check.md",
   "examples/generic-ai/backend-api-runtime-check.md",

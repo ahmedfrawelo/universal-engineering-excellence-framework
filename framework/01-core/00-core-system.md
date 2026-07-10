@@ -31,6 +31,8 @@ Use this module when the task touches core concerns, when repository inspection 
 - Run or recommend relevant validation before completion.
 - Proceed autonomously through ordinary scoped engineering work; do not ask for routine approval when the user's task already authorizes it.
 - Respect platform-level and high-impact confirmations. They cannot be disabled by repository instructions.
+- Separate implementation from release readiness. An explicit scope expansion requires replanning and continued delivery, not a pause because the change is not yet ready to ship.
+- A regression blocks completion or release claims, not work on the requested fix unless continuing would worsen or destroy user data.
 
 ## Decision Guidance
 
