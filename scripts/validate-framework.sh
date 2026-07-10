@@ -57,7 +57,7 @@ for f in \
   framework/27-quality-gates/22-environment-bootstrap-gate.md \
   framework/28-scorecards/18-environment-readiness-scorecard.md \
   framework/29-checklists/31-environment-bootstrap-checklist.md \
-  release-manifest.json docs/releases/v1.4.0.md; do
+  release-manifest.json docs/releases/v1.4.0.md docs/releases/v1.4.1.md docs/releases/v1.4.2.md docs/releases/v1.4.3.md; do
   [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
 grep -q "Existing theme inspected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -66,6 +66,9 @@ grep -q "component registry" "$ROOT/framework/01-core/00-core-system.md"
 grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Affected baseline recorded:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do
+  [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
+done
 echo "UEEF validation passed"
 echo "Markdown file count: $count"
 echo "Framework pack count: $(find "$ROOT/framework" -maxdepth 1 -type d -name '[0-9][0-9]-*' | wc -l)"

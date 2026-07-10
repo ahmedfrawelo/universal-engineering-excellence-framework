@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.4 - 2026-07-10
+
+- Aligned `environment-bootstrap.sh` with PowerShell profile selection and readiness semantics.
+- Unix bootstrap now checks Core, AI, selected UIUX, both `ui-ux-pro-max` and `impeccable`, and profile output consistently.
+- Unix validation now requires all pack 50 modules and recent release notes.
+
 ## 1.4.3 - 2026-07-10
 
 - Added `UEEF-LOADER.md` to the source repository as the portable loader contract used to generate active Codex runtime loaders.

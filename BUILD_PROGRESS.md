@@ -11,6 +11,7 @@ Status: v1.4.0 environment bootstrap expansion implemented and validated from E:
 - Bootstrap Core/AI smoke test passed on the active E: runtime with 9 Mandatory checks and `Overall READY`.
 - Corrected pack 50 tracking and verified Core/AI/UIUX bootstrap: 11 Mandatory checks passed, including both `ui-ux-pro-max` and `impeccable`.
 - Added source-repository `UEEF-LOADER.md` template and validation coverage during deep audit.
+- Aligned Unix bootstrap and validation behavior with PowerShell, including combined UIUX skill checks.
 
 ## Version 1.3.0 Completed
 

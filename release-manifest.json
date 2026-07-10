@@ -1,7 +1,7 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "releaseDate": "2026-07-10",
   "minimumMarkdownFiles": 490,
   "frameworkPacks": 51,
@@ -20,5 +20,5 @@
     "framework/49-engineering-guardian",
     "framework/50-environment-bootstrap"
   ],
-  "releaseNotes": "docs/releases/v1.4.3.md"
+  "releaseNotes": "docs/releases/v1.4.4.md"
 }
