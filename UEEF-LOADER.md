@@ -27,6 +27,7 @@ Local command autonomy:
 Browser hard stop:
 - Never use a connector-created Chrome window for a task that depends on the user's visible browser.
 - A `Chrome is being controlled by automated test software` banner, Codex-titled browser window, or unverified profile is a BLOCKED browser session.
+- Prefer visible Windows control for ordinary browser interaction. Use Chrome debugging only for debugging-specific capabilities such as DOM, console, network, or performance inspection.
 - Preserve the user's browser window state. Do not resize, emulate, move, restore, minimize, maximize, or alter full screen unless explicitly requested.
 - Prefer visible Windows window control for the user's active browser. If the active window cannot be proven, stop without opening or controlling another browser.
 

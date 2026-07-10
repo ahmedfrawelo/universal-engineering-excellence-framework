@@ -137,6 +137,7 @@ Write-Utf8File $agents @(
   "Browser hard stop:",
   "- Browser tasks must use the user's visible active browser window, not a connector-created Chrome window.",
   "- Automation banners, Codex-titled browser windows, and unverified profiles are BLOCKED.",
+  "- Prefer visible Windows control for ordinary browser interaction. Use Chrome debugging only for debugging-specific capabilities such as DOM, console, network, or performance inspection.",
   "- Preserve the user's browser window state. Do not resize, emulate, move, restore, minimize, maximize, or alter full screen unless explicitly requested.",
   "- If the visible window cannot be proven, stop without opening another browser and use visible Windows control only after identity is verified.",
   "",

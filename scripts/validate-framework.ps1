@@ -60,6 +60,7 @@ $requiredAcceptance = @(
   "framework/29-checklists/32-browser-session-control-checklist.md",
   "framework/51-browser-session-control/09-platform-authorized-chrome-control.md",
   "framework/51-browser-session-control/10-window-state-preservation.md",
+  "framework/51-browser-session-control/11-control-surface-selection.md",
   "docs/releases/v1.5.0.md",
   "scripts/cleanup-workspace.ps1",
   "scripts/cleanup-workspace.sh",

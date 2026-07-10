@@ -111,6 +111,7 @@ grep -q "Visual evidence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.
 [ -f "$ROOT/framework/29-checklists/32-browser-session-control-checklist.md" ] || { echo "Missing browser session checklist" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/09-platform-authorized-chrome-control.md" ] || { echo "Missing platform-authorized Chrome-control module" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/10-window-state-preservation.md" ] || { echo "Missing browser window-state-preservation module" >&2; exit 1; }
+[ -f "$ROOT/framework/51-browser-session-control/11-control-surface-selection.md" ] || { echo "Missing browser control-surface-selection module" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.5.0.md" ] || { echo "Missing browser session release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.ps1" ] || { echo "Missing cleanup script" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.sh" ] || { echo "Missing cleanup script" >&2; exit 1; }
@@ -142,6 +143,7 @@ grep -q "Visual evidence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.
 [ -f "$ROOT/docs/releases/v2.4.4.md" ] || { echo "Missing global delivery continuation release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.4.5.md" ] || { echo "Missing local command autonomy release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.4.6.md" ] || { echo "Missing browser window-state release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.5.0.md" ] || { echo "Missing browser control-surface release notes" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9.]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do

@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.4.6.
+UEEF Enterprise Edition version: 2.5.0.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -41,6 +41,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 2.4.4: propagated delivery continuation directly into the global loader and generated Codex AGENTS instructions.
 - 2.4.5: local command autonomy for normal project commands and development services, with process reuse and clear platform-prompt handling.
 - 2.4.6: user Chrome window-state preservation for browser automation.
+- 2.5.0: least-intrusive browser-control surface selection, preferring visible Windows control for ordinary interaction and debugging only when required.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.
