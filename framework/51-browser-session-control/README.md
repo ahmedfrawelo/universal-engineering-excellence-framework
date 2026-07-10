@@ -5,9 +5,6 @@ Status: Release blocking for browser tasks
 
 Browser work must use the browser and session the user actually opened. The assistant must not silently create an isolated browser, temporary profile, fresh context, or alternate login session.
 
-When a connector exposes a blank or wrong tab, use the user-browser connection recovery procedure before declaring the user's browser unavailable.
-
-Browser status and screenshot messages must describe the verified user outcome without leaking internal route, screenshot, or connector telemetry.
 
 ## Mandatory Policy
 

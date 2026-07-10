@@ -11,7 +11,3 @@ Version: 1.5.0
 - 06-session-safety-and-privacy.md
 - 07-browser-task-verification.md
 - 08-browser-session-quality-gate.md
-- 09-user-browser-connection-recovery.md
-- 10-browser-evidence-communication.md
-- 11-autonomous-user-tab-control.md
-- 12-browser-control-runtime-health.md

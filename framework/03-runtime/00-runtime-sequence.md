@@ -134,15 +134,10 @@ For browser tasks, implementation must not begin until the assistant records:
 
 ```text
 User-owned browser selected:
-Existing user tabs discovered automatically:
 Target tab selected:
 Active window identity verified:
 Automation banner visible: NO / BLOCKED
 Connector-created window: NO / BLOCKED
-Connector tab matches user target:
-Blank/wrong-tab recovery performed:
-Browser evidence message verified:
-Browser-control runtime health verified:
 Target domain verified:
 Visible signed-in state verified:
 Isolated browser used: NO / EXPLICITLY APPROVED
