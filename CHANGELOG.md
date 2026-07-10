@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.3 - 2026-07-10
+
+- Added `UEEF-LOADER.md` to the source repository as the portable loader contract used to generate active Codex runtime loaders.
+- Updated PowerShell and Unix validation to require the source loader template.
+
 ## 1.4.2 - 2026-07-10
 
 - Strengthened validation to require every Environment Bootstrap module and key dependency-policy behavior.

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-for f in README.md INSTALL.md QUICK_START.md VERSION.md CHANGELOG.md LICENSE CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md ROADMAP.md BUILD_PROGRESS.md; do
+for f in README.md INSTALL.md QUICK_START.md VERSION.md CHANGELOG.md LICENSE CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md ROADMAP.md BUILD_PROGRESS.md UEEF-LOADER.md; do
   [ -e "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
 for d in framework scripts docs examples tools; do
