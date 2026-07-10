@@ -10,6 +10,11 @@ Before every non-trivial engineering task:
 4. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
 5. Apply the Engineering Guardian, relevant quality gates, and final verification before completion.
 
+Browser hard stop:
+- Never use a connector-created Chrome window for a task that depends on the user's visible browser.
+- A `Chrome is being controlled by automated test software` banner, Codex-titled browser window, or unverified profile is a BLOCKED browser session.
+- Prefer visible Windows window control for the user's active browser. If the active window cannot be proven, stop without opening or controlling another browser.
+
 The only valid compact verification line is:
 
 ```text
