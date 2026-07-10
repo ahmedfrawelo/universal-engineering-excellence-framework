@@ -86,6 +86,8 @@ grep -q "Existing table baseline inspected:" "$ROOT/framework/03-runtime/00-runt
 grep -q "Data grid platform gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Advanced grid capabilities verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Production data delivery controls verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Shell baseline extracted:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Shell visual/performance gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 [ -f "$ROOT/framework/27-quality-gates/28-data-grid-platform-gate.md" ] || { echo "Missing data-grid gate" >&2; exit 1; }
 [ -f "$ROOT/framework/29-checklists/37-data-grid-platform-checklist.md" ] || { echo "Missing data-grid checklist" >&2; exit 1; }
 [ -f "$ROOT/scripts/ueef-audit.ps1" ] || { echo "Missing audit runner" >&2; exit 1; }
@@ -113,6 +115,7 @@ grep -q "Production data delivery controls verified:" "$ROOT/framework/03-runtim
 [ -f "$ROOT/docs/releases/v2.0.0.md" ] || { echo "Missing data-grid release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.0.1.md" ] || { echo "Missing production data delivery release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.0.2.md" ] || { echo "Missing data-grid operational release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.1.0.md" ] || { echo "Missing application-shell release notes" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9.]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do

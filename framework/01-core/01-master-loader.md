@@ -127,6 +127,8 @@ For UEEF audits, releases, installer/runtime changes, security hardening, or bro
 
 For any table, data grid, list, dashboard data view, backend query endpoint, export, notification feed, auto-refresh, or realtime data feature, select `framework/56-data-grid-platform/` and apply its frontend, backend, performance, security, and realtime contracts.
 
+For any sidebar, header, navigation, application shell, route transition, page chrome, global animation, or shared loading-state work, select `framework/57-application-shell-design/` and apply its extraction, interaction, motion, responsive, accessibility, performance, and visual-QA contracts.
+
 ## Compact Verification Format
 
 ```text

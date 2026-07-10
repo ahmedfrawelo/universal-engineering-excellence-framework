@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.0.2.
+UEEF Enterprise Edition version: 2.1.0.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -26,6 +26,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 2.0.0: shared data-grid platform contracts for table design, query state, pagination, filters, sorting, aggregation, backend APIs, performance, security, notifications, realtime sync, and refresh reconciliation.
 - 2.0.1: advanced data-grid capabilities plus production data delivery, schema evolution, backpressure, caching, data quality, cost controls, and degraded-mode guidance.
 - 2.0.2: production operational runbook for slow queries, stale data, realtime failures, exports, bulk actions, and recovery verification.
+- 2.1.0: application-shell design analysis for sidebars, headers, navigation, page chrome, route transitions, motion, responsive behavior, accessibility, loading, and visual QA.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.

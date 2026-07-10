@@ -92,6 +92,12 @@ $requiredAcceptance = @(
   "framework/56-data-grid-platform/README.md",
   "framework/56-data-grid-platform/INDEX.md",
   "framework/56-data-grid-platform/00-data-grid-platform-system.md",
+  "framework/27-quality-gates/29-application-shell-design-gate.md",
+  "framework/29-checklists/38-application-shell-design-checklist.md",
+  "framework/38-templates/26-application-shell-baseline-template.md",
+  "framework/57-application-shell-design/README.md",
+  "framework/57-application-shell-design/INDEX.md",
+  "framework/57-application-shell-design/00-application-shell-system.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -195,6 +201,8 @@ $assuranceTerms = @("Continuous assurance audit run:","Security hygiene checked:
 foreach ($term in $assuranceTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing assurance field: $term" } }
 $gridTerms = @("Existing table baseline inspected:","Query contract defined:","Server capabilities allowlisted:","Pagination/filter/sort/aggregate semantics verified:","Backend/API/database contract verified:","Performance budget verified:","Realtime/refresh contract verified:","Advanced grid capabilities verified:","Production data delivery controls verified:","Data grid platform gate:")
 foreach ($term in $gridTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing data-grid field: $term" } }
+$shellTerms = @("Shell baseline extracted:","Navigation/header contracts verified:","Shell motion/responsive/accessibility verified:","Shell visual/performance gate:")
+foreach ($term in $shellTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing shell field: $term" } }
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }

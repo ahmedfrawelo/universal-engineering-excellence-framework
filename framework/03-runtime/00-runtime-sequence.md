@@ -194,6 +194,10 @@ Performance budget verified:
     Advanced grid capabilities verified:
     Production data delivery controls verified:
     Data grid platform gate: PASS / BLOCKED
+    Shell baseline extracted:
+    Navigation/header contracts verified:
+    Shell motion/responsive/accessibility verified:
+    Shell visual/performance gate: PASS / BLOCKED
 ```
 
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
