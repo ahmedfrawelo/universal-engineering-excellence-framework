@@ -57,6 +57,13 @@ $requiredAcceptance = @(
   "framework/27-quality-gates/23-browser-session-control-gate.md",
   "framework/29-checklists/32-browser-session-control-checklist.md",
   "docs/releases/v1.5.0.md",
+  "scripts/cleanup-workspace.ps1",
+  "scripts/cleanup-workspace.sh",
+  "framework/27-quality-gates/24-workspace-hygiene-gate.md",
+  "framework/29-checklists/33-workspace-hygiene-checklist.md",
+  "framework/52-workspace-hygiene/README.md",
+  "framework/52-workspace-hygiene/INDEX.md",
+  "framework/52-workspace-hygiene/00-workspace-hygiene-system.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -134,7 +141,7 @@ $master = Join-Path $Root "framework/MASTER_INDEX.md"
 if (!(Test-Path $master)) { throw "Missing framework/MASTER_INDEX.md" }
 $masterText = Get-Content $master -Raw
 if ($masterText -notmatch "00-foundation" -or $masterText -notmatch "27-quality-gates" -or $masterText -notmatch "38-templates") { throw "Master index missing expected pack references" }
-$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control")
+$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control","52-workspace-hygiene")
 foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($link)) { throw "Master index missing $link" } }
 $environmentModules = @("README.md","INDEX.md","00-environment-bootstrap.md","01-profile-selection.md","02-core-profile.md","03-frontend-profile.md","04-backend-profile.md","05-database-profile.md","06-uiux-profile.md","07-devops-profile.md","08-ai-profile.md","09-optional-profile.md","10-dependency-levels.md","11-detection-and-installation.md","12-mcp-detection.md","13-runtime-bootstrap-sequence.md")
 foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "framework/50-environment-bootstrap/$file"))) { throw "Environment Bootstrap missing module: $file" } }
@@ -150,7 +157,7 @@ $guardianTerms = @("Affected baseline recorded:","Regression monitors selected:"
 foreach ($term in $guardianTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing guardian field: $term" } }
 $bootstrapTerms = @("Environment Ready:","Profiles Loaded:","Mandatory Dependencies:","Recommended Dependencies:","Optional Dependencies:","Installation Performed:")
 foreach ($term in $bootstrapTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing bootstrap field: $term" } }
-$browserTerms = @("User-owned browser selected:","Target tab selected:","Visible signed-in state verified:","Isolated browser used:","Browser session gate:")
+$browserTerms = @("User-owned browser selected:","Target tab selected:","Active window identity verified:","Automation banner visible:","Connector-created window:","Visible signed-in state verified:","Isolated browser used:","Browser session gate:")
 foreach ($term in $browserTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing browser session field: $term" } }
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value

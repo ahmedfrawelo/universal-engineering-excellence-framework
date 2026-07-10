@@ -4,7 +4,7 @@ Universal Engineering Excellence Framework (UEEF) is an installable engineering 
 
 ## Why UEEF Exists
 
-AI coding assistants can generate code quickly, but professional engineering requires consistent architecture, security, performance, testing, documentation, maintainability, and product judgment. UEEF turns those expectations into reusable Markdown modules, checklists, templates, installers, validation scripts, and runtime rules.
+AI coding assistants can generate code quickly, but professional engineering requires consistent architecture, security, performance, testing, documentation, maintainability, and product judgment. UEEF turns those expectations into reusable Markdown modules, checklists, templates, installers, validation scripts, and runtime rules. Browser-dependent tasks are blocked when a connector-created Chrome window or automation profile cannot be proven to be the user's visible browser.
 
 ## Who Should Use It
 
