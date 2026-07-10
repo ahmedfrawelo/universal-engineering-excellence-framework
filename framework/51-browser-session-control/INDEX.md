@@ -14,3 +14,4 @@ Version: 1.5.0
 - 09-user-browser-connection-recovery.md
 - 10-browser-evidence-communication.md
 - 11-autonomous-user-tab-control.md
+- 12-browser-control-runtime-health.md

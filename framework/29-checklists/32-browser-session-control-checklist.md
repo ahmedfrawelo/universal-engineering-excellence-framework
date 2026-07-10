@@ -13,6 +13,7 @@ Version: 1.5.0
 - [ ] Final state verified in the same user-owned tab.
 - [ ] A blank or wrong connector tab triggered tab discovery and user-tab recovery guidance before blocking.
 - [ ] User-facing browser status uses a verified outcome and next action, without raw routes, screenshot events, or connector terminology.
+- [ ] Extension/native-host/runtime health was distinguished from target-tab availability before asking the user to change Chrome behavior.
 
 ## Result
 

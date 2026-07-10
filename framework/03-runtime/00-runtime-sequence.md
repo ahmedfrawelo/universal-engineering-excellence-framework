@@ -142,6 +142,7 @@ Connector-created window: NO / BLOCKED
 Connector tab matches user target:
 Blank/wrong-tab recovery performed:
 Browser evidence message verified:
+Browser-control runtime health verified:
 Target domain verified:
 Visible signed-in state verified:
 Isolated browser used: NO / EXPLICITLY APPROVED
