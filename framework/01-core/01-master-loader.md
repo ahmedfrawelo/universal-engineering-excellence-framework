@@ -21,6 +21,7 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Never load all UEEF files for normal coding tasks.
 - Load the full framework only for UEEF audits, UEEF updates, UEEF rebuilds, or explicit full-framework requests.
 - Keep runtime and final verification compact.
+- Select `framework/01-core/13-autonomy-and-confirmation-policy.md` for any task where execution autonomy, confirmation behavior, or platform approvals matter.
 
 ## Frontend UI Tasks
 

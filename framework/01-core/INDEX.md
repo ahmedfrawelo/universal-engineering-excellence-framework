@@ -15,3 +15,4 @@ Relationships:
 - [agent behavior](07-agent-behavior.md)
 - [module selection](08-module-selection.md)
 - [framework activation](09-framework-activation.md)
+- [autonomy and confirmation policy](13-autonomy-and-confirmation-policy.md)

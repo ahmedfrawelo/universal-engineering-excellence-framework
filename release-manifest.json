@@ -1,7 +1,7 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "releaseDate": "2026-07-10",
   "minimumMarkdownFiles": 490,
   "frameworkPacks": 58,
@@ -27,5 +27,5 @@
     "framework/56-data-grid-platform",
     "framework/57-application-shell-design"
   ],
-  "releaseNotes": "docs/releases/v2.4.1.md"
+  "releaseNotes": "docs/releases/v2.4.2.md"
 }

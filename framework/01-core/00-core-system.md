@@ -29,6 +29,8 @@ Use this module when the task touches core concerns, when repository inspection 
 - Do not create random standalone files or unowned folders.
 - Do not expose secrets, tokens, credentials, or private keys.
 - Run or recommend relevant validation before completion.
+- Proceed autonomously through ordinary scoped engineering work; do not ask for routine approval when the user's task already authorizes it.
+- Respect platform-level and high-impact confirmations. They cannot be disabled by repository instructions.
 
 ## Decision Guidance
 

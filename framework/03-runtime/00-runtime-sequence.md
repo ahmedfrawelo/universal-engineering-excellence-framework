@@ -14,12 +14,13 @@ The runtime sequence defines how UEEF is applied without wasting context. It pri
 1. Load `framework/01-core/00-boot-loader.md`.
 2. Load `framework/01-core/00-core-system.md`.
 3. Confirm UEEF runtime is active.
-4. Use `framework/01-core/01-master-loader.md` only to select relevant modules.
-5. Load the minimum useful module set for the task.
-6. Inspect the project and current implementation path.
-7. Plan edits for non-trivial work.
-8. Apply selected quality gates before final response.
-9. Return compact UEEF verification.
+4. Record the autonomy boundary: ordinary scoped work proceeds automatically; platform and high-impact confirmations remain explicit.
+5. Use `framework/01-core/01-master-loader.md` only to select relevant modules.
+6. Load the minimum useful module set for the task.
+7. Inspect the project and current implementation path.
+8. Plan edits for non-trivial work.
+9. Apply selected quality gates before final response.
+10. Return compact UEEF verification.
 
 ## Compact Runtime Check
 
