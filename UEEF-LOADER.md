@@ -20,6 +20,10 @@ Delivery continuation:
 - Revise the plan and continue implementation and tests. `Not ready to release` blocks only a release claim, never requested coding work.
 - Use BLOCKED only for a real impasse: missing required access, unavailable mandatory dependency, unresolved destructive decision, or external state that prevents meaningful progress.
 
+Local command autonomy:
+- Run and reuse normal project commands and local development services without asking the user. A Codex command prompt is a platform confirmation, not an agent question or task blocker.
+- Reuse a healthy existing service before starting another long-running process.
+
 Browser hard stop:
 - Never use a connector-created Chrome window for a task that depends on the user's visible browser.
 - A `Chrome is being controlled by automated test software` banner, Codex-titled browser window, or unverified profile is a BLOCKED browser session.
