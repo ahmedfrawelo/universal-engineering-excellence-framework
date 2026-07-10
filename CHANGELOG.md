@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.7 - 2026-07-10
+
+- Unix bootstrap now defaults to `$HOME/.codex` when `CODEX_HOME` is not set.
+- Unix bootstrap auto-detects Frontend, UIUX, Backend, Database, and DevOps profiles from repository signals.
+- Explicit `UEEF_PROFILES` still overrides automatic detection.
+
 ## 1.4.6 - 2026-07-10
 
 - Added automatic Environment Bootstrap profile detection when no profiles are passed.

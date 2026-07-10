@@ -1,8 +1,16 @@
 #!/usr/bin/env sh
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-CODEX_HOME=${CODEX_HOME:-}
-PROFILES=${UEEF_PROFILES:-Core,AI}
+CODEX_HOME=${CODEX_HOME:-$HOME/.codex}
+if [ -n "${UEEF_PROFILES:-}" ]; then
+  PROFILES="$UEEF_PROFILES"
+else
+  PROFILES="Core,AI"
+  if find "$ROOT" -type f \( -name package.json -o -name angular.json -o -name '*.tsx' -o -name '*.jsx' -o -name '*.vue' -o -name '*.svelte' \) -not -path '*/.git/*' | grep -q .; then PROFILES="$PROFILES,Frontend,UIUX"; fi
+  if find "$ROOT" -type f \( -name '*.sln' -o -name '*.csproj' -o -name pyproject.toml -o -name requirements.txt -o -name pom.xml -o -name Dockerfile \) -not -path '*/.git/*' | grep -q .; then PROFILES="$PROFILES,Backend"; fi
+  if find "$ROOT" -type f \( -name '*.sql' -o -iname '*migration*' -o -iname '*prisma*' \) -not -path '*/.git/*' | grep -q .; then PROFILES="$PROFILES,Database"; fi
+  if [ -d "$ROOT/.github/workflows" ] || find "$ROOT" -maxdepth 2 -type f \( -name Dockerfile -o -name 'docker-compose*' -o -name Jenkinsfile \) | grep -q .; then PROFILES="$PROFILES,DevOps"; fi
+fi
 status=0
 check_cmd(){ command -v "$1" >/dev/null 2>&1; }
 check_path(){ [ -n "$1" ] && [ -f "$1" ]; }
