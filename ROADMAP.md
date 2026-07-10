@@ -14,7 +14,11 @@
 
 ## 1.4
 
-- Add machine-readable metadata for module selection and compatibility.
+- Delivered profile-based environment bootstrap and dependency readiness gating in 1.4.0.
+
+## 1.5
+
+- Add machine-readable metadata for profile selection and compatibility.
 - Add executable overlay contract reference implementations for supported frontend packs.
 - Expand automated link, schema, semantic duplication, and hardcoded-value validation.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0 - 2026-07-10
+
+- Added pack 50 Smart Environment Bootstrap with Core, Frontend, Backend, Database, UIUX, DevOps, AI, and Optional profiles.
+- Added dependency levels and blocking policy: Mandatory blocks, Recommended warns, Optional continues.
+- Added PowerShell and Unix bootstrap checkers with runtime, skills, tools, and profile evidence.
+- Integrated bootstrap before inspection and planning through Core, Master Loader, Runtime Sequence, quality gate, scorecard, checklist, validation, and release metadata.
+
 ## 1.3.0 - 2026-07-10
 
 - Added pack 49 Engineering Guardian with zero-regression policy and 26 protection modules.

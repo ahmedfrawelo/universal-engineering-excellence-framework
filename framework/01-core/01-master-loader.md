@@ -105,6 +105,10 @@ For UEEF-specific audit, install, validation, runtime, or rebuild work, broader 
 
 For every non-trivial task, select `framework/49-engineering-guardian/00-engineering-guardian.md`, `01-zero-regression-policy.md`, `19-self-criticism-engine.md`, `20-final-guardian-gate.md`, and `25-final-checklist.md`. Add monitors `02` through `18` for affected contracts, layers, systems, and quality dimensions. Add `21-engineering-health-score.md`, `22-long-term-maintenance.md`, `23-future-proof-review.md`, and `24-world-class-product-review.md` for releases, architecture changes, shared components, or high-risk work.
 
+## Environment Bootstrap
+
+Before all other task phases, run `scripts/environment-bootstrap.ps1` on Windows or `scripts/environment-bootstrap.sh` on Unix. Load `framework/50-environment-bootstrap/00-environment-bootstrap.md`, `01-profile-selection.md`, `02-core-profile.md`, `08-ai-profile.md`, `10-dependency-levels.md`, `11-detection-and-installation.md`, and `13-runtime-bootstrap-sequence.md`. Add Frontend, Backend, Database, UIUX, DevOps, or Optional profile modules only when task and repository evidence require them.
+
 ## Compact Verification Format
 
 ```text

@@ -26,6 +26,7 @@ grep -q "46-design-system-consistency-reuse" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "47-theme-responsive-interaction-security-performance" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "48-design-governance" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "49-engineering-guardian" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "50-environment-bootstrap" "$ROOT/framework/MASTER_INDEX.md"
 for f in \
   framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
   framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
@@ -52,7 +53,11 @@ for f in \
   framework/27-quality-gates/21-engineering-guardian-gate.md \
   framework/28-scorecards/17-engineering-health-scorecard.md \
   framework/29-checklists/30-engineering-guardian-checklist.md \
-  release-manifest.json docs/releases/v1.3.0.md; do
+  scripts/environment-bootstrap.ps1 scripts/environment-bootstrap.sh \
+  framework/27-quality-gates/22-environment-bootstrap-gate.md \
+  framework/28-scorecards/18-environment-readiness-scorecard.md \
+  framework/29-checklists/31-environment-bootstrap-checklist.md \
+  release-manifest.json docs/releases/v1.4.0.md; do
   [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
 grep -q "Existing theme inspected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -60,6 +65,7 @@ grep -q "Security and performance" "$ROOT/framework/01-core/00-core-system.md"
 grep -q "component registry" "$ROOT/framework/01-core/00-core-system.md"
 grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Affected baseline recorded:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 echo "UEEF validation passed"
 echo "Markdown file count: $count"
 echo "Framework pack count: $(find "$ROOT/framework" -maxdepth 1 -type d -name '[0-9][0-9]-*' | wc -l)"

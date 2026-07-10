@@ -191,3 +191,8 @@ This index links framework packs and modules for assistant loading.
 
 - [49-engineering-guardian/README.md](49-engineering-guardian/README.md)
 - [49-engineering-guardian/INDEX.md](49-engineering-guardian/INDEX.md)
+
+## Version 1.4 Environment Bootstrap
+
+- [50-environment-bootstrap/README.md](50-environment-bootstrap/README.md)
+- [50-environment-bootstrap/INDEX.md](50-environment-bootstrap/INDEX.md)

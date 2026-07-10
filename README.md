@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. Version 1.3 adds governed application models, design-system reuse, theme architecture, responsive-first UI, deterministic interaction contracts, security hardening, measured performance budgets, design governance, and the permanent Engineering Guardian layer.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. Version 1.4 adds governed application models, design-system reuse, theme architecture, responsive-first UI, deterministic interaction contracts, security hardening, measured performance budgets, design governance, the permanent Engineering Guardian layer, and smart environment bootstrap.
 
 ## Why UEEF Exists
 

@@ -48,6 +48,12 @@ $requiredAcceptance = @(
   "framework/28-scorecards/17-engineering-health-scorecard.md",
   "framework/29-checklists/30-engineering-guardian-checklist.md",
   "docs/releases/v1.3.0.md",
+  "scripts/environment-bootstrap.ps1",
+  "scripts/environment-bootstrap.sh",
+  "framework/27-quality-gates/22-environment-bootstrap-gate.md",
+  "framework/28-scorecards/18-environment-readiness-scorecard.md",
+  "framework/29-checklists/31-environment-bootstrap-checklist.md",
+  "docs/releases/v1.4.0.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -125,7 +131,7 @@ $master = Join-Path $Root "framework/MASTER_INDEX.md"
 if (!(Test-Path $master)) { throw "Missing framework/MASTER_INDEX.md" }
 $masterText = Get-Content $master -Raw
 if ($masterText -notmatch "00-foundation" -or $masterText -notmatch "27-quality-gates" -or $masterText -notmatch "38-templates") { throw "Master index missing expected pack references" }
-$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian")
+$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap")
 foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($link)) { throw "Master index missing $link" } }
 $coreText = Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw
 foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
@@ -135,6 +141,8 @@ $designTerms = @("Existing project UI searched:","Component registry searched:",
 foreach ($term in $designTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing design governance field: $term" } }
 $guardianTerms = @("Affected baseline recorded:","Regression monitors selected:","Self-criticism completed:","Final Guardian Gate:")
 foreach ($term in $guardianTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing guardian field: $term" } }
+$bootstrapTerms = @("Environment Ready:","Profiles Loaded:","Mandatory Dependencies:","Recommended Dependencies:","Optional Dependencies:","Installation Performed:")
+foreach ($term in $bootstrapTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing bootstrap field: $term" } }
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }

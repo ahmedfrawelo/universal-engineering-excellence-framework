@@ -110,3 +110,20 @@ Automatic improvement opportunities reviewed:
 Self-criticism completed:
 Final Guardian Gate:
 ```
+
+## Environment Bootstrap Preflight
+
+Environment Bootstrap runs before project inspection and emits:
+
+```text
+Environment Ready:
+Profiles Loaded:
+Mandatory Dependencies:
+Recommended Dependencies:
+Optional Dependencies:
+Missing Items:
+Installation Performed:
+Validation Result:
+```
+
+`READY` is valid only when all selected Mandatory dependencies pass. A Mandatory failure is `BLOCKED`; a Recommended failure is `READY_WITH_WARNINGS`; Optional gaps remain non-blocking.
