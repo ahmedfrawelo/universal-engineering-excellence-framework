@@ -108,3 +108,4 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - A known regression must stop the task until fixed or explicitly accepted by an accountable owner with impact, expiry, mitigation, and rollback evidence.
 - Run the Environment Bootstrap before project inspection, architecture detection, planning, implementation, and quality gates. Select only profiles required by task and repository evidence.
 - Mandatory environment gaps block work; Recommended gaps warn and continue; Optional gaps never block. Never claim environment READY without current bootstrap evidence.
+- For every UI, UX, frontend, design, layout, accessibility, or visual-polish task, apply both `ui-ux-pro-max` and `impeccable` together when available. `ui-ux-pro-max` supplies design intelligence; `impeccable` supplies product-quality critique and hardening.

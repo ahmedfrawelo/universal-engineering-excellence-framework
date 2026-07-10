@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1 - 2026-07-10
+
+- Completed and committed all pack 50 environment bootstrap profile modules.
+- Fixed UIUX profile enforcement so `ui-ux-pro-max` and `impeccable` are both Mandatory and selected together for UI/UX work.
+- Verified Core, AI, and UIUX bootstrap readiness with 11 Mandatory checks passing.
+
 ## 1.4.0 - 2026-07-10
 
 - Added pack 50 Smart Environment Bootstrap with Core, Frontend, Backend, Database, UIUX, DevOps, AI, and Optional profiles.
