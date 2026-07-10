@@ -12,3 +12,4 @@ Version: 1.5.0
 - 07-browser-task-verification.md
 - 08-browser-session-quality-gate.md
 - 09-user-browser-connection-recovery.md
+- 10-browser-evidence-communication.md

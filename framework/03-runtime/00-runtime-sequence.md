@@ -140,6 +140,7 @@ Automation banner visible: NO / BLOCKED
 Connector-created window: NO / BLOCKED
 Connector tab matches user target:
 Blank/wrong-tab recovery performed:
+Browser evidence message verified:
 Target domain verified:
 Visible signed-in state verified:
 Isolated browser used: NO / EXPLICITLY APPROVED

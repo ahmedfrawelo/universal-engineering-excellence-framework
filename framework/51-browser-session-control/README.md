@@ -7,6 +7,8 @@ Browser work must use the browser and session the user actually opened. The assi
 
 When a connector exposes a blank or wrong tab, use the user-browser connection recovery procedure before declaring the user's browser unavailable.
 
+Browser status and screenshot messages must describe the verified user outcome without leaking internal route, screenshot, or connector telemetry.
+
 ## Mandatory Policy
 
 - Select the existing user-owned browser surface first, using the available browser or Chrome connector that can see the user's real tabs and session.

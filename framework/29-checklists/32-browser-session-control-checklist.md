@@ -11,6 +11,7 @@ Version: 1.5.0
 - [ ] Explicit consent recorded if an isolated fallback was necessary.
 - [ ] Final state verified in the same user-owned tab.
 - [ ] A blank or wrong connector tab triggered tab discovery and user-tab recovery guidance before blocking.
+- [ ] User-facing browser status uses a verified outcome and next action, without raw routes, screenshot events, or connector terminology.
 
 ## Result
 
