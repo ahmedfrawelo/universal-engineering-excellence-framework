@@ -31,7 +31,7 @@ const sourceFiles = {
   package: files.map((file) => path.relative(root, file)).filter((file) => /^package(-lock)?\.json$/i.test(path.basename(file)))
 };
 const report = {
-  generatedAt: new Date().toISOString(), root,
+  generatedAt: new Date().toISOString(), projectRoot: '<project-root>',
   evidence: { filesScanned: files.length, sourceFiles, cssVars, fonts, colors, radii, strokes, iconPackages, fontAssets },
   recommendations: {
     missingEvidence: [],
