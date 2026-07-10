@@ -113,7 +113,7 @@ Before all other task phases, run `scripts/environment-bootstrap.ps1` on Windows
 
 ## Browser Tasks
 
-For any page opening, navigation, browser inspection, clicking, typing, upload, download, or authenticated web workflow, select `framework/51-browser-session-control/`. The existing user-owned browser window and tab are mandatory. Load modules `00`, `01`, `02`, `04`, `05`, `06`, `07`, `08`, and `09`. Request the platform-authorized Chrome connection directly, then discover and select the matching existing user tab automatically. For tasks that depend on the exact browser window the user is viewing, use visible Windows window control first. Do not use a connector-created Chrome window, Codex-titled browser surface, automation-banner window, or unverified profile. If the visible window cannot be proven, block instead of opening another browser.
+For any page opening, navigation, browser inspection, clicking, typing, upload, download, or authenticated web workflow, select `framework/51-browser-session-control/`. The existing user-owned browser window and tab are mandatory. Load modules `00`, `01`, `02`, `04`, `05`, `06`, `07`, `08`, and `09`. Request the platform-authorized Chrome connection directly, then discover and select the matching existing user tab automatically. When the user asks to open a site, open a new tab only in that same Chrome window and profile. For tasks that depend on the exact browser window the user is viewing, use visible Windows window control first. Do not use a connector-created Chrome window, Codex-titled browser surface, automation-banner window, or unverified profile. If the visible window cannot be proven, block instead of opening another browser.
 
 ## Skeleton Loading
 
