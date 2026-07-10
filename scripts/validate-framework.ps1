@@ -92,6 +92,7 @@ $requiredAcceptance = @(
   "framework/56-data-grid-platform/README.md",
   "framework/56-data-grid-platform/INDEX.md",
   "framework/56-data-grid-platform/00-data-grid-platform-system.md",
+  "framework/56-data-grid-platform/12-live-refresh-hardening.md",
   "framework/27-quality-gates/29-application-shell-design-gate.md",
   "framework/29-checklists/38-application-shell-design-checklist.md",
   "framework/38-templates/26-application-shell-baseline-template.md",
@@ -199,7 +200,7 @@ $designTerms = @("Design source of truth identified:","Design extraction run:","
 foreach ($term in $designTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing design intelligence field: $term" } }
 $assuranceTerms = @("Continuous assurance audit run:","Security hygiene checked:","Generated artifacts checked:","Script syntax checked:","Release/runtime parity checked:","Residual risks recorded:","Continuous assurance gate:")
 foreach ($term in $assuranceTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing assurance field: $term" } }
-$gridTerms = @("Existing table baseline inspected:","Query contract defined:","Server capabilities allowlisted:","Pagination/filter/sort/aggregate semantics verified:","Backend/API/database contract verified:","Performance budget verified:","Realtime/refresh contract verified:","Advanced grid capabilities verified:","Production data delivery controls verified:","Data grid platform gate:")
+$gridTerms = @("Existing table baseline inspected:","Query contract defined:","Server capabilities allowlisted:","Pagination/filter/sort/aggregate semantics verified:","Backend/API/database contract verified:","Performance budget verified:","Realtime/refresh contract verified:","Live refresh no-reload proof verified:","Realtime security and burst-performance proof verified:","Advanced grid capabilities verified:","Production data delivery controls verified:","Data grid platform gate:")
 foreach ($term in $gridTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing data-grid field: $term" } }
 $shellTerms = @("Shell baseline extracted:","Navigation/header contracts verified:","Shell motion/responsive/accessibility verified:","Shell visual/performance gate:")
 foreach ($term in $shellTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing shell field: $term" } }

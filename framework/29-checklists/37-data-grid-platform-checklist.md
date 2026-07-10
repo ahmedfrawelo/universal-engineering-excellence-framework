@@ -20,3 +20,7 @@
 - [ ] Cache keys, TTL, invalidation, stale-while-revalidate, freshness markers, and realtime reconciliation are defined.
 - [ ] Data-quality reconciliation, cost/load evidence, retention/privacy, kill switches, and degraded mode are defined.
 - [ ] An operational runbook covers slow queries/rendering, stale data, realtime failure, exports, bulk actions, and exit criteria.
+- [ ] Live refresh is proven without page reload and preserves route, filters, sort, pagination, selection, focus, scroll, and edits.
+- [ ] Event scope/version/sequence/deduplication/gap recovery, subscription lifecycle, batching, backpressure, and reconnect behavior are tested.
+- [ ] Backend channel authorization, tenant isolation, payload validation, commit ordering, idempotency, replay protection, and audit evidence pass.
+- [ ] Event-to-UI latency, render count, queue depth, dropped events, reconnects, memory, and burst-load budgets are measured.
