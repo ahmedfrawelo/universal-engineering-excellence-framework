@@ -1,6 +1,12 @@
 # Build Progress
 
-Status: v1.1.0 expansion implemented and validated from E:\MY DATA\div\universal-engineering-excellence-framework.
+Status: v1.2.0 design-governance expansion implemented and validated from E:\MY DATA\div\universal-engineering-excellence-framework.
+
+## Version 1.2.0 Completed
+
+- Added pack 48 design governance with 31 modules covering one design language, token families, visual systems, component governance, registry, patterns, layouts, themes, responsive rules, interactions, overlays, drift, and no-reinvention enforcement.
+- Added design governance gate, scorecard, checklist, review template, release notes, and validator requirements.
+- PowerShell validation passed with 446 Markdown files, 49 framework packs, and 471 total files before release packaging.
 
 ## Completed
 

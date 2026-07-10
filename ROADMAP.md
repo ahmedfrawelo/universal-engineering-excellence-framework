@@ -6,9 +6,13 @@
 
 ## 1.2
 
+- Delivered design governance, token enforcement, visual language, component registry, pattern library, and no-reinvention controls in 1.2.0.
+
+## 1.3
+
 - Add machine-readable metadata for module selection and compatibility.
 - Add executable overlay contract reference implementations for supported frontend packs.
-- Expand automated link, schema, and semantic duplication validation.
+- Expand automated link, schema, semantic duplication, and hardcoded-value validation.
 
 ## 2.0
 

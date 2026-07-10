@@ -98,3 +98,9 @@ The assistant must select relevant modules, check MCPs/tools/skills, apply UI UX
 - Security and performance are release-blocking requirements. Authorization, tenant isolation, duplicate submission protection, measured rendering, API, query, network, and bundle behavior must be verified where applicable.
 
 Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-responsive-interaction-security-performance/` for UI, frontend, theme, responsive, interaction, security-sensitive, or performance-sensitive work.
+
+- Before creating any UI, search the project, design system, component registry, shared components, shared services, and pattern library in that order.
+- Reuse existing capabilities before extending, generalizing, or creating new ones. Record the rejected alternatives when creation is necessary.
+- All visual values must come from governed design tokens or an approved documented exception. Design governance covers color, typography, icons, spacing, sizing, radius, borders, shadows, elevation, motion, and z-index.
+- Every UI change must be reviewed for token compliance, component reuse, theme compatibility, responsive behavior, accessibility, interaction consistency, performance, and design drift.
+- Select `framework/48-design-governance/` for design governance, tokens, visual language, component registry, pattern library, or reuse enforcement work.

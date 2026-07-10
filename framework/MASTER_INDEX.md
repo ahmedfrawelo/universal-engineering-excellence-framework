@@ -181,3 +181,8 @@ This index links framework packs and modules for assistant loading.
 - [47-theme-responsive-interaction-security-performance/README.md](47-theme-responsive-interaction-security-performance/README.md)
 - [27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md](27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md)
 - [28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md](28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md)
+
+## Version 1.2 Design Governance
+
+- [48-design-governance/README.md](48-design-governance/README.md)
+- [48-design-governance/INDEX.md](48-design-governance/INDEX.md)

@@ -77,3 +77,21 @@ UI UX Pro Max checked:
 ```
 
 The final user-facing verification still uses only the compact required labels. The detailed evidence belongs in the plan, task record, tests, or review artifacts, not in the `Loaded` line.
+
+## Design Governance Preflight
+
+For design-system or UI work, also record:
+
+```text
+Existing project UI searched:
+Design-system source found:
+Component registry searched:
+Shared components searched:
+Shared services searched:
+Pattern library searched:
+Reuse or extension decision:
+Token families identified:
+Icon family identified:
+Typography roles identified:
+Design governance modules selected:
+```
