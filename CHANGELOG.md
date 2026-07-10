@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.0 - 2026-07-10
+
+- Added pack 51 Browser Session Control.
+- Browser tasks now require the user's actually opened browser, target tab, visible domain, and signed-in state.
+- New browser/context/profile sessions are prohibited by default and require explicit user approval.
+- Added privacy rules forbidding inspection of cookies, passwords, tokens, local storage, and profile stores.
+- Added browser session runtime preflight, release-blocking gate, checklist, loader selection, and validation coverage.
+
 ## 1.4.7 - 2026-07-10
 
 - Unix bootstrap now defaults to `$HOME/.codex` when `CODEX_HOME` is not set.

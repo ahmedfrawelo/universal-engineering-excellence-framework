@@ -27,6 +27,7 @@ grep -q "47-theme-responsive-interaction-security-performance" "$ROOT/framework/
 grep -q "48-design-governance" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "49-engineering-guardian" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "50-environment-bootstrap" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "51-browser-session-control" "$ROOT/framework/MASTER_INDEX.md"
 for f in \
   framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
   framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
@@ -66,6 +67,10 @@ grep -q "component registry" "$ROOT/framework/01-core/00-core-system.md"
 grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Affected baseline recorded:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "User-owned browser selected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+[ -f "$ROOT/framework/27-quality-gates/23-browser-session-control-gate.md" ] || { echo "Missing browser session gate" >&2; exit 1; }
+[ -f "$ROOT/framework/29-checklists/32-browser-session-control-checklist.md" ] || { echo "Missing browser session checklist" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v1.5.0.md" ] || { echo "Missing browser session release notes" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9.]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do

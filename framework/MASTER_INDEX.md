@@ -196,3 +196,8 @@ This index links framework packs and modules for assistant loading.
 
 - [50-environment-bootstrap/README.md](50-environment-bootstrap/README.md)
 - [50-environment-bootstrap/INDEX.md](50-environment-bootstrap/INDEX.md)
+
+## Version 1.5 Browser Session Control
+
+- [51-browser-session-control/README.md](51-browser-session-control/README.md)
+- [51-browser-session-control/INDEX.md](51-browser-session-control/INDEX.md)

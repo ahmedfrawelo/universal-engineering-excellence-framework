@@ -127,3 +127,18 @@ Validation Result:
 ```
 
 `READY` is valid only when all selected Mandatory dependencies pass. A Mandatory failure is `BLOCKED`; a Recommended failure is `READY_WITH_WARNINGS`; Optional gaps remain non-blocking.
+
+## Browser Session Preflight
+
+For browser tasks, implementation must not begin until the assistant records:
+
+```text
+User-owned browser selected:
+Target tab selected:
+Target domain verified:
+Visible signed-in state verified:
+Isolated browser used: NO / EXPLICITLY APPROVED
+Browser session gate: PASS / BLOCKED
+```
+
+Cookies, passwords, local storage, tokens, and profile stores must never be inspected.

@@ -109,3 +109,4 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - Run the Environment Bootstrap before project inspection, architecture detection, planning, implementation, and quality gates. Select only profiles required by task and repository evidence.
 - Mandatory environment gaps block work; Recommended gaps warn and continue; Optional gaps never block. Never claim environment READY without current bootstrap evidence.
 - For every UI, UX, frontend, design, layout, accessibility, or visual-polish task, apply both `ui-ux-pro-max` and `impeccable` together when available. `ui-ux-pro-max` supplies design intelligence; `impeccable` supplies product-quality critique and hardening.
+- For browser tasks, use the browser the user actually opened, including its active tab and signed-in session. Do not silently create or switch to an isolated browser, profile, or context. If no usable user browser exists, block and ask the user to open it and sign in.

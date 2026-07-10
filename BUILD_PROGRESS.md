@@ -15,6 +15,13 @@ Status: v1.4.0 environment bootstrap expansion implemented and validated from E:
 - Added Unix validator version/manifest parity; WSL execution was attempted and reported unavailable because no Linux distribution is installed.
 - Added profile auto-detection from repository stack signals; the UEEF repository auto-detects Core and AI and returns READY.
 
+## Version 1.5.0 Completed
+
+- Added Browser Session Control pack 51.
+- Browser tasks now require the user's actually opened browser, target tab, visible domain, and signed-in state.
+- New browser/context/profile sessions are prohibited by default and require explicit approval.
+- Added browser privacy rules, runtime preflight, release gate, checklist, loader selection, and validation.
+
 ## Version 1.3.0 Completed
 
 - Added pack 49 Engineering Guardian with 28 files and permanent zero-regression protection.

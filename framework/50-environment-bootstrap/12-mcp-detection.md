@@ -10,6 +10,7 @@ Detects available MCP servers and requires only task-relevant servers.
 ## Required Practice
 
 - Recognize Chrome DevTools, Context7, Playwright, Figma, and Node REPL when exposed.
+- For browser tasks, prefer the connector that controls the user's existing browser or Chrome session and visible tabs. Do not require a new browser runtime as a substitute.
 - Do not require every MCP for every task.
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.

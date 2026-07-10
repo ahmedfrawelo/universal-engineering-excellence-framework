@@ -111,6 +111,10 @@ For every non-trivial task, select `framework/49-engineering-guardian/00-enginee
 
 Before all other task phases, run `scripts/environment-bootstrap.ps1` on Windows or `scripts/environment-bootstrap.sh` on Unix. Load `framework/50-environment-bootstrap/00-environment-bootstrap.md`, `01-profile-selection.md`, `02-core-profile.md`, `08-ai-profile.md`, `10-dependency-levels.md`, `11-detection-and-installation.md`, and `13-runtime-bootstrap-sequence.md`. Add Frontend, Backend, Database, UIUX, DevOps, or Optional profile modules only when task and repository evidence require them.
 
+## Browser Tasks
+
+For any page opening, navigation, browser inspection, clicking, typing, upload, download, or authenticated web workflow, select `framework/51-browser-session-control/`. The existing user-owned browser and tab are mandatory. Load modules `00`, `01`, `02`, `04`, `05`, `06`, `07`, and `08`. Use the browser or Chrome connector that can see the user's actual open tabs. Never default to a new isolated context when the requested work depends on the user's session.
+
 ## Compact Verification Format
 
 ```text
