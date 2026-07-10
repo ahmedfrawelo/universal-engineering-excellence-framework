@@ -125,6 +125,8 @@ For any UI audit, redesign, new visual system, or recommendation about fonts, co
 
 For UEEF audits, releases, installer/runtime changes, security hardening, or broad quality work, select `framework/55-continuous-assurance/` and run the repository audit before and after edits.
 
+For any table, data grid, list, dashboard data view, backend query endpoint, export, notification feed, auto-refresh, or realtime data feature, select `framework/56-data-grid-platform/` and apply its frontend, backend, performance, security, and realtime contracts.
+
 ## Compact Verification Format
 
 ```text

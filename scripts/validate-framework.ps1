@@ -85,6 +85,13 @@ $requiredAcceptance = @(
   "framework/55-continuous-assurance/README.md",
   "framework/55-continuous-assurance/INDEX.md",
   "framework/55-continuous-assurance/00-assurance-system.md",
+  "framework/27-quality-gates/28-data-grid-platform-gate.md",
+  "framework/29-checklists/37-data-grid-platform-checklist.md",
+  "framework/38-templates/24-data-grid-contract-template.md",
+  "framework/38-templates/25-realtime-refresh-contract-template.md",
+  "framework/56-data-grid-platform/README.md",
+  "framework/56-data-grid-platform/INDEX.md",
+  "framework/56-data-grid-platform/00-data-grid-platform-system.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -162,7 +169,7 @@ $master = Join-Path $Root "framework/MASTER_INDEX.md"
 if (!(Test-Path $master)) { throw "Missing framework/MASTER_INDEX.md" }
 $masterText = Get-Content $master -Raw
 if ($masterText -notmatch "00-foundation" -or $masterText -notmatch "27-quality-gates" -or $masterText -notmatch "38-templates") { throw "Master index missing expected pack references" }
-$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control","52-workspace-hygiene","53-skeleton-loading","54-design-intelligence","55-continuous-assurance")
+$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control","52-workspace-hygiene","53-skeleton-loading","54-design-intelligence","55-continuous-assurance","56-data-grid-platform")
 foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($link)) { throw "Master index missing $link" } }
 $environmentModules = @("README.md","INDEX.md","00-environment-bootstrap.md","01-profile-selection.md","02-core-profile.md","03-frontend-profile.md","04-backend-profile.md","05-database-profile.md","06-uiux-profile.md","07-devops-profile.md","08-ai-profile.md","09-optional-profile.md","10-dependency-levels.md","11-detection-and-installation.md","12-mcp-detection.md","13-runtime-bootstrap-sequence.md")
 foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "framework/50-environment-bootstrap/$file"))) { throw "Environment Bootstrap missing module: $file" } }
@@ -186,9 +193,12 @@ $designTerms = @("Design source of truth identified:","Design extraction run:","
 foreach ($term in $designTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing design intelligence field: $term" } }
 $assuranceTerms = @("Continuous assurance audit run:","Security hygiene checked:","Generated artifacts checked:","Script syntax checked:","Release/runtime parity checked:","Residual risks recorded:","Continuous assurance gate:")
 foreach ($term in $assuranceTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing assurance field: $term" } }
+$gridTerms = @("Existing table baseline inspected:","Query contract defined:","Server capabilities allowlisted:","Pagination/filter/sort/aggregate semantics verified:","Backend/API/database contract verified:","Performance budget verified:","Realtime/refresh contract verified:","Data grid platform gate:")
+foreach ($term in $gridTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing data-grid field: $term" } }
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }
+if ([int]$manifest.frameworkPacks -ne $packs.Count) { throw "Manifest framework pack count does not match the repository" }
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"

@@ -6,6 +6,7 @@ This index links framework packs and modules for assistant loading.
 - [53-skeleton-loading](53-skeleton-loading/README.md)
 - [54-design-intelligence](54-design-intelligence/README.md)
 - [55-continuous-assurance](55-continuous-assurance/README.md)
+- [56-data-grid-platform](56-data-grid-platform/README.md)
 
 - [00-foundation/00-constitution.md](00-foundation/00-constitution.md)
 - [00-foundation/01-mission.md](00-foundation/01-mission.md)

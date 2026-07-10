@@ -181,4 +181,17 @@ Residual risks recorded:
 Continuous assurance gate: PASS / BLOCKED
 ```
 
+For data-grid or data-platform work, also record:
+
+```text
+Existing table baseline inspected:
+Query contract defined:
+Server capabilities allowlisted:
+Pagination/filter/sort/aggregate semantics verified:
+Backend/API/database contract verified:
+Performance budget verified:
+Realtime/refresh contract verified:
+Data grid platform gate: PASS / BLOCKED
+```
+
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
