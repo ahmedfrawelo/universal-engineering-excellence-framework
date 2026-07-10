@@ -137,6 +137,7 @@ For browser tasks, implementation must not begin until the assistant records:
 ```text
 User-owned browser selected:
 Platform Chrome permission granted:
+Chrome window state preserved:
 Target tab selected:
 Active window identity verified:
 Automation banner visible: NO / BLOCKED

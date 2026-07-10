@@ -12,6 +12,7 @@ Version: 1.5.0
 - [ ] No isolated browser/context/profile used silently.
 - [ ] Explicit consent recorded if an isolated fallback was necessary.
 - [ ] Final state verified in the same user-owned tab.
+- [ ] Initial and final Chrome window state match unless the user explicitly requested a window change.
 
 ## Result
 

@@ -137,6 +137,7 @@ Write-Utf8File $agents @(
   "Browser hard stop:",
   "- Browser tasks must use the user's visible active browser window, not a connector-created Chrome window.",
   "- Automation banners, Codex-titled browser windows, and unverified profiles are BLOCKED.",
+  "- Preserve the user's browser window state. Do not resize, emulate, move, restore, minimize, maximize, or alter full screen unless explicitly requested.",
   "- If the visible window cannot be proven, stop without opening another browser and use visible Windows control only after identity is verified.",
   "",
   "If UEEF cannot be verified, state:",
