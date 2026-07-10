@@ -99,6 +99,9 @@ $requiredAcceptance = @(
   "framework/57-application-shell-design/README.md",
   "framework/57-application-shell-design/INDEX.md",
   "framework/57-application-shell-design/00-application-shell-system.md",
+  "framework/27-quality-gates/30-visual-composition-gate.md",
+  "framework/29-checklists/39-visual-composition-checklist.md",
+  "framework/38-templates/27-visual-composition-review-template.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -204,6 +207,8 @@ $gridTerms = @("Existing table baseline inspected:","Query contract defined:","S
 foreach ($term in $gridTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing data-grid field: $term" } }
 $shellTerms = @("Shell baseline extracted:","Navigation/header contracts verified:","Shell motion/responsive/accessibility verified:","Shell visual/performance gate:")
 foreach ($term in $shellTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing shell field: $term" } }
+$visualTerms = @("First-viewport composition reviewed:","Density and responsive composition verified:","Visual evidence gate:")
+foreach ($term in $visualTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing visual-composition field: $term" } }
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }

@@ -200,6 +200,9 @@ Performance budget verified:
     Navigation/header contracts verified:
     Shell motion/responsive/accessibility verified:
     Shell visual/performance gate: PASS / BLOCKED
+    First-viewport composition reviewed:
+    Density and responsive composition verified:
+    Visual evidence gate: PASS / BLOCKED
 ```
 
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
