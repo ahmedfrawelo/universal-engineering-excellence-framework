@@ -12,6 +12,7 @@ Status: v1.4.0 environment bootstrap expansion implemented and validated from E:
 - Corrected pack 50 tracking and verified Core/AI/UIUX bootstrap: 11 Mandatory checks passed, including both `ui-ux-pro-max` and `impeccable`.
 - Added source-repository `UEEF-LOADER.md` template and validation coverage during deep audit.
 - Aligned Unix bootstrap and validation behavior with PowerShell, including combined UIUX skill checks.
+- Added Unix validator version/manifest parity; WSL execution was attempted and reported unavailable because no Linux distribution is installed.
 
 ## Version 1.3.0 Completed
 

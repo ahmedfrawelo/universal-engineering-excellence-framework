@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.5 - 2026-07-10
+
+- Completed Unix validator coverage for v1.4.4 release notes and added version/manifest parity checking.
+- Confirmed shell execution is unavailable in the current Windows host because WSL has no installed distribution; no OS subsystem was installed.
+
 ## 1.4.4 - 2026-07-10
 
 - Aligned `environment-bootstrap.sh` with PowerShell profile selection and readiness semantics.
