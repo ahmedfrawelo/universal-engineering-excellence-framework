@@ -71,6 +71,7 @@ $requiredAcceptance = @(
   "framework/53-skeleton-loading/INDEX.md",
   "framework/53-skeleton-loading/00-skeleton-loading-system.md",
   "scripts/extract-design-system.mjs",
+  "scripts/recommend-design-system.mjs",
   "framework/27-quality-gates/26-design-intelligence-gate.md",
   "framework/29-checklists/35-design-intelligence-checklist.md",
   "framework/38-templates/23-design-recommendation-template.md",
