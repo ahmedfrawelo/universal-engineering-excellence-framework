@@ -3,6 +3,7 @@
 Version: 1.5.0
 
 - [ ] User-owned browser surface selected.
+- [ ] Existing user tabs were discovered and the matching target was selected automatically before requesting user action.
 - [ ] Target tab selected by visible title, URL, and state.
 - [ ] Target domain verified.
 - [ ] Visible signed-in state verified without inspecting secrets.

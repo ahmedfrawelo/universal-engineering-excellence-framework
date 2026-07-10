@@ -71,6 +71,7 @@ grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-s
 grep -q "Affected baseline recorded:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "User-owned browser selected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Existing user tabs discovered automatically:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Active window identity verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Automation banner visible:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Connector-created window:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -108,6 +109,7 @@ grep -q "Visual evidence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.
 [ -f "$ROOT/framework/29-checklists/32-browser-session-control-checklist.md" ] || { echo "Missing browser session checklist" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/09-user-browser-connection-recovery.md" ] || { echo "Missing browser connection recovery module" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/10-browser-evidence-communication.md" ] || { echo "Missing browser evidence communication module" >&2; exit 1; }
+[ -f "$ROOT/framework/51-browser-session-control/11-autonomous-user-tab-control.md" ] || { echo "Missing autonomous browser-control module" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.5.0.md" ] || { echo "Missing browser session release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.ps1" ] || { echo "Missing cleanup script" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.sh" ] || { echo "Missing cleanup script" >&2; exit 1; }
@@ -129,6 +131,7 @@ grep -q "Visual evidence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.
 [ -f "$ROOT/docs/releases/v2.2.0.md" ] || { echo "Missing visual composition release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.2.1.md" ] || { echo "Missing browser recovery release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.2.2.md" ] || { echo "Missing browser evidence communication release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.3.0.md" ] || { echo "Missing autonomous browser-control release notes" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9.]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do

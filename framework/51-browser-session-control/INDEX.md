@@ -13,3 +13,4 @@ Version: 1.5.0
 - 08-browser-session-quality-gate.md
 - 09-user-browser-connection-recovery.md
 - 10-browser-evidence-communication.md
+- 11-autonomous-user-tab-control.md
