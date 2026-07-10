@@ -13,6 +13,7 @@ Status: v1.4.0 environment bootstrap expansion implemented and validated from E:
 - Added source-repository `UEEF-LOADER.md` template and validation coverage during deep audit.
 - Aligned Unix bootstrap and validation behavior with PowerShell, including combined UIUX skill checks.
 - Added Unix validator version/manifest parity; WSL execution was attempted and reported unavailable because no Linux distribution is installed.
+- Added profile auto-detection from repository stack signals; the UEEF repository auto-detects Core and AI and returns READY.
 
 ## Version 1.3.0 Completed
 

@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 1.4.5.
+UEEF Enterprise Edition version: 1.4.6.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -14,6 +14,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 1.4.3: added the source-repository UEEF loader template and enforced its presence in validation.
 - 1.4.4: aligned Unix bootstrap profile detection and UIUX skill-pair checks with PowerShell behavior.
 - 1.4.5: completed Unix validator release coverage and version-manifest parity checks.
+- 1.4.6: added automatic profile detection from repository stack signals and validated default Core/AI selection.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.

@@ -11,6 +11,7 @@ Selects Core, Frontend, Backend, Database, UIUX, DevOps, AI, and Optional profil
 
 - Use repository signals and task scope to select profiles.
 - Core and AI always run; other profiles run only when evidence requires them.
+- When profiles are not explicitly supplied, detect them from manifests, lockfiles, source extensions, migration folders, Docker/CI files, and UI assets. Manual profile selection remains available when repository files cannot reveal task scope.
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.
 

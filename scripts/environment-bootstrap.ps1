@@ -1,11 +1,21 @@
 param(
-  [string[]]$Profile = @('Core','AI'),
+  [string[]]$Profile = @(),
   [switch]$Install
 )
 $ErrorActionPreference='Stop'
 $Root=Split-Path -Parent $PSScriptRoot
 $CodexHome=if($env:CODEX_HOME){$env:CODEX_HOME}elseif($env:UEEF_GLOBAL_PATH){Split-Path -Parent $env:UEEF_GLOBAL_PATH}else{''}
 $Profile=@($Profile | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+if(!$Profile.Count){
+  $signals=@(Get-ChildItem -LiteralPath $Root -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.FullName -notmatch '\\.git\\'})
+  $names=@($signals|Select-Object -ExpandProperty Name)
+  $Profile=[System.Collections.Generic.List[string]]::new();$Profile.Add('Core');$Profile.Add('AI')
+  if(($names|Where-Object {$_ -match '^(package\.json|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|angular\.json|vite\.config\.|next\.config\.)$'}).Count -or ($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte')}).Count){$Profile.Add('Frontend')}
+  if(($names|Where-Object {$_ -match '(\.sln|\.csproj|pyproject\.toml|requirements\.txt|pom\.xml|build\.gradle)$'}).Count -or ($names -contains 'Dockerfile')){$Profile.Add('Backend')}
+  if(($names|Where-Object {$_ -match '(schema\.sql|migration|prisma|flyway|liquibase)' -or $_ -match '\.(sql|dbml)$'}).Count){$Profile.Add('Database')}
+  if(($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte','.html','.css','.scss')}).Count){$Profile.Add('UIUX')}
+  if(($names|Where-Object {$_ -match '^Dockerfile$|docker-compose|^\.gitlab-ci|^Jenkinsfile$'}).Count -or (Test-Path (Join-Path $Root '.github\workflows'))){$Profile.Add('DevOps')}
+}
 $allowed=@('Core','Frontend','Backend','Database','UIUX','DevOps','AI','Optional')
 foreach($name in $Profile){if($allowed -notcontains $name){throw "Unknown environment profile: $name"}}
 $results=[System.Collections.Generic.List[object]]::new()

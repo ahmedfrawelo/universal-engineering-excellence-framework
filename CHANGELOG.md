@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.6 - 2026-07-10
+
+- Added automatic Environment Bootstrap profile detection when no profiles are passed.
+- Detection covers frontend manifests and source extensions, backend SDK/project files, database/migration signals, UI assets, and Docker/CI files.
+- Manual profile selection remains available for task scope not visible in repository files.
+- Fixed validator matching to use literal behavior terms safely.
+
 ## 1.4.5 - 2026-07-10
 
 - Completed Unix validator coverage for v1.4.4 release notes and added version/manifest parity checking.

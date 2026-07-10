@@ -11,6 +11,7 @@ Inspects and repairs the engineering environment before any task phase.
 
 - Run before inspection, architecture detection, planning, implementation, and gates.
 - Core and AI profiles are mandatory; task-relevant profiles are evidence-selected; readiness is never assumed.
+- Auto-detect profiles from repository signals when no explicit profile list is supplied.
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.
 
