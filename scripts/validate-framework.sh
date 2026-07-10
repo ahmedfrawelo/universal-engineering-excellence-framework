@@ -79,6 +79,11 @@ grep -q "Skeleton parity verified:" "$ROOT/framework/03-runtime/00-runtime-seque
 grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "Design source of truth identified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Design intelligence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "55-continuous-assurance" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "Continuous assurance audit run:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+[ -f "$ROOT/scripts/ueef-audit.ps1" ] || { echo "Missing audit runner" >&2; exit 1; }
+[ -f "$ROOT/scripts/ueef-audit.sh" ] || { echo "Missing Unix audit runner" >&2; exit 1; }
+[ -f "$ROOT/framework/27-quality-gates/27-continuous-assurance-gate.md" ] || { echo "Missing assurance gate" >&2; exit 1; }
 [ -f "$ROOT/scripts/extract-design-system.mjs" ] || { echo "Missing design extractor" >&2; exit 1; }
 [ -f "$ROOT/scripts/recommend-design-system.mjs" ] || { echo "Missing design recommendation analyzer" >&2; exit 1; }
 [ -f "$ROOT/framework/27-quality-gates/26-design-intelligence-gate.md" ] || { echo "Missing design intelligence gate" >&2; exit 1; }
@@ -96,6 +101,7 @@ grep -q "Design intelligence gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v1.7.0.md" ] || { echo "Missing skeleton release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.8.0.md" ] || { echo "Missing design intelligence release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.8.1.md" ] || { echo "Missing design review release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v1.9.0.md" ] || { echo "Missing assurance release notes" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9.]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do

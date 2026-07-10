@@ -169,4 +169,16 @@ Missing roles and recommendations documented:
 Design intelligence gate: PASS / BLOCKED
 ```
 
+For broad audit or release work, also record:
+
+```text
+Continuous assurance audit run:
+Security hygiene checked:
+Generated artifacts checked:
+Script syntax checked:
+Release/runtime parity checked:
+Residual risks recorded:
+Continuous assurance gate: PASS / BLOCKED
+```
+
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
