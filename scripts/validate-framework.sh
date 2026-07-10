@@ -84,6 +84,7 @@ grep -q "Continuous assurance audit run:" "$ROOT/framework/03-runtime/00-runtime
 grep -q "56-data-grid-platform" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "Existing table baseline inspected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Data grid platform gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Advanced grid capabilities verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 [ -f "$ROOT/framework/27-quality-gates/28-data-grid-platform-gate.md" ] || { echo "Missing data-grid gate" >&2; exit 1; }
 [ -f "$ROOT/framework/29-checklists/37-data-grid-platform-checklist.md" ] || { echo "Missing data-grid checklist" >&2; exit 1; }
 [ -f "$ROOT/scripts/ueef-audit.ps1" ] || { echo "Missing audit runner" >&2; exit 1; }

@@ -193,7 +193,7 @@ $designTerms = @("Design source of truth identified:","Design extraction run:","
 foreach ($term in $designTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing design intelligence field: $term" } }
 $assuranceTerms = @("Continuous assurance audit run:","Security hygiene checked:","Generated artifacts checked:","Script syntax checked:","Release/runtime parity checked:","Residual risks recorded:","Continuous assurance gate:")
 foreach ($term in $assuranceTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing assurance field: $term" } }
-$gridTerms = @("Existing table baseline inspected:","Query contract defined:","Server capabilities allowlisted:","Pagination/filter/sort/aggregate semantics verified:","Backend/API/database contract verified:","Performance budget verified:","Realtime/refresh contract verified:","Data grid platform gate:")
+$gridTerms = @("Existing table baseline inspected:","Query contract defined:","Server capabilities allowlisted:","Pagination/filter/sort/aggregate semantics verified:","Backend/API/database contract verified:","Performance budget verified:","Realtime/refresh contract verified:","Advanced grid capabilities verified:","Data grid platform gate:")
 foreach ($term in $gridTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing data-grid field: $term" } }
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value

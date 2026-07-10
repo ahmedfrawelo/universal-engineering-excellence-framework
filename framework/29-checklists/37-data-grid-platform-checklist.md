@@ -9,3 +9,9 @@
 - [ ] Realtime transport, event envelope, reconnect, ordering, deduplication, and refresh reconciliation are defined where needed.
 - [ ] Security, concurrency, idempotency, audit, export limits, and cache isolation are tested.
 - [ ] Accessibility, RTL, responsive overflow, keyboard behavior, visual regression, and E2E evidence pass.
+- [ ] Saved views and URL state are versioned, scoped, bounded, validated, and resettable.
+- [ ] Column visibility/order/width/pinning use stable IDs and remain usable on narrow screens.
+- [ ] Selection scope, select-all behavior, bulk authorization, idempotency, progress, partial failures, and audit are defined.
+- [ ] Editing uses field allowlists, entity versions, conflict handling, and explicit undo/rollback semantics.
+- [ ] Export scope, async-job limits, expiry, cancellation, download security, and projection allowlists are defined.
+- [ ] Empty, stale, offline, retrying, permission, partial-failure, and background-refresh states are accessible and localized.

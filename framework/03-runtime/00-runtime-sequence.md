@@ -190,8 +190,9 @@ Server capabilities allowlisted:
 Pagination/filter/sort/aggregate semantics verified:
 Backend/API/database contract verified:
 Performance budget verified:
-Realtime/refresh contract verified:
-Data grid platform gate: PASS / BLOCKED
+    Realtime/refresh contract verified:
+    Advanced grid capabilities verified:
+    Data grid platform gate: PASS / BLOCKED
 ```
 
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.

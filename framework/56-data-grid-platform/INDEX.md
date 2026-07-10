@@ -9,3 +9,4 @@
 - [06-realtime-notifications-and-refresh.md](06-realtime-notifications-and-refresh.md)
 - [07-security-and-data-integrity.md](07-security-and-data-integrity.md)
 - [08-testing-and-observability.md](08-testing-and-observability.md)
+- [09-advanced-grid-capabilities.md](09-advanced-grid-capabilities.md)
