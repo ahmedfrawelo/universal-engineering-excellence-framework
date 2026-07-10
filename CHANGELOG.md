@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.2 - 2026-07-10
+
+- Strengthened validation to require every Environment Bootstrap module and key dependency-policy behavior.
+- Strengthened UIUX profile evidence so `ui-ux-pro-max` and `impeccable` must both be listed and pass together.
+- Added robustness for missing `CODEX_HOME`: bootstrap now reports a clean BLOCKED result instead of throwing a null-path error.
+
 ## 1.4.1 - 2026-07-10
 
 - Completed and committed all pack 50 environment bootstrap profile modules.

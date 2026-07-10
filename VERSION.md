@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 1.4.1.
+UEEF Enterprise Edition version: 1.4.2.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -10,6 +10,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 1.3.0: permanent Engineering Guardian layer, zero-regression policy, regression monitors, self-criticism, engineering health score, and final guardian gate.
 - 1.4.0: smart environment bootstrap, profile-based dependency detection, skill and MCP checks, mandatory/recommended/optional levels, and pre-task readiness gating.
 - 1.4.1: completed pack 50 repository integration and enforced combined ui-ux-pro-max plus impeccable use for UI/UX tasks.
+- 1.4.2: deep-audit hardening for pack 50 completeness, bootstrap behavior, and UIUX skill-pair validation.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.

@@ -14,6 +14,7 @@ Requires both UI UX Pro Max and Impeccable for UI work, plus relevant browser to
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.
 - For UI/UX work, both `ui-ux-pro-max` and `impeccable` are Mandatory and must be selected together.
+- The bootstrap result must list both skill names under Mandatory Dependencies and mark UIUX PASS only after both paths are verified.
 
 ## Evidence
 

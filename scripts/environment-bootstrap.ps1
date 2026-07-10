@@ -4,6 +4,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 $Root=Split-Path -Parent $PSScriptRoot
+$CodexHome=if($env:CODEX_HOME){$env:CODEX_HOME}elseif($env:UEEF_GLOBAL_PATH){Split-Path -Parent $env:UEEF_GLOBAL_PATH}else{''}
 $Profile=@($Profile | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 $allowed=@('Core','Frontend','Backend','Database','UIUX','DevOps','AI','Optional')
 foreach($name in $Profile){if($allowed -notcontains $name){throw "Unknown environment profile: $name"}}
@@ -24,26 +25,26 @@ foreach($p in $Profile){
     'Core' {
       Add-Check Core Git Mandatory (Ensure-Command git 'Git.Git') 'git command' 'winget install --id Git.Git -e'
       Add-Check Core 'GitHub CLI' Mandatory (Ensure-Command gh 'GitHub.cli') 'gh command; authentication is checked separately' 'winget install --id GitHub.cli -e'
-      Add-Check Core 'Skill Installer' Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'skills\.system\skill-installer\SKILL.md')) 'Codex skill installer' 'Install from the Codex skill marketplace'
-      Add-Check Core 'OpenAI Docs' Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'skills\.system\openai-docs\SKILL.md')) 'OpenAI docs skill' 'Install the openai-docs skill'
-      Add-Check Core 'Skill Creator' Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'skills\.system\skill-creator\SKILL.md')) 'Skill creator skill' 'Install the skill-creator skill'
+      Add-Check Core 'Skill Installer' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\skill-installer\SKILL.md'))) 'Codex skill installer' 'Install from the Codex skill marketplace'
+      Add-Check Core 'OpenAI Docs' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\openai-docs\SKILL.md'))) 'OpenAI docs skill' 'Install the openai-docs skill'
+      Add-Check Core 'Skill Creator' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\skill-creator\SKILL.md'))) 'Skill creator skill' 'Install the skill-creator skill'
       Add-Check Core 'Validation Scripts' Mandatory (Has-Path (Join-Path $Root 'scripts\validate-framework.ps1')) 'repository validator'
-      Add-Check Core 'UEEF Runtime' Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'ueef\codex\UEEF-LOADER.md')) 'active runtime loader'
+      Add-Check Core 'UEEF Runtime' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'ueef\codex\UEEF-LOADER.md'))) 'active runtime loader'
     }
     'AI' {
-      Add-Check AI UEEF Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'ueef\codex\UEEF-LOADER.md')) 'runtime loader'
-      Add-Check AI 'Runtime Loader' Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'AGENTS.md')) 'global agent rules'
+      Add-Check AI UEEF Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'ueef\codex\UEEF-LOADER.md'))) 'runtime loader'
+      Add-Check AI 'Runtime Loader' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'AGENTS.md'))) 'global agent rules'
     }
     'Frontend' {
       Add-Check Frontend Node Mandatory (Ensure-Command node 'OpenJS.NodeJS.LTS') 'node command' 'winget install OpenJS.NodeJS.LTS'
       Add-Check Frontend npm Mandatory (Ensure-Command npm 'OpenJS.NodeJS.LTS') 'npm command'
       Add-Check Frontend Playwright Recommended (Has-Command npx) 'npx can invoke Playwright'
-      Add-Check Frontend 'UI UX Pro Max' Recommended (Has-Path (Join-Path $env:CODEX_HOME 'skills\ui-ux-pro-max\SKILL.md')) 'skill path' 'npx skills add github:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max'
-      Add-Check Frontend Impeccable Recommended (Has-Path (Join-Path $env:CODEX_HOME 'skills\impeccable\SKILL.md')) 'skill path'
+      Add-Check Frontend 'UI UX Pro Max' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path' 'npx skills add github:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max'
+      Add-Check Frontend Impeccable Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'
     }
     'Backend' { Add-Check Backend '.NET or Node or Python' Recommended ((Has-Command dotnet) -or (Has-Command node) -or (Has-Command python)) 'at least one detected backend runtime' }
     'Database' { Add-Check Database 'Database CLI' Recommended ((Has-Command sqlcmd) -or (Has-Command psql) -or (Has-Command mysql)) 'provider CLI detected' }
-    'UIUX' { Add-Check UIUX 'UI UX Pro Max' Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'skills\ui-ux-pro-max\SKILL.md')) 'skill path'; Add-Check UIUX Impeccable Mandatory (Has-Path (Join-Path $env:CODEX_HOME 'skills\impeccable\SKILL.md')) 'skill path'; Add-Check UIUX Playwright Recommended (Has-Command npx) 'npx available' }
+    'UIUX' { Add-Check UIUX 'UI UX Pro Max' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path'; Add-Check UIUX Impeccable Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'; Add-Check UIUX Playwright Recommended (Has-Command npx) 'npx available' }
     'DevOps' { Add-Check DevOps Docker Recommended (Has-Command docker) 'docker command'; Add-Check DevOps 'GitHub CLI' Mandatory (Has-Command gh) 'gh command' }
     'Optional' { Add-Check Optional 'Optional tools' Optional $true 'not blocking' }
   }
