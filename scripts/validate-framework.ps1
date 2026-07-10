@@ -19,6 +19,26 @@ $requiredAcceptance = @(
   "scripts/sync-runtime.ps1",
   "examples/generic-ai/runtime-check-example.md",
   "framework/27-quality-gates/16-ueef-activation-gate.md",
+  "framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md",
+  "framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md",
+  "framework/26-decision-graphs/19-theme-architecture-decision-graph.md",
+  "framework/26-decision-graphs/20-responsive-component-decision-graph.md",
+  "framework/26-decision-graphs/21-overlay-behavior-decision-graph.md",
+  "framework/26-decision-graphs/22-security-hardening-decision-graph.md",
+  "framework/26-decision-graphs/23-performance-optimization-decision-graph.md",
+  "framework/29-checklists/23-theme-review-checklist.md",
+  "framework/29-checklists/24-dark-mode-review-checklist.md",
+  "framework/29-checklists/25-responsive-first-checklist.md",
+  "framework/29-checklists/26-dropdown-panel-overlay-checklist.md",
+  "framework/29-checklists/27-security-hardening-checklist.md",
+  "framework/29-checklists/28-extreme-performance-checklist.md",
+  "framework/38-templates/16-theme-definition-template.md",
+  "framework/38-templates/17-responsive-component-contract-template.md",
+  "framework/38-templates/18-overlay-interaction-contract-template.md",
+  "framework/38-templates/19-security-review-report-template.md",
+  "framework/38-templates/20-performance-budget-template.md",
+  "release-manifest.json",
+  "docs/releases/v1.1.0.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -96,6 +116,15 @@ $master = Join-Path $Root "framework/MASTER_INDEX.md"
 if (!(Test-Path $master)) { throw "Missing framework/MASTER_INDEX.md" }
 $masterText = Get-Content $master -Raw
 if ($masterText -notmatch "00-foundation" -or $masterText -notmatch "27-quality-gates" -or $masterText -notmatch "38-templates") { throw "Master index missing expected pack references" }
+$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance")
+foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($link)) { throw "Master index missing $link" } }
+$coreText = Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw
+foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
+$runtimeText = Get-Content (Join-Path $Root "framework/03-runtime/00-runtime-sequence.md") -Raw
+foreach ($term in @("Existing theme inspected:","Theme tokens found:","Responsive system found:","Overlay system found:","UI UX Pro Max checked:")) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing preflight field: $term" } }
+$manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
+$version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
+if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"

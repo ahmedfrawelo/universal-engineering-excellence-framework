@@ -173,3 +173,11 @@ This index links framework packs and modules for assistant loading.
 - [framework/26-decision-graphs/architecture-decision-graph.md](../framework/26-decision-graphs/architecture-decision-graph.md)
 - [framework/27-quality-gates/final-gate.md](../framework/27-quality-gates/final-gate.md)
 - [framework/28-scorecards/final-review-scorecard.md](../framework/28-scorecards/final-review-scorecard.md)
+
+## Version 1.1 Expansion Packs
+
+- [45-identity-access-application-models/README.md](45-identity-access-application-models/README.md)
+- [46-design-system-consistency-reuse/README.md](46-design-system-consistency-reuse/README.md)
+- [47-theme-responsive-interaction-security-performance/README.md](47-theme-responsive-interaction-security-performance/README.md)
+- [27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md](27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md)
+- [28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md](28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md)

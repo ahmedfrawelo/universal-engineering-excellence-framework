@@ -67,3 +67,7 @@ For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is 
 - `CODEX_HOME/ueef/UEEF-ACTIVE.json`
 
 If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-codex.sh` must fail instead of installing to a fallback path.
+
+## Updating to 1.1.0
+
+From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the agent installer so the active runtime receives packs 45-47 and the updated loader. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.

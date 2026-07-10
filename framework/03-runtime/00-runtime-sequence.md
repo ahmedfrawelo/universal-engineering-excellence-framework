@@ -56,3 +56,24 @@ UIUX: YES/NO/NA
 ```
 
 Avoid repeating full framework rules in every response.
+
+## UI Preflight Evidence
+
+For UI work, implementation must not begin until the assistant records:
+
+```text
+Existing theme inspected:
+Light theme available:
+Dark theme available:
+System theme available:
+Theme tokens found:
+Radius tokens found:
+Responsive system found:
+Overlay system found:
+Existing dropdown/panel behavior inspected:
+Security modules selected:
+Performance modules selected:
+UI UX Pro Max checked:
+```
+
+The final user-facing verification still uses only the compact required labels. The detailed evidence belongs in the plan, task record, tests, or review artifacts, not in the `Loaded` line.

@@ -87,3 +87,14 @@ Required core load order:
 - framework/27-quality-gates/16-ueef-activation-gate.md
 
 The assistant must select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, plan quality gates, and include UEEF verification in the final response.
+
+## Product System Requirements
+
+- Every new UI must match the existing theme and design system. Inspect tokens, components, layout, motion, responsive rules, and overlay behavior before implementation.
+- Every new frontend product must define light, dark, and system theme behavior unless product requirements explicitly justify an exception.
+- Every page and component must be responsive from the beginning across width, height, orientation, zoom, text scaling, touch, mouse, and keyboard input.
+- Every overlay must follow the global interaction contract for trigger toggling, peer coordination, outside dismissal, Escape, focus, scrolling, collision, and layering.
+- Product UI must use semantic design tokens, controlled soft radius tokens, and solid visual borders. Dashed or dotted UI lines are prohibited except when the represented content itself requires them.
+- Security and performance are release-blocking requirements. Authorization, tenant isolation, duplicate submission protection, measured rendering, API, query, network, and bundle behavior must be verified where applicable.
+
+Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-responsive-interaction-security-performance/` for UI, frontend, theme, responsive, interaction, security-sensitive, or performance-sensitive work.

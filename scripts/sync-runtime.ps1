@@ -17,6 +17,9 @@ try {
   $sourceCommit = (git -C $SourcePath rev-parse HEAD 2>$null)
   if (!$sourceCommit) { $sourceCommit = "UNKNOWN" }
 } catch { $sourceCommit = "UNKNOWN" }
+$versionText = Get-Content -LiteralPath (Join-Path $SourcePath "VERSION.md") -Raw
+$versionMatch = [regex]::Match($versionText, '\b\d+\.\d+\.\d+\b')
+$version = if ($versionMatch.Success) { $versionMatch.Value } else { throw "Could not read VERSION.md" }
 New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
 
 $runtimeRoot = Join-Path $CodexHome "ueef"
@@ -50,7 +53,7 @@ Write-Utf8File $loader @(
   "Global UEEF Path: $runtimeRoot",
   "Agent Runtime Path: $runtimePath",
   "Runtime source: self-contained copy inside Codex runtime",
-  "Version: 1.0.0",
+  "Version: $version",
   "",
   "Before every engineering task:",
   "1. Load only these always-loaded modules: boot-loader, core-system.",
@@ -87,7 +90,7 @@ Write-Utf8File $agents @(
   "UEEF Active Runtime Path: $runtimePath",
   "UEEF Loader: $loader",
   "UEEF Status Script: $statusScript",
-  "UEEF Version: 1.0.0",
+  "UEEF Version: $version",
   "",
   "## Mandatory Preflight",
   "",

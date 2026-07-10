@@ -21,6 +21,33 @@ if find "$ROOT" -name '*.md' -type f -size 0c | grep .; then echo "Empty Markdow
 grep -q "00-foundation" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "27-quality-gates" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "38-templates" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "45-identity-access-application-models" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "46-design-system-consistency-reuse" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "47-theme-responsive-interaction-security-performance" "$ROOT/framework/MASTER_INDEX.md"
+for f in \
+  framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
+  framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
+  framework/26-decision-graphs/19-theme-architecture-decision-graph.md \
+  framework/26-decision-graphs/20-responsive-component-decision-graph.md \
+  framework/26-decision-graphs/21-overlay-behavior-decision-graph.md \
+  framework/26-decision-graphs/22-security-hardening-decision-graph.md \
+  framework/26-decision-graphs/23-performance-optimization-decision-graph.md \
+  framework/29-checklists/23-theme-review-checklist.md \
+  framework/29-checklists/24-dark-mode-review-checklist.md \
+  framework/29-checklists/25-responsive-first-checklist.md \
+  framework/29-checklists/26-dropdown-panel-overlay-checklist.md \
+  framework/29-checklists/27-security-hardening-checklist.md \
+  framework/29-checklists/28-extreme-performance-checklist.md \
+  framework/38-templates/16-theme-definition-template.md \
+  framework/38-templates/17-responsive-component-contract-template.md \
+  framework/38-templates/18-overlay-interaction-contract-template.md \
+  framework/38-templates/19-security-review-report-template.md \
+  framework/38-templates/20-performance-budget-template.md \
+  release-manifest.json docs/releases/v1.1.0.md; do
+  [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
+done
+grep -q "Existing theme inspected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Security and performance" "$ROOT/framework/01-core/00-core-system.md"
 echo "UEEF validation passed"
 echo "Markdown file count: $count"
 echo "Framework pack count: $(find "$ROOT/framework" -maxdepth 1 -type d -name '[0-9][0-9]-*' | wc -l)"

@@ -27,3 +27,7 @@ For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is 
 - `CODEX_HOME/ueef/UEEF-ACTIVE.json`
 
 If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-codex.sh` must fail instead of installing to a fallback path.
+
+## Version 1.1 UI Selection
+
+For theme, responsive, page, form, table, dashboard, dropdown, panel, modal, or interaction work, select the relevant modules in packs 46 and 47. Include pack 45 when identity, permissions, entitlements, employee access, public access, SaaS tenancy, or hybrid application boundaries are involved.

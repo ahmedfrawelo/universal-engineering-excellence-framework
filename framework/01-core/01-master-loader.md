@@ -39,6 +39,30 @@ Load only:
 
 Apply UI UX Pro Max when available. Do not load backend, database, enterprise, or unrelated technology packs unless the task touches them.
 
+For every UI, frontend, page, component, form, dropdown, menu, modal, panel, table, dashboard, responsive, theme, or interaction task, first inspect `framework/46-design-system-consistency-reuse/` and select the relevant modules from `framework/47-theme-responsive-interaction-security-performance/`.
+
+## Theme Tasks
+
+Select pack 47 modules `01` through `07`: theme architecture; light, dark, and system modes; existing-theme compatibility; token enforcement; semantic colors; persistence and initialization; and theme accessibility.
+
+## Responsive Page Tasks
+
+Select pack 47 modules `10` through `16` plus `20`: responsive-first architecture, breakpoints and containers, fluid sizing, typography, components, tables and dashboards, forms, orientation, zoom, and short-height support.
+
+## Dropdown Panel and Overlay Tasks
+
+Select pack 47 modules `21`, `22`, `23`, `26` through `31`: global overlay contract, semantic surface contract, outside behavior, trigger toggle, single-open peers, Escape and focus, scroll restoration, and semantic layering.
+
+## Security-Sensitive Tasks
+
+Select pack 47 modules `36` through `40` plus pack 45 application-model and tenant modules when identity, authorization, entitlement, or tenancy is involved.
+
+## Performance Tasks
+
+Select pack 47 modules `41` through `46` and the relevant frontend, backend, API, database, React, Angular, .NET, SQL Server, or cloud technology module.
+
+All applicable UI work includes `framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md` and `framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md`.
+
 ## Backend API Tasks
 
 Load only:
