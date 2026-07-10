@@ -119,6 +119,10 @@ For any page opening, navigation, browser inspection, clicking, typing, upload, 
 
 For any data-backed UI, page, component, table, card, dashboard, form, or async interaction, select `framework/53-skeleton-loading/`. Load the system, structure-parity, state-contract, theme-responsive-accessibility, performance, reuse, and verification modules as applicable. Update an existing skeleton whenever the final content structure changes; never add a duplicate loader for the same region.
 
+## Design Intelligence
+
+For any UI audit, redesign, new visual system, or recommendation about fonts, colors, icons, strokes, outlines, radii, typography, spacing, motion, theme, or responsive behavior, select `framework/54-design-intelligence/` and run the repository design extractor before recommending new values. Classify every finding as extracted, inferred, or proposed.
+
 ## Compact Verification Format
 
 ```text

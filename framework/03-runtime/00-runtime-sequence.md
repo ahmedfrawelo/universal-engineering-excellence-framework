@@ -156,4 +156,17 @@ Layout shift checked:
 Skeleton gate: PASS / BLOCKED
 ```
 
+For design intelligence tasks, also record:
+
+```text
+Design source of truth identified:
+Design extraction run:
+Fonts and assets classified:
+Colors and theme mappings classified:
+Icons and stroke system classified:
+Typography and sizing classified:
+Missing roles and recommendations documented:
+Design intelligence gate: PASS / BLOCKED
+```
+
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
