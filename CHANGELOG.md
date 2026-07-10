@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 - 2026-07-10
+
+- Added pack 49 Engineering Guardian with zero-regression policy and 26 protection modules.
+- Added regression monitors for production, UI, performance, security, architecture, design, dependencies, database, API contracts, debt, complexity, code, and folders.
+- Added automatic improvement policy, self-criticism engine, final guardian gate, health score, maintenance review, future-proof review, product review, and final checklist.
+- Integrated Guardian selection into Core, Master Loader, Runtime Sequence, AI review, quality gates, scorecards, checklists, validation, and release metadata.
+
 ## 1.2.0 - 2026-07-10
 
 - Added pack 48 design governance with 31 files covering design language, tokens, visual systems, components, patterns, layouts, themes, interactions, overlays, drift, and reuse.

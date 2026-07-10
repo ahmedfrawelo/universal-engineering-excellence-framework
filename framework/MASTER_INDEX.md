@@ -186,3 +186,8 @@ This index links framework packs and modules for assistant loading.
 
 - [48-design-governance/README.md](48-design-governance/README.md)
 - [48-design-governance/INDEX.md](48-design-governance/INDEX.md)
+
+## Version 1.3 Engineering Guardian
+
+- [49-engineering-guardian/README.md](49-engineering-guardian/README.md)
+- [49-engineering-guardian/INDEX.md](49-engineering-guardian/INDEX.md)

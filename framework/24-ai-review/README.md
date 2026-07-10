@@ -6,3 +6,6 @@ Apply this pack together with framework/46-design-system-consistency-reuse and t
 Pack purpose: ai review guidance for UEEF Enterprise Edition.
 
 Use this pack when project inspection or task risk indicates the subject is relevant. Load only necessary modules to keep assistant context focused.
+## Version 1.3 Engineering Guardian Integration
+
+Every review must apply `framework/49-engineering-guardian/19-self-criticism-engine.md`, the affected regression monitors, `framework/49-engineering-guardian/20-final-guardian-gate.md`, and the engineering health scorecard. Review findings must identify regressions, evidence gaps, owners, and follow-up rather than only describe the diff.

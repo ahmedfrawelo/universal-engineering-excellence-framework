@@ -101,6 +101,10 @@ Load only:
 
 For UEEF-specific audit, install, validation, runtime, or rebuild work, broader loading is allowed. Still prefer targeted packs first, then expand only as needed.
 
+## Engineering Guardian Selection
+
+For every non-trivial task, select `framework/49-engineering-guardian/00-engineering-guardian.md`, `01-zero-regression-policy.md`, `19-self-criticism-engine.md`, `20-final-guardian-gate.md`, and `25-final-checklist.md`. Add monitors `02` through `18` for affected contracts, layers, systems, and quality dimensions. Add `21-engineering-health-score.md`, `22-long-term-maintenance.md`, `23-future-proof-review.md`, and `24-world-class-product-review.md` for releases, architecture changes, shared components, or high-risk work.
+
 ## Compact Verification Format
 
 ```text

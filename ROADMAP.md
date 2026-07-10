@@ -10,6 +10,10 @@
 
 ## 1.3
 
+- Delivered Engineering Guardian, zero-regression protection, regression monitors, self-criticism, health scoring, and final guardian gate in 1.3.0.
+
+## 1.4
+
 - Add machine-readable metadata for module selection and compatibility.
 - Add executable overlay contract reference implementations for supported frontend packs.
 - Expand automated link, schema, semantic duplication, and hardcoded-value validation.

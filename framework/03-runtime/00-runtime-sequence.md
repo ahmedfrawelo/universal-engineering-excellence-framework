@@ -95,3 +95,18 @@ Icon family identified:
 Typography roles identified:
 Design governance modules selected:
 ```
+
+## Engineering Guardian Preflight
+
+Every non-trivial task must also record:
+
+```text
+Affected baseline recorded:
+Regression monitors selected:
+Security and performance blockers checked:
+Design and accessibility impact checked:
+Architecture and dependency impact checked:
+Automatic improvement opportunities reviewed:
+Self-criticism completed:
+Final Guardian Gate:
+```

@@ -104,3 +104,5 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - All visual values must come from governed design tokens or an approved documented exception. Design governance covers color, typography, icons, spacing, sizing, radius, borders, shadows, elevation, motion, and z-index.
 - Every UI change must be reviewed for token compliance, component reuse, theme compatibility, responsive behavior, accessibility, interaction consistency, performance, and design drift.
 - Select `framework/48-design-governance/` for design governance, tokens, visual language, component registry, pattern library, or reuse enforcement work.
+- Select `framework/49-engineering-guardian/` for every non-trivial engineering task. Establish the affected baseline, run applicable regression monitors, and leave the project equal or better across architecture, security, performance, scalability, maintainability, UI, UX, accessibility, reliability, documentation, testing, and developer experience.
+- A known regression must stop the task until fixed or explicitly accepted by an accountable owner with impact, expiry, mitigation, and rollback evidence.
