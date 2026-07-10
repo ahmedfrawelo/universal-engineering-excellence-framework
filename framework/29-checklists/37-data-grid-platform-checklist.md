@@ -19,3 +19,4 @@
 - [ ] Rate limits, concurrency, cancellation, backpressure, retry budgets, and capacity-exhaustion behavior are tested.
 - [ ] Cache keys, TTL, invalidation, stale-while-revalidate, freshness markers, and realtime reconciliation are defined.
 - [ ] Data-quality reconciliation, cost/load evidence, retention/privacy, kill switches, and degraded mode are defined.
+- [ ] An operational runbook covers slow queries/rendering, stale data, realtime failure, exports, bulk actions, and exit criteria.

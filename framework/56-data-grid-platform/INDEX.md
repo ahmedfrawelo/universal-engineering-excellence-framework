@@ -11,3 +11,4 @@
 - [08-testing-and-observability.md](08-testing-and-observability.md)
 - [09-advanced-grid-capabilities.md](09-advanced-grid-capabilities.md)
 - [10-production-data-delivery.md](10-production-data-delivery.md)
+- [11-operational-runbook.md](11-operational-runbook.md)
