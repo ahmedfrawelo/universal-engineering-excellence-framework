@@ -33,6 +33,10 @@ Check 'release-parity' {
   $version = [regex]::Match((Get-Content (Join-Path $resolvedRoot 'VERSION.md') -Raw), '\b\d+\.\d+\.\d+\b').Value
   if ($manifest.version -ne $version) { throw "Version mismatch: $version vs $($manifest.version)" }
 }
+Check 'runtime-path-safety' {
+  $sync = Get-Content (Join-Path $resolvedRoot 'scripts/sync-runtime.ps1') -Raw
+  foreach ($term in @('Refusing to sync from inside CODEX_HOME', 'runtimePrefix', 'OrdinalIgnoreCase')) { if ($sync -notmatch [regex]::Escape($term)) { throw "Missing path safety control: $term" } }
+}
 $summary = [pscustomobject]@{ generatedAt = (Get-Date).ToUniversalTime().ToString('o'); root = '<project-root>'; checks = $results; status = if (($results.status -contains 'FAIL')) { 'FAIL' } else { 'PASS' } }
 if ($ReportPath) { $summary | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $ReportPath }
 if ($Json) { $summary | ConvertTo-Json -Depth 5 } else { $results | Format-Table -AutoSize; Write-Host "UEEF audit: $($summary.status)" }

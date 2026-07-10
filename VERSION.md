@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 1.9.0.
+UEEF Enterprise Edition version: 1.9.1.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -22,6 +22,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 1.8.0: evidence-first design intelligence extraction and recommendations for fonts, colors, icons, strokes, typography, sizing, theme, motion, and responsive systems.
 - 1.8.1: bounded priority-ranked design recommendation analysis with review ownership and no automatic design changes.
 - 1.9.0: continuous assurance audit runner for framework integrity, security hygiene, script syntax, generated artifacts, release parity, and runtime health.
+- 1.9.1: hardened runtime path safety and made update scripts independent of the caller's current directory.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.

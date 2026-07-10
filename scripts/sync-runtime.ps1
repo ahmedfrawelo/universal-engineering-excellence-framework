@@ -24,10 +24,15 @@ New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
 
 $runtimeRoot = Join-Path $CodexHome "ueef"
 $runtimePath = Join-Path $runtimeRoot $Agent
-$resolvedCodexHome = (Resolve-Path -LiteralPath $CodexHome).Path
+$resolvedCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $CodexHome).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+$resolvedSource = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+$runtimePrefix = $resolvedCodexHome + [IO.Path]::DirectorySeparatorChar
+if ($resolvedSource -eq $resolvedCodexHome -or $resolvedSource.StartsWith($runtimePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+  throw "Refusing to sync from inside CODEX_HOME: $resolvedSource"
+}
 if (Test-Path -LiteralPath $runtimePath) {
-  $resolvedRuntime = (Resolve-Path -LiteralPath $runtimePath).Path
-  if (!$resolvedRuntime.StartsWith($resolvedCodexHome, [System.StringComparison]::OrdinalIgnoreCase)) {
+  $resolvedRuntime = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $runtimePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+  if (!$resolvedRuntime.StartsWith($runtimePrefix, [System.StringComparison]::OrdinalIgnoreCase) -or $resolvedRuntime -eq $resolvedCodexHome) {
     throw "Refusing to replace unsafe runtime path: $resolvedRuntime"
   }
   Remove-Item -LiteralPath $resolvedRuntime -Recurse -Force
