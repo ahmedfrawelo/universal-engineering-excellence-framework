@@ -115,6 +115,10 @@ Before all other task phases, run `scripts/environment-bootstrap.ps1` on Windows
 
 For any page opening, navigation, browser inspection, clicking, typing, upload, download, or authenticated web workflow, select `framework/51-browser-session-control/`. The existing user-owned browser window and tab are mandatory. Load modules `00`, `01`, `02`, `04`, `05`, `06`, `07`, and `08`. For tasks that depend on the exact browser window the user is viewing, use visible Windows window control first. Do not use a connector-created Chrome window, Codex-titled browser surface, automation-banner window, or unverified profile. If the visible window cannot be proven, block instead of opening another browser.
 
+## Skeleton Loading
+
+For any data-backed UI, page, component, table, card, dashboard, form, or async interaction, select `framework/53-skeleton-loading/`. Load the system, structure-parity, state-contract, theme-responsive-accessibility, performance, reuse, and verification modules as applicable. Update an existing skeleton whenever the final content structure changes; never add a duplicate loader for the same region.
+
 ## Compact Verification Format
 
 ```text

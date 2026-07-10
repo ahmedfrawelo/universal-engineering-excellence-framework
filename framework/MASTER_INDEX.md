@@ -3,6 +3,7 @@
 This index links framework packs and modules for assistant loading.
 
 - [52-workspace-hygiene](52-workspace-hygiene/README.md)
+- [53-skeleton-loading](53-skeleton-loading/README.md)
 
 - [00-foundation/00-constitution.md](00-foundation/00-constitution.md)
 - [00-foundation/01-mission.md](00-foundation/01-mission.md)

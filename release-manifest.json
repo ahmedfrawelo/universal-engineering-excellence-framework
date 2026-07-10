@@ -1,10 +1,10 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "releaseDate": "2026-07-10",
   "minimumMarkdownFiles": 490,
-  "frameworkPacks": 53,
+  "frameworkPacks": 54,
   "entrypoints": {
     "loaderTemplate": "UEEF-LOADER.md",
     "core": "framework/01-core/00-core-system.md",
@@ -20,7 +20,8 @@
     "framework/49-engineering-guardian",
     "framework/50-environment-bootstrap",
     "framework/51-browser-session-control",
-    "framework/52-workspace-hygiene"
+    "framework/52-workspace-hygiene",
+    "framework/53-skeleton-loading"
   ],
-  "releaseNotes": "docs/releases/v1.6.0.md"
+  "releaseNotes": "docs/releases/v1.7.0.md"
 }

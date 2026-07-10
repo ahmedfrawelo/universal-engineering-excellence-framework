@@ -144,4 +144,16 @@ Isolated browser used: NO / EXPLICITLY APPROVED
 Browser session gate: PASS / BLOCKED
 ```
 
+For data-backed UI tasks, also record:
+
+```text
+Skeleton system selected:
+Existing loading pattern searched:
+Skeleton reused or updated:
+State matrix defined:
+Skeleton parity verified:
+Layout shift checked:
+Skeleton gate: PASS / BLOCKED
+```
+
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.

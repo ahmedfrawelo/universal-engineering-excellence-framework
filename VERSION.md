@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 1.6.0.
+UEEF Enterprise Edition version: 1.7.0.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -18,6 +18,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 1.4.7: aligned Unix default CODEX_HOME behavior and automatic profile detection with PowerShell.
 - 1.5.0: browser session control, user-owned browser enforcement, authenticated-tab verification, and no-isolated-browser policy.
 - 1.6.0: workspace hygiene, retention-based cleanup, dry-run deletion safety, generated-artifact control, and untracked build/deployment staging cleanup.
+- 1.7.0: governed skeleton loading, structural parity, async state matrices, layout-stability checks, accessibility, motion, and visual QA.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.
