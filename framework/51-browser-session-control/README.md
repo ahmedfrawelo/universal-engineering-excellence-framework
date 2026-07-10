@@ -5,6 +5,8 @@ Status: Release blocking for browser tasks
 
 Browser work must use the browser and session the user actually opened. The assistant must not silently create an isolated browser, temporary profile, fresh context, or alternate login session.
 
+When a connector exposes a blank or wrong tab, use the user-browser connection recovery procedure before declaring the user's browser unavailable.
+
 ## Mandatory Policy
 
 - Select the existing user-owned browser surface first, using the available browser or Chrome connector that can see the user's real tabs and session.

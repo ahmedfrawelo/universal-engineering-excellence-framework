@@ -11,3 +11,4 @@ Version: 1.5.0
 - 06-session-safety-and-privacy.md
 - 07-browser-task-verification.md
 - 08-browser-session-quality-gate.md
+- 09-user-browser-connection-recovery.md

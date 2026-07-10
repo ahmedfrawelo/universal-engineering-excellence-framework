@@ -10,6 +10,7 @@ Version: 1.5.0
 - [ ] No isolated browser/context/profile used silently.
 - [ ] Explicit consent recorded if an isolated fallback was necessary.
 - [ ] Final state verified in the same user-owned tab.
+- [ ] A blank or wrong connector tab triggered tab discovery and user-tab recovery guidance before blocking.
 
 ## Result
 

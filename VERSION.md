@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.2.0.
+UEEF Enterprise Edition version: 2.2.1.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -29,6 +29,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 2.1.0: application-shell design analysis for sidebars, headers, navigation, page chrome, route transitions, motion, responsive behavior, accessibility, loading, and visual QA.
 - 2.1.1: release-blocking live-refresh hardening for no-reload frontend reconciliation, backend transport lifecycle, security, tenant isolation, burst performance, and event integrity.
 - 2.2.0: visual composition and anti-regression gate for first-viewport hierarchy, density, responsive composition, form layout, state coverage, and evidence-based visual QA.
+- 2.2.1: user-owned Chrome connection recovery for blank or wrong connector tabs without opening an alternate browser or profile.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.
