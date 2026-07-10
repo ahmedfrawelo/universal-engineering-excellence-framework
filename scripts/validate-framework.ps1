@@ -216,6 +216,7 @@ $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | Convert
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }
 if ([int]$manifest.frameworkPacks -ne $packs.Count) { throw "Manifest framework pack count does not match the repository" }
+if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"

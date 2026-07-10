@@ -15,6 +15,11 @@ Live runtime refresh:
 - Never rely on a loader or browser decision cached from an earlier turn.
 - If the runtime version, loader content, or browser hard-stop policy changed, discard the cached decision and restart preflight.
 
+Delivery continuation:
+- An explicit request to expand scope, rebuild, migrate, or redesign is not a reason to suspend execution or wait for the user to resume.
+- Revise the plan and continue implementation and tests. `Not ready to release` blocks only a release claim, never requested coding work.
+- Use BLOCKED only for a real impasse: missing required access, unavailable mandatory dependency, unresolved destructive decision, or external state that prevents meaningful progress.
+
 Browser hard stop:
 - Never use a connector-created Chrome window for a task that depends on the user's visible browser.
 - A `Chrome is being controlled by automated test software` banner, Codex-titled browser window, or unverified profile is a BLOCKED browser session.

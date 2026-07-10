@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.4.3.
+UEEF Enterprise Edition version: 2.4.4.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -38,6 +38,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 2.4.1: explicit site-opening support in the existing user-owned Chrome window and profile.
 - 2.4.2: autonomous-by-default policy for ordinary scoped engineering work, with platform and high-impact confirmations preserved.
 - 2.4.3: delivery continuation policy that keeps implementation moving after explicit scope expansion and separates release readiness from coding progress.
+- 2.4.4: propagated delivery continuation directly into the global loader and generated Codex AGENTS instructions.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.
