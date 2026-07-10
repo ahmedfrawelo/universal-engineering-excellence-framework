@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.3.2.
+UEEF Enterprise Edition version: 2.4.0.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -34,6 +34,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 2.3.0: autonomous control of accessible user-owned Chrome tabs, with user prompts limited to missing or ambiguous connector access.
 - 2.3.1: browser-control runtime health diagnostics that distinguish Codex control-channel failures from Chrome tab and login availability.
 - 2.3.2: removed the custom browser-control recovery, telemetry, autonomy, and runtime-health extensions at the user's request.
+- 2.4.0: platform-authorized control of existing user-owned Chrome tabs, with persistent permission as the only normal user action.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.

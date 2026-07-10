@@ -3,6 +3,7 @@
 Version: 1.5.0
 
 - [ ] User-owned browser surface selected.
+- [ ] Official platform Chrome permission was requested when browser control was needed.
 - [ ] Target tab selected by visible title, URL, and state.
 - [ ] Target domain verified.
 - [ ] Visible signed-in state verified without inspecting secrets.
