@@ -15,3 +15,7 @@
 - [ ] Editing uses field allowlists, entity versions, conflict handling, and explicit undo/rollback semantics.
 - [ ] Export scope, async-job limits, expiry, cancellation, download security, and projection allowlists are defined.
 - [ ] Empty, stale, offline, retrying, permission, partial-failure, and background-refresh states are accessible and localized.
+- [ ] API/event schema evolution, null/timezone/currency semantics, compatibility, and deprecation are documented.
+- [ ] Rate limits, concurrency, cancellation, backpressure, retry budgets, and capacity-exhaustion behavior are tested.
+- [ ] Cache keys, TTL, invalidation, stale-while-revalidate, freshness markers, and realtime reconciliation are defined.
+- [ ] Data-quality reconciliation, cost/load evidence, retention/privacy, kill switches, and degraded mode are defined.
