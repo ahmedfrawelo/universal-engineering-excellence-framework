@@ -10,6 +10,11 @@ Before every non-trivial engineering task:
 4. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
 5. Apply the Engineering Guardian, relevant quality gates, and final verification before completion.
 
+Live runtime refresh:
+- At the beginning of every user turn, including an existing chat, re-read this loader and verify the active runtime version and status before selecting tools.
+- Never rely on a loader or browser decision cached from an earlier turn.
+- If the runtime version, loader content, or browser hard-stop policy changed, discard the cached decision and restart preflight.
+
 Browser hard stop:
 - Never use a connector-created Chrome window for a task that depends on the user's visible browser.
 - A `Chrome is being controlled by automated test software` banner, Codex-titled browser window, or unverified profile is a BLOCKED browser session.

@@ -9,6 +9,8 @@ Applies To: every non-trivial engineering task
 
 Before every non-trivial engineering task, the AI must run a compact UEEF Preflight Check. The AI must not start implementation until it can produce `UEEF: ACTIVE` with evidence.
 
+For an existing chat, the preflight is refreshed at the beginning of every user turn. A prior turn's loaded state, tool choice, browser choice, or activation result is stale until the current loader and runtime status are checked again.
+
 ## Always Loaded
 
 Only these are always loaded:
