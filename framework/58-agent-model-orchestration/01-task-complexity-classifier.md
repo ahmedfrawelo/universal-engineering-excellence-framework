@@ -24,8 +24,8 @@ Use the highest risk evidence as a floor even when the sum is low.
 
 ## Forced Floors
 
-- Authentication, authorization, tenant isolation, secrets, or exploitable security: at least `T3`.
-- Production mutation, destructive command, schema/data migration, payment, privacy, incident recovery: `T4`.
+- Authentication, authorization, tenant isolation, secrets, exploitable security, or release coordination: at least `T3`.
+- Production mutation, destructive command, schema/data migration, payment, privacy, or incident recovery: `T4`.
 - Architecture shared by multiple teams, broad redesign, or release packaging: at least `T3`.
 - Mechanical formatting, generated-file checks, narrow searches, and deterministic test runs may use `T1` even inside a larger task when isolated as child work.
 

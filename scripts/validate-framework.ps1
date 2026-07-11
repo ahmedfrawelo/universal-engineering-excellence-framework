@@ -114,6 +114,8 @@ $requiredAcceptance = @(
   "framework/58-agent-model-orchestration/INDEX.md",
   "framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md",
   "scripts/select-agent-route.ps1",
+  "scripts/select-agent-route.sh",
+  "scripts/test-agent-route.ps1",
   "docs/releases/v2.6.0.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
@@ -224,6 +226,7 @@ $visualTerms = @("First-viewport composition reviewed:","Density and responsive 
 foreach ($term in $visualTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing visual-composition field: $term" } }
 $agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Model capability class:","Agent topology:","Delegation benefit verified:","Agent model routing gate:")
 foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing agent-routing field: $term" } }
+& (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }

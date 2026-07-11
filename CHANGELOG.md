@@ -6,6 +6,8 @@
 - Added capability-based model selection and bounded multi-agent topologies.
 - Added token-economy, escalation, fallback, and independent verification controls.
 - Added a deterministic PowerShell route selector and validation coverage.
+- Added Unix selector parity, expanded critical risk floors, and behavioral tests.
+- Corrected agent spawning so complexity alone never bypasses the delegation-benefit test.
 
 ## 1.5.0 - 2026-07-10
 

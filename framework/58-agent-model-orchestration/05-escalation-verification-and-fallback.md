@@ -13,7 +13,7 @@ Increase tier, model class, reasoning, or verification when:
 
 ## Fallback
 
-If subagents or model overrides are unavailable, the lead performs the work with the strongest available model and the same quality gates. Record the capability limitation; do not pretend delegation occurred.
+If subagents or model overrides are unavailable, the lead performs the work with the strongest available model and the same quality gates. For T4, record that independent verification could not be delegated and strengthen direct evidence. Do not pretend delegation occurred.
 
 If an agent fails, retry once only when the failure is transient and the task remains valid. Otherwise reclaim the work or escalate. Never loop agents on the same unresolved prompt.
 
