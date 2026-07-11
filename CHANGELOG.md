@@ -8,6 +8,7 @@
 - Added a deterministic PowerShell route selector and validation coverage.
 - Added Unix selector parity, expanded critical risk floors, and behavioral tests.
 - Corrected agent spawning so complexity alone never bypasses the delegation-benefit test.
+- Fixed generated runtime loader parity so continuation and local-command policies survive installation and sync.
 
 ## 1.5.0 - 2026-07-10
 

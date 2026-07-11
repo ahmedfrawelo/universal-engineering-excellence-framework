@@ -233,6 +233,10 @@ if ($manifest.version -ne $version) { throw "Version and release manifest do not
 if ([int]$manifest.frameworkPacks -ne $packs.Count) { throw "Manifest framework pack count does not match the repository" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch "58-agent-model-orchestration|pack 58") { throw "Loader missing agent model routing rule" }
+$syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
+foreach ($term in @("Agent and model routing:","not a reason to suspend execution","Local command autonomy:")) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing global loader policy: $term" }
+}
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"
