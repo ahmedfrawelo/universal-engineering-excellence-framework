@@ -1,10 +1,10 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.5.0",
-  "releaseDate": "2026-07-10",
+  "version": "2.6.0",
+  "releaseDate": "2026-07-11",
   "minimumMarkdownFiles": 490,
-  "frameworkPacks": 58,
+  "frameworkPacks": 59,
   "entrypoints": {
     "loaderTemplate": "UEEF-LOADER.md",
     "core": "framework/01-core/00-core-system.md",
@@ -25,7 +25,8 @@
     "framework/54-design-intelligence",
     "framework/55-continuous-assurance",
     "framework/56-data-grid-platform",
-    "framework/57-application-shell-design"
+    "framework/57-application-shell-design",
+    "framework/58-agent-model-orchestration"
   ],
-  "releaseNotes": "docs/releases/v2.5.0.md"
+  "releaseNotes": "docs/releases/v2.6.0.md"
 }

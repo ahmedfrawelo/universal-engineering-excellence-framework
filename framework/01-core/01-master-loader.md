@@ -23,6 +23,15 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Keep runtime and final verification compact.
 - Select `framework/01-core/13-autonomy-and-confirmation-policy.md` for any task where execution autonomy, confirmation behavior, or platform approvals matter.
 - Select `framework/01-core/14-delivery-continuation-policy.md` when scope expands, a migration/rebuild is requested, or release readiness could be confused with implementation progress.
+- Route every task through `framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md` and `01-task-complexity-classifier.md`. Select the remaining pack modules when delegation, model override, parallel agents, token economy, escalation, or independent verification applies.
+
+## Agent and Model Routing
+
+- Use the lowest-cost model class that satisfies the task's complexity and risk floor.
+- Keep T0 and most T1 work on the lead agent when delegation overhead exceeds the work.
+- Use bounded, non-overlapping sidecars for T2 and parallel specialists for genuinely independent T3 work.
+- Use the strongest available model and independent verification for T4 security, production, migration, destructive, privacy, payment, or incident work.
+- Reclassify and escalate when scope, ambiguity, failures, or risk increase.
 
 ## Frontend UI Tasks
 

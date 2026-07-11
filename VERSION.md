@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.5.0.
+UEEF Enterprise Edition version: 2.6.0.
 
 Semantic versioning: MAJOR.MINOR.PATCH.
 
@@ -42,6 +42,7 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 2.4.5: local command autonomy for normal project commands and development services, with process reuse and clear platform-prompt handling.
 - 2.4.6: user Chrome window-state preservation for browser automation.
 - 2.5.0: least-intrusive browser-control surface selection, preferring visible Windows control for ordinary interaction and debugging only when required.
+- 2.6.0: task complexity routing, capability-based model selection, bounded agent topologies, token-economy controls, escalation, and risk-matched verification.
 - 1.1.x: compatible improvements and refined guidance.
 - 2.0.0: intelligence pack expansion or breaking framework structure changes.
 - Technology pack additions should be minor releases unless they change core contracts.

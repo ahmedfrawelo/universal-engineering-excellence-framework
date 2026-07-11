@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.0 - 2026-07-11
+
+- Added mandatory task complexity and risk routing for every task.
+- Added capability-based model selection and bounded multi-agent topologies.
+- Added token-economy, escalation, fallback, and independent verification controls.
+- Added a deterministic PowerShell route selector and validation coverage.
+
 ## 1.5.0 - 2026-07-10
 
 - Added pack 51 Browser Session Control.

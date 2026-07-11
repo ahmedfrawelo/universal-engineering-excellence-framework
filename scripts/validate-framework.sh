@@ -33,6 +33,7 @@ grep -q "51-browser-session-control" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "52-workspace-hygiene" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "53-skeleton-loading" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "58-agent-model-orchestration" "$ROOT/framework/MASTER_INDEX.md"
 for f in \
   framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
   framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
@@ -98,6 +99,8 @@ grep -q "Live refresh no-reload proof verified:" "$ROOT/framework/03-runtime/00-
 grep -q "Realtime security and burst-performance proof verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "First-viewport composition reviewed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Visual evidence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Agent route tier:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 [ -f "$ROOT/framework/27-quality-gates/28-data-grid-platform-gate.md" ] || { echo "Missing data-grid gate" >&2; exit 1; }
 [ -f "$ROOT/framework/29-checklists/37-data-grid-platform-checklist.md" ] || { echo "Missing data-grid checklist" >&2; exit 1; }
 [ -f "$ROOT/scripts/ueef-audit.ps1" ] || { echo "Missing audit runner" >&2; exit 1; }
@@ -144,6 +147,10 @@ grep -q "Visual evidence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.
 [ -f "$ROOT/docs/releases/v2.4.5.md" ] || { echo "Missing local command autonomy release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.4.6.md" ] || { echo "Missing browser window-state release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.5.0.md" ] || { echo "Missing browser control-surface release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.6.0.md" ] || { echo "Missing agent orchestration release notes" >&2; exit 1; }
+[ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
+[ -f "$ROOT/framework/27-quality-gates/31-agent-model-routing-gate.md" ] || { echo "Missing agent routing gate" >&2; exit 1; }
+[ -f "$ROOT/scripts/select-agent-route.ps1" ] || { echo "Missing agent route selector" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9.]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do

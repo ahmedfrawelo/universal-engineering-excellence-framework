@@ -210,3 +210,23 @@ Performance budget verified:
 ```
 
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
+
+## Agent and Model Routing Preflight
+
+Every task records:
+
+```text
+Task complexity score:
+Risk floor:
+Agent route tier:
+Model capability class:
+Model override or inherited:
+Agent topology:
+Delegation benefit verified:
+Context packet bounded:
+Escalation triggers active:
+Independent verification required:
+Agent model routing gate: PASS / BLOCKED
+```
+
+Routing is mandatory; child-agent spawning is conditional. The lead agent is the correct single-agent topology when delegation would increase tokens or latency.

@@ -107,6 +107,14 @@ $requiredAcceptance = @(
   "framework/27-quality-gates/30-visual-composition-gate.md",
   "framework/29-checklists/39-visual-composition-checklist.md",
   "framework/38-templates/27-visual-composition-review-template.md",
+  "framework/27-quality-gates/31-agent-model-routing-gate.md",
+  "framework/29-checklists/40-agent-model-routing-checklist.md",
+  "framework/38-templates/28-agent-routing-decision-template.md",
+  "framework/58-agent-model-orchestration/README.md",
+  "framework/58-agent-model-orchestration/INDEX.md",
+  "framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md",
+  "scripts/select-agent-route.ps1",
+  "docs/releases/v2.6.0.md",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -184,7 +192,7 @@ $master = Join-Path $Root "framework/MASTER_INDEX.md"
 if (!(Test-Path $master)) { throw "Missing framework/MASTER_INDEX.md" }
 $masterText = Get-Content $master -Raw
 if ($masterText -notmatch "00-foundation" -or $masterText -notmatch "27-quality-gates" -or $masterText -notmatch "38-templates") { throw "Master index missing expected pack references" }
-$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control","52-workspace-hygiene","53-skeleton-loading","54-design-intelligence","55-continuous-assurance","56-data-grid-platform")
+$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control","52-workspace-hygiene","53-skeleton-loading","54-design-intelligence","55-continuous-assurance","56-data-grid-platform","57-application-shell-design","58-agent-model-orchestration")
 foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($link)) { throw "Master index missing $link" } }
 $environmentModules = @("README.md","INDEX.md","00-environment-bootstrap.md","01-profile-selection.md","02-core-profile.md","03-frontend-profile.md","04-backend-profile.md","05-database-profile.md","06-uiux-profile.md","07-devops-profile.md","08-ai-profile.md","09-optional-profile.md","10-dependency-levels.md","11-detection-and-installation.md","12-mcp-detection.md","13-runtime-bootstrap-sequence.md")
 foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "framework/50-environment-bootstrap/$file"))) { throw "Environment Bootstrap missing module: $file" } }
@@ -214,11 +222,14 @@ $shellTerms = @("Shell baseline extracted:","Navigation/header contracts verifie
 foreach ($term in $shellTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing shell field: $term" } }
 $visualTerms = @("First-viewport composition reviewed:","Density and responsive composition verified:","Visual evidence gate:")
 foreach ($term in $visualTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing visual-composition field: $term" } }
+$agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Model capability class:","Agent topology:","Delegation benefit verified:","Agent model routing gate:")
+foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing agent-routing field: $term" } }
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }
 if ([int]$manifest.frameworkPacks -ne $packs.Count) { throw "Manifest framework pack count does not match the repository" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
+if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch "58-agent-model-orchestration|pack 58") { throw "Loader missing agent model routing rule" }
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"
