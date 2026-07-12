@@ -130,6 +130,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.0.md",
   "docs/releases/v2.8.1.md",
   "docs/releases/v2.8.2.md",
+  "docs/releases/v2.8.3.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "framework/01-core/10-runtime-activation-proof.md",
@@ -225,7 +226,7 @@ $guardianTerms = @("Affected baseline recorded:","Regression monitors selected:"
 foreach ($term in $guardianTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing guardian field: $term" } }
 $bootstrapTerms = @("Environment Ready:","Profiles Loaded:","Mandatory Dependencies:","Recommended Dependencies:","Optional Dependencies:","Installation Performed:")
 foreach ($term in $bootstrapTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing bootstrap field: $term" } }
-$browserTerms = @("User-owned browser selected:","Platform Chrome permission granted:","Chrome window state preserved:","Target tab selected:","Active window identity verified:","Automation banner visible:","Connector-created window:","Visible signed-in state verified:","Isolated browser used:","Browser session gate:")
+$browserTerms = @("User-owned browser/profile verified:","Extension/tab-claim authorization granted:","Exact user.openTabs() object claimed:","Existing window state preserved:","Target tab and domain verified:","Control provenance:","Separate automation surface created:","Banner classification:","Signed-in state verified when required:","Browser session gate:")
 foreach ($term in $browserTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing browser session field: $term" } }
 $skeletonTerms = @("Skeleton system selected:","Existing loading pattern searched:","Skeleton reused or updated:","State matrix defined:","Skeleton parity verified:","Layout shift checked:","Skeleton gate:")
 foreach ($term in $skeletonTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skeleton field: $term" } }

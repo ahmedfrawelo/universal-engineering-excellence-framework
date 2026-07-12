@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.8.2.
+UEEF Enterprise Edition version: 2.8.3.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -50,3 +50,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.0: operational agent-routing activation across tasks, a hard medium reasoning ceiling, runtime contract proof, and cross-platform enforcement tests.
 - 2.8.1: mandatory child-agent evidence for non-trivial code changes and visible pre-edit route reporting.
 - 2.8.2: aligned browser control with the supported Chrome extension claim-tab workflow and removed conflicting Windows-control preference.
+- 2.8.3: allowed extension control of minimized/background user Chrome and prevented whole-goal blocking for visual-only limitations.

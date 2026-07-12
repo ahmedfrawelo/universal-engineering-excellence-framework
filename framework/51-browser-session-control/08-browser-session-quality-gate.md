@@ -6,7 +6,7 @@ Status: Release blocking
 Pass only when:
 
 - The user's existing browser surface was selected and remained the active control surface.
-- The selected tab was proven to belong to the user's visible active window and profile.
+- The selected tab was proven to belong to the user's existing window and profile; minimized, background, or non-foreground state does not invalidate it.
 - The target tab and domain were identified from visible state.
 - The signed-in state was visibly verified without inspecting secrets.
 - No isolated or alternate browser was used silently.

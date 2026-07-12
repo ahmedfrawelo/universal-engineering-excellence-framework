@@ -4,7 +4,7 @@ When a user asks to inspect, test, navigate, or operate a website in Chrome, use
 
 ## Default Flow
 
-1. Verify the visible active Chrome window and use visible control for ordinary interaction.
+1. Verify the existing user-owned Chrome tab through extension discovery and exact-object claim; foreground or restored window state is not required.
 2. Use platform Chrome permission for the existing window when required by the plugin; do not treat the permission prompt as authorization to create another window.
 3. After authorization, discover and select the matching existing user tab automatically. If the user explicitly asks to open a site and no matching tab exists, open a new tab in that same Chrome window and profile.
 4. Navigate, refresh, inspect, click, type, and verify in the selected or newly opened user-owned tab without asking the user to repeat normal browser work.

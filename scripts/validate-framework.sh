@@ -83,12 +83,12 @@ done
 grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Affected baseline recorded:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "User-owned browser selected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "Platform Chrome permission granted:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "Chrome window state preserved:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "Active window identity verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "Automation banner visible:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "Connector-created window:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "User-owned browser/profile verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Extension/tab-claim authorization granted:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Exact user.openTabs() object claimed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Existing window state preserved:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Control provenance:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Banner classification:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Skeleton system selected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Skeleton parity verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
@@ -163,6 +163,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.0.md" ] || { echo "Missing agent-routing activation release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.1.md" ] || { echo "Missing mandatory agent evidence release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.2.md" ] || { echo "Missing browser control alignment release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.3.md" ] || { echo "Missing minimized browser control release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }

@@ -137,17 +137,16 @@ Validation Result:
 For browser tasks, implementation must not begin until the assistant records:
 
 ```text
-User-owned browser selected:
-Platform Chrome permission granted:
-Chrome window state preserved:
-Target tab selected:
-Active window identity verified:
-Automation banner visible: NO / BLOCKED
-Connector-created window: NO / BLOCKED
-Target domain verified:
-Visible signed-in state verified:
-Isolated browser used: NO / EXPLICITLY APPROVED
-Browser session gate: PASS / BLOCKED
+User-owned browser/profile verified:
+Extension/tab-claim authorization granted:
+Exact user.openTabs() object claimed:
+Existing window state preserved:
+Target tab and domain verified:
+Control provenance: EXISTING_EXTENSION_TAB / BLOCKED
+Separate automation surface created: NO / BLOCKED
+Banner classification: ABSENT / VERIFIED_EXISTING_TAB / UNVERIFIED_BLOCKED
+Signed-in state verified when required:
+Browser session gate: PASS / PARTIAL_VISUAL_GATE / BLOCKED
 ```
 
 For data-backed UI tasks, also record:
