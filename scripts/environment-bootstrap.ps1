@@ -5,19 +5,19 @@ param(
 $ErrorActionPreference='Stop'
 $Root=Split-Path -Parent $PSScriptRoot
 $CodexHome=if($env:CODEX_HOME){$env:CODEX_HOME}elseif($env:UEEF_GLOBAL_PATH){Split-Path -Parent $env:UEEF_GLOBAL_PATH}else{''}
-$Profile=@($Profile | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
-if(!$Profile.Count){
+$selectedProfiles=@($Profile | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+if(!$selectedProfiles.Count){
   $signals=@(Get-ChildItem -LiteralPath $Root -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.FullName -notmatch '\\.git\\'})
   $names=@($signals|Select-Object -ExpandProperty Name)
-  $Profile=[System.Collections.Generic.List[string]]::new();$Profile.Add('Core');$Profile.Add('AI')
-  if(($names|Where-Object {$_ -match '^(package\.json|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|angular\.json|vite\.config\.|next\.config\.)$'}).Count -or ($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte')}).Count){$Profile.Add('Frontend')}
-  if(($names|Where-Object {$_ -match '(\.sln|\.csproj|pyproject\.toml|requirements\.txt|pom\.xml|build\.gradle)$'}).Count -or ($names -contains 'Dockerfile')){$Profile.Add('Backend')}
-  if(($names|Where-Object {$_ -match '(schema\.sql|migration|prisma|flyway|liquibase)' -or $_ -match '\.(sql|dbml)$'}).Count){$Profile.Add('Database')}
-  if(($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte','.html','.css','.scss')}).Count){$Profile.Add('UIUX')}
-  if(($names|Where-Object {$_ -match '^Dockerfile$|docker-compose|^\.gitlab-ci|^Jenkinsfile$'}).Count -or (Test-Path (Join-Path $Root '.github\workflows'))){$Profile.Add('DevOps')}
+  $selectedProfiles=[System.Collections.Generic.List[string]]::new();$selectedProfiles.Add('Core');$selectedProfiles.Add('AI')
+  if(($names|Where-Object {$_ -match '^(package\.json|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|angular\.json|vite\.config\.|next\.config\.)$'}).Count -or ($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte')}).Count){$selectedProfiles.Add('Frontend')}
+  if(($names|Where-Object {$_ -match '(\.sln|\.csproj|pyproject\.toml|requirements\.txt|pom\.xml|build\.gradle)$'}).Count -or ($names -contains 'Dockerfile')){$selectedProfiles.Add('Backend')}
+  if(($names|Where-Object {$_ -match '(schema\.sql|migration|prisma|flyway|liquibase)' -or $_ -match '\.(sql|dbml)$'}).Count){$selectedProfiles.Add('Database')}
+  if(($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte','.html','.css','.scss')}).Count){$selectedProfiles.Add('UIUX')}
+  if(($names|Where-Object {$_ -match '^Dockerfile$|docker-compose|^\.gitlab-ci|^Jenkinsfile$'}).Count -or (Test-Path (Join-Path $Root '.github\workflows'))){$selectedProfiles.Add('DevOps')}
 }
 $allowed=@('Core','Frontend','Backend','Database','UIUX','DevOps','AI','Optional')
-foreach($name in $Profile){if($allowed -notcontains $name){throw "Unknown environment profile: $name"}}
+foreach($name in $selectedProfiles){if($allowed -notcontains $name){throw "Unknown environment profile: $name"}}
 $results=[System.Collections.Generic.List[object]]::new()
 function Add-Check($profile,$name,$level,$ok,$detail,$install=''){ $results.Add([pscustomobject]@{Profile=$profile;Name=$name;Level=$level;Status=if($ok){'PASS'}else{'MISSING'};Detail=$detail;Install=$install}) }
 function Has-Command($name){[bool](Get-Command $name -ErrorAction SilentlyContinue)}
@@ -30,7 +30,7 @@ function Ensure-Command($name,$packageId){
   }
   return (Has-Command $name)
 }
-foreach($p in $Profile){
+foreach($p in $selectedProfiles){
   switch($p){
     'Core' {
       Add-Check Core Git Mandatory (Ensure-Command git 'Git.Git') 'git command' 'winget install --id Git.Git -e'
@@ -71,7 +71,7 @@ $results | Format-Table Profile,Name,Level,Status,Detail -AutoSize
 $missingMandatory=@($results|Where-Object {$_.Level -eq 'Mandatory' -and $_.Status -eq 'MISSING'})
 $missingRecommended=@($results|Where-Object {$_.Level -eq 'Recommended' -and $_.Status -eq 'MISSING'})
 Write-Output "Environment Profile"
-foreach($p in $Profile){$state=if(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -eq 'MISSING' -and $_.Level -eq 'Mandatory'}).Count){'BLOCKED'}elseif(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -eq 'MISSING'}).Count){'WARN'}else{'PASS'};Write-Output "$p $state"}
+foreach($p in $selectedProfiles){$state=if(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -eq 'MISSING' -and $_.Level -eq 'Mandatory'}).Count){'BLOCKED'}elseif(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -eq 'MISSING'}).Count){'WARN'}else{'PASS'};Write-Output "$p $state"}
 Write-Output "Mandatory Dependencies: $(@($results|Where-Object Level -eq Mandatory).Count) checked; Missing: $($missingMandatory.Count)"
 Write-Output "Recommended Dependencies: $(@($results|Where-Object Level -eq Recommended).Count) checked; Missing: $($missingRecommended.Count)"
 Write-Output "Optional Dependencies: $(@($results|Where-Object Level -eq Optional).Count) checked"

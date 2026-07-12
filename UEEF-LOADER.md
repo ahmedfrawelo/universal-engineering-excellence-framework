@@ -40,9 +40,9 @@ Local command autonomy:
 Browser hard stop:
 - Never use a connector-created Chrome window for a task that depends on the user's visible browser.
 - A `Chrome is being controlled by automated test software` banner, Codex-titled browser window, or unverified profile is a BLOCKED browser session.
-- Prefer visible Windows control for ordinary browser interaction. Use Chrome debugging only for debugging-specific capabilities such as DOM, console, network, or performance inspection.
+- For Chrome tasks, use the Chrome plugin extension binding, enumerate `user.openTabs()`, and `claimTab()` the verified user-owned visible tab. This attaches to the existing window and must not create another browser surface.
 - Preserve the user's browser window state. Do not resize, emulate, move, restore, minimize, maximize, or alter full screen unless explicitly requested.
-- Prefer visible Windows window control for the user's active browser. If the active window cannot be proven, stop without opening or controlling another browser.
+- Use visible Windows control only as a fallback when the Chrome plugin is unavailable. If the user-owned tab cannot be proven, stop without opening another browser.
 
 The only valid compact verification line is:
 

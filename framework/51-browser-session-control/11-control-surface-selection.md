@@ -4,15 +4,15 @@ Use the least intrusive control surface that can complete the user's browser tas
 
 ## Default Selection
 
-- For normal visible work, such as opening a page, clicking, typing, reviewing layout, or checking a local site, prefer verified visible Windows control of the user's active Chrome window.
-- Use Chrome debugging control only when the task needs DOM-level inspection, console errors, network requests, performance tracing, or another debugging-only capability.
-- Do not use debugging control merely to perform ordinary navigation, clicks, typing, or screenshots when visible control is available.
+- For Chrome work, prefer the Chrome plugin extension binding and claim the verified existing tab returned by `user.openTabs()` for navigation, clicks, typing, screenshots, and inspection.
+- Use the claimed tab's DOM, console, network, or performance capabilities only when the task needs them.
+- Use visible Windows control only when the Chrome plugin is unavailable; never switch surfaces merely to bypass a recoverable stale tab binding.
 
 ## User Indicators
 
-- Visible Windows control may show a temporary screen-edge highlight. Chrome debugging may show a browser debugging banner.
+- Visible Windows fallback may show a temporary screen-edge highlight. A newly created automation/debugging browser is prohibited; extension attachment to the existing user tab is allowed.
 - These indicators are platform safety disclosures and must not be hidden or suppressed.
-- If the user asks to avoid the Chrome debugging banner, prefer visible Windows control after window identity is verified.
+- If a debugging banner appears, verify whether a separate automation browser was created. Stop and release it if so; do not abandon a healthy extension-bound user tab.
 
 ## Completion Rule
 

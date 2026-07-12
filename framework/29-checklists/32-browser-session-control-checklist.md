@@ -3,8 +3,10 @@
 Version: 1.5.0
 
 - [ ] User-owned browser surface selected.
-- [ ] Official platform Chrome permission was requested when browser control was needed.
-- [ ] Visible Windows control was preferred for ordinary navigation and interaction; debugging control was selected only for debugging-specific needs.
+- [ ] Chrome extension/tab-claim authorization was used for the existing user tab when Chrome control was needed.
+- [ ] The target came from `user.openTabs()` and the exact returned object was passed to `claimTab()`.
+- [ ] Debugging/CDP authorization was used only for debugging-specific capabilities.
+- [ ] Visible Windows control was used only as fallback when the Chrome plugin was unavailable.
 - [ ] Target tab selected by visible title, URL, and state.
 - [ ] A user request to open a site opened a tab only in the existing Chrome window and profile.
 - [ ] Target domain verified.

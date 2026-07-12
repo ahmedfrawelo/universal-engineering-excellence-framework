@@ -162,6 +162,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.7.1.md" ] || { echo "Missing full-project hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.0.md" ] || { echo "Missing agent-routing activation release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.1.md" ] || { echo "Missing mandatory agent evidence release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.2.md" ] || { echo "Missing browser control alignment release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
@@ -170,6 +171,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/scripts/select-agent-route.sh" ] || { echo "Missing Unix agent route selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-agent-route.ps1" ] || { echo "Missing agent route tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-agent-route.sh" ] || { echo "Missing Unix agent route tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-browser-control-contract.ps1" ] || { echo "Missing browser control contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-runtime-hardening.ps1" ] || { echo "Missing runtime hardening tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-installers.ps1" ] || { echo "Missing installer tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-cleanup-workspace.ps1" ] || { echo "Missing cleanup tests" >&2; exit 1; }
