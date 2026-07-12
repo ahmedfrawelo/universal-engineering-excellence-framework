@@ -32,10 +32,12 @@ Loaded: boot-loader, core-system
 Selected Modules: <paths or count>
 Quality Gates: <paths or count>
 UI UX Pro Max: YES/NO/NA
-Status: READY/BLOCKED
+RuntimeStatus: READY/BLOCKED
+DeliveryStatus: IN_PROGRESS/PASS/PARTIAL
+GoalStatus: ACTIVE/BLOCKED/COMPLETE
 ```
 
-If status is `BLOCKED`, do not edit project files.
+Do not edit project files only when `RuntimeStatus` is `BLOCKED`. A partial verification, failed implementation gate, regression, or incomplete delivery keeps `GoalStatus: ACTIVE` and permits continued fixes.
 
 ## Loading Rules
 

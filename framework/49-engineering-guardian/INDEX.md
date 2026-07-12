@@ -16,7 +16,7 @@ Routes quality protection from zero regression and contract safety through monit
 
 ## Required Evidence
 
-Before completion, compare the affected behavior with its baseline. Inspect the architecture, security boundary, performance path, design system, accessibility behavior, tests, documentation, and developer experience that the change touches. A regression must stop the task, be fixed or explicitly accepted by an accountable owner, and have a recorded follow-up. Never hide a quality decrease behind a green build.
+Before completion, compare the affected behavior with its baseline. Inspect the architecture, security boundary, performance path, design system, accessibility behavior, tests, documentation, and developer experience that the change touches. A regression must block completion and release claims until fixed or explicitly accepted by an accountable owner, with a recorded follow-up. Continue implementing the fix unless further work would risk irreversible user or data harm. Never hide a quality decrease behind a green build.
 
 - [ ] Every numbered module is present and discoverable.
 - [ ] The pack is referenced by Core, Loader, Runtime, review, quality, and validation systems.

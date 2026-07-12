@@ -72,4 +72,4 @@ If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-cod
 
 ## Updating UEEF
 
-This repository's current release is 2.8.3. From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the Windows installer with `-Force` or the Unix installer with `--force` so the active runtime receives the current framework and loader; omit `-NoBackup`/`--no-backup` to keep a recovery copy. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.
+This repository's current release is 2.8.4. From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the Windows installer with `-Force` or the Unix installer with `--force` so the active runtime receives the current framework and loader; omit `-NoBackup`/`--no-backup` to keep a recovery copy. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.

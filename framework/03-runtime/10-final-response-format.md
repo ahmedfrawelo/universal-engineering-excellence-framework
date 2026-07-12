@@ -20,7 +20,7 @@ Gates: <task-specific gate paths or compact count>
 Tools: <checked tools, compact>
 Skills: <checked skills, compact>
 UIUX: YES / NO / NA
-Status: PASS / PARTIAL / BLOCKED
+Status: PASS / PARTIAL / ACTIVE / BLOCKED
 ```
 
 ## Strict Rules
@@ -34,6 +34,7 @@ Status: PASS / PARTIAL / BLOCKED
 - Keep quality gates under `Gates`.
 - Keep UI UX Pro Max as `UIUX: YES`, `NO`, or `NA`.
 - Do not repeat full framework rules in the final response.
+- `BLOCKED` is valid only for an external or user-only impasse after no meaningful local work remains. Failed code, tests, save contracts, or verification gates use `ACTIVE` or `PARTIAL` while fixes continue.
 
 ## Bad Old Format
 

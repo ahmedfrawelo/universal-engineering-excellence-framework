@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant inspects the project, detects stack and architecture, produces a plan, applies relevant modules, and runs quality gates before finishing.
 
-The current release is 2.8.3. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes.
+The current release is 2.8.4. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes.
 
 ## Runtime Check
 

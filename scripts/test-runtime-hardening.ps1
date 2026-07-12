@@ -20,6 +20,10 @@ try {
   foreach ($term in @('environment-bootstrap','Agent and model routing:','Loaded: boot-loader, core-system')) {
     if ($loader -notmatch [regex]::Escape($term)) { throw "Generated loader missing: $term" }
   }
+  $agents = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
+  foreach ($term in @('save-contract bugs','Repetition does not convert','external or user-only condition','no meaningful local work remains')) {
+    if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing delivery continuation contract: $term" }
+  }
   $status = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($status -notcontains 'Overall: ACTIVE') { throw 'Valid generated runtime did not become ACTIVE.' }
   $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }

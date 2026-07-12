@@ -118,6 +118,7 @@ $requiredAcceptance = @(
   "scripts/test-agent-route.ps1",
   "scripts/test-agent-route.sh",
   "scripts/test-browser-control-contract.ps1",
+  "scripts/test-delivery-continuation-contract.ps1",
   "scripts/test-runtime-hardening.ps1",
   "scripts/test-installers.ps1",
   "scripts/test-cleanup-workspace.ps1",
@@ -131,6 +132,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.1.md",
   "docs/releases/v2.8.2.md",
   "docs/releases/v2.8.3.md",
+  "docs/releases/v2.8.4.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "framework/01-core/10-runtime-activation-proof.md",
@@ -244,6 +246,7 @@ $agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Mode
 foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing agent-routing field: $term" } }
 & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
+& (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
