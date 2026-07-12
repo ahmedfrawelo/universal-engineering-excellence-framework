@@ -20,7 +20,10 @@ Route every task to the smallest capable model class and agent topology while pr
 - Every task passes the router, including conversational and trivial work.
 - The reasoning ceiling is `medium` for the lead and every child agent. No route may emit or request a higher level.
 - Every non-trivial task executes the route selector or records an equivalent classification before substantial work.
-- A T2-T4 route with available agent tooling and positive independent delegation benefit must spawn at least one bounded child. Otherwise record `NO_INDEPENDENT_WORK`, `TOOL_UNAVAILABLE`, or `CRITICAL_PATH_ONLY`.
+- Every non-trivial code-changing task from T1 through T4 must spawn at least one bounded child when agent tooling is callable. Use a disjoint implementation, test, regression, accessibility, security, or verification sidecar that materially advances the task.
+- Before the first project command or edit, publish one Visible pre-command route line: `Agent route: <tier> | Agent: spawned <id or nickname>` or `Agent route: <tier> | Agent: not spawned - <reason>`.
+- `TOOL_UNAVAILABLE` is the only valid no-spawn reason for a non-trivial code-changing task. `NO_INDEPENDENT_WORK` and `CRITICAL_PATH_ONLY` remain valid only for read-only or conversational work.
+- A final UEEF pass claim is invalid when the route line or required child-agent evidence is missing.
 - Routing does not imply spawning. The lead agent is the single-agent topology.
 - Model names are runtime mappings, not durable policy. Capability classes are durable.
 - Security, authorization, production, destructive operations, data migrations, architecture, and incident response have mandatory capability floors.

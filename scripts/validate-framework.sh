@@ -161,6 +161,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.7.0.md" ] || { echo "Missing design engineering skills release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.7.1.md" ] || { echo "Missing full-project hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.0.md" ] || { echo "Missing agent-routing activation release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.1.md" ] || { echo "Missing mandatory agent evidence release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }

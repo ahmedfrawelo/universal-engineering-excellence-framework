@@ -25,7 +25,7 @@ temp_path="$state_path.tmp.$$"
 cat > "$temp_path" <<EOF
 {
   "active": true,
-  "agentRoutingContractVersion": 2,
+  "agentRoutingContractVersion": 3,
   "reasoningCeiling": "medium",
   "version": "$(escape_json "$version")",
   "codexHome": "$(escape_json "$CODEX_HOME")",

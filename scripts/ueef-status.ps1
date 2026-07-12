@@ -48,14 +48,16 @@ $qualityGatesPass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-g
 $validationPass = Test-Item (Join-Path $RepositoryPath "scripts/validate-framework.ps1")
 $routePs = Join-Path $RepositoryPath 'scripts/select-agent-route.ps1'
 $routeSh = Join-Path $RepositoryPath 'scripts/select-agent-route.sh'
-$routingText = if ((Test-Item $routePs) -and (Test-Item $routeSh)) { (Get-Content -LiteralPath $routePs -Raw) + (Get-Content -LiteralPath $routeSh -Raw) } else { '' }
-$agentRoutingPass = (Test-Item $routePs) -and (Test-Item $routeSh) -and $routingText -match 'reasoningCeiling' -and $routingText -notmatch 'reasoning=(high|xhigh|max|ultra)'
+$contractFiles = @($routePs, $routeSh, (Join-Path $RepositoryPath 'UEEF-LOADER.md'), (Join-Path $RepositoryPath 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md'), (Join-Path $RepositoryPath 'framework/27-quality-gates/31-agent-model-routing-gate.md'))
+$contractFilesPass = !(($contractFiles | Where-Object { !(Test-Item $_) }).Count)
+$routingText = if ($contractFilesPass) { ($contractFiles | ForEach-Object { Get-Content -LiteralPath $_ -Raw }) -join "`n" } else { '' }
+$agentRoutingPass = $contractFilesPass -and $routingText -match 'reasoningCeiling' -and $routingText -match 'TOOL_UNAVAILABLE' -and $routingText -match 'Visible pre-command route line|Before the first project command or edit' -and $routingText -match 'routeEvidenceRequired' -and $routingText -match 'noSpawnReason' -and $routingText -notmatch 'reasoning=(high|xhigh|max|ultra)'
 $isManagedRuntime = (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq "ueef"
 $codexHome = if ($isManagedRuntime) { Split-Path -Parent $GlobalPath } elseif ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
 if ($isManagedRuntime) {
   $agentsText = if (Test-Item $agentsPath) { Get-Content -LiteralPath $agentsPath -Raw } else { "" }
-  $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath)))
+  $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath))) -and $agentsText -match 'TOOL_UNAVAILABLE' -and $agentsText -match 'Agent route:'
   $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
   $activeStatePass = $false
   if (Test-Item $activeStatePath) {
@@ -67,7 +69,7 @@ if ($isManagedRuntime) {
       $expectedLoader = [IO.Path]::GetFullPath((Join-Path $RepositoryPath 'UEEF-LOADER.md'))
       $checksPass = $state.requiredChecks -and !(@($state.requiredChecks.psobject.Properties | Where-Object { $_.Value -ne $true }).Count)
       if ($state.requireAgents -ne $true) { $agentsPass = $true }
-      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 2 -and $state.reasoningCeiling -eq 'medium' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $checksPass
+      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 3 -and $state.reasoningCeiling -eq 'medium' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $checksPass
     } catch { $activeStatePass = $false }
   }
 } else {

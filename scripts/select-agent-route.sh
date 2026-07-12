@@ -36,6 +36,7 @@ elif [ "$score" -le 9 ]; then tier=T2
 elif [ "$score" -le 12 ]; then tier=T3
 else tier=T4
 fi
+[ "$code_change" = true ] && [ "$tier" = T0 ] && tier=T1
 
 case "$risk_floor" in
   None) ;;
@@ -55,16 +56,21 @@ esac
 
 [ "$tier" = T1 ] && [ "$code_change" = true ] && reasoning=medium
 spawn_agents=false
-case "$tier" in T2|T3|T4) [ "$delegation_benefit" = true ] && [ "$agents_available" = true ] && spawn_agents=true ;; esac
+if [ "$agents_available" = true ] && { { [ "$code_change" = true ] && [ "$tier" != T0 ]; } || { [ "$delegation_benefit" = true ] && { [ "$tier" = T2 ] || [ "$tier" = T3 ] || [ "$tier" = T4 ]; }; }; }; then spawn_agents=true; fi
 if [ "$spawn_agents" = false ]; then topology=single-agent
 elif [ "$tier" = T4 ] && [ "$independent_workstreams" -eq 1 ]; then topology=lead-plus-independent-verifier
 elif [ "$tier" = T2 ] || [ "$independent_workstreams" -eq 1 ]; then topology=lead-plus-sidecar
 else topology="$routed_topology"
 fi
 if [ "$tier" = T4 ]; then independent=true; else independent=false; fi
+if [ "$spawn_agents" = true ]; then no_spawn_reason=null
+elif [ "$code_change" = true ] && [ "$agents_available" = false ]; then no_spawn_reason='"TOOL_UNAVAILABLE"'
+elif [ "$tier" = T0 ] || [ "$tier" = T1 ]; then no_spawn_reason='"NO_INDEPENDENT_WORK"'
+else no_spawn_reason='"CRITICAL_PATH_ONLY"'
+fi
 if [ "$models_available" = false ]; then model_json=null; model_verify=false
 else model_json="\"$model\""; if [ "$model" = inherit ]; then model_verify=false; else model_verify=true; fi
 fi
 
-printf '{"schemaVersion":2,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"medium","topology":"%s","delegationBenefit":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Reasoning is capped at medium. Spawn only when delegation benefit, independent ownership, and platform capability are verified; T4 requires independent verification."}\n' \
-  "$score" "$risk_floor" "$tier" "$capability" "$model_json" "$reasoning" "$topology" "$delegation_benefit" "$independent_workstreams" "$agents_available" "$spawn_agents" "$independent" "$model_verify"
+printf '{"schemaVersion":3,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"medium","topology":"%s","delegationBenefit":%s,"codeChange":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"noSpawnReason":%s,"routeEvidenceRequired":true,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Reasoning is capped at medium. Non-trivial code changes spawn a bounded child when tooling is available; T4 requires independent verification."}\n' \
+  "$score" "$risk_floor" "$tier" "$capability" "$model_json" "$reasoning" "$topology" "$delegation_benefit" "$code_change" "$independent_workstreams" "$agents_available" "$spawn_agents" "$no_spawn_reason" "$independent" "$model_verify"

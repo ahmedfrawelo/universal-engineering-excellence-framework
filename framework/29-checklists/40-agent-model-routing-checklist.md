@@ -1,6 +1,9 @@
 # Agent and Model Routing Checklist
 
 - [ ] Route tier recorded.
+- [ ] Visible pre-command route line recorded.
+- [ ] Child agent identity and bounded ownership recorded.
+- [ ] No-spawn reason is N/A or TOOL_UNAVAILABLE for code-changing work.
 - [ ] Risk floor checked.
 - [ ] Model capability selected or inherited intentionally.
 - [ ] Delegation benefit is positive.

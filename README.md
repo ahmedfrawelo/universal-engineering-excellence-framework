@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.0; it includes governed application models, design-system reuse, responsive-first UI, the Engineering Guardian, environment bootstrap, user-owned browser controls, operational agent/model routing, and a hard medium reasoning ceiling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.1; it includes governed application models, design-system reuse, responsive-first UI, the Engineering Guardian, environment bootstrap, user-owned browser controls, operational agent/model routing, and a hard medium reasoning ceiling.
 
 ## Why UEEF Exists
 
@@ -49,7 +49,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.8.0. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.8.1. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 

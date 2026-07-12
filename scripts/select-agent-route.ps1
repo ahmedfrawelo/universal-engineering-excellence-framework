@@ -20,6 +20,7 @@ if ($Risk -eq 3 -and $RiskFloor -eq 'None') {
   throw 'Risk 3 requires an explicit RiskFloor so critical work cannot be downgraded.'
 }
 $tier = if ($score -le 2) { 'T0' } elseif ($score -le 5) { 'T1' } elseif ($score -le 9) { 'T2' } elseif ($score -le 12) { 'T3' } else { 'T4' }
+if ($CodeChange -and $tier -eq 'T0') { $tier = 'T1' }
 
 if ($RiskFloor -in @('Architecture','Authentication','Authorization','Security','Release') -and $tier -in @('T0','T1','T2')) { $tier = 'T3' }
 if ($RiskFloor -in @('Production','Migration','Destructive','Privacy','Payment','Incident')) { $tier = 'T4' }
@@ -33,7 +34,7 @@ $routes = @{
 }
 $route = $routes[$tier]
 $reasoning = if ($tier -eq 'T1' -and $CodeChange) { 'medium' } else { $route.reasoning }
-$spawnAgents = !$AgentsUnavailable -and $DelegationBenefit.IsPresent -and $tier -in @('T2','T3','T4')
+$spawnAgents = !$AgentsUnavailable -and (($CodeChange -and $tier -in @('T1','T2','T3','T4')) -or ($DelegationBenefit.IsPresent -and $tier -in @('T2','T3','T4')))
 $topology = if (!$spawnAgents) {
   'single-agent'
 } elseif ($tier -eq 'T2' -or $IndependentWorkstreams -eq 1) {
@@ -42,8 +43,9 @@ $topology = if (!$spawnAgents) {
   $route.topology
 }
 $preferredModel = if ($ModelsUnavailable) { $null } else { $route.model }
+$noSpawnReason = if ($spawnAgents) { $null } elseif ($CodeChange -and $AgentsUnavailable) { 'TOOL_UNAVAILABLE' } elseif ($tier -in @('T0','T1')) { 'NO_INDEPENDENT_WORK' } else { 'CRITICAL_PATH_ONLY' }
 $result = [ordered]@{
-  schemaVersion = 2
+  schemaVersion = 3
   score = $score
   riskFloor = $RiskFloor
   tier = $tier
@@ -53,11 +55,14 @@ $result = [ordered]@{
   reasoningCeiling = 'medium'
   topology = $topology
   delegationBenefit = $DelegationBenefit.IsPresent
+  codeChange = $CodeChange.IsPresent
   independentWorkstreams = $IndependentWorkstreams
   agentsAvailable = !$AgentsUnavailable
   spawnAgents = $spawnAgents
+  noSpawnReason = $noSpawnReason
+  routeEvidenceRequired = $true
   independentVerificationRequired = $tier -eq 'T4'
   modelAvailabilityMustBeVerified = !$ModelsUnavailable -and $route.model -ne 'inherit'
-  note = 'Reasoning is capped at medium. Spawn only when delegation benefit, independent ownership, and platform capability are verified; T4 requires independent verification.'
+  note = 'Reasoning is capped at medium. Non-trivial code changes spawn a bounded child when tooling is available; T4 requires independent verification.'
 }
 if ($Json) { $result | ConvertTo-Json -Depth 3 } else { [pscustomobject]$result }

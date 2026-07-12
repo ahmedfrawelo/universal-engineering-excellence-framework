@@ -9,11 +9,22 @@ assert_contains() {
 }
 
 route="$("$selector")"
-assert_contains "$route" '"schemaVersion":2'
+assert_contains "$route" '"schemaVersion":3'
 assert_contains "$route" '"tier":"T0"'
 assert_contains "$route" '"reasoning":"medium"'
 assert_contains "$route" '"reasoningCeiling":"medium"'
 assert_contains "$route" '"spawnAgents":false'
+
+route="$("$selector" --code-change)"
+assert_contains "$route" '"tier":"T1"'
+assert_contains "$route" '"codeChange":true'
+assert_contains "$route" '"spawnAgents":true'
+assert_contains "$route" '"noSpawnReason":null'
+assert_contains "$route" '"routeEvidenceRequired":true'
+
+route="$("$selector" --code-change --agents-unavailable)"
+assert_contains "$route" '"spawnAgents":false'
+assert_contains "$route" '"noSpawnReason":"TOOL_UNAVAILABLE"'
 
 route="$("$selector" --scope 2 --ambiguity 2 --coupling 1 --risk 1 --verification 1 --delegation-benefit)"
 assert_contains "$route" '"tier":"T2"'

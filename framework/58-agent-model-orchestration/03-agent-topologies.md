@@ -2,7 +2,7 @@
 
 ## Single Agent
 
-Use for T0 and most T1 tasks. This is still agent-routed execution. Spawning a child is prohibited when coordination would cost more tokens or time than the work.
+Use for T0, conversational T1, and read-only T1. Non-trivial code-changing T1-T4 work follows the mandatory-child rule whenever tooling is callable, regardless of coordination-overhead estimates.
 
 ## Lead and Sidecar
 
@@ -18,7 +18,7 @@ Use for T4 when delegation benefit exists. The lead owns decisions and integrati
 
 ## Delegation Benefit Test
 
-Spawn only when all are true:
+For read-only work, spawn only when all are true. For non-trivial code-changing T1-T4 work, select at least one bounded sidecar that satisfies the first four ownership and usefulness conditions whenever tooling is callable:
 
 - the subtask is concrete and self-contained;
 - it materially advances the requested outcome;

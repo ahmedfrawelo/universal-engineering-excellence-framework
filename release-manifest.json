@@ -1,7 +1,7 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "releaseDate": "2026-07-12",
   "minimumMarkdownFiles": 490,
   "frameworkPacks": 59,
@@ -28,5 +28,5 @@
     "framework/57-application-shell-design",
     "framework/58-agent-model-orchestration"
   ],
-  "releaseNotes": "docs/releases/v2.8.0.md"
+  "releaseNotes": "docs/releases/v2.8.1.md"
 }

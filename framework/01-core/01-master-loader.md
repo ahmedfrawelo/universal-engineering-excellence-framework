@@ -34,7 +34,7 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Reject risk score `3` without an explicit risk floor. Verify current agent and named-model availability before emitting a spawn or override decision.
 - Reclassify and escalate when scope, ambiguity, failures, or risk increase.
 - Cap every requested model and agent reasoning level at `medium`. Increase verification and topology for risk; never request a reasoning level above medium.
-- For T2 through T4, spawn a bounded child when agents are available and a genuinely independent workstream has positive delegation benefit. Otherwise record exactly one reason: `NO_INDEPENDENT_WORK`, `TOOL_UNAVAILABLE`, or `CRITICAL_PATH_ONLY`.
+- For every non-trivial T1-T4 code change, spawn at least one bounded child when agent tooling is callable. Before the first project command or edit, expose the tier and spawned agent identity. The only valid no-spawn reason for code-changing work is `TOOL_UNAVAILABLE`.
 
 ## Frontend UI Tasks
 

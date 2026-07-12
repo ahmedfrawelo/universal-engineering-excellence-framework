@@ -13,6 +13,7 @@ Pass when every applicable item is true:
 - Agents were closed after integration.
 - Verification strength matches risk and independent review exists for T4.
 - The route schema is current, its reasoning ceiling is `medium`, and no emitted reasoning value exceeds that ceiling.
-- T2-T4 agent use is evidenced when a bounded independent stream exists; otherwise a valid single-agent reason is recorded.
+- Every non-trivial T1-T4 code change has visible pre-edit route evidence and at least one bounded child-agent record when tooling is callable.
+- A code-changing task without a child passes only with explicit `TOOL_UNAVAILABLE`; `NO_INDEPENDENT_WORK` and `CRITICAL_PATH_ONLY` cannot excuse missing delegation for code changes.
 
 Any critical risk without an explicit floor, or any security, production, migration, or destructive task below its forced floor, is `BLOCKED`.
