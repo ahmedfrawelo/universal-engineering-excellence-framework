@@ -3,8 +3,7 @@ $ErrorActionPreference = 'Stop'
 $resolvedRoot = (Resolve-Path -LiteralPath $Root).Path
 $gitRoot = $resolvedRoot
 
-git -C $gitRoot rev-parse --is-inside-work-tree 2>$null | Out-Null
-if ($LASTEXITCODE -ne 0) {
+if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) {
   $statePath = Join-Path (Split-Path -Parent $resolvedRoot) 'UEEF-ACTIVE.json'
   if (!(Test-Path -LiteralPath $statePath)) { throw 'This runtime is not a Git checkout and has no UEEF-ACTIVE.json source metadata.' }
   $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
