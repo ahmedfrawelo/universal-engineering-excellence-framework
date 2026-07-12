@@ -12,6 +12,9 @@ This gate defines the minimum evidence required before work can be reported as c
 - The final report distinguishes verified facts from assumptions and limitations.
 
 ## Failure Conditions
+- A terminal final response while `GoalStatus` is `ACTIVE`, unless the user explicitly requested status-only reporting.
+- `GoalStatus: COMPLETE` while required work, acceptance criteria, tests, or verification remain.
+- `GoalStatus: BLOCKED` for an internal implementation failure or while meaningful local work remains.
 - Empty files, placeholders, shallow outlines, or TODO-only artifacts.
 - Claims of completion without validation evidence.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
@@ -19,6 +22,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - Missing rollback or mitigation plan for risky production changes.
 
 ## Pass Criteria
+- Goal lifecycle transition satisfies `FINAL_ALLOWED` and `COMPLETE_ALLOWED` from the delivery continuation contract.
 - All required files and implementation changes are present.
 - The work satisfies the user request without touching unrelated repositories or secrets.
 - Validation commands pass, or any unavailable checks are documented with a concrete reason.

@@ -17,6 +17,10 @@ An expanded request is not a reason to pause implementation. When the user expli
 `BLOCKED_ALLOWED = repeated_external_condition AND no_meaningful_local_work_remaining AND user_or_external_state_change_required`
 
 Compile failures, test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, regressions, and unsuccessful patches never satisfy `repeated_external_condition`.
+
+`FINAL_ALLOWED = user_requested_status_only OR GoalStatus_COMPLETE OR BLOCKED_ALLOWED`
+
+When `GoalStatus` is `ACTIVE`, do not emit a final answer saying the work is incomplete, no result exists, work remains, or execution will continue later. Send a concise commentary progress update and continue execution in the same goal run. Before any final answer on a goal task, read current goal status and reject finalization unless `FINAL_ALLOWED` is true.
 - A known regression blocks claiming completion or release. It does not block working on the fix unless continuing would worsen or destroy user data.
 - Do not substitute a status message such as "not ready to release" for implementation work the user requested.
 

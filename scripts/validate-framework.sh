@@ -165,6 +165,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.2.md" ] || { echo "Missing browser control alignment release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.3.md" ] || { echo "Missing minimized browser control release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.4.md" ] || { echo "Missing delivery continuation hardening release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.5.md" ] || { echo "Missing active-goal finalization release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
@@ -175,6 +176,10 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/scripts/test-agent-route.sh" ] || { echo "Missing Unix agent route tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-browser-control-contract.ps1" ] || { echo "Missing browser control contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-delivery-continuation-contract.ps1" ] || { echo "Missing delivery continuation contract tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/validate-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle validator" >&2; exit 1; }
+[ -f "$ROOT/scripts/validate-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle validator" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle tests" >&2; exit 1; }
 ! grep -Rqi 'must stop the task' "$ROOT/framework/49-engineering-guardian" || { echo "Engineering Guardian still stops implementation work" >&2; exit 1; }
 grep -q 'BLOCKED_ALLOWED' "$ROOT/framework/01-core/14-delivery-continuation-policy.md" || { echo "Missing canonical goal transition contract" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-runtime-hardening.ps1" ] || { echo "Missing runtime hardening tests" >&2; exit 1; }
@@ -184,6 +189,7 @@ grep -q 'BLOCKED_ALLOWED' "$ROOT/framework/01-core/14-delivery-continuation-poli
 [ -f "$ROOT/scripts/test-quality-gate-selection.ps1" ] || { echo "Missing quality-gate selector tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/write-active-state.sh" ] || { echo "Missing Unix active-state writer" >&2; exit 1; }
 "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
+"$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
 route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"spawnAgents":false' || { echo "Unix agent route delegation guard failed" >&2; exit 1; }

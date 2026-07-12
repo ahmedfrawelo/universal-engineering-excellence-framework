@@ -34,6 +34,7 @@ Delivery continuation:
 - Use BLOCKED only for a real impasse: missing required access, unavailable mandatory dependency, unresolved destructive decision, or external state that prevents meaningful progress.
 - Compile/test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, and repeated failed patches are internal engineering work, never BLOCKED conditions. Replan, escalate, delegate bounded verification, and continue. Repetition does not convert an internal bug into an external blocker.
 - Mark a goal BLOCKED only for an external or user-only condition after no meaningful local work remains. Never pause an incomplete code path waiting for the user to resume it.
+- When a goal is ACTIVE, never emit a final answer saying the work is incomplete or no complete result exists. Use commentary and continue execution. Before finalizing a goal task, read current goal status; final is allowed only for COMPLETE, valid external BLOCKED, or an explicit user request for status-only reporting.
 
 Local command autonomy:
 - Run and reuse normal project commands and local development services without asking the user. A Codex command prompt is a platform confirmation, not an agent question or task blocker.

@@ -23,6 +23,14 @@ Use this module when the task touches core concerns, when repository inspection 
 
 ## Mandatory Rules
 
+### Goal State Machine
+
+- `ACTIVE -> COMPLETE` only when the requested outcome is satisfied, no required work remains, applicable gates pass or are explicitly accepted, and verification is recorded.
+- `ACTIVE -> BLOCKED` only when the blocker is external or user-only, no meaningful local work remains, and an external state change is required.
+- `ACTIVE -> final response` is forbidden unless the user explicitly requested status-only reporting. Active work uses commentary and continues execution.
+- Compile/test failures, incomplete implementation, regressions, and repeated unsuccessful patches keep the goal `ACTIVE`.
+- `COMPLETE` is invalid when any required acceptance criterion, plan item, implementation, test, or verification remains.
+
 - Inspect the project before editing.
 - Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
 - Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
