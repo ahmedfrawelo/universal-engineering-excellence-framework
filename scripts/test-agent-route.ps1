@@ -11,12 +11,12 @@ function Assert-Route {
   }
 }
 
-Assert-Route @{} @{ tier='T0'; topology='single-agent'; spawnAgents=$false }
+Assert-Route @{} @{ schemaVersion=2; tier='T0'; reasoning='medium'; reasoningCeiling='medium'; topology='single-agent'; spawnAgents=$false }
 Assert-Route @{ Scope=1; Ambiguity=1; Coupling=1; Risk=1; Verification=1; CodeChange=$true } @{ tier='T1'; preferredModel='gpt-5.6-luna'; reasoning='medium' }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1 } @{ tier='T2'; topology='single-agent'; spawnAgents=$false }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true } @{ tier='T2'; topology='lead-plus-sidecar'; spawnAgents=$true }
 Assert-Route @{ RiskFloor='Authentication' } @{ tier='T3'; preferredModel='gpt-5.6-sol' }
-Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; independentVerificationRequired=$true }
+Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; reasoning='medium'; reasoningCeiling='medium'; independentVerificationRequired=$true }
 Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true } @{ tier='T4'; topology='lead-plus-independent-verifier'; spawnAgents=$true }
 Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true; IndependentWorkstreams=2 } @{ tier='T4'; topology='lead-workers-independent-verifier'; spawnAgents=$true }
 Assert-Route @{ Scope=3; Ambiguity=3; Coupling=3; Risk=2; Verification=1; DelegationBenefit=$true; IndependentWorkstreams=1 } @{ tier='T3'; topology='lead-plus-sidecar' }
@@ -27,6 +27,11 @@ Assert-Route @{ RiskFloor='Authentication'; ModelsUnavailable=$true } @{ preferr
 $criticalRejected = $false
 try { & $selector -Risk 3 -Json | Out-Null } catch { $criticalRejected = $true }
 if (!$criticalRejected) { throw 'Risk 3 without RiskFloor must be rejected.' }
+
+foreach ($routeArgs in @(@{}, @{Scope=1;Ambiguity=1;Coupling=1;Risk=1;Verification=1}, @{RiskFloor='Authentication'}, @{RiskFloor='Privacy'})) {
+  $route = & $selector @routeArgs -Json | ConvertFrom-Json
+  if ($route.reasoning -notin @('low','medium')) { throw "Reasoning ceiling exceeded: $($route.reasoning)" }
+}
 
 $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
 if ($bashPath) {

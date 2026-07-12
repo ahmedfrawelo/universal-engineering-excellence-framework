@@ -46,11 +46,11 @@ case "$risk_floor" in
 esac
 
 case "$tier" in
-  T0) capability=Inherited; model=inherit; reasoning=inherit; routed_topology=single-agent ;;
+  T0) capability=Inherited; model=inherit; reasoning=medium; routed_topology=single-agent ;;
   T1) capability=Fast; model=gpt-5.6-luna; reasoning=low; routed_topology=single-agent ;;
   T2) capability=Balanced; model=gpt-5.6-terra; reasoning=medium; routed_topology=lead-plus-sidecar ;;
-  T3) capability=Frontier; model=gpt-5.6-sol; reasoning=high; routed_topology=parallel-specialists ;;
-  T4) capability=Frontier; model=gpt-5.6-sol; reasoning=xhigh; routed_topology=lead-workers-independent-verifier ;;
+  T3) capability=Frontier; model=gpt-5.6-sol; reasoning=medium; routed_topology=parallel-specialists ;;
+  T4) capability=Frontier; model=gpt-5.6-sol; reasoning=medium; routed_topology=lead-workers-independent-verifier ;;
 esac
 
 [ "$tier" = T1 ] && [ "$code_change" = true ] && reasoning=medium
@@ -66,5 +66,5 @@ if [ "$models_available" = false ]; then model_json=null; model_verify=false
 else model_json="\"$model\""; if [ "$model" = inherit ]; then model_verify=false; else model_verify=true; fi
 fi
 
-printf '{"schemaVersion":1,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","topology":"%s","delegationBenefit":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Spawn only when delegation benefit, independent ownership, and platform capability are verified; T4 requires independent verification."}\n' \
+printf '{"schemaVersion":2,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"medium","topology":"%s","delegationBenefit":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Reasoning is capped at medium. Spawn only when delegation benefit, independent ownership, and platform capability are verified; T4 requires independent verification."}\n' \
   "$score" "$risk_floor" "$tier" "$capability" "$model_json" "$reasoning" "$topology" "$delegation_benefit" "$independent_workstreams" "$agents_available" "$spawn_agents" "$independent" "$model_verify"

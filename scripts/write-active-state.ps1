@@ -42,6 +42,8 @@ $checksPass = !(@($requiredChecks.GetEnumerator() | Where-Object { $_.Value -ne 
 
 $state = [ordered]@{
   active = $checksPass
+  agentRoutingContractVersion = 2
+  reasoningCeiling = 'medium'
   version = $version
   generatedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
   codexHome = $CodexHome

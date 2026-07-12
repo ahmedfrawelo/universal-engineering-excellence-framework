@@ -15,8 +15,10 @@ When the platform exposes the current Codex model family:
 | T0 | lead agent; no override | inherited |
 | T1 | `gpt-5.6-luna` | low, medium when code changes |
 | T2 | `gpt-5.6-terra` | medium or high |
-| T3 | `gpt-5.6-sol` | high or xhigh |
-| T4 | `gpt-5.6-sol` | xhigh, max, or ultra according to risk |
+| T3 | `gpt-5.6-sol` | medium |
+| T4 | `gpt-5.6-sol` | medium |
+
+`medium` is the hard reasoning ceiling for every model and agent. UEEF must never request `high`, `xhigh`, `max`, `ultra`, or any equivalent level above medium. Higher-risk work increases topology, evidence, and independent verification, not reasoning effort.
 
 Use an inherited model when it already satisfies the class. Do not override merely to make routing visible. If names differ or overrides are unavailable, select the nearest available capability class and keep the same risk floor.
 

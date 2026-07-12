@@ -25,11 +25,11 @@ if ($RiskFloor -in @('Architecture','Authentication','Authorization','Security',
 if ($RiskFloor -in @('Production','Migration','Destructive','Privacy','Payment','Incident')) { $tier = 'T4' }
 
 $routes = @{
-  T0 = @{ capability='Inherited'; model='inherit'; reasoning='inherit'; topology='single-agent' }
+  T0 = @{ capability='Inherited'; model='inherit'; reasoning='medium'; topology='single-agent' }
   T1 = @{ capability='Fast'; model='gpt-5.6-luna'; reasoning='low'; topology='single-agent' }
   T2 = @{ capability='Balanced'; model='gpt-5.6-terra'; reasoning='medium'; topology='lead-plus-sidecar' }
-  T3 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='high'; topology='parallel-specialists' }
-  T4 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='xhigh'; topology='lead-workers-independent-verifier' }
+  T3 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='medium'; topology='parallel-specialists' }
+  T4 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='medium'; topology='lead-workers-independent-verifier' }
 }
 $route = $routes[$tier]
 $reasoning = if ($tier -eq 'T1' -and $CodeChange) { 'medium' } else { $route.reasoning }
@@ -43,13 +43,14 @@ $topology = if (!$spawnAgents) {
 }
 $preferredModel = if ($ModelsUnavailable) { $null } else { $route.model }
 $result = [ordered]@{
-  schemaVersion = 1
+  schemaVersion = 2
   score = $score
   riskFloor = $RiskFloor
   tier = $tier
   capability = $route.capability
   preferredModel = $preferredModel
   reasoning = $reasoning
+  reasoningCeiling = 'medium'
   topology = $topology
   delegationBenefit = $DelegationBenefit.IsPresent
   independentWorkstreams = $IndependentWorkstreams
@@ -57,6 +58,6 @@ $result = [ordered]@{
   spawnAgents = $spawnAgents
   independentVerificationRequired = $tier -eq 'T4'
   modelAvailabilityMustBeVerified = !$ModelsUnavailable -and $route.model -ne 'inherit'
-  note = 'Spawn only when delegation benefit, independent ownership, and platform capability are verified; T4 requires independent verification.'
+  note = 'Reasoning is capped at medium. Spawn only when delegation benefit, independent ownership, and platform capability are verified; T4 requires independent verification.'
 }
 if ($Json) { $result | ConvertTo-Json -Depth 3 } else { [pscustomobject]$result }

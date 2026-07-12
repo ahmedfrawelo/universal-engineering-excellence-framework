@@ -33,6 +33,8 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Use the strongest available model and independent verification for T4 security, production, migration, destructive, privacy, payment, or incident work.
 - Reject risk score `3` without an explicit risk floor. Verify current agent and named-model availability before emitting a spawn or override decision.
 - Reclassify and escalate when scope, ambiguity, failures, or risk increase.
+- Cap every requested model and agent reasoning level at `medium`. Increase verification and topology for risk; never request a reasoning level above medium.
+- For T2 through T4, spawn a bounded child when agents are available and a genuinely independent workstream has positive delegation benefit. Otherwise record exactly one reason: `NO_INDEPENDENT_WORK`, `TOOL_UNAVAILABLE`, or `CRITICAL_PATH_ONLY`.
 
 ## Frontend UI Tasks
 

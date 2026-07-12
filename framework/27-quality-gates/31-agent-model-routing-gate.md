@@ -12,5 +12,7 @@ Pass when every applicable item is true:
 - Escalation and fallback rules were honored.
 - Agents were closed after integration.
 - Verification strength matches risk and independent review exists for T4.
+- The route schema is current, its reasoning ceiling is `medium`, and no emitted reasoning value exceeds that ceiling.
+- T2-T4 agent use is evidenced when a bounded independent stream exists; otherwise a valid single-agent reason is recorded.
 
 Any critical risk without an explicit floor, or any security, production, migration, or destructive task below its forced floor, is `BLOCKED`.

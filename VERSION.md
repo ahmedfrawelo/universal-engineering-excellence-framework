@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.7.1.
+UEEF Enterprise Edition version: 2.8.0.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -47,3 +47,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.6.0: task complexity routing, capability-based model selection, bounded agent topologies, token-economy controls, escalation, and risk-matched verification.
 - 2.7.0: design-engineering skill suite integration for motion craft, animation audits and reviews, animation vocabulary, and Apple-style interaction design.
 - 2.7.1: full-project hardening for agent routing, runtime containment and state proof, installer/update parity, quality-gate selection, Unix audits, and documentation integrity.
+- 2.8.0: operational agent-routing activation across tasks, a hard medium reasoning ceiling, runtime contract proof, and cross-platform enforcement tests.

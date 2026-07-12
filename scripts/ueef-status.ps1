@@ -46,6 +46,10 @@ $activationProofPass = Test-Item (Join-Path $RepositoryPath "framework/01-core/1
 $activationGatePass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates/16-ueef-activation-gate.md")
 $qualityGatesPass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates")
 $validationPass = Test-Item (Join-Path $RepositoryPath "scripts/validate-framework.ps1")
+$routePs = Join-Path $RepositoryPath 'scripts/select-agent-route.ps1'
+$routeSh = Join-Path $RepositoryPath 'scripts/select-agent-route.sh'
+$routingText = if ((Test-Item $routePs) -and (Test-Item $routeSh)) { (Get-Content -LiteralPath $routePs -Raw) + (Get-Content -LiteralPath $routeSh -Raw) } else { '' }
+$agentRoutingPass = (Test-Item $routePs) -and (Test-Item $routeSh) -and $routingText -match 'reasoningCeiling' -and $routingText -notmatch 'reasoning=(high|xhigh|max|ultra)'
 $isManagedRuntime = (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq "ueef"
 $codexHome = if ($isManagedRuntime) { Split-Path -Parent $GlobalPath } elseif ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
@@ -63,7 +67,7 @@ if ($isManagedRuntime) {
       $expectedLoader = [IO.Path]::GetFullPath((Join-Path $RepositoryPath 'UEEF-LOADER.md'))
       $checksPass = $state.requiredChecks -and !(@($state.requiredChecks.psobject.Properties | Where-Object { $_.Value -ne $true }).Count)
       if ($state.requireAgents -ne $true) { $agentsPass = $true }
-      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $checksPass
+      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 2 -and $state.reasoningCeiling -eq 'medium' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $checksPass
     } catch { $activeStatePass = $false }
   }
 } else {
@@ -81,7 +85,7 @@ if ($globalExists) {
 }
 $globalLoaderStatus = if (!$globalExists) { "UNKNOWN" } elseif ($loaderCandidates.Count -gt 0) { "PASS" } else { "FAIL" }
 $installed = if ($repoExists -and $globalExists -and $loaderCandidates.Count -gt 0) { "YES" } else { "NO" }
-$overall = if ($installed -eq "YES" -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentsPass -and $activeStatePass -and $oldHomeAbsent) { "ACTIVE" } else { "INACTIVE" }
+$overall = if ($installed -eq "YES" -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass -and $agentsPass -and $activeStatePass -and $oldHomeAbsent) { "ACTIVE" } else { "INACTIVE" }
 
 Write-Output "UEEF Status"
 Write-Output "-----------"
@@ -98,6 +102,7 @@ Write-Output "Quality gates: $(PassFail $qualityGatesPass)"
 Write-Output "Markdown file count: $markdownCount"
 Write-Output "Global loader: $globalLoaderStatus"
 Write-Output "Codex AGENTS: $(PassFail $agentsPass)"
+Write-Output "Agent routing contract: $(PassFail $agentRoutingPass)"
 Write-Output "Active state: $(PassFail $activeStatePass)"
 Write-Output "Old HOME .ueef absent: $(PassFail $oldHomeAbsent)"
 if ($globalLoaderStatus -ne "PASS") {

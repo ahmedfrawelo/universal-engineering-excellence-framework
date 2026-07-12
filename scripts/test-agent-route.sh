@@ -9,8 +9,10 @@ assert_contains() {
 }
 
 route="$("$selector")"
-assert_contains "$route" '"schemaVersion":1'
+assert_contains "$route" '"schemaVersion":2'
 assert_contains "$route" '"tier":"T0"'
+assert_contains "$route" '"reasoning":"medium"'
+assert_contains "$route" '"reasoningCeiling":"medium"'
 assert_contains "$route" '"spawnAgents":false'
 
 route="$("$selector" --scope 2 --ambiguity 2 --coupling 1 --risk 1 --verification 1 --delegation-benefit)"
@@ -19,6 +21,7 @@ assert_contains "$route" '"topology":"lead-plus-sidecar"'
 
 route="$("$selector" --risk-floor Payment --delegation-benefit --independent-workstreams 2)"
 assert_contains "$route" '"tier":"T4"'
+assert_contains "$route" '"reasoning":"medium"'
 assert_contains "$route" '"topology":"lead-workers-independent-verifier"'
 
 route="$("$selector" --risk-floor Authentication --models-unavailable)"
@@ -29,4 +32,12 @@ assert_contains "$route" '"agentsAvailable":false'
 assert_contains "$route" '"spawnAgents":false'
 
 if "$selector" --risk 3 >/dev/null 2>&1; then echo 'Risk 3 without floor was accepted' >&2; exit 1; fi
+for route in \
+  "$("$selector")" \
+  "$("$selector" --scope 1 --ambiguity 1 --coupling 1 --risk 1 --verification 1)" \
+  "$("$selector" --risk-floor Authentication)" \
+  "$("$selector" --risk-floor Privacy)"
+do
+  printf '%s' "$route" | grep -Eq '"reasoning":"(low|medium)"' || { echo "Reasoning ceiling exceeded in $route" >&2; exit 1; }
+done
 echo 'Unix agent route tests passed'

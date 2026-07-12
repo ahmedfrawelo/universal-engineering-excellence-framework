@@ -20,6 +20,8 @@ Agent routing hardening:
 - Risk score 3 requires an explicit risk floor.
 - Parallel agents require positive delegation benefit and at least two independently owned workstreams.
 - Verify current agent and named-model availability before spawning or overriding; fall back to the inherited model without lowering quality gates.
+- The hard reasoning ceiling is medium for every model and agent. Never request high, xhigh, max, ultra, or an equivalent level above medium.
+- For T2 through T4, spawn a bounded child when agent tooling is available and a genuinely independent workstream has positive delegation benefit. Otherwise record exactly one reason: NO_INDEPENDENT_WORK, TOOL_UNAVAILABLE, or CRITICAL_PATH_ONLY.
 
 Live runtime refresh:
 - At the beginning of every user turn, including an existing chat, re-read this loader and verify the active runtime version and status before selecting tools.

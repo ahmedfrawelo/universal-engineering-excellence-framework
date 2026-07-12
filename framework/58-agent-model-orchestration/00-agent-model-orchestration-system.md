@@ -18,6 +18,9 @@ Route every task to the smallest capable model class and agent topology while pr
 ## Invariants
 
 - Every task passes the router, including conversational and trivial work.
+- The reasoning ceiling is `medium` for the lead and every child agent. No route may emit or request a higher level.
+- Every non-trivial task executes the route selector or records an equivalent classification before substantial work.
+- A T2-T4 route with available agent tooling and positive independent delegation benefit must spawn at least one bounded child. Otherwise record `NO_INDEPENDENT_WORK`, `TOOL_UNAVAILABLE`, or `CRITICAL_PATH_ONLY`.
 - Routing does not imply spawning. The lead agent is the single-agent topology.
 - Model names are runtime mappings, not durable policy. Capability classes are durable.
 - Security, authorization, production, destructive operations, data migrations, architecture, and incident response have mandatory capability floors.
