@@ -117,6 +117,9 @@ $requiredAcceptance = @(
   "scripts/select-agent-route.sh",
   "scripts/test-agent-route.ps1",
   "docs/releases/v2.6.0.md",
+  "docs/releases/v2.7.0.md",
+  "scripts/install-design-engineering-skills.ps1",
+  "scripts/install-design-engineering-skills.sh",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -199,11 +202,11 @@ foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($l
 $environmentModules = @("README.md","INDEX.md","00-environment-bootstrap.md","01-profile-selection.md","02-core-profile.md","03-frontend-profile.md","04-backend-profile.md","05-database-profile.md","06-uiux-profile.md","07-devops-profile.md","08-ai-profile.md","09-optional-profile.md","10-dependency-levels.md","11-detection-and-installation.md","12-mcp-detection.md","13-runtime-bootstrap-sequence.md")
 foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "framework/50-environment-bootstrap/$file"))) { throw "Environment Bootstrap missing module: $file" } }
 $bootstrapScript = Get-Content (Join-Path $Root "scripts/environment-bootstrap.ps1") -Raw
-foreach ($term in @("Mandatory","Recommended","Optional","ui-ux-pro-max","impeccable","Overall READY","Overall BLOCKED","package","csproj","schema","Dockerfile")) { if ($bootstrapScript -notmatch [regex]::Escape($term)) { throw "Bootstrap script missing required behavior: $term" } }
+foreach ($term in @("Mandatory","Recommended","Optional","ui-ux-pro-max","impeccable","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","Overall READY","Overall BLOCKED","package","csproj","schema","Dockerfile")) { if ($bootstrapScript -notmatch [regex]::Escape($term)) { throw "Bootstrap script missing required behavior: $term" } }
 $coreText = Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw
 foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
 $runtimeText = Get-Content (Join-Path $Root "framework/03-runtime/00-runtime-sequence.md") -Raw
-foreach ($term in @("Existing theme inspected:","Theme tokens found:","Responsive system found:","Overlay system found:","UI UX Pro Max checked:")) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing preflight field: $term" } }
+foreach ($term in @("Existing theme inspected:","Theme tokens found:","Responsive system found:","Overlay system found:","UI UX Pro Max checked:","Design engineering skill route:","Specialist motion skills checked:")) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing preflight field: $term" } }
 $designTerms = @("Existing project UI searched:","Component registry searched:","Pattern library searched:","Reuse or extension decision:","Token families identified:")
 foreach ($term in $designTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing design governance field: $term" } }
 $guardianTerms = @("Affected baseline recorded:","Regression monitors selected:","Self-criticism completed:","Final Guardian Gate:")
@@ -234,7 +237,7 @@ if ([int]$manifest.frameworkPacks -ne $packs.Count) { throw "Manifest framework 
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch "58-agent-model-orchestration|pack 58") { throw "Loader missing agent model routing rule" }
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
-foreach ($term in @("Agent and model routing:","not a reason to suspend execution","Local command autonomy:")) {
+foreach ($term in @("Agent and model routing:","Design engineering skill routing:","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","not a reason to suspend execution","Local command autonomy:")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing global loader policy: $term" }
 }
 Write-Host "UEEF validation passed"

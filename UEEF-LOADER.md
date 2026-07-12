@@ -11,6 +11,11 @@ Before every non-trivial engineering task:
 5. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
 6. Apply the Engineering Guardian, relevant quality gates, and final verification before completion.
 
+Design engineering skill routing:
+- Add `emil-design-eng` for motion implementation and polish.
+- Add `review-animations` for motion review, `improve-animations` for read-only motion audits, `animation-vocabulary` for naming effects, and `apple-design` for gesture, spring, momentum, and Apple-style interaction work.
+- Select only matching skills; never load the full suite by default.
+
 Live runtime refresh:
 - At the beginning of every user turn, including an existing chat, re-read this loader and verify the active runtime version and status before selecting tools.
 - Never rely on a loader or browser decision cached from an earlier turn.

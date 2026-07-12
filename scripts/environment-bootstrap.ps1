@@ -54,7 +54,15 @@ foreach($p in $Profile){
     }
     'Backend' { Add-Check Backend '.NET or Node or Python' Recommended ((Has-Command dotnet) -or (Has-Command node) -or (Has-Command python)) 'at least one detected backend runtime' }
     'Database' { Add-Check Database 'Database CLI' Recommended ((Has-Command sqlcmd) -or (Has-Command psql) -or (Has-Command mysql)) 'provider CLI detected' }
-    'UIUX' { Add-Check UIUX 'UI UX Pro Max' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path'; Add-Check UIUX Impeccable Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'; Add-Check UIUX Playwright Recommended (Has-Command npx) 'npx available' }
+    'UIUX' {
+      Add-Check UIUX 'UI UX Pro Max' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path'
+      Add-Check UIUX Impeccable Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'
+      Add-Check UIUX 'Emil Design Engineering' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\emil-design-eng\SKILL.md'))) 'specialist skill path' 'scripts/install-design-engineering-skills.ps1'
+      foreach($skill in @('review-animations','improve-animations','animation-vocabulary','apple-design')) {
+        Add-Check UIUX $skill Optional ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome "skills\$skill\SKILL.md"))) 'specialist skill path' 'scripts/install-design-engineering-skills.ps1'
+      }
+      Add-Check UIUX Playwright Recommended (Has-Command npx) 'npx available'
+    }
     'DevOps' { Add-Check DevOps Docker Recommended (Has-Command docker) 'docker command'; Add-Check DevOps 'GitHub CLI' Mandatory (Has-Command gh) 'gh command' }
     'Optional' { Add-Check Optional 'Optional tools' Optional $true 'not blocking' }
   }

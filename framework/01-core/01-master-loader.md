@@ -52,6 +52,18 @@ Apply UI UX Pro Max when available. Do not load backend, database, enterprise, o
 
 For UI/UX work, this means loading and applying both `ui-ux-pro-max` and `impeccable`. Do not report UIUX as PASS when only one is available; report the missing skill according to the environment profile.
 
+### Design Engineering Skills
+
+Keep `ui-ux-pro-max` and `impeccable` as the general UI/UX baseline. Add only the specialized installed skill whose trigger matches:
+
+- `emil-design-eng` for animation implementation, motion polish, easing, timing, transitions, and interaction craft.
+- `review-animations` for reviewing a motion diff or deciding whether animation changes pass.
+- `improve-animations` for a read-only, whole-codebase motion audit and self-contained plans; respect its no-source-edits contract.
+- `animation-vocabulary` only when naming or disambiguating a motion effect.
+- `apple-design` for gesture-driven UI, springs, momentum, interruptibility, sheets, drag/swipe behavior, translucent depth, or Apple-style typography and motion.
+
+Do not load all five by default. Multiple skills are selected together only when their triggers independently apply.
+
 For every UI, frontend, page, component, form, dropdown, menu, modal, panel, table, dashboard, responsive, theme, or interaction task, first inspect `framework/46-design-system-consistency-reuse/` and select the relevant modules from `framework/47-theme-responsive-interaction-security-performance/`.
 
 ## Theme Tasks

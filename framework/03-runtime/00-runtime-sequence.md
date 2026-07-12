@@ -76,6 +76,8 @@ Existing dropdown/panel behavior inspected:
 Security modules selected:
 Performance modules selected:
 UI UX Pro Max checked:
+Design engineering skill route:
+Specialist motion skills checked:
 ```
 
 The final user-facing verification still uses only the compact required labels. The detailed evidence belongs in the plan, task record, tests, or review artifacts, not in the `Loaded` line.

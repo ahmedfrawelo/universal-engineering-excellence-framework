@@ -31,6 +31,10 @@ if has_profile UIUX; then
   echo "UIUX SELECTED"
   if check_path "$CODEX_HOME/skills/ui-ux-pro-max/SKILL.md"; then echo "ui-ux-pro-max PASS"; else echo "ui-ux-pro-max MISSING (Mandatory)"; status=2; fi
   if check_path "$CODEX_HOME/skills/impeccable/SKILL.md"; then echo "impeccable PASS"; else echo "impeccable MISSING (Mandatory)"; status=2; fi
+  if check_path "$CODEX_HOME/skills/emil-design-eng/SKILL.md"; then echo "emil-design-eng PASS"; else echo "emil-design-eng MISSING (Recommended)"; fi
+  for skill in review-animations improve-animations animation-vocabulary apple-design; do
+    if check_path "$CODEX_HOME/skills/$skill/SKILL.md"; then echo "$skill PASS"; else echo "$skill MISSING (Optional)"; fi
+  done
 else echo "UIUX NOT REQUIRED"; fi
 if has_profile DevOps; then echo "DevOps SELECTED"; else echo "DevOps NOT REQUIRED"; fi
 echo "Optional CONTINUE"

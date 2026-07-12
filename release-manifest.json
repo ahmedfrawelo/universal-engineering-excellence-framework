@@ -1,8 +1,8 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.6.0",
-  "releaseDate": "2026-07-11",
+  "version": "2.7.0",
+  "releaseDate": "2026-07-12",
   "minimumMarkdownFiles": 490,
   "frameworkPacks": 59,
   "entrypoints": {
@@ -28,5 +28,5 @@
     "framework/57-application-shell-design",
     "framework/58-agent-model-orchestration"
   ],
-  "releaseNotes": "docs/releases/v2.6.0.md"
+  "releaseNotes": "docs/releases/v2.7.0.md"
 }

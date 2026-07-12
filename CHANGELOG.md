@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.7.0 - 2026-07-12
+
+- Added reproducible installation for the Emil Kowalski design-engineering skill suite.
+- Added task-specific routing for design engineering, animation review, animation audits, motion vocabulary, and Apple-style interactions.
+- Added Environment Bootstrap detection without making specialized motion skills universal blockers.
+- Added runtime and validator coverage for the complete design skill suite.
+
 ## 2.6.0 - 2026-07-11
 
 - Added mandatory task complexity and risk routing for every task.

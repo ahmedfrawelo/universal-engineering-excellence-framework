@@ -75,6 +75,11 @@ grep -q "not a reason to suspend execution" "$ROOT/UEEF-LOADER.md"
 grep -q "Agent and model routing:" "$ROOT/scripts/sync-runtime.ps1"
 grep -q "not a reason to suspend execution" "$ROOT/scripts/sync-runtime.ps1"
 grep -q "Local command autonomy:" "$ROOT/scripts/sync-runtime.ps1"
+grep -q "Design engineering skill routing:" "$ROOT/scripts/sync-runtime.ps1"
+for skill in emil-design-eng review-animations improve-animations animation-vocabulary apple-design; do
+  grep -q "$skill" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing design skill: $skill" >&2; exit 1; }
+  grep -q "$skill" "$ROOT/scripts/environment-bootstrap.sh" || { echo "Unix bootstrap missing design skill: $skill" >&2; exit 1; }
+done
 grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Affected baseline recorded:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -151,6 +156,9 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.4.6.md" ] || { echo "Missing browser window-state release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.5.0.md" ] || { echo "Missing browser control-surface release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.6.0.md" ] || { echo "Missing agent orchestration release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.7.0.md" ] || { echo "Missing design engineering skills release notes" >&2; exit 1; }
+[ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
+[ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
 [ -f "$ROOT/framework/27-quality-gates/31-agent-model-routing-gate.md" ] || { echo "Missing agent routing gate" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-agent-route.ps1" ] || { echo "Missing agent route selector" >&2; exit 1; }
