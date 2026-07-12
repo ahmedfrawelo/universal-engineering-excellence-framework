@@ -1,15 +1,24 @@
 #!/usr/bin/env sh
 set -eu
 ROOT=$(CDPATH= cd -- "${1:-$(dirname -- "$0")/..}" && pwd)
+GIT_ROOT="$ROOT"
+if [ ! -d "$GIT_ROOT/.git" ]; then
+  STATE_PATH="$(dirname "$ROOT")/UEEF-ACTIVE.json"
+  if [ -f "$STATE_PATH" ]; then
+    GIT_ROOT=$(sed -n 's/.*"sourceRepositoryPath"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$STATE_PATH" | sed -n '1p')
+    GIT_ROOT=$(printf '%s' "$GIT_ROOT" | sed 's/\\\\/\\/g')
+    if command -v cygpath >/dev/null 2>&1; then GIT_ROOT=$(cygpath -u "$GIT_ROOT"); fi
+  fi
+fi
 fail=0
 pass() { printf 'PASS %s\n' "$1"; }
 fail_check() { printf 'FAIL %s: %s\n' "$1" "$2" >&2; fail=1; }
 if sh "$ROOT/scripts/validate-framework.sh" >/dev/null; then pass framework-validation; else fail_check framework-validation validator-failed; fi
-if git -C "$ROOT" diff --check; then pass git-clean-diff; else fail_check git-clean-diff whitespace-errors; fi
+if [ -d "$GIT_ROOT/.git" ] && git -C "$GIT_ROOT" diff --check; then pass git-clean-diff; else fail_check git-clean-diff source-git-unavailable-or-whitespace-errors; fi
 if find "$ROOT" -path "$ROOT/.git" -prune -o -type f \( -name '.env' -o -name '*.pem' -o -name '*.key' -o -name 'id_rsa' \) -print | grep -q .; then fail_check source-hygiene sensitive-files-found
-elif git -C "$ROOT" grep -n -I -E -e '-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}' -- . ':(exclude)scripts/ueef-audit.ps1' ':(exclude)scripts/ueef-audit.sh' >/dev/null 2>&1; then fail_check source-hygiene secret-like-content
+elif git -C "$GIT_ROOT" grep -n -I -E -e '-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}' -- . ':(exclude)scripts/ueef-audit.ps1' ':(exclude)scripts/ueef-audit.sh' >/dev/null 2>&1; then fail_check source-hygiene secret-like-content
 else pass source-hygiene; fi
-if git -C "$ROOT" ls-files -- 'dist' 'build' 'coverage' 'test-results' 'playwright-report' '*.log' '*.tmp' | grep -q .; then fail_check tracked-generated-artifacts tracked-files-found; else pass tracked-generated-artifacts; fi
+if git -C "$GIT_ROOT" ls-files -- 'dist' 'build' 'coverage' 'test-results' 'playwright-report' '*.log' '*.tmp' | grep -q .; then fail_check tracked-generated-artifacts tracked-files-found; else pass tracked-generated-artifacts; fi
 if find "$ROOT/scripts" -name '*.mjs' -print0 | xargs -0 -r -n1 node --check; then pass script-syntax; else fail_check script-syntax node-check-failed; fi
 if find "$ROOT/scripts" -name '*.sh' -type f -exec sh -n {} \;; then pass shell-syntax; else fail_check shell-syntax sh-parse-failed; fi
 version=$(sed -n 's/.*version: \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "$ROOT/VERSION.md" | head -n1)
