@@ -4,17 +4,19 @@
 2. Enter it: cd universal-engineering-excellence-framework.
 3. Install for Codex: .\scripts\install-codex.ps1 on Windows or ./scripts/install-codex.sh on Unix.
 4. Verify: run .\scripts\validate-framework.ps1.
-5. First use: tell Codex to load UEEF before the task and follow the master loader.
+5. First use: have Codex read the installed `UEEF-LOADER.md` before the task. It loads `boot-loader` and `core-system`, then uses the master loader to select task-specific modules.
 
 UEEF is active when the assistant inspects the project, detects stack and architecture, produces a plan, applies relevant modules, and runs quality gates before finishing.
+
+The current release is 2.7.1. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes.
 
 ## Runtime Check
 
 Before asking an AI assistant to modify a project, verify UEEF:
 
-`powershell
+```powershell
 .\scripts\ueef-status.ps1
-`
+```
 
 The assistant must start non-trivial engineering work with the UEEF Runtime Check block and finish with the UEEF Verification block.
 ## Exact Codex installation
@@ -28,6 +30,6 @@ For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is 
 
 If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-codex.sh` must fail instead of installing to a fallback path.
 
-## Version 1.1 UI Selection
+## UI Selection
 
 For theme, responsive, page, form, table, dashboard, dropdown, panel, modal, or interaction work, select the relevant modules in packs 46 and 47. Include pack 45 when identity, permissions, entitlements, employee access, public access, SaaS tenancy, or hybrid application boundaries are involved.

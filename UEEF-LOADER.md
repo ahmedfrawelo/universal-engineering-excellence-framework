@@ -16,6 +16,11 @@ Design engineering skill routing:
 - Add `review-animations` for motion review, `improve-animations` for read-only motion audits, `animation-vocabulary` for naming effects, and `apple-design` for gesture, spring, momentum, and Apple-style interaction work.
 - Select only matching skills; never load the full suite by default.
 
+Agent routing hardening:
+- Risk score 3 requires an explicit risk floor.
+- Parallel agents require positive delegation benefit and at least two independently owned workstreams.
+- Verify current agent and named-model availability before spawning or overriding; fall back to the inherited model without lowering quality gates.
+
 Live runtime refresh:
 - At the beginning of every user turn, including an existing chat, re-read this loader and verify the active runtime version and status before selecting tools.
 - Never rely on a loader or browser decision cached from an earlier turn.

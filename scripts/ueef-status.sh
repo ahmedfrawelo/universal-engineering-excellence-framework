@@ -2,8 +2,13 @@
 set -eu
 
 REPOSITORY_PATH="${1:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
+repo_parent="$(dirname "$REPOSITORY_PATH")"
+managed_runtime=0
+[ "$(basename "$repo_parent")" = "ueef" ] && managed_runtime=1
 if [ -n "${UEEF_GLOBAL_PATH:-}" ]; then
   GLOBAL_PATH="$UEEF_GLOBAL_PATH"
+elif [ "$managed_runtime" = "1" ]; then
+  GLOBAL_PATH="$repo_parent"
 elif [ -n "${CODEX_HOME:-}" ]; then
   GLOBAL_PATH="$CODEX_HOME/ueef"
 else
@@ -39,6 +44,22 @@ activation_proof=0; exists "$REPOSITORY_PATH/framework/01-core/10-runtime-activa
 activation_gate=0; exists "$REPOSITORY_PATH/framework/27-quality-gates/16-ueef-activation-gate.md" && activation_gate=1
 quality_gates=0; exists "$REPOSITORY_PATH/framework/27-quality-gates" && quality_gates=1
 validation=0; exists "$REPOSITORY_PATH/scripts/validate-framework.sh" && validation=1
+agents_pass=1
+active_state_pass=1
+old_home_absent=1
+if [ "$managed_runtime" = "1" ]; then
+  codex_home="$(dirname "$GLOBAL_PATH")"
+  agents_path="$codex_home/AGENTS.md"
+  state_path="$GLOBAL_PATH/UEEF-ACTIVE.json"
+  agents_pass=0
+  repository_native="$REPOSITORY_PATH"
+  command -v cygpath >/dev/null 2>&1 && repository_native=$(cygpath -w "$REPOSITORY_PATH")
+  if [ -f "$agents_path" ] && { grep -Fq "$REPOSITORY_PATH" "$agents_path" || grep -Fq "$repository_native" "$agents_path"; }; then agents_pass=1; fi
+  active_state_pass=0
+  if [ -f "$state_path" ] && grep -q '"active"[[:space:]]*:[[:space:]]*true' "$state_path" && grep -q "\"version\"[[:space:]]*:[[:space:]]*\"$version\"" "$state_path" && grep -q "\"agent\"[[:space:]]*:[[:space:]]*\"$(basename "$REPOSITORY_PATH")\"" "$state_path"; then active_state_pass=1; fi
+  if [ -f "$state_path" ] && grep -q '"requireAgents"[[:space:]]*:[[:space:]]*false' "$state_path"; then agents_pass=1; fi
+fi
+[ -e "$HOME/.ueef" ] && old_home_absent=0
 markdown_count=0
 if [ "$repo_exists" = "1" ]; then
   markdown_count="$(find "$REPOSITORY_PATH" -path "$REPOSITORY_PATH/.git" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')"
@@ -56,7 +77,7 @@ if [ "$global_exists" = "1" ] && [ "$loader_count" -eq 0 ]; then global_loader="
 installed="NO"
 overall="INACTIVE"
 if [ "$repo_exists" = "1" ] && [ "$global_exists" = "1" ] && [ "$loader_count" -gt 0 ]; then installed="YES"; fi
-if [ "$installed" = "YES" ] && [ "$core_pass" = "1" ] && [ "$master_loader" = "1" ] && [ "$master_index" = "1" ] && [ "$activation_proof" = "1" ] && [ "$activation_gate" = "1" ] && [ "$quality_gates" = "1" ] && [ "$validation" = "1" ]; then overall="ACTIVE"; fi
+if [ "$installed" = "YES" ] && [ "$core_pass" = "1" ] && [ "$master_loader" = "1" ] && [ "$master_index" = "1" ] && [ "$activation_proof" = "1" ] && [ "$activation_gate" = "1" ] && [ "$quality_gates" = "1" ] && [ "$validation" = "1" ] && [ "$agents_pass" = "1" ] && [ "$active_state_pass" = "1" ] && [ "$old_home_absent" = "1" ]; then overall="ACTIVE"; fi
 
 printf "%s\n" "UEEF Status"
 printf "%s\n" "-----------"
@@ -72,6 +93,9 @@ printf "%s\n" "Activation gate: $(passfail "$activation_gate")"
 printf "%s\n" "Quality gates: $(passfail "$quality_gates")"
 printf "%s\n" "Markdown file count: $markdown_count"
 printf "%s\n" "Global loader: $global_loader"
+printf "%s\n" "Codex AGENTS: $(passfail "$agents_pass")"
+printf "%s\n" "Active state: $(passfail "$active_state_pass")"
+printf "%s\n" "Old HOME .ueef absent: $(passfail "$old_home_absent")"
 if [ "$global_loader" != "PASS" ]; then
   printf "%s\n" "Required action: Run scripts/install-codex.sh, scripts/install-cursor.sh, or scripts/install-generic.sh from Codex with CODEX_HOME set, or set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md."
 fi

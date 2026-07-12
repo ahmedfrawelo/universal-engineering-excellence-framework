@@ -2,7 +2,8 @@
 set -eu
 
 scope=0 ambiguity=0 coupling=0 risk=0 verification=0
-risk_floor=None code_change=false delegation_benefit=false
+risk_floor=None code_change=false delegation_benefit=false independent_workstreams=1
+agents_available=true models_available=true
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -14,15 +15,21 @@ while [ "$#" -gt 0 ]; do
     --risk-floor) risk_floor="$2"; shift 2 ;;
     --code-change) code_change=true; shift ;;
     --delegation-benefit) delegation_benefit=true; shift ;;
+    --independent-workstreams) independent_workstreams="$2"; shift 2 ;;
+    --agents-unavailable) agents_available=false; shift ;;
+    --models-unavailable) models_available=false; shift ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
 done
+case "$independent_workstreams" in ''|*[!0-9]*) echo "Independent workstreams must be an integer from 1 to 16" >&2; exit 2 ;; esac
+[ "$independent_workstreams" -ge 1 ] && [ "$independent_workstreams" -le 16 ] || { echo "Independent workstreams must be an integer from 1 to 16" >&2; exit 2; }
 
 for value in "$scope" "$ambiguity" "$coupling" "$risk" "$verification"; do
   case "$value" in 0|1|2|3) ;; *) echo "Scores must be integers from 0 to 3" >&2; exit 2 ;; esac
 done
 
 score=$((scope + ambiguity + coupling + risk + verification))
+[ "$risk" -eq 3 ] && [ "$risk_floor" = None ] && { echo "Risk 3 requires an explicit risk floor" >&2; exit 2; }
 if [ "$score" -le 2 ]; then tier=T0
 elif [ "$score" -le 5 ]; then tier=T1
 elif [ "$score" -le 9 ]; then tier=T2
@@ -48,9 +55,16 @@ esac
 
 [ "$tier" = T1 ] && [ "$code_change" = true ] && reasoning=medium
 spawn_agents=false
-case "$tier" in T2|T3|T4) [ "$delegation_benefit" = true ] && spawn_agents=true ;; esac
-if [ "$spawn_agents" = true ]; then topology="$routed_topology"; else topology=single-agent; fi
+case "$tier" in T2|T3|T4) [ "$delegation_benefit" = true ] && [ "$agents_available" = true ] && spawn_agents=true ;; esac
+if [ "$spawn_agents" = false ]; then topology=single-agent
+elif [ "$tier" = T4 ] && [ "$independent_workstreams" -eq 1 ]; then topology=lead-plus-independent-verifier
+elif [ "$tier" = T2 ] || [ "$independent_workstreams" -eq 1 ]; then topology=lead-plus-sidecar
+else topology="$routed_topology"
+fi
 if [ "$tier" = T4 ]; then independent=true; else independent=false; fi
+if [ "$models_available" = false ]; then model_json=null; model_verify=false
+else model_json="\"$model\""; if [ "$model" = inherit ]; then model_verify=false; else model_verify=true; fi
+fi
 
-printf '{"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":"%s","reasoning":"%s","topology":"%s","delegationBenefit":%s,"spawnAgents":%s,"independentVerificationRequired":%s}\n' \
-  "$score" "$risk_floor" "$tier" "$capability" "$model" "$reasoning" "$topology" "$delegation_benefit" "$spawn_agents" "$independent"
+printf '{"schemaVersion":1,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","topology":"%s","delegationBenefit":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Spawn only when delegation benefit, independent ownership, and platform capability are verified; T4 requires independent verification."}\n' \
+  "$score" "$risk_floor" "$tier" "$capability" "$model_json" "$reasoning" "$topology" "$delegation_benefit" "$independent_workstreams" "$agents_available" "$spawn_agents" "$independent" "$model_verify"

@@ -8,6 +8,9 @@
 - Model override or inherited:
 - Agent topology:
 - Delegation benefit:
+- Independent workstreams:
+- Agents available:
+- Named model availability verified:
 - Critical path owner:
 - Child ownership:
 - Context boundaries:

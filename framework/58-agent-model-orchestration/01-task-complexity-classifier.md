@@ -13,6 +13,7 @@ Score current evidence, not prompt length:
 | Verification | direct observation | focused check | multiple suites | integration, release, or independent proof |
 
 Use the highest risk evidence as a floor even when the sum is low.
+Risk score `3` is invalid without an explicit risk-floor category; the router must reject it rather than infer a weaker route.
 
 ## Tiers
 

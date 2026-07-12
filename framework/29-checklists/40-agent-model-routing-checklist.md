@@ -7,6 +7,8 @@
 - [ ] Critical path identified.
 - [ ] Child tasks have disjoint ownership and bounded context.
 - [ ] Fan-out is limited to independent work streams.
+- [ ] Independent workstream count is recorded before parallel routing.
+- [ ] Agent and named-model availability are verified from current tools.
 - [ ] Failed or ambiguous work escalated.
 - [ ] Completed agents closed.
 - [ ] Verification matches the route and risk.

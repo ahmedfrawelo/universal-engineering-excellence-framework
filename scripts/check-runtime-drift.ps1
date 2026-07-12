@@ -4,30 +4,18 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
-$criticalFiles = @(
-  "README.md",
-  "INSTALL.md",
-  "scripts/ueef-status.ps1",
-  "scripts/sync-runtime.ps1",
-  "scripts/check-runtime-drift.ps1",
-  "scripts/select-quality-gates.ps1",
-  "scripts/write-active-state.ps1",
-  "framework/01-core/00-core-system.md",
-  "framework/01-core/01-master-loader.md",
-  "framework/01-core/02-master-index.md",
-  "framework/01-core/10-runtime-activation-proof.md",
-  "framework/01-core/12-ueef-required-preflight.md",
-  "framework/03-runtime/00-runtime-sequence.md",
-  "framework/27-quality-gates/16-ueef-activation-gate.md"
-)
+$sourceRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path)
+$runtimeRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RuntimePath).Path)
+$sourceFiles = @(Get-ChildItem -LiteralPath $sourceRoot -Recurse -File -Force | Where-Object {
+  $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -ne 'UEEF-LOADER.md'
+})
 
 $mismatches = @()
-foreach ($file in $criticalFiles) {
-  $sourceFile = Join-Path $SourcePath $file
-  $runtimeFile = Join-Path $RuntimePath $file
-  if (!(Test-Path -LiteralPath $sourceFile)) { $mismatches += "Missing source: $file"; continue }
+foreach ($sourceFile in $sourceFiles) {
+  $file = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+  $runtimeFile = Join-Path $runtimeRoot $file
   if (!(Test-Path -LiteralPath $runtimeFile)) { $mismatches += "Missing runtime: $file"; continue }
-  $sourceHash = (Get-FileHash -LiteralPath $sourceFile -Algorithm SHA256).Hash
+  $sourceHash = (Get-FileHash -LiteralPath $sourceFile.FullName -Algorithm SHA256).Hash
   $runtimeHash = (Get-FileHash -LiteralPath $runtimeFile -Algorithm SHA256).Hash
   if ($sourceHash -ne $runtimeHash) { $mismatches += "Different: $file" }
 }
@@ -39,7 +27,15 @@ Write-Output "UEEF Runtime Drift Check"
 Write-Output "------------------------"
 Write-Output "Source Path: $SourcePath"
 Write-Output "Runtime Path: $RuntimePath"
-Write-Output "Critical files checked: $($criticalFiles.Count)"
+Write-Output "Source files checked: $($sourceFiles.Count)"
+$runtimeLoader = Join-Path $runtimeRoot 'UEEF-LOADER.md'
+if (!(Test-Path -LiteralPath $runtimeLoader)) { $mismatches += 'Missing runtime: UEEF-LOADER.md' }
+else {
+  $loaderText = Get-Content -LiteralPath $runtimeLoader -Raw
+  foreach ($term in @('Agent and model routing:','environment-bootstrap','Loaded: boot-loader, core-system')) {
+    if ($loaderText -notmatch [regex]::Escape($term)) { $mismatches += "Runtime loader missing contract: $term" }
+  }
+}
 Write-Output "Old HOME .ueef exists: $(if ($oldHomeExists) { 'YES' } else { 'NO' })"
 if ($mismatches.Count) {
   Write-Output "Drift: YES"

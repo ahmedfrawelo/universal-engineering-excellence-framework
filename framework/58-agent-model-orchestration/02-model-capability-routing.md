@@ -20,6 +20,8 @@ When the platform exposes the current Codex model family:
 
 Use an inherited model when it already satisfies the class. Do not override merely to make routing visible. If names differ or overrides are unavailable, select the nearest available capability class and keep the same risk floor.
 
+Verify model entitlement from the current orchestration tool before using a named override. When availability cannot be verified, emit the capability class with no model ID and continue with the strongest available inherited model.
+
 ## Quality Protection
 
 - Never choose from token price alone.

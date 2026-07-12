@@ -12,6 +12,9 @@ function Write-Utf8File {
 
 if (!(Test-Path -LiteralPath $SourcePath)) { throw "SourcePath not found: $SourcePath" }
 if (!(Test-Path -LiteralPath (Join-Path $SourcePath "framework"))) { throw "Source framework not found: $SourcePath" }
+if ($Agent -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$' -or $Agent -in @('.', '..')) {
+  throw "Unsafe agent name. Use one leaf name containing letters, numbers, dot, underscore, or hyphen."
+}
 $sourceCommit = "UNKNOWN"
 try {
   $sourceCommit = (git -C $SourcePath rev-parse HEAD 2>$null)
@@ -23,10 +26,15 @@ $version = if ($versionMatch.Success) { $versionMatch.Value } else { throw "Coul
 New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
 
 $runtimeRoot = Join-Path $CodexHome "ueef"
-$runtimePath = Join-Path $runtimeRoot $Agent
+$resolvedRuntimeRoot = [IO.Path]::GetFullPath($runtimeRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)
+$runtimePath = [IO.Path]::GetFullPath((Join-Path $resolvedRuntimeRoot $Agent))
 $resolvedCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $CodexHome).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $resolvedSource = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePrefix = $resolvedCodexHome + [IO.Path]::DirectorySeparatorChar
+$runtimeRootPrefix = $resolvedRuntimeRoot + [IO.Path]::DirectorySeparatorChar
+if (!$runtimePath.StartsWith($runtimeRootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or (Split-Path -Parent $runtimePath) -ne $resolvedRuntimeRoot) {
+  throw "Refusing unsafe runtime target: $runtimePath"
+}
 if ($resolvedSource -eq $resolvedCodexHome -or $resolvedSource.StartsWith($runtimePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
   throw "Refusing to sync from inside CODEX_HOME: $resolvedSource"
 }
@@ -67,6 +75,7 @@ Write-Utf8File $loader @(
   "3. Use UEEF Master Loader from $master only to select relevant modules.",
   "4. Do not load the full framework unless the task is about UEEF audit, update, install, validation, or rebuild.",
   "5. Run UEEF Runtime Check.",
+  "Run scripts/environment-bootstrap.ps1 on Windows or scripts/environment-bootstrap.sh on Unix before project inspection.",
   "At the beginning of every user turn, including an existing chat, re-read this loader and verify runtime version and status before selecting tools.",
   "Never rely on a loader or tool decision cached from an earlier turn.",
   "6. Select relevant UEEF modules for the task.",
@@ -85,6 +94,8 @@ Write-Utf8File $loader @(
   "- Keep the critical path with the lead; give child agents bounded context and non-overlapping ownership.",
   "- Security, production, migration, destructive, privacy, payment, and incident work require frontier capability and risk-matched independent verification.",
   "- Escalate after scope growth, ambiguity, unexplained test failure, conflicting evidence, or discovered risk.",
+  "- Reject risk score 3 without an explicit risk floor. Parallel agents require at least two independent workstreams.",
+  "- Verify current agent and named-model availability before spawning or overriding; otherwise use the inherited model with unchanged gates.",
   "",
   "Design engineering skill routing:",
   "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",
@@ -157,6 +168,8 @@ Write-Utf8File $agents @(
   "- Keep immediate blockers and final integration with the lead; child tasks need bounded context, disjoint ownership, and explicit evidence.",
   "- T4 security, production, migration, destructive, privacy, payment, and incident work requires independent verification.",
   "- Reclassify and escalate after scope growth, ambiguity, unexplained failures, conflicts, or newly discovered risk.",
+  "- Reject risk score 3 without an explicit risk floor. Parallel agents require at least two independent workstreams.",
+  "- Verify current agent and named-model availability before spawning or overriding; otherwise use the inherited model with unchanged gates.",
   "",
   "Design engineering skill routing:",
   "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",
@@ -194,6 +207,6 @@ Write-Utf8File $agents @(
   "Do not use legacy verbose verification labels. Use only: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status."
 )
 
-& (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -SourceRepositoryPath $SourcePath -SourceCommit $sourceCommit | Out-Null
+& (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -RuntimeRoot $resolvedRuntimeRoot -Agent $Agent -RequireAgents -SourceRepositoryPath $SourcePath -SourceCommit $sourceCommit | Out-Null
 Write-Output "UEEF runtime synced to $runtimePath"
 Write-Output "Codex AGENTS updated at $agents"

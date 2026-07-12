@@ -1,8 +1,10 @@
 # Version
 
-UEEF Enterprise Edition version: 2.7.0.
+UEEF Enterprise Edition version: 2.7.1.
 
-Semantic versioning: MAJOR.MINOR.PATCH.
+UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
+
+See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](docs/releases/) for individual release notes.
 
 - 1.0.0: Core Enterprise Edition baseline.
 - 1.1.0: theme architecture, responsive-first design, unified interaction contracts, identity models, design-system reuse, security hardening, and performance budgets.
@@ -44,6 +46,4 @@ Semantic versioning: MAJOR.MINOR.PATCH.
 - 2.5.0: least-intrusive browser-control surface selection, preferring visible Windows control for ordinary interaction and debugging only when required.
 - 2.6.0: task complexity routing, capability-based model selection, bounded agent topologies, token-economy controls, escalation, and risk-matched verification.
 - 2.7.0: design-engineering skill suite integration for motion craft, animation audits and reviews, animation vocabulary, and Apple-style interaction design.
-- 1.1.x: compatible improvements and refined guidance.
-- 2.0.0: intelligence pack expansion or breaking framework structure changes.
-- Technology pack additions should be minor releases unless they change core contracts.
+- 2.7.1: full-project hardening for agent routing, runtime containment and state proof, installer/update parity, quality-gate selection, Unix audits, and documentation integrity.

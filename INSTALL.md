@@ -4,41 +4,43 @@ UEEF installs globally by copying the framework and writing an assistant loader.
 
 ## Codex
 
-``powershell
+```powershell
 .\scripts\install-codex.ps1
-``
+```
 
-``sh
+```sh
 ./scripts/install-codex.sh
-``
+```
 
 ## Cursor
 
-``powershell
+```powershell
 .\scripts\install-cursor.ps1
-``
+```
 
-``sh
+```sh
 ./scripts/install-cursor.sh
-``
+```
 
 ## Generic AI
 
-``powershell
+```powershell
 .\scripts\install-generic.ps1
-``
+```
 
-``sh
+```sh
 ./scripts/install-generic.sh
-``
+```
 
 ## Manual Installation
 
-Copy framework/ to a global assistant rules folder and create a loader that points to framework/01-core/01-master-loader.md.
+Copy the repository's `framework/` directory and `UEEF-LOADER.md` to the global assistant rules location. Configure the global assistant rules to read the copied `UEEF-LOADER.md` before every non-trivial task; do not point the global loader directly at `framework/01-core/01-master-loader.md`.
+
+The copied loader must preserve the boot contract: it always loads `framework/01-core/00-boot-loader.md` and `framework/01-core/00-core-system.md`. It then uses `framework/01-core/01-master-loader.md` only to select task-specific modules.
 
 ## Update
 
-Run scripts/update.ps1 or scripts/update.sh from the repository root.
+Run `scripts/update.ps1` or `scripts/update.sh` from either the source repository or an installed runtime. A generated runtime uses `UEEF-ACTIVE.json` to update the recorded Git source and then regenerate itself; it never attempts `git pull` inside the copied non-Git runtime.
 
 ## Uninstall
 
@@ -52,9 +54,9 @@ Run scripts/validate-framework.ps1 or scripts/validate-framework.sh and verify f
 
 After installation, run:
 
-`powershell
+```powershell
 .\scripts\ueef-status.ps1
-`
+```
 
 UEEF is active only when the result shows Installed: YES, Global loader: PASS, and Overall: ACTIVE. If the global AI rules path cannot be detected, follow docs/verify-ueef-is-active.md and set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md.
 ## Exact Codex installation
@@ -68,6 +70,6 @@ For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is 
 
 If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-codex.sh` must fail instead of installing to a fallback path.
 
-## Updating to 1.1.0
+## Updating UEEF
 
-From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the agent installer so the active runtime receives packs 45-47 and the updated loader. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.
+This repository's current release is 2.7.1. From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the Windows installer with `-Force` or the Unix installer with `--force` so the active runtime receives the current framework and loader; omit `-NoBackup`/`--no-backup` to keep a recovery copy. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.

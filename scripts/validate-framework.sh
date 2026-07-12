@@ -108,6 +108,8 @@ grep -q "Realtime security and burst-performance proof verified:" "$ROOT/framewo
 grep -q "First-viewport composition reviewed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Visual evidence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Agent route tier:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Independent workstreams:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Named model availability verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 [ -f "$ROOT/framework/27-quality-gates/28-data-grid-platform-gate.md" ] || { echo "Missing data-grid gate" >&2; exit 1; }
 [ -f "$ROOT/framework/29-checklists/37-data-grid-platform-checklist.md" ] || { echo "Missing data-grid checklist" >&2; exit 1; }
@@ -157,6 +159,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.5.0.md" ] || { echo "Missing browser control-surface release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.6.0.md" ] || { echo "Missing agent orchestration release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.7.0.md" ] || { echo "Missing design engineering skills release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.7.1.md" ] || { echo "Missing full-project hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
@@ -164,11 +167,20 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/scripts/select-agent-route.ps1" ] || { echo "Missing agent route selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-agent-route.sh" ] || { echo "Missing Unix agent route selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-agent-route.ps1" ] || { echo "Missing agent route tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-agent-route.sh" ] || { echo "Missing Unix agent route tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-runtime-hardening.ps1" ] || { echo "Missing runtime hardening tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-installers.ps1" ] || { echo "Missing installer tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-cleanup-workspace.ps1" ] || { echo "Missing cleanup tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-documentation-links.ps1" ] || { echo "Missing documentation link tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-quality-gate-selection.ps1" ] || { echo "Missing quality-gate selector tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/write-active-state.sh" ] || { echo "Missing Unix active-state writer" >&2; exit 1; }
+"$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
 route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"spawnAgents":false' || { echo "Unix agent route delegation guard failed" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
+if grep -q '\[0-9\.\]\*' "$ROOT/scripts/ueef-audit.sh"; then echo "Unix audit uses an unsafe broad version pattern" >&2; exit 1; fi
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do
   [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done

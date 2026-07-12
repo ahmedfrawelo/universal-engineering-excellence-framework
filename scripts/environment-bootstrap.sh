@@ -24,9 +24,19 @@ if [ -f "$ROOT/scripts/validate-framework.ps1" ]; then echo "Validation Scripts 
 for skill in skill-installer openai-docs skill-creator; do if check_path "$CODEX_HOME/skills/.system/$skill/SKILL.md"; then echo "$skill PASS"; else echo "$skill MISSING (Mandatory)"; status=2; fi; done
 echo "AI"
 if check_path "$CODEX_HOME/AGENTS.md"; then echo "Runtime Loader PASS"; else echo "Runtime Loader MISSING (Mandatory)"; status=2; fi
-if has_profile Frontend; then echo "Frontend SELECTED"; else echo "Frontend NOT REQUIRED"; fi
-if has_profile Backend; then echo "Backend SELECTED"; else echo "Backend NOT REQUIRED"; fi
-if has_profile Database; then echo "Database SELECTED"; else echo "Database NOT REQUIRED"; fi
+if has_profile Frontend; then
+  echo "Frontend SELECTED"
+  for cmd in node npm; do if check_cmd "$cmd"; then echo "$cmd PASS"; else echo "$cmd MISSING (Mandatory)"; status=2; fi; done
+  if check_cmd npx; then echo "Playwright capability PASS"; else echo "Playwright capability MISSING (Recommended)"; fi
+else echo "Frontend NOT REQUIRED"; fi
+if has_profile Backend; then
+  echo "Backend SELECTED"
+  if check_cmd dotnet || check_cmd node || check_cmd python3 || check_cmd python; then echo "Backend runtime PASS"; else echo "Backend runtime MISSING (Recommended)"; fi
+else echo "Backend NOT REQUIRED"; fi
+if has_profile Database; then
+  echo "Database SELECTED"
+  if check_cmd sqlcmd || check_cmd psql || check_cmd mysql; then echo "Database CLI PASS"; else echo "Database CLI MISSING (Recommended)"; fi
+else echo "Database NOT REQUIRED"; fi
 if has_profile UIUX; then
   echo "UIUX SELECTED"
   if check_path "$CODEX_HOME/skills/ui-ux-pro-max/SKILL.md"; then echo "ui-ux-pro-max PASS"; else echo "ui-ux-pro-max MISSING (Mandatory)"; status=2; fi
@@ -36,7 +46,11 @@ if has_profile UIUX; then
     if check_path "$CODEX_HOME/skills/$skill/SKILL.md"; then echo "$skill PASS"; else echo "$skill MISSING (Optional)"; fi
   done
 else echo "UIUX NOT REQUIRED"; fi
-if has_profile DevOps; then echo "DevOps SELECTED"; else echo "DevOps NOT REQUIRED"; fi
+if has_profile DevOps; then
+  echo "DevOps SELECTED"
+  if check_cmd gh; then echo "GitHub CLI PASS"; else echo "GitHub CLI MISSING (Mandatory)"; status=2; fi
+  if check_cmd docker; then echo "Docker PASS"; else echo "Docker MISSING (Recommended)"; fi
+else echo "DevOps NOT REQUIRED"; fi
 echo "Optional CONTINUE"
 if [ "$status" -eq 2 ]; then echo "Overall BLOCKED"; exit 2; fi
 echo "Overall READY"

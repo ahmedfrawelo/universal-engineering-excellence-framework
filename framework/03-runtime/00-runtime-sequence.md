@@ -225,6 +225,9 @@ Model capability class:
 Model override or inherited:
 Agent topology:
 Delegation benefit verified:
+Independent workstreams:
+Agent capability available:
+Named model availability verified:
 Context packet bounded:
 Escalation triggers active:
 Independent verification required:

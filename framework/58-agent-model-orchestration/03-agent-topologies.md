@@ -10,11 +10,11 @@ Use for T2 when one independent search, test, review, or bounded implementation 
 
 ## Parallel Specialists
 
-Use for T3 only when two or more independent domains exist, such as frontend, backend, security, data, or verification. Otherwise retain the single-agent topology. Set disjoint write scopes and integrate once.
+Use for T3 only when at least two independent workstreams exist, such as frontend, backend, security, data, or verification. With one useful delegated stream, use a lead and sidecar. Without positive delegation benefit, retain the single-agent topology. Set disjoint write scopes and integrate once.
 
 ## Lead, Workers, Independent Verifier
 
-Use for T4 when delegation benefit exists. The lead owns decisions and integration. Workers own bounded slices. Independent verification remains required when the platform exposes a suitable verifier, even when implementation stays with one lead agent.
+Use for T4 when delegation benefit exists. The lead owns decisions and integration. Use workers only when at least two independent implementation streams exist; otherwise use the lead plus an independent verifier. Independent verification remains required when the platform exposes a suitable verifier, even when implementation stays with one lead agent.
 
 ## Delegation Benefit Test
 

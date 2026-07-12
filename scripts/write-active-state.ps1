@@ -1,13 +1,16 @@
 param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
   [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { "E:\shared folder\codex-home" }),
+  [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$')][string]$Agent = 'codex',
+  [string]$RuntimeRoot = '',
+  [switch]$RequireAgents,
   [string]$SourceRepositoryPath = $RepositoryPath,
   [string]$SourceCommit = ""
 )
 $ErrorActionPreference = "Stop"
 
-$runtimeRoot = Join-Path $CodexHome "ueef"
-$runtimePath = Join-Path $runtimeRoot "codex"
+$runtimeRoot = if ([string]::IsNullOrWhiteSpace($RuntimeRoot)) { Join-Path $CodexHome "ueef" } else { $RuntimeRoot }
+$runtimePath = Join-Path $runtimeRoot $Agent
 $loader = Join-Path $runtimePath "UEEF-LOADER.md"
 $agents = Join-Path $CodexHome "AGENTS.md"
 $versionPath = Join-Path $RepositoryPath "VERSION.md"
@@ -26,28 +29,33 @@ if ([string]::IsNullOrWhiteSpace($commit)) {
   } catch { $commit = "UNKNOWN" }
 }
 
+$requiredChecks = [ordered]@{
+  loader = (Test-Path -LiteralPath $loader)
+  agents = (!$RequireAgents -or (Test-Path -LiteralPath $agents))
+  coreSystem = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/01-core/00-core-system.md"))
+  masterLoader = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/01-core/01-master-loader.md"))
+  masterIndex = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/01-core/02-master-index.md"))
+  activationGate = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/27-quality-gates/16-ueef-activation-gate.md"))
+  statusScript = (Test-Path -LiteralPath (Join-Path $RepositoryPath "scripts/ueef-status.ps1"))
+}
+$checksPass = !(@($requiredChecks.GetEnumerator() | Where-Object { $_.Value -ne $true }).Count)
+
 $state = [ordered]@{
-  active = $true
+  active = $checksPass
   version = $version
   generatedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
   codexHome = $CodexHome
   runtimeRoot = $runtimeRoot
   runtimePath = $runtimePath
+  agent = $Agent
   repositoryPath = $RepositoryPath
   sourceRepositoryPath = $SourceRepositoryPath
   sourceCommit = $commit
   loaderPath = $loader
   agentsPath = $agents
+  requireAgents = $RequireAgents.IsPresent
   oldHomeUeefExists = (Test-Path -LiteralPath (Join-Path $HOME ".ueef"))
-  requiredChecks = [ordered]@{
-    loader = (Test-Path -LiteralPath $loader)
-    agents = (Test-Path -LiteralPath $agents)
-    coreSystem = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/01-core/00-core-system.md"))
-    masterLoader = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/01-core/01-master-loader.md"))
-    masterIndex = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/01-core/02-master-index.md"))
-    activationGate = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/27-quality-gates/16-ueef-activation-gate.md"))
-    statusScript = (Test-Path -LiteralPath (Join-Path $RepositoryPath "scripts/ueef-status.ps1"))
-  }
+  requiredChecks = $requiredChecks
 }
 $statePath = Join-Path $runtimeRoot "UEEF-ACTIVE.json"
 New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null

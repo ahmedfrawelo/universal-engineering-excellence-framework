@@ -46,14 +46,26 @@ $activationProofPass = Test-Item (Join-Path $RepositoryPath "framework/01-core/1
 $activationGatePass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates/16-ueef-activation-gate.md")
 $qualityGatesPass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates")
 $validationPass = Test-Item (Join-Path $RepositoryPath "scripts/validate-framework.ps1")
-$codexHome = if ((Split-Path -Leaf $RepositoryPath) -eq "codex" -and (Split-Path -Leaf $GlobalPath) -eq "ueef") { Split-Path -Parent $GlobalPath } elseif ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
+$isManagedRuntime = (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq "ueef"
+$codexHome = if ($isManagedRuntime) { Split-Path -Parent $GlobalPath } elseif ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
-$isCodexRuntime = (Split-Path -Leaf $RepositoryPath) -eq "codex"
-if ($isCodexRuntime) {
+if ($isManagedRuntime) {
   $agentsText = if (Test-Item $agentsPath) { Get-Content -LiteralPath $agentsPath -Raw } else { "" }
   $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath)))
   $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
-  $activeStatePass = Test-Item $activeStatePath
+  $activeStatePass = $false
+  if (Test-Item $activeStatePath) {
+    try {
+      $state = Get-Content -LiteralPath $activeStatePath -Raw | ConvertFrom-Json
+      $expectedRuntime = [IO.Path]::GetFullPath($RepositoryPath).TrimEnd([IO.Path]::DirectorySeparatorChar)
+      $stateRuntime = [IO.Path]::GetFullPath([string]$state.runtimePath).TrimEnd([IO.Path]::DirectorySeparatorChar)
+      $stateLoader = [IO.Path]::GetFullPath([string]$state.loaderPath)
+      $expectedLoader = [IO.Path]::GetFullPath((Join-Path $RepositoryPath 'UEEF-LOADER.md'))
+      $checksPass = $state.requiredChecks -and !(@($state.requiredChecks.psobject.Properties | Where-Object { $_.Value -ne $true }).Count)
+      if ($state.requireAgents -ne $true) { $agentsPass = $true }
+      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $checksPass
+    } catch { $activeStatePass = $false }
+  }
 } else {
   $agentsPass = $true
   $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"

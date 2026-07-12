@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. Version 1.5 adds governed application models, design-system reuse, theme architecture, responsive-first UI, deterministic interaction contracts, security hardening, measured performance budgets, design governance, the permanent Engineering Guardian layer, smart environment bootstrap, combined UIUX skill enforcement, and user-owned browser session control.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.7.1; it includes governed application models, design-system reuse, responsive-first UI, the Engineering Guardian, environment bootstrap, user-owned browser controls, agent/model routing, and task-specific design-engineering skill selection.
 
 ## Why UEEF Exists
 
@@ -27,17 +27,17 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Quick Install
 
-`powershell
+```powershell
 .\scripts\install-codex.ps1
 .\scripts\install-cursor.ps1
 .\scripts\install-generic.ps1
-`
+```
 
-`sh
+```sh
 ./scripts/install-codex.sh
 ./scripts/install-cursor.sh
 ./scripts/install-generic.sh
-`
+```
 
 ## Folder Structure
 
@@ -49,7 +49,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF uses semantic versioning. Version 1.0.0 is the Enterprise Edition core. Version 1.1 should refine existing packs. Version 2.0 may expand intelligence packs, memory systems, and machine-readable metadata.
+UEEF follows Semantic Versioning. The current release is 2.7.1. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 
@@ -73,9 +73,9 @@ UEEF includes a runtime activation layer. Before every non-trivial engineering t
 
 Run:
 
-`powershell
+```powershell
 .\scripts\ueef-status.ps1
-`
+```
 
 See docs/verify-ueef-is-active.md.
 

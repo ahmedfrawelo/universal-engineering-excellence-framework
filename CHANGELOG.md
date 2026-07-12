@@ -1,5 +1,16 @@
 # Changelog
 
+## Release Notes Index
+
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.7.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.7.1 - 2026-07-12
+
+- Hardened task routing against unclassified critical risk, unavailable agents/models, and unjustified parallel fan-out.
+- Secured runtime target containment and made active-state evidence agent-aware and validated.
+- Expanded drift checking from a small critical list to the complete source runtime.
+- Repaired quality-gate selection, Unix audit/status/bootstrap parity, installers, updates, cleanup safety, and release documentation.
+
 ## 2.7.0 - 2026-07-12
 
 - Added reproducible installation for the Emil Kowalski design-engineering skill suite.

@@ -29,8 +29,9 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 
 - Use the lowest-cost model class that satisfies the task's complexity and risk floor.
 - Keep T0 and most T1 work on the lead agent when delegation overhead exceeds the work.
-- Use bounded, non-overlapping sidecars for T2 and parallel specialists for genuinely independent T3 work.
+- Use bounded, non-overlapping sidecars for T2. Parallel specialists require positive delegation benefit and at least two independently owned workstreams.
 - Use the strongest available model and independent verification for T4 security, production, migration, destructive, privacy, payment, or incident work.
+- Reject risk score `3` without an explicit risk floor. Verify current agent and named-model availability before emitting a spawn or override decision.
 - Reclassify and escalate when scope, ambiguity, failures, or risk increase.
 
 ## Frontend UI Tasks

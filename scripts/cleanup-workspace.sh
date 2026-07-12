@@ -21,12 +21,17 @@ for name in coverage .nyc_output playwright-report test-results screenshots arti
   [ "$APPLY" = 1 ] && rm -rf -- "$target"
 done
 
-find "$ROOT" -type f \( -name '*.log' -o -name '*.trace' -o -name '*.har' -o -name '*.tmp' \) -not -path "$ROOT/.git/*" -print0 |
-while IFS= read -r -d '' file; do
-  is_protected "$file" && continue
-  [ "$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file")" -lt "$CUTOFF" ] || continue
-  printf '%s\n' "$file"
-  [ "$APPLY" = 1 ] && rm -f -- "$file"
-done
+find "$ROOT" -type f \( -name '*.log' -o -name '*.trace' -o -name '*.har' -o -name '*.tmp' \) -not -path "$ROOT/.git/*" -exec sh -c '
+  root=$1 cutoff=$2 apply=$3; shift 3
+  for file do
+    case "$file" in "$root/.git"/*|"$root/node_modules"/*|"$root/release"/*|"$root/src"/*|"$root/app"/*|"$root/config"/*|"$root/secrets"/*) continue;; esac
+    rel=${file#"$root"/}
+    git -C "$root" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1 && continue
+    modified=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file")
+    [ "$modified" -lt "$cutoff" ] || continue
+    printf "%s\n" "$file"
+    [ "$apply" = 1 ] && rm -f -- "$file"
+  done
+' sh "$ROOT" "$CUTOFF" "$APPLY" {} +
 
 if [ "$APPLY" = 1 ]; then echo "Cleanup applied: logs and temporary files removed."; else echo "Dry run only. Set CLEANUP_APPLY=1 to apply."; fi

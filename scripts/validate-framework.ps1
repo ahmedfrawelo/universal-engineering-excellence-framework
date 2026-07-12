@@ -116,8 +116,16 @@ $requiredAcceptance = @(
   "scripts/select-agent-route.ps1",
   "scripts/select-agent-route.sh",
   "scripts/test-agent-route.ps1",
+  "scripts/test-agent-route.sh",
+  "scripts/test-runtime-hardening.ps1",
+  "scripts/test-installers.ps1",
+  "scripts/test-cleanup-workspace.ps1",
+  "scripts/test-documentation-links.ps1",
+  "scripts/test-quality-gate-selection.ps1",
+  "scripts/write-active-state.sh",
   "docs/releases/v2.6.0.md",
   "docs/releases/v2.7.0.md",
+  "docs/releases/v2.7.1.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "framework/01-core/10-runtime-activation-proof.md",
@@ -227,19 +235,29 @@ $shellTerms = @("Shell baseline extracted:","Navigation/header contracts verifie
 foreach ($term in $shellTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing shell field: $term" } }
 $visualTerms = @("First-viewport composition reviewed:","Density and responsive composition verified:","Visual evidence gate:")
 foreach ($term in $visualTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing visual-composition field: $term" } }
-$agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Model capability class:","Agent topology:","Delegation benefit verified:","Agent model routing gate:")
+$agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Model capability class:","Agent topology:","Delegation benefit verified:","Independent workstreams:","Agent capability available:","Named model availability verified:","Agent model routing gate:")
 foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing agent-routing field: $term" } }
 & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
+& (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
+& (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
+$syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
+foreach ($term in @("Unsafe agent name","runtimeRootPrefix","-Agent `$Agent","environment-bootstrap")) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime sync missing hardening contract: $term" }
+}
 $manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }
 if ([int]$manifest.frameworkPacks -ne $packs.Count) { throw "Manifest framework pack count does not match the repository" }
+if (!(Test-Path -LiteralPath (Join-Path $Root $manifest.releaseNotes))) { throw "Manifest release notes do not exist: $($manifest.releaseNotes)" }
+foreach ($pack in $manifest.expansionPacks) { if (!(Test-Path -LiteralPath (Join-Path $Root $pack))) { throw "Manifest expansion pack does not exist: $pack" } }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch "58-agent-model-orchestration|pack 58") { throw "Loader missing agent model routing rule" }
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
 foreach ($term in @("Agent and model routing:","Design engineering skill routing:","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","not a reason to suspend execution","Local command autonomy:")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing global loader policy: $term" }
 }
+$unixAudit = Get-Content (Join-Path $Root "scripts/ueef-audit.sh") -Raw
+if ($unixAudit -match '\[0-9\.\]\*') { throw "Unix audit uses an unsafe broad version pattern" }
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"
