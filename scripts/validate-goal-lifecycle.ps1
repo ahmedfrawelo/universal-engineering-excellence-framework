@@ -17,7 +17,8 @@ param(
   [switch]$VerifiedBrowserEvidenceHandoff,
   [switch]$HandoffMatchesCurrentCodeState,
   [switch]$ChromeExternallyUnavailable,
-  [switch]$UserRestartChromeRequested
+  [switch]$UserRestartChromeRequested,
+  [string]$UserFacingStatus
 )
 $ErrorActionPreference = 'Stop'
 
@@ -31,6 +32,7 @@ $terminalAllowed = $StatusOnly -or $completeAllowed -or $blockedAllowed
 if ($GoalStatus -eq 'BLOCKED' -and !$blockedAllowed) { throw 'Invalid BLOCKED transition.' }
 if ($GoalStatus -eq 'BLOCKED' -and $ThreadControlChannelDegraded -and !$ChromeExternallyUnavailable) { throw 'Thread-local browser control degradation is not a valid BLOCKED transition.' }
 if ($UserRestartChromeRequested -and !$ChromeExternallyUnavailable) { throw 'A Chrome restart request requires independent Chrome unavailability evidence.' }
+if ($ThreadControlChannelDegraded -and !$ChromeExternallyUnavailable -and $UserFacingStatus -and $UserFacingStatus -ne 'Browser verification is being completed on your existing tab; implementation continues.') { throw 'Thread-local browser degradation requires the canonical user-facing recovery status.' }
 if (($BrowserVerificationRequired -or $VisualVerificationRequired) -and $VerifiedBrowserEvidenceHandoff -and !$HandoffMatchesCurrentCodeState) { throw 'Browser evidence handoff does not cover the current code state.' }
 if ($GoalStatus -eq 'COMPLETE' -and !$completeAllowed) { throw 'Invalid COMPLETE transition.' }
 if ($TerminalFinal -and !$terminalAllowed) { throw 'Terminal final response is forbidden for this goal state.' }

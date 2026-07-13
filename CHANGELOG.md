@@ -2,7 +2,12 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.9`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.10`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.10 - 2026-07-13
+
+- Added executable lifecycle validation for the only allowed interim browser-recovery status.
+- Rejected retry-count and stopped-verification wording whenever a task-local control channel is degraded.
 
 ## 2.8.9 - 2026-07-13
 
