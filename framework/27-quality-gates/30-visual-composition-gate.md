@@ -1,6 +1,6 @@
 # Visual Composition and Anti-Regression Gate
 
-Release-blocking for new or redesigned pages, forms, dashboards, landing views, and responsive layouts.
+Completion- and release-blocking for new or redesigned pages, forms, dashboards, landing views, and responsive layouts. When applicable, this gate must be `PASS` before `GoalStatus: COMPLETE`.
 
 ## Pass Conditions
 

@@ -15,6 +15,8 @@ Version: 1.5.0
 - [ ] No isolated browser/context/profile used for the Chrome task.
 - [ ] No directly exposed Playwright, Chrome DevTools, or in-app-browser MCP tool substituted for the Chrome plugin.
 - [ ] Final state verified in the same user-owned tab.
+- [ ] Any browser-client or extension bridge failure followed bootstrap and Chrome troubleshooting before fallback or blocking.
+- [ ] Required visual verification was not replaced by build/tests/source or structural-equivalence claims.
 - [ ] Initial and final Chrome window state match unless the user explicitly requested a window change.
 
 ## Result

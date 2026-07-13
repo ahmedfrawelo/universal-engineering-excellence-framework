@@ -167,6 +167,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.4.md" ] || { echo "Missing delivery continuation hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.5.md" ] || { echo "Missing active-goal finalization release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.6.md" ] || { echo "Missing deterministic Chrome routing release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.7.md" ] || { echo "Missing Chrome bridge recovery release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }

@@ -83,6 +83,13 @@ $cases = @(
     UIUX = 'YES'
     Modules = @('framework/14-ui/00-ui-system.md', 'framework/15-ux/00-ux-system.md', 'framework/16-accessibility/00-accessibility-system.md')
     Gates = @('framework/27-quality-gates/ui-gate.md', 'framework/27-quality-gates/ux-gate.md', 'framework/27-quality-gates/accessibility-gate.md')
+  },
+  @{
+    Name = 'chrome-visual'
+    Task = 'Inspect the frontend page visually in the existing Chrome tab on localhost'
+    UIUX = 'YES'
+    Modules = @('framework/51-browser-session-control/00-browser-session-first.md')
+    Gates = @('framework/27-quality-gates/23-browser-session-control-gate.md', 'framework/27-quality-gates/30-visual-composition-gate.md')
   }
 )
 

@@ -17,3 +17,14 @@ Asking to open a site authorizes opening a tab in the existing Chrome window. A 
 ## Completion Rule
 
 Once platform permission is granted, browser work is autonomous in the selected or newly opened tab of the user-owned Chrome window.
+
+## Bridge Recovery
+
+A failed `mcp__node_repl__js` bootstrap or extension discovery call is a recoverable control-channel failure, not proof that Chrome or the user tab is unavailable.
+
+1. Preserve any existing `agent`, `chrome`, browser, and tab bindings; never replace them with another browser surface.
+2. Retry the exact absolute-path `browser-client.mjs` bootstrap syntax from the installed Chrome skill. Do not invent a `file:///` variant or switch to a directly exposed browser MCP.
+3. When the runtime is available, read `agent.documentation.get("bootstrap-troubleshooting")`; for extension communication failures also read `agent.documentation.get("chrome-troubleshooting")`, then apply the documented recovery.
+4. Re-enumerate `user.openTabs()` and claim the exact matching returned object. A stale tab binding is recovered from the existing browser binding, not by reselecting or relaunching a browser.
+5. Reset the Node session only when the troubleshooting guidance identifies a corrupted session or the persistent bindings cannot be repaired. After reset, bootstrap the same extension surface again.
+6. If visual verification was requested, keep the task active until the same user-owned tab is claimed and verified. Build, tests, or structural similarity cannot substitute for that gate.

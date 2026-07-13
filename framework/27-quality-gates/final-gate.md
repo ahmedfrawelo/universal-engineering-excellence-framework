@@ -25,7 +25,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - Goal lifecycle transition satisfies `FINAL_ALLOWED` and `COMPLETE_ALLOWED` from the delivery continuation contract.
 - All required files and implementation changes are present.
 - The work satisfies the user request without touching unrelated repositories or secrets.
-- Validation commands pass, or any unavailable checks are documented with a concrete reason.
+- Validation commands pass, or non-required unavailable checks are documented with a concrete reason. Explicitly required browser or visual verification cannot be waived by documenting unavailability and blocks `GoalStatus: COMPLETE` until it passes.
 - Remaining risks are minor, visible, and paired with practical follow-up steps.
 
 ## Evidence Required

@@ -65,6 +65,15 @@ if ($text -match "ui|ux|frontend|react|angular|design|layout|accessibility|scree
   )
 }
 
+if ($text -match "browser|chrome|tab|page inspection|visual verification|screenshot|localhost") {
+  Add-Unique $modules @("framework/51-browser-session-control/00-browser-session-first.md")
+  Add-Unique $gates @("framework/27-quality-gates/23-browser-session-control-gate.md")
+}
+
+if ($text -match "page|layout|visual|design|frontend|screen|responsive|form|dashboard|landing|screenshot") {
+  Add-Unique $gates @("framework/27-quality-gates/30-visual-composition-gate.md")
+}
+
 if ($text -match "api|endpoint|backend|server|controller|route|service") {
   Add-Unique $modules @(
     "framework/05-architecture/00-clean-architecture.md",

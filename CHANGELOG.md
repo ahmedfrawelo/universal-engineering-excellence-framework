@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.6`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.7`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.7 - 2026-07-13
+
+- Added mandatory recovery for transient Node REPL, browser-client, and Chrome extension bridge failures.
+- Prohibited completion when required same-tab visual verification is missing.
+- Rejected build, tests, component reuse, source inspection, and structural equivalence as substitutes for browser evidence.
 
 ## 2.8.6 - 2026-07-13
 
