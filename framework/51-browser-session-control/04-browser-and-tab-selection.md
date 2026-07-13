@@ -7,6 +7,6 @@ Select the browser surface and tab using verified user-owned state; foreground v
 - Reuse an existing tab at the requested domain when available.
 - Discover tabs with `user.openTabs()`, match visible title, URL, recency, and state, then pass that exact returned object to `claimTab()` before asking the user to navigate or refresh.
 - If several tabs match, identify the target by title, URL, and visible state, then avoid unrelated tabs.
-- Do not open a new tab unless the user asked for it or the current browser surface requires it and the action is reversible.
+- Do not open a new tab unless the user explicitly asked to open a site. Create it only through the selected extension-bound Chrome browser so it remains in the same window and profile.
 - Keep the selected browser binding and tab binding stable throughout the task; discard stale bindings only when the browser explicitly reports disconnection.
 - If the extension cannot see a matching user tab or cannot prove tab/profile provenance, request that the user expose or connect the target tab; do not guess from a matching URL. Minimized or background state alone is not missing provenance.

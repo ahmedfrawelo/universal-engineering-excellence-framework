@@ -8,11 +8,11 @@ Browser work must use the browser and session the user actually opened. The assi
 
 ## Mandatory Policy
 
-- Select the existing user-owned browser surface first, using the available browser or Chrome connector that can see the user's real tabs and session.
+- For Chrome, use only the installed Chrome plugin skill through `mcp__node_repl__js`, its extension binding, and exact-object tab claim.
 - Confirm the target tab, visible domain, and signed-in state before reading or changing authenticated content.
 - Do not inspect cookies, local storage, passwords, profiles, or session stores.
 - If no user-owned browser/session is available, stop and ask the user to open the browser, target tab, and sign in.
-- Use an isolated browser only after the user explicitly requests or approves it, and label it as not the user's active session.
+- Never use an isolated browser to perform or verify a Chrome task. A separately requested isolated test is a distinct task and result.
 
 ## Related Modules
 

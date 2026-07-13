@@ -12,8 +12,8 @@ Version: 1.5.0
 - [ ] Target domain verified.
 - [ ] Visible signed-in state verified without inspecting secrets.
 - [ ] No cookies, passwords, tokens, local storage, or profile stores inspected.
-- [ ] No isolated browser/context/profile used silently.
-- [ ] Explicit consent recorded if an isolated fallback was necessary.
+- [ ] No isolated browser/context/profile used for the Chrome task.
+- [ ] No directly exposed Playwright, Chrome DevTools, or in-app-browser MCP tool substituted for the Chrome plugin.
 - [ ] Final state verified in the same user-owned tab.
 - [ ] Initial and final Chrome window state match unless the user explicitly requested a window change.
 

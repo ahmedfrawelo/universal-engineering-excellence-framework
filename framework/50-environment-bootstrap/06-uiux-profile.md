@@ -9,7 +9,7 @@ Requires both UI UX Pro Max and Impeccable for UI work, plus relevant browser to
 
 ## Required Practice
 
-- Verify both skills together; add Playwright, Chrome DevTools, and Figma MCP only when task scope requires them.
+- Verify both skills together. Figma MCP may be added when scope requires it. For Chrome interaction, select the Chrome plugin and Node REPL path; directly exposed Playwright and Chrome DevTools MCPs are not valid substitutes.
 - A UI task must not report UIUX PASS when either core design skill is missing.
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.

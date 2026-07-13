@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.8.5.
+UEEF Enterprise Edition version: 2.8.6.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -53,3 +53,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.3: allowed extension control of minimized/background user Chrome and prevented whole-goal blocking for visual-only limitations.
 - 2.8.4: prohibited blocking goals on internal implementation failures and required replanning/continuation after repeated bugs.
 - 2.8.5: prohibited incomplete final answers while goals remain active and required current goal-status verification before finalization.
+- 2.8.6: forced Chrome tasks through the installed extension plugin and Node REPL client while rejecting direct automation MCP substitutes.

@@ -166,6 +166,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.3.md" ] || { echo "Missing minimized browser control release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.4.md" ] || { echo "Missing delivery continuation hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.5.md" ] || { echo "Missing active-goal finalization release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.6.md" ] || { echo "Missing deterministic Chrome routing release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
@@ -175,6 +176,8 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/scripts/test-agent-route.ps1" ] || { echo "Missing agent route tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-agent-route.sh" ] || { echo "Missing Unix agent route tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-browser-control-contract.ps1" ] || { echo "Missing browser control contract tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-browser-control-contract.sh" ] || { echo "Missing Unix browser control contract tests" >&2; exit 1; }
+sh "$ROOT/scripts/test-browser-control-contract.sh"
 [ -f "$ROOT/scripts/test-delivery-continuation-contract.ps1" ] || { echo "Missing delivery continuation contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle validator" >&2; exit 1; }

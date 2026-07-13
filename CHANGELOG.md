@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.5`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.6`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.6 - 2026-07-13
+
+- Forced Chrome work through the installed Chrome plugin, Node REPL browser client, extension binding, and exact-object tab claim.
+- Rejected directly exposed Playwright, Chrome DevTools, in-app-browser, and isolated-context substitutes for Chrome tasks.
+- Removed contradictory fallback and window-restoration rules and added cross-platform contract coverage.
 
 ## 2.8.5 - 2026-07-12
 

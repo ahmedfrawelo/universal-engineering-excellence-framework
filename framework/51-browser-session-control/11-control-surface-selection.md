@@ -4,7 +4,8 @@ Use the least intrusive control surface that can complete the user's browser tas
 
 ## Default Selection
 
-- For Chrome work, prefer the Chrome plugin extension binding and claim the verified existing tab returned by `user.openTabs()` for navigation, clicks, typing, screenshots, and inspection.
+- For Chrome work, the Chrome plugin skill and Chrome plugin extension binding are mandatory. Read its installed `control-chrome/SKILL.md`, initialize its `browser-client.mjs` only through `mcp__node_repl__js`, select `agent.browsers.get("extension")`, and claim the verified existing tab returned by `user.openTabs()` for navigation, clicks, typing, screenshots, and inspection.
+- Do not use directly exposed `mcp__playwright__*`, `mcp__chrome_devtools__*`, in-app-browser, or standalone automation tools for Chrome work. Their presence does not prove ownership of the user's Chrome window. Playwright is allowed only as the claimed tab's in-plugin `tab.playwright` API.
 - Use the claimed tab's DOM, console, network, or performance capabilities only when the task needs them.
 - Use visible Windows control only when the Chrome plugin is unavailable; never switch surfaces merely to bypass a recoverable stale tab binding.
 

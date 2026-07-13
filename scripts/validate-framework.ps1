@@ -138,6 +138,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.3.md",
   "docs/releases/v2.8.4.md",
   "docs/releases/v2.8.5.md",
+  "docs/releases/v2.8.6.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "framework/01-core/10-runtime-activation-proof.md",

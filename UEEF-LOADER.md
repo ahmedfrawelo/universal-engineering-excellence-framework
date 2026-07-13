@@ -43,7 +43,7 @@ Local command autonomy:
 Browser hard stop:
 - Never use a connector-created Chrome window for a task that depends on the user's visible browser.
 - Block a newly created automation/Codex window, temporary profile, or unverified profile. A control banner on the verified existing user tab requires provenance classification and is not an automatic block.
-- For Chrome tasks, use the Chrome plugin extension binding, enumerate `user.openTabs()`, and `claimTab()` the verified user-owned tab. This attaches to the existing window and must not create another browser surface.
+- For Chrome tasks, read the installed Chrome control skill and bootstrap its browser client only through `mcp__node_repl__js`, then use the extension binding, enumerate `user.openTabs()`, and `claimTab()` the verified user-owned tab. Never use directly exposed Playwright, Chrome DevTools, or in-app-browser MCP tools for Chrome work; Playwright is allowed only through the claimed tab's `tab.playwright` API.
 - Preserve the user's browser window state. Do not resize, emulate, move, restore, minimize, maximize, or alter full screen unless explicitly requested.
 - A minimized, background, or non-foreground user-owned Chrome window remains controllable through the extension and must not block or pause the goal. If one visual-only operation genuinely requires foreground visibility, continue all non-visual work and defer only that visual gate.
 - Use visible Windows control only as a fallback when the Chrome plugin is unavailable. If the user-owned tab cannot be proven, stop without opening another browser.
