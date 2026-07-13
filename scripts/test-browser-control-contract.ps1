@@ -13,7 +13,7 @@ $required = @{
   'framework/27-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'claimTab()', 'Do not fail because')
   'framework/03-runtime/00-runtime-sequence.md' = @('Exact user.openTabs() object claimed:', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
   'framework/29-checklists/32-browser-session-control-checklist.md' = @('exact returned object', 'Debugging/CDP authorization')
-  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Extension attachment', 'must not pause the goal')
+  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Extension attachment', 'must not pause the goal', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF')
 }
 foreach ($relative in $required.Keys) {
   $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw
