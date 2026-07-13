@@ -9,3 +9,4 @@ Every browser task ends with evidence from the same user-owned browser session.
 - Distinguish completed actions from blocked actions and authentication limitations.
 - Never claim a logged-in workflow was completed from an isolated or unauthenticated context.
 - A task-local `mcp__node_repl__js` failure is `THREAD_CONTROL_CHANNEL_DEGRADED`, not Chrome unavailability. It cannot justify `BLOCKED` or a user request to restart Chrome. Record and request a fresh cross-session handoff after relevant code changes.
+- Do not surface local retry counts or a stopped-verification message. Use the required recovery status while the trusted handoff is obtained.

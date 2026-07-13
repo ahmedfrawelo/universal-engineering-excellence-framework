@@ -126,6 +126,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/framework/51-browser-session-control/10-window-state-preservation.md" ] || { echo "Missing browser window-state-preservation module" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/11-control-surface-selection.md" ] || { echo "Missing browser control-surface-selection module" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/12-cross-session-evidence-handoff.md" ] || { echo "Missing cross-session browser-evidence handoff module" >&2; exit 1; }
+[ -f "$ROOT/framework/51-browser-session-control/13-user-facing-recovery-protocol.md" ] || { echo "Missing user-facing browser recovery module" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.5.0.md" ] || { echo "Missing browser session release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.ps1" ] || { echo "Missing cleanup script" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.sh" ] || { echo "Missing cleanup script" >&2; exit 1; }
@@ -170,6 +171,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.6.md" ] || { echo "Missing deterministic Chrome routing release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.7.md" ] || { echo "Missing Chrome bridge recovery release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.8.md" ] || { echo "Missing browser evidence handoff release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.9.md" ] || { echo "Missing silent browser recovery release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }

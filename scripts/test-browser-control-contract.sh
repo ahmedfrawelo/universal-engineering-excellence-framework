@@ -21,5 +21,8 @@ grep -Fq 'do not report `COMPLETE`' "$ROOT/framework/51-browser-session-control/
 for term in 'THREAD_CONTROL_CHANNEL_DEGRADED' 'CHROME_EXTERNALLY_UNAVAILABLE' 'VERIFIED_HANDOFF' 'current code state'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/12-cross-session-evidence-handoff.md" || { echo "Missing evidence-handoff term: $term" >&2; exit 1; }
 done
+for term in 'first local bridge failure' 'Do not expose attempt counts' 'Browser verification is being completed on your existing tab; implementation continues.'; do
+  grep -Fq "$term" "$ROOT/framework/51-browser-session-control/13-user-facing-recovery-protocol.md" || { echo "Missing user-facing recovery term: $term" >&2; exit 1; }
+done
 
 printf '%s\n' 'Browser control contract tests passed'

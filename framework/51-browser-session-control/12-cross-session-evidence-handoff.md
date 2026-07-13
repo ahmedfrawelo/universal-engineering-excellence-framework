@@ -12,6 +12,8 @@ A task-local `mcp__node_repl__js` failure is a degraded control channel, not evi
 
 Never infer `CHROME_EXTERNALLY_UNAVAILABLE` from `THREAD_CONTROL_CHANNEL_DEGRADED`. Do not mark the task `BLOCKED`, ask the user to restart Chrome, or say live Chrome is unavailable on that inference alone.
 
+After the first task-local bridge failure, request the handoff instead of retrying and narrating failures to the user. The user-facing recovery protocol governs the only permitted interim status.
+
 ## Handoff Record
 
 The coordinator records, in the receiving task, the verified URL, visible title or state, exact tab identity, verification time, evidence type (screenshot, DOM, and/or fresh console result), and the code state or change boundary it covers. The receiving task may use the record only when it covers its current code state and exact target tab.

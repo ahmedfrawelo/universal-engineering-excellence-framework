@@ -9,11 +9,12 @@ $required = @{
   'framework/51-browser-session-control/11-control-surface-selection.md' = @('Chrome plugin extension binding', 'mcp__node_repl__js', 'mcp__playwright__*', 'tab.playwright', 'visible Windows control only when')
   'framework/51-browser-session-control/09-platform-authorized-chrome-control.md' = @('bootstrap-troubleshooting', 'chrome-troubleshooting', 'Do not invent a `file:///` variant', 'keep the task active')
   'framework/51-browser-session-control/12-cross-session-evidence-handoff.md' = @('THREAD_CONTROL_CHANNEL_DEGRADED', 'CHROME_EXTERNALLY_UNAVAILABLE', 'VERIFIED_HANDOFF', 'current code state')
+  'framework/51-browser-session-control/13-user-facing-recovery-protocol.md' = @('first local bridge failure', 'Do not expose attempt counts', 'Browser verification is being completed on your existing tab; implementation continues.')
   'framework/51-browser-session-control/07-browser-task-verification.md' = @('do not report `COMPLETE`', 'structural equivalence', 'same-tab evidence')
   'framework/27-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'claimTab()', 'Do not fail because')
   'framework/03-runtime/00-runtime-sequence.md' = @('Exact user.openTabs() object claimed:', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
   'framework/29-checklists/32-browser-session-control-checklist.md' = @('exact returned object', 'Debugging/CDP authorization')
-  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Extension attachment', 'must not pause the goal', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF')
+  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Extension attachment', 'must not pause the goal', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF', 'Do not expose retry counts')
 }
 foreach ($relative in $required.Keys) {
   $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw

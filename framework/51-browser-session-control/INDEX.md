@@ -15,3 +15,4 @@ Version: 1.5.0
 - 10-window-state-preservation.md
 - 11-control-surface-selection.md
 - 12-cross-session-evidence-handoff.md
+- 13-user-facing-recovery-protocol.md

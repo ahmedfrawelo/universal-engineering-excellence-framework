@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.8`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.9`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.9 - 2026-07-13
+
+- Added a mandatory first-failure handoff protocol for task-local Chrome control degradation.
+- Prohibited exposing retry counts, internal bridge failures, or stopped-verification messages to users.
+- Added contract validation for the required recovery status in both global runtime templates.
 
 ## 2.8.8 - 2026-07-13
 
