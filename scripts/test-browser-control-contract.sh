@@ -18,5 +18,8 @@ for term in 'bootstrap-troubleshooting' 'chrome-troubleshooting' 'Do not invent 
   grep -Fq "$term" "$RECOVERY" || { echo "Missing Chrome bridge recovery term: $term" >&2; exit 1; }
 done
 grep -Fq 'do not report `COMPLETE`' "$ROOT/framework/51-browser-session-control/07-browser-task-verification.md" || { echo 'Missing required-visual completion guard' >&2; exit 1; }
+for term in 'THREAD_CONTROL_CHANNEL_DEGRADED' 'CHROME_EXTERNALLY_UNAVAILABLE' 'VERIFIED_HANDOFF' 'current code state'; do
+  grep -Fq "$term" "$ROOT/framework/51-browser-session-control/12-cross-session-evidence-handoff.md" || { echo "Missing evidence-handoff term: $term" >&2; exit 1; }
+done
 
 printf '%s\n' 'Browser control contract tests passed'

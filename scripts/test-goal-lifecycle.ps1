@@ -12,9 +12,13 @@ Assert-Rejected @{GoalStatus='BLOCKED';TerminalFinal=$true;BlockerExternalOrUser
 Assert-Rejected @{GoalStatus='COMPLETE';TerminalFinal=$true;RequestedOutcomeSatisfied=$true;GatesPassOrAccepted=$true;VerificationRecorded=$true;BrowserVerificationRequired=$true}
 Assert-Rejected @{GoalStatus='COMPLETE';TerminalFinal=$true;RequestedOutcomeSatisfied=$true;GatesPassOrAccepted=$true;VerificationRecorded=$true;VisualVerificationRequired=$true}
 Assert-Rejected @{GoalStatus='COMPLETE';TerminalFinal=$true;RequestedOutcomeSatisfied=$true;GatesPassOrAccepted=$true;VerificationRecorded=$true;BrowserVerificationRequired=$true;VisualVerificationRequired=$true}
+Assert-Rejected @{GoalStatus='BLOCKED';TerminalFinal=$true;BlockerExternalOrUserOnly=$true;NoMeaningfulLocalWorkRemaining=$true;ExternalStateChangeRequired=$true;ThreadControlChannelDegraded=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';BrowserVerificationRequired=$true;VerifiedBrowserEvidenceHandoff=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';UserRestartChromeRequested=$true}
 & $validator -GoalStatus ACTIVE | Out-Null
 & $validator -GoalStatus ACTIVE -TerminalFinal -StatusOnly | Out-Null
 & $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded | Out-Null
 & $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -BrowserVerificationRequired -BrowserVerificationPassed -VisualVerificationRequired -VisualVerificationPassed | Out-Null
+& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -BrowserVerificationRequired -VisualVerificationRequired -VerifiedBrowserEvidenceHandoff -HandoffMatchesCurrentCodeState -ThreadControlChannelDegraded | Out-Null
 & $validator -GoalStatus BLOCKED -TerminalFinal -BlockerExternalOrUserOnly -NoMeaningfulLocalWorkRemaining -ExternalStateChangeRequired | Out-Null
 Write-Host 'Goal lifecycle tests passed'

@@ -28,3 +28,4 @@ A failed `mcp__node_repl__js` bootstrap or extension discovery call is a recover
 4. Re-enumerate `user.openTabs()` and claim the exact matching returned object. A stale tab binding is recovered from the existing browser binding, not by reselecting or relaunching a browser.
 5. Reset the Node session only when the troubleshooting guidance identifies a corrupted session or the persistent bindings cannot be repaired. After reset, bootstrap the same extension surface again.
 6. If visual verification was requested, keep the task active until the same user-owned tab is claimed and verified. Build, tests, or structural similarity cannot substitute for that gate.
+7. If the task's control channel remains degraded but a trusted coordinator can claim the same user-owned tab, request and record a `VERIFIED_HANDOFF`. Do not tell the user to restart Chrome unless Chrome or the extension is independently proven unavailable outside this task-local failure.

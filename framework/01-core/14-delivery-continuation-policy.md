@@ -10,6 +10,7 @@ An expanded request is not a reason to pause implementation. When the user expli
 - Internal implementation failures are never a real impasse while repository access and normal engineering tools remain available. Compile errors, failing tests, API/facade/schema mismatches, save-contract bugs, incomplete wiring, and repeated unsuccessful patches require root-cause analysis, replanning, escalation, or a bounded verifier; they do not justify pausing or blocking the goal.
 - Repetition does not convert an internal bug into an external blocker. After repeated failure, change the diagnostic approach and continue meaningful work.
 - Mark a goal `BLOCKED` only when the blocking condition is external or requires a user-only decision/action and no meaningful local implementation, investigation, testing, or documentation work remains.
+- A task-local Node REPL or browser-client failure is internal control-channel degradation, not a Chrome outage. It cannot justify a `BLOCKED` transition or requesting a Chrome restart unless external Chrome unavailability is independently proven.
 - Never stop and wait for the user merely to resume an incomplete code path. If a goal was incorrectly paused for an internal failure, resume it immediately and continue from current state.
 
 ## Goal Transition Contract

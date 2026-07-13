@@ -8,6 +8,7 @@ $required = @{
   'framework/51-browser-session-control/10-window-state-preservation.md' = @('minimized, background, or non-foreground', 'do not pause or block the goal')
   'framework/51-browser-session-control/11-control-surface-selection.md' = @('Chrome plugin extension binding', 'mcp__node_repl__js', 'mcp__playwright__*', 'tab.playwright', 'visible Windows control only when')
   'framework/51-browser-session-control/09-platform-authorized-chrome-control.md' = @('bootstrap-troubleshooting', 'chrome-troubleshooting', 'Do not invent a `file:///` variant', 'keep the task active')
+  'framework/51-browser-session-control/12-cross-session-evidence-handoff.md' = @('THREAD_CONTROL_CHANNEL_DEGRADED', 'CHROME_EXTERNALLY_UNAVAILABLE', 'VERIFIED_HANDOFF', 'current code state')
   'framework/51-browser-session-control/07-browser-task-verification.md' = @('do not report `COMPLETE`', 'structural equivalence', 'same-tab evidence')
   'framework/27-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'claimTab()', 'Do not fail because')
   'framework/03-runtime/00-runtime-sequence.md' = @('Exact user.openTabs() object claimed:', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
@@ -36,6 +37,8 @@ $isolatedText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-
 if ($isolatedText -match 'Isolated contexts are acceptable') { throw 'Isolated Chrome fallback remains.' }
 $checklistText = Get-Content -LiteralPath (Join-Path $root 'framework/29-checklists/32-browser-session-control-checklist.md') -Raw
 if ($checklistText -match 'Explicit consent recorded if an isolated fallback was necessary') { throw 'Consent-based isolated fallback remains.' }
+$handoffText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-session-control/12-cross-session-evidence-handoff.md') -Raw
+if ($handoffText -notmatch 'Do not mark the task `BLOCKED`') { throw 'Cross-session evidence handoff does not prohibit false blocking.' }
 
 $previousCodexHome = $env:CODEX_HOME
 try {

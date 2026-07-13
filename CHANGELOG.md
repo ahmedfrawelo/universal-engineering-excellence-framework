@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.7`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.8`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.8 - 2026-07-13
+
+- Added trusted same-tab browser evidence handoff when one task's Node REPL channel is degraded.
+- Prohibited treating a task-local bridge failure as Chrome unavailability, blocking work, or grounds to ask the user to restart Chrome.
+- Added lifecycle enforcement for current-state handoff evidence and independent Chrome-unavailability claims.
 
 ## 2.8.7 - 2026-07-13
 

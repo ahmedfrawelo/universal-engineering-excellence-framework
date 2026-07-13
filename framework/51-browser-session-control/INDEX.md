@@ -14,3 +14,4 @@ Version: 1.5.0
 - 09-platform-authorized-chrome-control.md
 - 10-window-state-preservation.md
 - 11-control-surface-selection.md
+- 12-cross-session-evidence-handoff.md

@@ -29,6 +29,7 @@ Use this module when the task touches core concerns, when repository inspection 
 - `ACTIVE -> BLOCKED` only when the blocker is external or user-only, no meaningful local work remains, and an external state change is required.
 - `ACTIVE -> final response` is forbidden unless the user explicitly requested status-only reporting. Active work uses commentary and continues execution.
 - Compile/test failures, incomplete implementation, regressions, and repeated unsuccessful patches keep the goal `ACTIVE`.
+- A thread-scoped browser-control failure also keeps the goal `ACTIVE`; it is not an external blocker when trusted same-tab evidence can be handed off from a coordinator.
 - `COMPLETE` is invalid when any required acceptance criterion, plan item, implementation, test, or verification remains.
 
 - Inspect the project before editing.

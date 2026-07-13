@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.8.7.
+UEEF Enterprise Edition version: 2.8.8.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -55,3 +55,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.5: prohibited incomplete final answers while goals remain active and required current goal-status verification before finalization.
 - 2.8.6: forced Chrome tasks through the installed extension plugin and Node REPL client while rejecting direct automation MCP substitutes.
 - 2.8.7: added mandatory Chrome bridge recovery and prohibited completion when required same-tab visual verification is missing.
+- 2.8.8: added trusted cross-session browser-evidence handoff and prevented false Chrome-unavailable blocking from task-local control failures.

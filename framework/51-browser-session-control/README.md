@@ -12,6 +12,7 @@ Browser work must use the browser and session the user actually opened. The assi
 - Confirm the target tab, visible domain, and signed-in state before reading or changing authenticated content.
 - Do not inspect cookies, local storage, passwords, profiles, or session stores.
 - If no user-owned browser/session is available, stop and ask the user to open the browser, target tab, and sign in.
+- A task-local control-channel failure is not proof that the browser is unavailable. Use the cross-session evidence handoff when a trusted coordinator can verify the same user-owned tab.
 - Never use an isolated browser to perform or verify a Chrome task. A separately requested isolated test is a distinct task and result.
 
 ## Related Modules
