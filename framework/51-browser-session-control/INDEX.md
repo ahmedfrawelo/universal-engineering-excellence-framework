@@ -16,3 +16,4 @@ Version: 1.5.0
 - 11-control-surface-selection.md
 - 12-cross-session-evidence-handoff.md
 - 13-user-facing-recovery-protocol.md
+- 14-automatic-tab-ownership-recovery.md

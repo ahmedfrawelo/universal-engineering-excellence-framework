@@ -25,5 +25,8 @@ done
 for term in 'first local bridge failure' 'Do not expose attempt counts' 'Browser verification is being completed on your existing tab; implementation continues.'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/13-user-facing-recovery-protocol.md" || { echo "Missing user-facing recovery term: $term" >&2; exit 1; }
 done
+for term in 'already part of another browser session' 'repair-chrome-tab-ownership.ps1' 'without a coordinator or user action'; do
+  grep -Fq "$term" "$ROOT/framework/51-browser-session-control/14-automatic-tab-ownership-recovery.md" || { echo "Missing automatic ownership-recovery term: $term" >&2; exit 1; }
+done
 
 printf '%s\n' 'Browser control contract tests passed'

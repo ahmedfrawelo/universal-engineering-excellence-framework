@@ -2,7 +2,12 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.11`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.12`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.12 - 2026-07-14
+
+- Added autonomous recovery for exact Chrome tab-ownership conflicts.
+- Tasks now reset only the Codex extension host, rebootstrap the same Chrome connection, and reclaim the user tab without cross-thread messages or user action.
 
 ## 2.8.11 - 2026-07-14
 
