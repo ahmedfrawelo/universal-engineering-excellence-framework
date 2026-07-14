@@ -4,7 +4,12 @@ param(
 )
 $ErrorActionPreference='Stop'
 $Root=Split-Path -Parent $PSScriptRoot
-$CodexHome=if($env:CODEX_HOME){$env:CODEX_HOME}elseif($env:UEEF_GLOBAL_PATH){Split-Path -Parent $env:UEEF_GLOBAL_PATH}else{''}
+$RuntimePath=''
+if($env:UEEF_GLOBAL_PATH){
+  if(Test-Path -LiteralPath (Join-Path $env:UEEF_GLOBAL_PATH 'UEEF-LOADER.md')){$RuntimePath=$env:UEEF_GLOBAL_PATH}
+  elseif(Test-Path -LiteralPath (Join-Path $env:UEEF_GLOBAL_PATH 'codex\UEEF-LOADER.md')){$RuntimePath=Join-Path $env:UEEF_GLOBAL_PATH 'codex'}
+}elseif($env:CODEX_HOME){$RuntimePath=Join-Path $env:CODEX_HOME 'ueef\codex'}
+$CodexHome=if($env:CODEX_HOME){$env:CODEX_HOME}elseif($RuntimePath){Split-Path -Parent (Split-Path -Parent $RuntimePath)}else{''}
 $selectedProfiles=@($Profile | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 if(!$selectedProfiles.Count){
   $signals=@(Get-ChildItem -LiteralPath $Root -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.FullName -notmatch '\\.git\\'})
@@ -39,10 +44,10 @@ foreach($p in $selectedProfiles){
       Add-Check Core 'OpenAI Docs' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\openai-docs\SKILL.md'))) 'OpenAI docs skill' 'Install the openai-docs skill'
       Add-Check Core 'Skill Creator' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\skill-creator\SKILL.md'))) 'Skill creator skill' 'Install the skill-creator skill'
       Add-Check Core 'Validation Scripts' Mandatory (Has-Path (Join-Path $Root 'scripts\validate-framework.ps1')) 'repository validator'
-      Add-Check Core 'UEEF Runtime' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'ueef\codex\UEEF-LOADER.md'))) 'active runtime loader'
+      Add-Check Core 'UEEF Runtime' Mandatory ([bool]$RuntimePath -and (Has-Path (Join-Path $RuntimePath 'UEEF-LOADER.md'))) 'active runtime loader'
     }
     'AI' {
-      Add-Check AI UEEF Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'ueef\codex\UEEF-LOADER.md'))) 'runtime loader'
+      Add-Check AI UEEF Mandatory ([bool]$RuntimePath -and (Has-Path (Join-Path $RuntimePath 'UEEF-LOADER.md'))) 'runtime loader'
       Add-Check AI 'Runtime Loader' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'AGENTS.md'))) 'global agent rules'
     }
     'Frontend' {

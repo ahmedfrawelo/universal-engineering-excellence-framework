@@ -10,7 +10,7 @@ Checks UEEF, required skills, runtime loader, validation engine, and active stat
 ## Required Practice
 
 - Run status and verify the active runtime before project inspection.
-- An unverifiable UEEF runtime blocks work.
+- An unverifiable UEEF runtime blocks work. `UEEF_GLOBAL_PATH` may name either the runtime directory containing `UEEF-LOADER.md` or its parent global runtime root; bootstrap must normalize both forms before deciding readiness.
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.
 

@@ -129,6 +129,7 @@ $requiredAcceptance = @(
   "scripts/test-goal-lifecycle.ps1",
   "scripts/test-goal-lifecycle.sh",
   "scripts/test-runtime-hardening.ps1",
+  "scripts/test-environment-bootstrap.ps1",
   "scripts/test-installers.ps1",
   "scripts/test-cleanup-workspace.ps1",
   "scripts/test-documentation-links.ps1",
@@ -151,6 +152,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.11.md",
   "docs/releases/v2.8.12.md",
   "docs/releases/v2.8.13.md",
+  "docs/releases/v2.8.14.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "framework/01-core/10-runtime-activation-proof.md",
@@ -266,6 +268,7 @@ foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($ter
 & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
+& (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw

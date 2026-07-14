@@ -1,7 +1,18 @@
 #!/usr/bin/env sh
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-CODEX_HOME=${CODEX_HOME:-$HOME/.codex}
+RUNTIME_PATH=''
+if [ -n "${UEEF_GLOBAL_PATH:-}" ]; then
+  if [ -f "$UEEF_GLOBAL_PATH/UEEF-LOADER.md" ]; then RUNTIME_PATH=$UEEF_GLOBAL_PATH
+  elif [ -f "$UEEF_GLOBAL_PATH/codex/UEEF-LOADER.md" ]; then RUNTIME_PATH=$UEEF_GLOBAL_PATH/codex
+  fi
+elif [ -n "${CODEX_HOME:-}" ]; then RUNTIME_PATH=$CODEX_HOME/ueef/codex
+else RUNTIME_PATH=$HOME/.codex/ueef/codex
+fi
+if [ -n "${CODEX_HOME:-}" ]; then :
+elif [ -n "$RUNTIME_PATH" ]; then CODEX_HOME=$(dirname "$(dirname "$RUNTIME_PATH")")
+else CODEX_HOME=$HOME/.codex
+fi
 if [ -n "${UEEF_PROFILES:-}" ]; then
   PROFILES="$UEEF_PROFILES"
 else
@@ -19,7 +30,7 @@ echo "Environment Profile"
 echo "Profiles Loaded: $PROFILES"
 echo "Core"
 for cmd in git gh; do if check_cmd "$cmd"; then echo "$cmd PASS"; else echo "$cmd MISSING (Mandatory)"; status=2; fi; done
-if check_path "$CODEX_HOME/ueef/codex/UEEF-LOADER.md"; then echo "UEEF Runtime PASS"; else echo "UEEF Runtime MISSING (Mandatory)"; status=2; fi
+if check_path "$RUNTIME_PATH/UEEF-LOADER.md"; then echo "UEEF Runtime PASS"; else echo "UEEF Runtime MISSING (Mandatory)"; status=2; fi
 if [ -f "$ROOT/scripts/validate-framework.ps1" ]; then echo "Validation Scripts PASS"; else echo "Validation Scripts MISSING (Mandatory)"; status=2; fi
 for skill in skill-installer openai-docs skill-creator; do if check_path "$CODEX_HOME/skills/.system/$skill/SKILL.md"; then echo "$skill PASS"; else echo "$skill MISSING (Mandatory)"; status=2; fi; done
 echo "AI"

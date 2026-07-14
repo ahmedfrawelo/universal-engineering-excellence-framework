@@ -61,6 +61,7 @@ for f in \
   framework/28-scorecards/17-engineering-health-scorecard.md \
   framework/29-checklists/30-engineering-guardian-checklist.md \
   scripts/environment-bootstrap.ps1 scripts/environment-bootstrap.sh \
+  scripts/test-environment-bootstrap.ps1 \
   framework/27-quality-gates/22-environment-bootstrap-gate.md \
   framework/28-scorecards/18-environment-readiness-scorecard.md \
   framework/29-checklists/31-environment-bootstrap-checklist.md \
@@ -177,6 +178,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.11.md" ] || { echo "Missing stale tab ownership release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.12.md" ] || { echo "Missing autonomous tab ownership recovery release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.13.md" ] || { echo "Missing non-destructive runtime sync release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.14.md" ] || { echo "Missing bootstrap runtime-path normalization release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
