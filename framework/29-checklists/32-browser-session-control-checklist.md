@@ -15,6 +15,7 @@ Version: 1.5.0
 - [ ] No isolated browser/context/profile used for the Chrome task.
 - [ ] No directly exposed Playwright, Chrome DevTools, or in-app-browser MCP tool substituted for the Chrome plugin.
 - [ ] Final state verified in the same user-owned tab.
+- [ ] `chrome.tabs.finalize(...)` was the final browser action, releasing every claimed user tab without closing it.
 - [ ] Any browser-client or extension bridge failure followed bootstrap and Chrome troubleshooting before fallback or blocking.
 - [ ] A task-local Node REPL failure was not treated as Chrome unavailability; current coordinator evidence was handed off when needed.
 - [ ] Required visual verification was not replaced by build/tests/source or structural-equivalence claims.

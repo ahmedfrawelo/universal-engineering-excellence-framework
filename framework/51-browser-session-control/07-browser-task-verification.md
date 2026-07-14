@@ -10,3 +10,4 @@ Every browser task ends with evidence from the same user-owned browser session.
 - Never claim a logged-in workflow was completed from an isolated or unauthenticated context.
 - A task-local `mcp__node_repl__js` failure is `THREAD_CONTROL_CHANNEL_DEGRADED`, not Chrome unavailability. It cannot justify `BLOCKED` or a user request to restart Chrome. Record and request a fresh cross-session handoff after relevant code changes.
 - Do not surface local retry counts or a stopped-verification message. Use the required recovery status while the trusted handoff is obtained.
+- Before every browser-task turn ends, call `chrome.tabs.finalize(...)` as the final browser action. This is required after success, error handling, status-only reporting, or handoff; it releases claimed user tabs without closing them and prevents stale cross-task ownership.
