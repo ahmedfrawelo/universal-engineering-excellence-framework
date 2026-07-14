@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.8.12.
+UEEF Enterprise Edition version: 2.8.13.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -60,3 +60,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.10: enforced the canonical browser-recovery status in lifecycle validators and rejected retry-count or stopped-verification wording.
 - 2.8.11: required browser-task tab finalization to prevent stale Chrome ownership locks across tasks.
 - 2.8.12: added autonomous stale-tab ownership recovery so tasks repair their own Chrome claim conflicts.
+- 2.8.13: changed runtime sync to update in place so active task kernels and browser clients are not invalidated by a framework update.

@@ -176,6 +176,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.10.md" ] || { echo "Missing enforced browser-recovery release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.11.md" ] || { echo "Missing stale tab ownership release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.12.md" ] || { echo "Missing autonomous tab ownership recovery release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.13.md" ] || { echo "Missing non-destructive runtime sync release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }

@@ -41,11 +41,12 @@ if ($resolvedSource -eq $resolvedCodexHome -or $resolvedSource.StartsWith($runti
 if (Test-Path -LiteralPath $runtimePath) {
   $resolvedRuntime = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $runtimePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
   if (!$resolvedRuntime.StartsWith($runtimePrefix, [System.StringComparison]::OrdinalIgnoreCase) -or $resolvedRuntime -eq $resolvedCodexHome) {
-    throw "Refusing to replace unsafe runtime path: $resolvedRuntime"
+    throw "Refusing to update unsafe runtime path: $resolvedRuntime"
   }
-  Remove-Item -LiteralPath $resolvedRuntime -Recurse -Force
 }
 New-Item -ItemType Directory -Path $runtimePath -Force | Out-Null
+# Keep the active runtime intact while tasks can have imported files from it.
+# Copying source updates in place avoids invalidating a live Node REPL/browser client.
 Get-ChildItem -LiteralPath $SourcePath -Force | Where-Object { $_.Name -ne ".git" } | ForEach-Object {
   Copy-Item -LiteralPath $_.FullName -Destination $runtimePath -Recurse -Force
 }

@@ -12,6 +12,12 @@ try {
 
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
   $runtime = Join-Path $codexHome 'ueef\test-agent'
+  $sentinel = Join-Path $runtime 'active-task-sentinel.txt'
+  Set-Content -LiteralPath $sentinel -Value 'must survive a runtime update' -Encoding utf8
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  if (!(Test-Path -LiteralPath $sentinel)) { throw 'Runtime sync removed active-task files instead of updating in place.' }
+  $syncText = Get-Content -LiteralPath (Join-Path $root 'scripts\sync-runtime.ps1') -Raw
+  if ($syncText -match [regex]::Escape('Remove-Item -LiteralPath $resolvedRuntime -Recurse -Force')) { throw 'Runtime sync can still delete the active runtime.' }
   $statePath = Join-Path $codexHome 'ueef\UEEF-ACTIVE.json'
   $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
   if ($state.agent -ne 'test-agent') { throw 'Active state did not preserve the agent name.' }
