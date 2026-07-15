@@ -85,6 +85,13 @@ $cases = @(
     Gates = @('framework/27-quality-gates/ui-gate.md', 'framework/27-quality-gates/ux-gate.md', 'framework/27-quality-gates/accessibility-gate.md')
   },
   @{
+    Name = 'motion'
+    Task = 'Implement a motion transition with easing and animation polish'
+    UIUX = 'YES'
+    Modules = @('framework/08-performance/00-performance-philosophy.md', 'framework/10-frontend/00-frontend-engineering.md', 'framework/14-ui/00-ui-system.md')
+    Gates = @('framework/27-quality-gates/ui-gate.md', 'framework/27-quality-gates/ux-gate.md', 'framework/27-quality-gates/accessibility-gate.md', 'framework/27-quality-gates/performance-gate.md')
+  },
+  @{
     Name = 'chrome-visual'
     Task = 'Inspect the frontend page visually in the existing Chrome tab on localhost'
     UIUX = 'YES'

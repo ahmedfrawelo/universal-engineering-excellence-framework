@@ -155,8 +155,13 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.14.md",
   "docs/releases/v2.8.15.md",
   "docs/releases/v2.8.16.md",
+  "docs/releases/v2.8.17.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
+  "assets/ueef-display.json",
+  "assets/ueef-skill-icon.svg",
+  "scripts/project-context-map.ps1",
+  "scripts/project-context-map.sh",
   "framework/01-core/10-runtime-activation-proof.md",
   "docs/verify-ueef-is-active.md",
   "scripts/ueef-status.sh",
@@ -241,7 +246,7 @@ foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "frame
 $bootstrapScript = Get-Content (Join-Path $Root "scripts/environment-bootstrap.ps1") -Raw
 foreach ($term in @("Mandatory","Recommended","Optional","ui-ux-pro-max","impeccable","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","Overall READY","Overall BLOCKED","package","csproj","schema","Dockerfile")) { if ($bootstrapScript -notmatch [regex]::Escape($term)) { throw "Bootstrap script missing required behavior: $term" } }
 $coreText = Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw
-foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens",'apply both `ui-ux-pro-max` and `impeccable` together',"Place every new file under an existing owned feature","Do not solve a multi-file feature by creating a standalone-file system","Keep files small enough to review and maintain","Answer the user's actual question first","server-side filtering, sorting, pagination, aggregation","evaluate SSR, SSG, streaming","Prevent over-rendering on both frontend and backend-driven UI paths","Animations must be smooth","Stay inside the user's requested task scope","Task Scope Discipline","Shared-first rule","Before creating custom UI or custom behavior","Large Project Reuse Requirements","Record the reuse decision")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
+foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens",'apply both `ui-ux-pro-max` and `impeccable` together',"Place every new file under an existing owned feature","Do not solve a multi-file feature by creating a standalone-file system","Keep files small enough to review and maintain","Answer the user's actual question first","server-side filtering, sorting, pagination, aggregation","evaluate SSR, SSG, streaming","Prevent over-rendering on both frontend and backend-driven UI paths","Animations must be smooth","Stay inside the user's requested task scope","Task Scope Discipline","Shared-first rule","Before creating custom UI or custom behavior","Large Project Reuse Requirements","Record the reuse decision","scripts/project-context-map.ps1")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
 $fileFolderText = Get-Content (Join-Path $Root "framework/26-decision-graphs/file-folder-decision-graph.md") -Raw
 foreach ($term in @("Determine whether the behavior will be reused in multiple places","shared/common/library owner","standalone file becomes a hidden subsystem","oversized mixed files")) { if ($fileFolderText -notmatch [regex]::Escape($term)) { throw "File-folder decision graph missing required rule: $term" } }
 $frontendText = Get-Content (Join-Path $Root "framework/10-frontend/00-frontend-engineering.md") -Raw
@@ -285,6 +290,7 @@ foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($ter
 & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
+& (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
 foreach ($term in @("Unsafe agent name","runtimeRootPrefix","-Agent `$Agent","environment-bootstrap")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime sync missing hardening contract: $term" }
@@ -301,9 +307,19 @@ $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
 foreach ($term in @("Agent and model routing:","Design engineering skill routing:","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","not a reason to suspend execution","Local command autonomy:")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing global loader policy: $term" }
 }
-foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system","Reusable behavior, UI, validation","Before creating custom UI or behavior","Large-project reuse:","Discover module boundaries")) {
+foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system","Reusable behavior, UI, validation","Before creating custom UI or behavior","Large-project reuse:","Discover module boundaries","project-context-map","Skill/display metadata","Skill/display icon")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing new operating policy: $term" }
 }
+$displayMetadata = Get-Content (Join-Path $Root "assets/ueef-display.json") -Raw | ConvertFrom-Json
+if ($displayMetadata.icon -ne "assets/ueef-skill-icon.svg" -or $displayMetadata.displayName -ne "UEEF") { throw "Display metadata does not reference the UEEF icon correctly" }
+$iconText = Get-Content (Join-Path $Root "assets/ueef-skill-icon.svg") -Raw
+foreach ($term in @("<svg","role=""img""","UEEF skill icon")) { if ($iconText -notmatch [regex]::Escape($term)) { throw "Skill icon missing required SVG term: $term" } }
+$projectMapText = Get-Content (Join-Path $Root "scripts/project-context-map.ps1") -Raw
+foreach ($term in @("Project Context Map","Shared candidates","Generated/output candidates")) { if ($projectMapText -notmatch [regex]::Escape($term)) { throw "Project context map missing required behavior: $term" } }
+$statusAndTestText = (Get-Content (Join-Path $Root "scripts/ueef-status.ps1") -Raw) + "`n" + (Get-Content (Join-Path $Root "scripts/test-runtime-hardening.ps1") -Raw)
+foreach ($term in @("Runtime drift:","Runtime drift did not invalidate ACTIVE status","sourceRepositoryPath")) { if ($statusAndTestText -notmatch [regex]::Escape($term)) { throw "Runtime status/drift coverage missing: $term" } }
+$selectorText = Get-Content (Join-Path $Root "scripts/select-quality-gates.ps1") -Raw
+foreach ($term in @("motion","animation","emil-design-eng","Specialist skill route:")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing motion routing: $term" } }
 $unixAudit = Get-Content (Join-Path $Root "scripts/ueef-audit.sh") -Raw
 if ($unixAudit -match '\[0-9\.\]\*') { throw "Unix audit uses an unsafe broad version pattern" }
 Write-Host "UEEF validation passed"

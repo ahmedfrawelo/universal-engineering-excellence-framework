@@ -136,6 +136,7 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 ## Large Project Reuse Requirements
 
 - Treat large repositories as ecosystems. Start by discovering module boundaries, shared folders, aliases, barrel exports, registries, package boundaries, design-system entrypoints, service clients, state stores, validators, and test utilities.
+- For broad or unfamiliar repositories, run `scripts/project-context-map.ps1`, `scripts/project-context-map.sh`, or an equivalent repository map before implementation.
 - Extend an existing feature or shared owner when the requested behavior belongs to an existing capability. Do not create a parallel feature path because it is faster to code.
 - Use existing imports, exports, public APIs, tokens, and registry patterns. Do not reach into private internals unless the project already establishes that convention.
 - When adding reusable capability, update its public export, usage example, tests, and at least one real consumer where the project convention expects that evidence.

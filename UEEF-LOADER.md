@@ -2,6 +2,8 @@
 
 This file is the source-repository loader template. Installers and `scripts/sync-runtime.ps1` generate the active Codex-specific loader under `CODEX_HOME/ueef/codex/UEEF-LOADER.md` with the resolved runtime paths.
 
+Skill/display metadata: `assets/ueef-display.json`; icon asset: `assets/ueef-skill-icon.svg`.
+
 Before every non-trivial engineering task:
 
 1. Route the task through pack 58, select the lowest-cost capable model, and spawn only when delegation has positive benefit.
@@ -39,6 +41,7 @@ Task scope discipline:
 - Broaden scope only when the user asks, when the unrelated issue directly prevents the requested task from being verified, or when the current change caused it.
 
 Large-project reuse:
+- For broad or unfamiliar repositories, run `scripts/project-context-map.ps1`, `scripts/project-context-map.sh`, or an equivalent repository map before implementation.
 - Discover module boundaries, aliases, barrel exports, public APIs, registries, package boundaries, shared folders, state stores, validators, service clients, and test utilities before implementation.
 - Use public imports/exports and project registries. Do not reach into private internals unless that is the established project convention.
 - When adding reusable capability, update the shared public export, tests, and at least one real consumer where project conventions expect it.

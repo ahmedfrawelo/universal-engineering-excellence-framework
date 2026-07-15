@@ -48,7 +48,8 @@ Add-Unique $gates @(
   "framework/27-quality-gates/31-agent-model-routing-gate.md"
 )
 
-if ($text -match "ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind") {
+$motionRequired = $text -match "motion|animation|animate|transition|easing|micro-interaction|interaction polish"
+if ($text -match "ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind" -or $motionRequired) {
   $uiRequired = $true
   Add-Unique $modules @(
     "framework/08-performance/00-performance-philosophy.md",
@@ -138,6 +139,7 @@ Write-Output "UEEF Quality Gate Selection"
 Write-Output "---------------------------"
 Write-Output "Task: $Task"
 Write-Output "UIUX: $(if ($uiRequired) { 'YES' } else { 'NO' })"
+Write-Output "Specialist skill route: $(if ($motionRequired) { 'emil-design-eng' } else { 'none' })"
 Write-Output "Selected:"
 foreach ($m in $modules) { Write-Output "- $m" }
 Write-Output "Gates:"

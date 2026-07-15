@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.8.16.
+UEEF Enterprise Edition version: 2.8.17.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -64,3 +64,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.14: normalized `UEEF_GLOBAL_PATH` in environment bootstrap so valid runtime paths cannot falsely report mandatory files missing.
 - 2.8.15: strengthened UI skill-pair, file/folder ownership, file-size, standalone-file, response-quality, backend-performance, and SSR evaluation rules.
 - 2.8.16: strengthened shared-first reuse, design-system-first implementation, import-based consumption, and large-project discovery rules.
+- 2.8.17: added the official UEEF skill icon asset and project-context-map helpers for broad project discovery.

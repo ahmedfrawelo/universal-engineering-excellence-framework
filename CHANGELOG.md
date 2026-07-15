@@ -2,7 +2,17 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.16`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.17`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.17 - 2026-07-15
+
+- Added an official UEEF skill/display icon asset at `assets/ueef-skill-icon.svg`.
+- Added `assets/ueef-display.json` as the display metadata contract for UEEF skill surfaces.
+- Added Windows and Unix `project-context-map` helpers for bounded broad-project discovery.
+- Required large-project work to run a context map or equivalent repository map before broad implementation.
+- Made `ueef-status.ps1` report runtime drift so stale runtimes cannot produce unqualified `ACTIVE`.
+- Routed motion, animation, transition, and easing tasks through UIUX plus `emil-design-eng`.
+- Added validation coverage for the new asset, scripts, release note, runtime sync text, and script execution.
 
 ## 2.8.16 - 2026-07-15
 

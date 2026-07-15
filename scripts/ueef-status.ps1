@@ -79,6 +79,33 @@ if ($isManagedRuntime) {
 }
 $oldHomePath = Join-Path $HOME ".ueef"
 $oldHomeAbsent = !(Test-Item $oldHomePath)
+$runtimeDriftPass = $true
+$runtimeDriftStatus = "SKIPPED"
+if ($isManagedRuntime -and (Test-Item $activeStatePath)) {
+  try {
+    $stateForDrift = Get-Content -LiteralPath $activeStatePath -Raw | ConvertFrom-Json
+    $sourceForDrift = [string]$stateForDrift.sourceRepositoryPath
+    if (![string]::IsNullOrWhiteSpace($sourceForDrift) -and (Test-Item $sourceForDrift)) {
+      $sourceRootForDrift = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $sourceForDrift).Path)
+      $runtimeRootForDrift = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryPath).Path)
+      $driftFound = $false
+      $sourceFilesForDrift = @(Get-ChildItem -LiteralPath $sourceRootForDrift -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object {
+        $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -ne 'UEEF-LOADER.md'
+      })
+      foreach ($sourceFileForDrift in $sourceFilesForDrift) {
+        $relativeForDrift = $sourceFileForDrift.FullName.Substring($sourceRootForDrift.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+        $runtimeFileForDrift = Join-Path $runtimeRootForDrift $relativeForDrift
+        if (!(Test-Path -LiteralPath $runtimeFileForDrift)) { $driftFound = $true; break }
+        if ((Get-FileHash -LiteralPath $sourceFileForDrift.FullName -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $runtimeFileForDrift -Algorithm SHA256).Hash) { $driftFound = $true; break }
+      }
+      $runtimeDriftPass = !$driftFound
+      $runtimeDriftStatus = if ($runtimeDriftPass) { "PASS" } else { "FAIL" }
+    }
+  } catch {
+    $runtimeDriftPass = $false
+    $runtimeDriftStatus = "FAIL"
+  }
+}
 $markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch "\\.git\\" }).Count } else { 0 }
 $globalExists = Test-Item $GlobalPath
 $loaderCandidates = @()
@@ -87,7 +114,7 @@ if ($globalExists) {
 }
 $globalLoaderStatus = if (!$globalExists) { "UNKNOWN" } elseif ($loaderCandidates.Count -gt 0) { "PASS" } else { "FAIL" }
 $installed = if ($repoExists -and $globalExists -and $loaderCandidates.Count -gt 0) { "YES" } else { "NO" }
-$overall = if ($installed -eq "YES" -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass -and $agentsPass -and $activeStatePass -and $oldHomeAbsent) { "ACTIVE" } else { "INACTIVE" }
+$overall = if ($installed -eq "YES" -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass -and $agentsPass -and $activeStatePass -and $oldHomeAbsent -and $runtimeDriftPass) { "ACTIVE" } else { "INACTIVE" }
 
 Write-Output "UEEF Status"
 Write-Output "-----------"
@@ -106,6 +133,7 @@ Write-Output "Global loader: $globalLoaderStatus"
 Write-Output "Codex AGENTS: $(PassFail $agentsPass)"
 Write-Output "Agent routing contract: $(PassFail $agentRoutingPass)"
 Write-Output "Active state: $(PassFail $activeStatePass)"
+Write-Output "Runtime drift: $runtimeDriftStatus"
 Write-Output "Old HOME .ueef absent: $(PassFail $oldHomeAbsent)"
 if ($globalLoaderStatus -ne "PASS") {
   Write-Output "Required action: Run scripts/install-codex.ps1, scripts/install-cursor.ps1, or scripts/install-generic.ps1 from Codex with CODEX_HOME set, or set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md."

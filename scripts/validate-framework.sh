@@ -192,11 +192,19 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.14.md" ] || { echo "Missing bootstrap runtime-path normalization release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.15.md" ] || { echo "Missing file organization and SSR release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.16.md" ] || { echo "Missing shared-first reuse release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.17.md" ] || { echo "Missing project-context release notes" >&2; exit 1; }
+[ -f "$ROOT/assets/ueef-display.json" ] || { echo "Missing UEEF display metadata" >&2; exit 1; }
+[ -f "$ROOT/assets/ueef-skill-icon.svg" ] || { echo "Missing UEEF skill icon asset" >&2; exit 1; }
+[ -f "$ROOT/scripts/project-context-map.ps1" ] || { echo "Missing project context map script" >&2; exit 1; }
+[ -f "$ROOT/scripts/project-context-map.sh" ] || { echo "Missing Unix project context map script" >&2; exit 1; }
 grep -q 'apply both `ui-ux-pro-max` and `impeccable` together' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing UIUX skill-pair rule" >&2; exit 1; }
 grep -q 'Place every new file under an existing owned feature' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing owned-file rule" >&2; exit 1; }
 grep -q 'standalone-file system' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing standalone-file rule" >&2; exit 1; }
 grep -q 'Keep files small enough to review and maintain' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing file-size rule" >&2; exit 1; }
 grep -q "Final responses must answer" "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing response-quality rule" >&2; exit 1; }
+grep -q 'Runtime drift:' "$ROOT/scripts/ueef-status.ps1" || { echo "Status script missing runtime drift field" >&2; exit 1; }
+grep -q 'emil-design-eng' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing motion skill route" >&2; exit 1; }
+grep -q 'animation' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing animation route" >&2; exit 1; }
 grep -q 'server-side filtering, sorting, pagination, aggregation' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing backend data-shaping rule" >&2; exit 1; }
 grep -q 'evaluate SSR, SSG, streaming' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing SSR rule" >&2; exit 1; }
 grep -q 'Prevent over-rendering on both frontend and backend-driven UI paths' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing over-render rule" >&2; exit 1; }
@@ -207,6 +215,7 @@ grep -q 'Shared-first rule' "$ROOT/framework/01-core/00-core-system.md" || { ech
 grep -q 'Before creating custom UI or custom behavior' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing custom-before-search rule" >&2; exit 1; }
 grep -q 'Large Project Reuse Requirements' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing large-project reuse section" >&2; exit 1; }
 grep -q 'Record the reuse decision' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing reuse-decision rule" >&2; exit 1; }
+grep -q 'scripts/project-context-map.ps1' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing project context map rule" >&2; exit 1; }
 grep -q 'Identify the owning folder before creating a file' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing owner rule" >&2; exit 1; }
 grep -q 'Determine whether the behavior will be reused in multiple places' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared-owner decision" >&2; exit 1; }
 grep -q 'shared/common/library owner' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared owner rule" >&2; exit 1; }
@@ -262,6 +271,10 @@ printf '%s' "$route" | grep -q '"spawnAgents":false' || { echo "Unix agent route
 version="$(sed -n 's/.*version: \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 if grep -q '\[0-9\.\]\*' "$ROOT/scripts/ueef-audit.sh"; then echo "Unix audit uses an unsafe broad version pattern" >&2; exit 1; fi
+grep -q 'UEEF skill icon' "$ROOT/assets/ueef-skill-icon.svg" || { echo "Skill icon missing accessible title" >&2; exit 1; }
+grep -q '"icon": "assets/ueef-skill-icon.svg"' "$ROOT/assets/ueef-display.json" || { echo "Display metadata missing icon path" >&2; exit 1; }
+grep -q 'Project Context Map' "$ROOT/scripts/project-context-map.sh" || { echo "Unix project context map missing header" >&2; exit 1; }
+sh "$ROOT/scripts/project-context-map.sh" "$ROOT" 5 >/dev/null || { echo "Unix project context map failed" >&2; exit 1; }
 for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do
   [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done

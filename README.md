@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.16; it includes governed application models, shared-first reuse, design-system-first UI, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, active-goal continuation enforcement, strict file/folder ownership, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.17; it includes governed application models, shared-first reuse, design-system-first UI, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, active-goal continuation enforcement, strict file/folder ownership, project-context mapping, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
 
 ## Why UEEF Exists
 
@@ -45,11 +45,12 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 - scripts/: installers, backup helpers, agent detection, update, and validation scripts.
 - docs/: architecture, usage, installation, governance, and contribution documentation.
 - examples/: assistant and project usage examples.
-- 	ools/: validation, generation, and maintenance support areas.
+- tools/: validation, generation, and maintenance support areas.
+- assets/: display metadata and assets such as the UEEF skill icon.
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.8.16. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.8.17. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 
@@ -78,6 +79,18 @@ Run:
 ```
 
 See docs/verify-ueef-is-active.md.
+
+## Project Context Map
+
+Before broad work in an unfamiliar or large repository, run a bounded context map to identify manifests, shared owners, feature modules, design-system folders, tests, and generated outputs:
+
+```powershell
+.\scripts\project-context-map.ps1 -Path . -MaxItems 40
+```
+
+```sh
+sh ./scripts/project-context-map.sh . 40
+```
 
 ## Runtime Hardening
 
