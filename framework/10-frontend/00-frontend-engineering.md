@@ -26,6 +26,12 @@ Use this module when project inspection shows that the task touches the pack res
 - Inspect related files before proposing changes.
 - Avoid duplicate implementations, duplicate documentation, and duplicate UI.
 - Do not create unowned standalone files.
+- Organize new frontend files under the owning route, feature, component library, state/data layer, test folder, or asset folder. Do not leave mixed UI, state, API, and styling files in one unowned location.
+- Split large frontend files when rendering, data fetching, transformation, validation, state orchestration, styling, and tests become mixed responsibilities.
+- Prevent over-rendering by checking state ownership, selectors, subscriptions, effect dependencies, memoization boundaries, expensive computed values, list virtualization, and route/component code splitting before completion.
+- Animations must use transform and opacity where possible, avoid layout-triggering properties, respect reduced motion, and avoid state loops that re-render unrelated UI.
+- For public, content-heavy, SEO-sensitive, slow-first-paint, or data-heavy first views, evaluate SSR, SSG, streaming, route-level pre-rendering, or server components when the stack supports them.
+- Do not force SSR into authenticated operational screens or stacks that are intentionally client-rendered; record the reason when SSR is considered and skipped.
 - Preserve secrets, credentials, and user data.
 - Make limitations explicit when verification cannot be completed.
 

@@ -55,6 +55,8 @@ Apply UI UX Pro Max when available. Do not load backend, database, enterprise, o
 
 For UI/UX work, this means loading and applying both `ui-ux-pro-max` and `impeccable`. Do not report UIUX as PASS when only one is available; report the missing skill according to the environment profile.
 
+For frontend routes that render public, indexable, slow-to-boot, content-heavy, or data-heavy first views, evaluate SSR, SSG, streaming, route-level pre-rendering, or server components when supported by the stack. If client rendering remains the correct choice, record the project-specific reason.
+
 ### Design Engineering Skills
 
 Keep `ui-ux-pro-max` and `impeccable` as the general UI/UX baseline. Add only the specialized installed skill whose trigger matches:
@@ -111,6 +113,12 @@ Load only:
 - `framework/27-quality-gates/16-ueef-activation-gate.md`
 
 Add database modules only when schema, query, persistence, migration, or transaction behavior is involved.
+
+Backend performance checks include server-side pagination, filtering, sorting, aggregation, projection, caching/invalidation, cancellation, concurrency, serialization, authorization cost, and rate/burst behavior when the endpoint serves UI data or large collections.
+
+## File Organization Tasks
+
+For any task that creates files, selects output paths, scaffolds modules, generates artifacts, or reorganizes source, select `framework/26-decision-graphs/file-folder-decision-graph.md` and `framework/27-quality-gates/code-quality-gate.md`. New files must have an owner folder and lifecycle; root-level or standalone files require repository-standard justification.
 
 ## Database Tasks
 

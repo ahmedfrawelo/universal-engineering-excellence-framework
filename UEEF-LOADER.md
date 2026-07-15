@@ -11,6 +11,30 @@ Before every non-trivial engineering task:
 5. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
 6. Apply the Engineering Guardian, relevant quality gates, and final verification before completion.
 
+File, folder, and size discipline:
+- Every new file must live under an owned feature, layer, package, route, docs, tests, scripts, generated-artifact, deployment, or configuration folder.
+- Do not dump unrelated files into the project root or a generic mixed folder.
+- Do not create a standalone-file system unless it is a repository-standard entrypoint, documented configuration, one-off owned script, or explicit user-requested artifact.
+- Split files before they become mixed-responsibility sinks. Keep UI, data access, business rules, validation, transport, tests, generated content, and operational scripts in their owned areas.
+
+Backend and frontend performance:
+- Backend endpoints that serve UI data must consider server-side pagination, filtering, sorting, aggregation, projection, caching and invalidation, cancellation, concurrency, serialization cost, authorization cost, rate limits, and burst behavior.
+- Frontend routes must consider SSR, SSG, streaming, route-level pre-rendering, or server components when SEO, public content, first paint, slow client boot, or first-view data volume makes server rendering useful.
+- Do not force SSR for authenticated operational screens or stacks that intentionally use client rendering; record the reason when SSR is considered and skipped.
+- Prevent over-rendering end to end: frontend state, selectors, subscriptions, effects, memoization, virtualization, and component boundaries; backend over-fetching, over-serialization, repeated queries, noisy realtime broadcasts, broad cache invalidation, and unbounded recomputation.
+- Animations must be smooth, interruptible, reduced-motion aware, and compositor-friendly. Prefer transform and opacity, avoid layout-triggering animation, and prevent animation state from repainting unrelated UI or triggering avoidable backend refreshes.
+
+Response quality:
+- Answer the user's direct question first, then give concise evidence.
+- Do not claim perfection, completion, release, push, browser verification, or active runtime status without current evidence.
+- Keep final responses short and factual, with changed scope and validation when files were modified.
+
+Task scope discipline:
+- Work only on the requested task, its direct blockers, and regressions introduced by the current change.
+- Do not chase unrelated errors, warnings, tests, UI issues, backend endpoints, refactors, dependency warnings, or generated files.
+- If an unrelated pre-existing error appears, record it as unrelated, use narrower relevant validation when possible, and continue the requested work.
+- Broaden scope only when the user asks, when the unrelated issue directly prevents the requested task from being verified, or when the current change caused it.
+
 Design engineering skill routing:
 - Add `emil-design-eng` for motion implementation and polish.
 - Add `review-animations` for motion review, `improve-animations` for read-only motion audits, `animation-vocabulary` for naming effects, and `apple-design` for gesture, spring, momentum, and Apple-style interaction work.

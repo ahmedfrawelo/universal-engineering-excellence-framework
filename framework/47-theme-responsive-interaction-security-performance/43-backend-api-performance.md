@@ -13,6 +13,10 @@ Controls request latency, concurrency, allocation, serialization, dependencies, 
 - Set end-to-end and dependency time budgets with cancellation propagation.
 - Batch independent I/O, eliminate N+1 calls, bound concurrency, and cache only with explicit invalidation.
 - Load-test realistic percentiles and failure modes, not average happy paths.
+- Push pagination, filtering, sorting, aggregation, projection, and permission-aware data shaping to the backend for large or sensitive datasets.
+- Review serialization payload size, index/query plans, rate limits, burst behavior, cache invalidation, and tenant/security filters as part of endpoint performance.
+- Avoid backend over-render triggers: over-fetching, over-serialization, repeated query execution, broad realtime broadcasts, broad cache invalidation, and unbounded recomputation.
+- Scope realtime or refresh events to the smallest safe tenant/user/entity/view and coalesce bursts so the frontend can update targeted regions without full-page refresh or excessive renders.
 
 ## Delivery Contract
 

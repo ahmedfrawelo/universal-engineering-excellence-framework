@@ -13,6 +13,10 @@ Minimizes rendering, JavaScript, layout, media, and main-thread cost.
 - Measure component commits and stabilize state ownership before adding memoization.
 - Virtualize large collections, reserve async layout space, and split code by route or feature.
 - Track Core Web Vitals and input responsiveness on representative devices.
+- Prevent over-rendering by reviewing component boundaries, selectors, subscriptions, effect dependencies, memoization, derived state, computed values, table/list virtualization, and route-level code splitting.
+- Keep animation work on compositor-friendly properties such as transform and opacity; avoid layout-triggering animation, animation-driven server calls, and state loops that repaint unrelated regions.
+- Evaluate SSR, SSG, streaming, route-level pre-rendering, or server components for public, content-heavy, SEO-sensitive, slow-to-hydrate, or first-view data-heavy routes when the stack supports them.
+- Keep authenticated operational screens client-rendered when that matches the product architecture, but document why SSR is not useful for those routes.
 
 ## Delivery Contract
 

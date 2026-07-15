@@ -7,14 +7,16 @@ Use this decision graph to choose the smallest architecture or implementation mo
 1. Clarify the user-visible outcome and the non-negotiable constraints.
 2. Inspect the existing implementation and identify established local patterns.
 3. Decide whether the change belongs in existing code, a new module, a shared abstraction, configuration, documentation, or operational tooling.
-4. Evaluate impact on public contracts, data shape, migrations, deployment, and rollback.
-5. Choose the option with the lowest long-term complexity that still meets the acceptance criteria.
-6. Validate with the strongest available automated checks and targeted manual review.
+4. Identify the owning folder before creating a file: feature, layer, package, route, component library, service, test, docs, script, generated-artifact, or deployment area.
+5. Evaluate impact on public contracts, data shape, migrations, deployment, cleanup, generated artifacts, and rollback.
+6. Choose the option with the lowest long-term complexity that still meets the acceptance criteria.
+7. Validate with the strongest available automated checks and targeted manual review.
 
 ## Alternatives
 - Reuse the existing pattern when it is clear, tested, and still fits the new behavior.
 - Extend a nearby abstraction when duplication would otherwise become meaningful.
 - Create a new module when ownership, lifecycle, or dependency direction differs.
+- Create a new folder only when no existing owner fits and the folder name describes responsibility and lifecycle.
 - Defer a broad redesign when the request is narrow and the current architecture can safely absorb it.
 - Escalate to an ADR when the decision affects multiple teams, deployment topology, data contracts, or security posture.
 
@@ -23,6 +25,7 @@ Use this decision graph to choose the smallest architecture or implementation mo
 - Shared abstractions reduce duplication only when the behavior is genuinely common.
 - New dependencies can reduce implementation time but add supply-chain, maintenance, and bundle risk.
 - Caching and denormalization improve latency only when invalidation is designed first.
+- Fewer files improve scanning only while responsibilities remain cohesive; oversized mixed files become harder to review, test, and reuse.
 
 ## Risks
 - Hidden coupling to existing state or data contracts.
@@ -40,7 +43,10 @@ Override the default when security, data integrity, regulatory, accessibility, o
 ## Failure Modes
 - The decision is based on memory instead of current code inspection.
 - The chosen approach creates duplicate UI, duplicate business logic, or hidden global state.
+- New files are dumped into the repository root or a generic folder without an owner.
+- A standalone file becomes a hidden subsystem with its own contracts, state, generated outputs, or runtime behavior.
+- A large file mixes unrelated UI, API, domain, persistence, validation, formatting, or testing responsibilities.
 - Validation is limited to compilation while the risky behavior remains untested.
 
 ## Quality Gate
-Record the chosen branch, rejected alternatives, evidence inspected, and validation performed. A decision without evidence is partial, not complete.
+Record the chosen branch, owning folder, rejected alternatives, evidence inspected, and validation performed. A decision without ownership evidence is partial, not complete.

@@ -2,7 +2,18 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.14`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.15`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.15 - 2026-07-15
+
+- Strengthened mandatory paired `ui-ux-pro-max` and `impeccable` evidence for UI/UX work.
+- Added explicit file/folder ownership, no standalone-file-system, and file-size responsibility rules.
+- Added backend performance coverage for server-side pagination, filtering, sorting, aggregation, projection, caching, cancellation, concurrency, serialization, authorization, and burst behavior.
+- Added SSR/SSG/streaming/pre-rendering evaluation for routes where server rendering is useful.
+- Added response-quality rules that prevent overclaiming without current evidence.
+- Added end-to-end over-render prevention rules for frontend state/rendering and backend refresh/data delivery.
+- Added animation performance rules for smooth, interruptible, compositor-friendly motion without layout thrash or unnecessary renders.
+- Added task-scope discipline so agents do not chase unrelated errors or modify unrelated systems unless they block the requested work or were caused by the current change.
 
 ## 2.8.14 - 2026-07-14
 

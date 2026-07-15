@@ -26,6 +26,12 @@ Use this module when project inspection shows that the task touches the pack res
 - Inspect related files before proposing changes.
 - Avoid duplicate implementations, duplicate documentation, and duplicate UI.
 - Do not create unowned standalone files.
+- Organize new backend files under the owning endpoint, feature, application service, domain model, data-access layer, job/worker, integration, test, or migration folder.
+- Split large backend files before controllers, validation, authorization, mapping, business rules, queries, caching, and transport concerns collapse into one mixed file.
+- For UI data and large collections, provide backend support for pagination, filtering, sorting, aggregation, projection, and export boundaries instead of pushing expensive shaping to the client.
+- Review latency budgets, cancellation, concurrency, caching and invalidation, serialization, authorization cost, rate limits, and burst behavior for user-facing endpoints.
+- Prevent backend-driven over-render and over-refresh behavior by avoiding over-fetching, over-serialization, repeated query execution, noisy realtime broadcasts, broad cache invalidation, and unnecessary recomputation.
+- When backend events drive frontend updates, publish minimal scoped events with tenant/security filters, idempotency, coalescing, and backpressure so the frontend does not re-render full screens for small changes.
 - Preserve secrets, credentials, and user data.
 - Make limitations explicit when verification cannot be completed.
 

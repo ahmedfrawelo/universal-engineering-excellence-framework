@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.14; it includes governed application models, design-system reuse, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, active-goal continuation enforcement, and a hard medium reasoning ceiling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.15; it includes governed application models, design-system reuse, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, active-goal continuation enforcement, strict file/folder ownership, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
 
 ## Why UEEF Exists
 
@@ -15,7 +15,7 @@ AI coding assistants can generate code quickly, but professional engineering req
 
 ## What Problem It Solves
 
-UEEF prevents shallow completion, duplicated code, duplicated UI, random files, weak security, unverified changes, inconsistent naming, architecture drift, and vague final reports.
+UEEF prevents shallow completion, duplicated code, duplicated UI, random files, unowned standalone files, oversized mixed-responsibility files, weak security, unverified changes, inconsistent naming, architecture drift, and vague final reports.
 
 ## How AI Coding Assistants Use It
 
@@ -49,7 +49,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.8.14. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.8.15. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 

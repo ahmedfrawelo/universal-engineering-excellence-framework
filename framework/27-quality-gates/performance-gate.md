@@ -7,6 +7,8 @@ This gate defines the minimum evidence required before work can be reported as c
 - The relevant source, configuration, documentation, and runtime paths were inspected.
 - Requirements and acceptance criteria are explicit and testable.
 - The implementation follows local project patterns and avoids unrelated rewrites.
+- Backend work reviews latency budgets, query shape, pagination, filtering, sorting, aggregation, projection, caching/invalidation, cancellation, concurrency, serialization, authorization cost, and burst behavior where applicable.
+- Frontend route work evaluates SSR, SSG, streaming, route-level pre-rendering, or server components when SEO, first paint, public content, or first-view data volume makes server rendering useful.
 - Security, performance, reliability, accessibility, and maintainability impacts are reviewed.
 - Automated validation was run where available, and manual review covered the remaining risky behavior.
 - The final report distinguishes verified facts from assumptions and limitations.
@@ -15,6 +17,8 @@ This gate defines the minimum evidence required before work can be reported as c
 - Empty files, placeholders, shallow outlines, or TODO-only artifacts.
 - Claims of completion without validation evidence.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
+- Moving large or sensitive data shaping to the client when the backend can safely do pagination, filtering, sorting, aggregation, or projection.
+- Skipping SSR/pre-rendering evaluation for routes where the stack and product requirements make it relevant.
 - Duplicated implementation paths where a shared local pattern already exists.
 - Missing rollback or mitigation plan for risky production changes.
 

@@ -10,6 +10,8 @@ This gate defines the minimum evidence required before work can be reported as c
 - Security, performance, reliability, accessibility, and maintainability impacts are reviewed.
 - Automated validation was run where available, and manual review covered the remaining risky behavior.
 - The final report distinguishes verified facts from assumptions and limitations.
+- The final report answers the user's direct question first and does not bury the outcome behind internal process detail.
+- Completion, perfection, release, browser verification, push, and runtime activation claims are backed by current evidence.
 
 ## Failure Conditions
 - A terminal final response while `GoalStatus` is `ACTIVE`, unless the user explicitly requested status-only reporting.
@@ -17,6 +19,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - `GoalStatus: BLOCKED` for an internal implementation failure or while meaningful local work remains.
 - Empty files, placeholders, shallow outlines, or TODO-only artifacts.
 - Claims of completion without validation evidence.
+- Overstated final wording such as "perfect", "100%", "fully verified", or "released" without evidence for every explicit requirement.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
 - Duplicated implementation paths where a shared local pattern already exists.
 - Missing rollback or mitigation plan for risky production changes.
@@ -25,6 +28,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - Goal lifecycle transition satisfies `FINAL_ALLOWED` and `COMPLETE_ALLOWED` from the delivery continuation contract.
 - All required files and implementation changes are present.
 - The work satisfies the user request without touching unrelated repositories or secrets.
+- The final scope does not include unrelated fixes, unrelated rewrites, or unrelated error chasing unless the user explicitly requested broad cleanup or those issues directly blocked validation.
 - Validation commands pass, or non-required unavailable checks are documented with a concrete reason. Explicitly required browser or visual verification cannot be waived by documenting unavailability and blocks `GoalStatus: COMPLETE` until it passes.
 - Remaining risks are minor, visible, and paired with practical follow-up steps.
 

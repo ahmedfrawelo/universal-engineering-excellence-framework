@@ -34,6 +34,10 @@ Status: PASS / PARTIAL / ACTIVE / BLOCKED
 - Keep quality gates under `Gates`.
 - Keep UI UX Pro Max as `UIUX: YES`, `NO`, or `NA`.
 - Do not repeat full framework rules in the final response.
+- Answer the user's direct question first, then provide the smallest useful evidence summary.
+- Separate verified facts from assumptions, limitations, or non-applicable checks.
+- Do not claim "perfect", "100%", "complete", "browser verified", "released", or "pushed" unless current evidence proves that exact claim.
+- Include changed files, commands run, and pass/fail outcomes when files were modified.
 - `BLOCKED` is valid only for an external or user-only impasse after no meaningful local work remains. Failed code, tests, save contracts, or verification gates use `ACTIVE` or `PARTIAL` while fixes continue.
 - Never emit a final answer whose only outcome is "incomplete", "not completed", "no complete result", or equivalent while a goal remains active. Use commentary and continue execution.
 - Goal-task finalization requires `GoalStatus: COMPLETE`, a valid external `BLOCKED`, or an explicit user request for status-only reporting.

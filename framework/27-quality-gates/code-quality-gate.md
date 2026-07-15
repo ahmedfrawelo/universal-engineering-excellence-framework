@@ -7,6 +7,11 @@ This gate defines the minimum evidence required before work can be reported as c
 - The relevant source, configuration, documentation, and runtime paths were inspected.
 - Requirements and acceptance criteria are explicit and testable.
 - The implementation follows local project patterns and avoids unrelated rewrites.
+- The changed files are limited to the requested feature, blocker, validation, documentation, or framework ownership boundary.
+- Unrelated pre-existing errors were not repaired, hidden, or used to expand scope unless they directly blocked the requested work or the user expanded scope.
+- New files are placed under an owned feature, layer, package, docs, tests, scripts, generated-artifact, or deployment folder.
+- No standalone file introduces a hidden subsystem unless it is a repository-standard entrypoint, documented config, or explicitly requested artifact.
+- Large or mixed-responsibility files were split, or a concrete reason exists for keeping them together.
 - Security, performance, reliability, accessibility, and maintainability impacts are reviewed.
 - Automated validation was run where available, and manual review covered the remaining risky behavior.
 - The final report distinguishes verified facts from assumptions and limitations.
@@ -16,11 +21,14 @@ This gate defines the minimum evidence required before work can be reported as c
 - Claims of completion without validation evidence.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
 - Duplicated implementation paths where a shared local pattern already exists.
+- Root-level file dumps, generic mixed folders, or unowned standalone files.
+- Oversized files that mix unrelated responsibilities without an explicit ownership and split plan.
 - Missing rollback or mitigation plan for risky production changes.
 
 ## Pass Criteria
 - All required files and implementation changes are present.
 - The work satisfies the user request without touching unrelated repositories or secrets.
+- The work does not include opportunistic fixes outside the requested scope except for direct blockers or current-change regressions.
 - Validation commands pass, or any unavailable checks are documented with a concrete reason.
 - Remaining risks are minor, visible, and paired with practical follow-up steps.
 
