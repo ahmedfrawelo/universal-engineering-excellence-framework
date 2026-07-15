@@ -84,6 +84,10 @@ grep -q "Task scope discipline:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Run
 grep -q "Prevent over-rendering end to end" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing over-render policy" >&2; exit 1; }
 grep -q "Animations must be smooth" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing animation policy" >&2; exit 1; }
 grep -q "SSR, SSG, streaming" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing SSR policy" >&2; exit 1; }
+grep -q "Reusable behavior, UI, validation" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing shared-first policy" >&2; exit 1; }
+grep -q "Before creating custom UI or behavior" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing design-system-first policy" >&2; exit 1; }
+grep -q "Large-project reuse:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing large-project reuse section" >&2; exit 1; }
+grep -q "Discover module boundaries" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing large-project discovery rule" >&2; exit 1; }
 for skill in emil-design-eng review-animations improve-animations animation-vocabulary apple-design; do
   grep -q "$skill" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing design skill: $skill" >&2; exit 1; }
   grep -q "$skill" "$ROOT/scripts/environment-bootstrap.sh" || { echo "Unix bootstrap missing design skill: $skill" >&2; exit 1; }
@@ -187,6 +191,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.13.md" ] || { echo "Missing non-destructive runtime sync release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.14.md" ] || { echo "Missing bootstrap runtime-path normalization release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.15.md" ] || { echo "Missing file organization and SSR release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.16.md" ] || { echo "Missing shared-first reuse release notes" >&2; exit 1; }
 grep -q 'apply both `ui-ux-pro-max` and `impeccable` together' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing UIUX skill-pair rule" >&2; exit 1; }
 grep -q 'Place every new file under an existing owned feature' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing owned-file rule" >&2; exit 1; }
 grep -q 'standalone-file system' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing standalone-file rule" >&2; exit 1; }
@@ -198,7 +203,13 @@ grep -q 'Prevent over-rendering on both frontend and backend-driven UI paths' "$
 grep -q 'Animations must be smooth' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing animation smoothness rule" >&2; exit 1; }
 grep -q "Stay inside the user's requested task scope" "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing task-scope rule" >&2; exit 1; }
 grep -q 'Task Scope Discipline' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing task-scope section" >&2; exit 1; }
+grep -q 'Shared-first rule' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing shared-first rule" >&2; exit 1; }
+grep -q 'Before creating custom UI or custom behavior' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing custom-before-search rule" >&2; exit 1; }
+grep -q 'Large Project Reuse Requirements' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing large-project reuse section" >&2; exit 1; }
+grep -q 'Record the reuse decision' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing reuse-decision rule" >&2; exit 1; }
 grep -q 'Identify the owning folder before creating a file' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing owner rule" >&2; exit 1; }
+grep -q 'Determine whether the behavior will be reused in multiple places' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared-owner decision" >&2; exit 1; }
+grep -q 'shared/common/library owner' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared owner rule" >&2; exit 1; }
 grep -q 'standalone file becomes a hidden subsystem' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing hidden-subsystem rule" >&2; exit 1; }
 grep -q 'oversized mixed files' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing oversized-file rule" >&2; exit 1; }
 grep -q 'SSR, SSG, streaming' "$ROOT/framework/10-frontend/00-frontend-engineering.md" || { echo "Frontend missing SSR evaluation rule" >&2; exit 1; }
@@ -211,6 +222,12 @@ grep -q 'Prevent backend-driven over-render' "$ROOT/framework/11-backend/00-back
 grep -q 'publish minimal scoped events' "$ROOT/framework/11-backend/00-backend-engineering.md" || { echo "Backend missing scoped-events rule" >&2; exit 1; }
 grep -q 'limited to the requested feature' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing requested-scope rule" >&2; exit 1; }
 grep -q 'Unrelated pre-existing errors were not repaired' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing unrelated-error rule" >&2; exit 1; }
+grep -q 'Reusable behavior was placed in the existing shared/common/library owner' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing shared-placement rule" >&2; exit 1; }
+grep -q 'Existing shared components, tokens, services' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing shared-search rule" >&2; exit 1; }
+grep -q 'Reusable UI must live in the appropriate shared design-system owner' "$ROOT/framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md" || { echo "Reuse pack missing shared UI owner rule" >&2; exit 1; }
+grep -q 'Before creating custom UI' "$ROOT/framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md" || { echo "Reuse pack missing design-system-first rule" >&2; exit 1; }
+grep -q 'Place repeated hooks, stores, formatters, validators' "$ROOT/framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md" || { echo "Reuse pack missing shared services rule" >&2; exit 1; }
+grep -q 'Feature code should import shared services' "$ROOT/framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md" || { echo "Reuse pack missing import services rule" >&2; exit 1; }
 grep -q "Answer the user's direct question first" "$ROOT/framework/03-runtime/10-final-response-format.md" || { echo "Final response format missing direct-answer rule" >&2; exit 1; }
 grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-format.md" || { echo "Final response format missing overclaim rule" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }

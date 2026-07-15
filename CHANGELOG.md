@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.15`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.16`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.16 - 2026-07-15
+
+- Added shared-first reuse rules for behavior, UI, validation, data access, formatting, configuration, and design logic used in multiple places.
+- Required design-system-first implementation: inspect shared components, tokens, layouts, registries, services, and pattern libraries before custom UI.
+- Required import-based consumption from shared/common/library owners instead of feature-local copies.
+- Added large-project discovery rules for module boundaries, aliases, barrel exports, registries, package boundaries, public APIs, and test utilities.
+- Strengthened code-quality validation so reusable work must be placed in shared owners or documented as genuinely single-use.
 
 ## 2.8.15 - 2026-07-15
 

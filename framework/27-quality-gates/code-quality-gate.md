@@ -7,6 +7,8 @@ This gate defines the minimum evidence required before work can be reported as c
 - The relevant source, configuration, documentation, and runtime paths were inspected.
 - Requirements and acceptance criteria are explicit and testable.
 - The implementation follows local project patterns and avoids unrelated rewrites.
+- Reusable behavior was placed in the existing shared/common/library owner and imported by consumers, or there is evidence it is truly single-use.
+- Existing shared components, tokens, services, validators, API clients, utilities, stores, mappers, registries, and pattern libraries were searched before custom implementation.
 - The changed files are limited to the requested feature, blocker, validation, documentation, or framework ownership boundary.
 - Unrelated pre-existing errors were not repaired, hidden, or used to expand scope unless they directly blocked the requested work or the user expanded scope.
 - New files are placed under an owned feature, layer, package, docs, tests, scripts, generated-artifact, or deployment folder.
@@ -21,6 +23,8 @@ This gate defines the minimum evidence required before work can be reported as c
 - Claims of completion without validation evidence.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
 - Duplicated implementation paths where a shared local pattern already exists.
+- Feature-local duplication of reusable shared behavior.
+- Custom UI or custom service code created before checking the existing project shared system.
 - Root-level file dumps, generic mixed folders, or unowned standalone files.
 - Oversized files that mix unrelated responsibilities without an explicit ownership and split plan.
 - Missing rollback or mitigation plan for risky production changes.

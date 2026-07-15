@@ -154,6 +154,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.13.md",
   "docs/releases/v2.8.14.md",
   "docs/releases/v2.8.15.md",
+  "docs/releases/v2.8.16.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "framework/01-core/10-runtime-activation-proof.md",
@@ -240,9 +241,9 @@ foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "frame
 $bootstrapScript = Get-Content (Join-Path $Root "scripts/environment-bootstrap.ps1") -Raw
 foreach ($term in @("Mandatory","Recommended","Optional","ui-ux-pro-max","impeccable","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","Overall READY","Overall BLOCKED","package","csproj","schema","Dockerfile")) { if ($bootstrapScript -notmatch [regex]::Escape($term)) { throw "Bootstrap script missing required behavior: $term" } }
 $coreText = Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw
-foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens",'apply both `ui-ux-pro-max` and `impeccable` together',"Place every new file under an existing owned feature","Do not solve a multi-file feature by creating a standalone-file system","Keep files small enough to review and maintain","Answer the user's actual question first","server-side filtering, sorting, pagination, aggregation","evaluate SSR, SSG, streaming","Prevent over-rendering on both frontend and backend-driven UI paths","Animations must be smooth","Stay inside the user's requested task scope","Task Scope Discipline")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
+foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens",'apply both `ui-ux-pro-max` and `impeccable` together',"Place every new file under an existing owned feature","Do not solve a multi-file feature by creating a standalone-file system","Keep files small enough to review and maintain","Answer the user's actual question first","server-side filtering, sorting, pagination, aggregation","evaluate SSR, SSG, streaming","Prevent over-rendering on both frontend and backend-driven UI paths","Animations must be smooth","Stay inside the user's requested task scope","Task Scope Discipline","Shared-first rule","Before creating custom UI or custom behavior","Large Project Reuse Requirements","Record the reuse decision")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
 $fileFolderText = Get-Content (Join-Path $Root "framework/26-decision-graphs/file-folder-decision-graph.md") -Raw
-foreach ($term in @("Identify the owning folder before creating a file","standalone file becomes a hidden subsystem","oversized mixed files")) { if ($fileFolderText -notmatch [regex]::Escape($term)) { throw "File-folder decision graph missing required rule: $term" } }
+foreach ($term in @("Determine whether the behavior will be reused in multiple places","shared/common/library owner","standalone file becomes a hidden subsystem","oversized mixed files")) { if ($fileFolderText -notmatch [regex]::Escape($term)) { throw "File-folder decision graph missing required rule: $term" } }
 $frontendText = Get-Content (Join-Path $Root "framework/10-frontend/00-frontend-engineering.md") -Raw
 foreach ($term in @("SSR, SSG, streaming","Split large frontend files","Prevent over-rendering","Animations must use transform and opacity")) { if ($frontendText -notmatch [regex]::Escape($term)) { throw "Frontend pack missing required rule: $term" } }
 $backendText = Get-Content (Join-Path $Root "framework/11-backend/00-backend-engineering.md") -Raw
@@ -250,7 +251,9 @@ foreach ($term in @("pagination, filtering, sorting, aggregation, projection","S
 $finalResponseText = Get-Content (Join-Path $Root "framework/03-runtime/10-final-response-format.md") -Raw
 foreach ($term in @("Answer the user's direct question first","Separate verified facts from assumptions",'Do not claim "perfect"')) { if ($finalResponseText -notmatch [regex]::Escape($term)) { throw "Final response format missing required rule: $term" } }
 $codeGateText = Get-Content (Join-Path $Root "framework/27-quality-gates/code-quality-gate.md") -Raw
-foreach ($term in @("limited to the requested feature","Unrelated pre-existing errors were not repaired","opportunistic fixes outside the requested scope")) { if ($codeGateText -notmatch [regex]::Escape($term)) { throw "Code quality gate missing scope rule: $term" } }
+foreach ($term in @("limited to the requested feature","Unrelated pre-existing errors were not repaired","opportunistic fixes outside the requested scope","Reusable behavior was placed in the existing shared/common/library owner","Existing shared components, tokens, services")) { if ($codeGateText -notmatch [regex]::Escape($term)) { throw "Code quality gate missing required rule: $term" } }
+$reuseText = (Get-Content (Join-Path $Root "framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md") -Raw) + "`n" + (Get-Content (Join-Path $Root "framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md") -Raw)
+foreach ($term in @("Reusable UI must live in the appropriate shared design-system owner","Before creating custom UI","Place repeated hooks, stores, formatters, validators","Feature code should import shared services")) { if ($reuseText -notmatch [regex]::Escape($term)) { throw "Design system reuse pack missing required rule: $term" } }
 $runtimeText = Get-Content (Join-Path $Root "framework/03-runtime/00-runtime-sequence.md") -Raw
 foreach ($term in @("Existing theme inspected:","Theme tokens found:","Responsive system found:","Overlay system found:","UI UX Pro Max checked:","Design engineering skill route:","Specialist motion skills checked:")) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing preflight field: $term" } }
 $designTerms = @("Existing project UI searched:","Component registry searched:","Pattern library searched:","Reuse or extension decision:","Token families identified:")
@@ -298,7 +301,7 @@ $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
 foreach ($term in @("Agent and model routing:","Design engineering skill routing:","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","not a reason to suspend execution","Local command autonomy:")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing global loader policy: $term" }
 }
-foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system")) {
+foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system","Reusable behavior, UI, validation","Before creating custom UI or behavior","Large-project reuse:","Discover module boundaries")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing new operating policy: $term" }
 }
 $unixAudit = Get-Content (Join-Path $Root "scripts/ueef-audit.sh") -Raw

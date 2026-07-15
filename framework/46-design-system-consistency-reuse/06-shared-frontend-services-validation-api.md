@@ -13,6 +13,9 @@ Prevents duplicate transport, validation, and cross-cutting frontend behavior.
 - Use one configured API client per backend boundary with authentication, correlation, cancellation, and error normalization.
 - Share validation schemas where semantics match; keep server validation authoritative.
 - Centralize overlay coordination, notifications, telemetry, preferences, and feature flags behind narrow interfaces.
+- Place repeated hooks, stores, formatters, validators, mappers, API clients, data loaders, permission helpers, error handling, and cross-cutting UI services in shared owners.
+- Feature code should import shared services through their public API. Do not duplicate transport, validation, mapping, notification, telemetry, or feature-flag logic inside each feature.
+- When extending shared behavior, keep the public API narrow and add tests that cover at least one real consumer.
 
 ## Delivery Contract
 
@@ -29,6 +32,7 @@ Before editing, record the existing project evidence and the intended extension 
 
 - A suitable existing capability was ignored.
 - A page-specific implementation duplicates shared behavior.
+- A repeated service, validator, client, mapper, store, hook, or utility is implemented feature-locally instead of in the shared owner.
 - The contract lacks ownership or regression evidence.
 
 ## Related Modules

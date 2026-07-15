@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.15; it includes governed application models, design-system reuse, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, active-goal continuation enforcement, strict file/folder ownership, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.16; it includes governed application models, shared-first reuse, design-system-first UI, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, active-goal continuation enforcement, strict file/folder ownership, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
 
 ## Why UEEF Exists
 
@@ -15,7 +15,7 @@ AI coding assistants can generate code quickly, but professional engineering req
 
 ## What Problem It Solves
 
-UEEF prevents shallow completion, duplicated code, duplicated UI, random files, unowned standalone files, oversized mixed-responsibility files, weak security, unverified changes, inconsistent naming, architecture drift, and vague final reports.
+UEEF prevents shallow completion, duplicated code, duplicated UI, feature-local copies of shared behavior, random files, unowned standalone files, oversized mixed-responsibility files, weak security, unverified changes, inconsistent naming, architecture drift, and vague final reports.
 
 ## How AI Coding Assistants Use It
 
@@ -49,7 +49,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.8.15. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.8.16. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 
@@ -95,4 +95,4 @@ The runtime is active only when `scripts\ueef-status.ps1` reports `Overall: ACTI
 
 For frontend work, UEEF inspects the existing theme and component system before editing. New products define light, dark, and system modes; semantic tokens; responsive behavior; accessible interaction states; and one overlay contract. Packs 45-47 connect access-aware UI, component reuse, security, and performance to the same quality gate.
 
-Design work also follows pack 48: search the project, design system, component registry, shared components, shared services, and pattern library before creating anything. Reuse is mandatory before extension or new creation, and all visual values must map to governed tokens.
+Design work also follows pack 48: search the project, design system, component registry, shared components, shared services, and pattern library before creating anything. Reuse is mandatory before extension or new creation, repeated capabilities belong in shared owners, and all visual values must map to governed tokens.

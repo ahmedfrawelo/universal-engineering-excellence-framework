@@ -71,6 +71,8 @@ Do not load all five by default. Multiple skills are selected together only when
 
 For every UI, frontend, page, component, form, dropdown, menu, modal, panel, table, dashboard, responsive, theme, or interaction task, first inspect `framework/46-design-system-consistency-reuse/` and select the relevant modules from `framework/47-theme-responsive-interaction-security-performance/`.
 
+For large repositories, shared components, reusable services, validators, API clients, state utilities, tokens, and pattern libraries must be inspected before creating a custom implementation. If the behavior can be reused across more than one place, implement or extend it in the shared owner and import it into the target feature.
+
 ## Theme Tasks
 
 Select pack 47 modules `01` through `07`: theme architecture; light, dark, and system modes; existing-theme compatibility; token enforcement; semantic colors; persistence and initialization; and theme accessibility.
@@ -119,6 +121,8 @@ Backend performance checks include server-side pagination, filtering, sorting, a
 ## File Organization Tasks
 
 For any task that creates files, selects output paths, scaffolds modules, generates artifacts, or reorganizes source, select `framework/26-decision-graphs/file-folder-decision-graph.md` and `framework/27-quality-gates/code-quality-gate.md`. New files must have an owner folder and lifecycle; root-level or standalone files require repository-standard justification.
+
+For any task that creates a reusable component, service, validation rule, data mapper, API client, hook, store, directive, pipe, utility, layout, token, or pattern, select `framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md` and `framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md` when applicable. Shared-first placement and import-based consumption are required unless the behavior is truly single-use.
 
 ## Database Tasks
 

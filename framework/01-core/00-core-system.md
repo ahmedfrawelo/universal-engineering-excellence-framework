@@ -26,6 +26,8 @@ Use this module when the task touches core concerns, when repository inspection 
 - Inspect the project before editing.
 - Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
 - Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
+- Shared-first rule: when behavior, UI, validation, data access, formatting, configuration, or design logic will be reused in more than one place, implement it in the existing shared/common/library layer and import it from each consumer. Do not copy it into each feature.
+- Before creating custom UI or custom behavior, search the project for existing shared components, design tokens, layouts, services, validators, API clients, utilities, hooks, directives, pipes, stores, mappers, and pattern libraries. Reuse first, extend second, create new only when no suitable owner exists.
 - Do not create random standalone files or unowned folders.
 - Place every new file under an existing owned feature, layer, package, documentation, test, script, or generated-artifact folder. If no owner exists, create the smallest named folder that describes ownership and lifecycle before adding the file.
 - Do not dump unrelated files into a project root, generic scratch folder, or single mixed folder. Group files by responsibility, runtime ownership, and deletion/deployment lifecycle.
@@ -111,6 +113,7 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 
 - Before creating any UI, search the project, design system, component registry, shared components, shared services, and pattern library in that order.
 - Reuse existing capabilities before extending, generalizing, or creating new ones. Record the rejected alternatives when creation is necessary.
+- If a UI capability will be used in multiple places, place it in the appropriate shared component, primitive, composite, layout, token, service, or pattern-library owner and consume it from features. Feature-local UI is only for genuinely single-use behavior.
 - All visual values must come from governed design tokens or an approved documented exception. Design governance covers color, typography, icons, spacing, sizing, radius, borders, shadows, elevation, motion, and z-index.
 - Every UI change must be reviewed for token compliance, component reuse, theme compatibility, responsive behavior, accessibility, interaction consistency, performance, and design drift.
 - Select `framework/48-design-governance/` for design governance, tokens, visual language, component registry, pattern library, or reuse enforcement work.
@@ -124,10 +127,19 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 ## File Organization and Size Requirements
 
 - New source files belong beside the feature, layer, route, module, package, or test owner that will maintain them.
+- Shared or repeated source belongs in the shared/common/library owner that matches its responsibility. Feature folders should import shared capabilities instead of copying or reimplementing them.
 - New generated outputs, screenshots, logs, caches, reports, and build artifacts belong only in governed generated-artifact folders with cleanup policy, not beside source files.
 - Prefer cohesive files over tiny fragmentation, but split before a file becomes a mixed-responsibility sink. A single file should not own unrelated UI, API, database, validation, formatting, state, and test logic.
 - Before adding a new folder, verify there is no existing owner folder, registry, component library, service layer, test folder, or docs area that already fits.
 - Completion requires checking that new files are grouped by ownership and that no root-level or standalone file was introduced without a documented repository-standard reason.
+
+## Large Project Reuse Requirements
+
+- Treat large repositories as ecosystems. Start by discovering module boundaries, shared folders, aliases, barrel exports, registries, package boundaries, design-system entrypoints, service clients, state stores, validators, and test utilities.
+- Extend an existing feature or shared owner when the requested behavior belongs to an existing capability. Do not create a parallel feature path because it is faster to code.
+- Use existing imports, exports, public APIs, tokens, and registry patterns. Do not reach into private internals unless the project already establishes that convention.
+- When adding reusable capability, update its public export, usage example, tests, and at least one real consumer where the project convention expects that evidence.
+- Record the reuse decision: reused, extended, or created, with the inspected evidence. A new custom implementation without this decision is incomplete.
 
 ## Response Quality Requirements
 
