@@ -14,6 +14,7 @@ Defines when a component belongs globally and when it remains feature-owned.
 - Keep skeleton timing, cancellation, accessibility, motion, and base geometry in the shared loading contract. Feature components may compose domain structure but must not recreate the loading state machine or make the shared primitive depend on a feature store.
 - Use explicit inputs, outputs, states, and accessibility contracts.
 - Do not make global components depend on a feature store or feature API.
+- Keep a shared primitive and its reusable recipes in one component-family owner. A recipe may specialize layout or domain-neutral composition, but it consumes the primitive and must not recreate its base behavior, tokens, motion, or accessibility contract.
 
 ## Delivery Contract
 

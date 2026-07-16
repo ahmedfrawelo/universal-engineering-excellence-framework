@@ -1,7 +1,7 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "releaseDate": "2026-07-16",
   "minimumMarkdownFiles": 490,
   "frameworkPacks": 61,
@@ -34,5 +34,5 @@
     "framework/59-skill-invocation-protocol",
     "framework/60-spec-driven-development"
   ],
-  "releaseNotes": "docs/releases/v2.9.0.md"
+  "releaseNotes": "docs/releases/v2.9.1.md"
 }

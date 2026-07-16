@@ -19,9 +19,14 @@ done
 for term in 'public API' 'component registry' 'two real consumers' 'architecture or lint check'; do
   grep -Fq "$term" "$ROOT/framework/53-skeleton-loading/09-shared-skeleton-api-and-registry.md" || { echo "Missing shared API term: $term" >&2; exit 1; }
 done
-for term in 'Skeleton timing policy selected:' 'Delayed reveal verified:' 'Minimum visible duration verified:' 'SSR/hydration parity verified:' 'Shared skeleton API contract verified:' 'Cancellation and refresh behavior verified:'; do
+for term in 'Component Family Organization' 'parallel shared folders' 'consumes the canonical primitive'; do
+  grep -Fq "$term" "$ROOT/framework/53-skeleton-loading/09-shared-skeleton-api-and-registry.md" || { echo "Missing skeleton family term: $term" >&2; exit 1; }
+done
+for term in 'Skeleton timing policy selected:' 'Delayed reveal verified:' 'Minimum visible duration verified:' 'SSR/hydration parity verified:' 'Shared skeleton API contract verified:' 'Skeleton family owner and canonical public import verified:' 'Cancellation and refresh behavior verified:'; do
   grep -Fq "$term" "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Missing runtime skeleton field: $term" >&2; exit 1; }
 done
+grep -Fq 'one owned folder' "$ROOT/framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md" || { echo 'Missing component-family organization rule' >&2; exit 1; }
+grep -Fq 'one owned family folder' "$ROOT/UEEF-LOADER.md" || { echo 'Missing generated loader family rule' >&2; exit 1; }
 grep -Fq 'Shared skeleton services' "$ROOT/framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md" || { echo 'Missing shared service skeleton contract' >&2; exit 1; }
 grep -Fq 'Skeleton entries include' "$ROOT/framework/48-design-governance/16-component-registry.md" || { echo 'Missing skeleton registry metadata contract' >&2; exit 1; }
 

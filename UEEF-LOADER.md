@@ -16,6 +16,8 @@ Before every non-trivial engineering task:
 File, folder, and size discipline:
 - Every new file must live under an owned feature, layer, package, route, docs, tests, scripts, generated-artifact, deployment, or configuration folder.
 - Reusable behavior, UI, validation, data access, formatting, configuration, and design logic must live in the existing shared/common/library owner and be imported by consumers.
+- Related files and recipes for one reusable component family must be grouped under one owned family folder with one canonical primitive and public entrypoint. `shared` placement alone does not justify parallel implementations.
+- Before adding any shared component, search all shared roots and imports for the semantic capability. Reuse it unchanged, extend the existing owner when additions are needed, and create a new family only when no compatible owner exists.
 - Before creating custom UI or behavior, inspect existing shared components, design tokens, layouts, registries, services, validators, API clients, utilities, stores, mappers, and pattern libraries.
 - Extend existing feature or shared owners before creating a parallel implementation. Create custom feature-local code only when it is genuinely single-use or explicitly isolated by product ownership.
 - Do not dump unrelated files into the project root or a generic mixed folder.

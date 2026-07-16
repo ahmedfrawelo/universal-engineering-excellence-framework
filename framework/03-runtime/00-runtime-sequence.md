@@ -170,6 +170,7 @@ Delayed reveal verified:
 Minimum visible duration verified:
 SSR/hydration parity verified:
 Shared skeleton API contract verified:
+Skeleton family owner and canonical public import verified:
 Cancellation and refresh behavior verified:
 Skeleton gate: PASS / BLOCKED
 ```

@@ -8,6 +8,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - Requirements and acceptance criteria are explicit and testable.
 - The implementation follows local project patterns and avoids unrelated rewrites.
 - Reusable behavior was placed in the existing shared/common/library owner and imported by consumers, or there is evidence it is truly single-use.
+- Related reusable component-family files are grouped under one owner with one canonical public entrypoint; no competing shared folder or duplicate semantic primitive was introduced.
 - Existing shared components, tokens, services, validators, API clients, utilities, stores, mappers, registries, and pattern libraries were searched before custom implementation.
 - The changed files are limited to the requested feature, blocker, validation, documentation, or framework ownership boundary.
 - Unrelated pre-existing errors were not repaired, hidden, or used to expand scope unless they directly blocked the requested work or the user expanded scope.

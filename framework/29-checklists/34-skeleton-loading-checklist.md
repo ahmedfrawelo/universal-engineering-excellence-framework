@@ -12,4 +12,8 @@
 - [ ] SSR, hydration, pre-rendering, and streaming applicability is recorded; applicable markup is deterministic and warning-free.
 - [ ] Shared primitives or recipes are imported from the design-system public API and registered with ownership and tests.
 - [ ] No page-local primitive duplicates a registered shared capability.
+- [ ] The primitive, recipes, styles, stories, tests, docs, and exports are grouped under one skeleton-family owner folder.
+- [ ] Every reusable recipe consumes the canonical primitive and uses the same public entrypoint.
+- [ ] No parallel `skeleton`, `skeleton-loader`, or similarly overlapping shared folder/import remains.
+- [ ] A repository guard searches selectors, filenames, exports, and imports to prevent another shared primitive.
 - [ ] Tests, build/type checks, and visual or interaction evidence are recorded.

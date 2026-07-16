@@ -16,6 +16,9 @@ Establishes one governed system for visual language, components, behavior, and p
 - Reusable UI must live in the appropriate shared design-system owner: token, primitive, composite, layout, template, pattern, or feature-extension layer.
 - Before creating custom UI, search existing shared components, tokens, layouts, pattern libraries, registries, and examples. Reuse first, extend second, create new only with documented evidence.
 - Feature-local custom UI is acceptable only when the behavior is genuinely single-use or intentionally isolated by product ownership.
+- Organize each reusable component family under one owned folder. Keep the canonical primitive at the family root, place specialized recipes or layouts in named child folders, and colocate its public export, tests, stories, styles, and documentation with that family.
+- Do not create multiple sibling shared folders for semantically overlapping primitives, loaders, wrappers, or variants. `shared` is an ownership layer, not permission to duplicate a capability.
+- The creation decision is strict: search all shared roots and imports; reuse when the contract fits; extend the existing family when additions are needed; create only when no compatible owner exists.
 
 ## Delivery Contract
 
@@ -34,6 +37,7 @@ Before editing, record the existing project evidence and the intended extension 
 - A page-specific implementation duplicates shared behavior.
 - A reusable component was implemented inside a feature instead of the shared design-system owner.
 - A new custom component bypasses existing tokens, components, layouts, or pattern-library conventions.
+- Related reusable files are scattered across parallel shared folders or exposed through competing public imports.
 - The contract lacks ownership or regression evidence.
 
 ## Related Modules

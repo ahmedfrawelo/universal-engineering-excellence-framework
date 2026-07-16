@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.9.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.9.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.9.1 - 2026-07-16
+
+- Required one owned folder and one canonical public import for each reusable component family.
+- Required specialized skeleton recipes to consume the canonical primitive instead of duplicating shimmer, tokens, motion, or accessibility behavior.
+- Added explicit search, reuse, extend, then create enforcement across shared roots, registries, selectors, exports, filenames, and imports.
+- Strengthened skeleton and code-quality gates against parallel shared folders and competing semantic primitives.
 
 ## 2.9.0 - 2026-07-16
 

@@ -8,6 +8,9 @@ Use this decision graph to choose the smallest architecture or implementation mo
 2. Inspect the existing implementation and identify established local patterns.
 3. Decide whether the change belongs in existing code, a new module, a shared abstraction, configuration, documentation, or operational tooling.
 4. Determine whether the behavior will be reused in multiple places. If yes, choose the shared/common/library owner first and import it from consumers.
+5. Search every shared root, registry, selector, barrel export, filename, and import for the semantic capability before creating a new owner.
+6. If an owner exists, reuse it or extend it in place. Group its primitive, recipes, styles, tests, stories, docs, and exports under one family folder.
+7. Create a new shared family only when no compatible owner exists and record the rejected reuse and extension evidence.
 5. Identify the owning folder before creating a file: feature, layer, package, route, component library, service, test, docs, script, generated-artifact, or deployment area.
 6. Evaluate impact on public contracts, data shape, migrations, deployment, cleanup, generated artifacts, and rollback.
 7. Choose the option with the lowest long-term complexity that still meets the acceptance criteria.
@@ -46,6 +49,7 @@ Override the default when security, data integrity, regulatory, accessibility, o
 - The decision is based on memory instead of current code inspection.
 - The chosen approach creates duplicate UI, duplicate business logic, or hidden global state.
 - Reusable behavior is implemented feature-locally and copied instead of being imported from a shared owner.
+- Semantically related reusable files are scattered across parallel shared folders or exposed through competing imports.
 - A custom component, service, validator, mapper, API client, store, utility, token, layout, or pattern is created before the existing shared system is searched.
 - New files are dumped into the repository root or a generic folder without an owner.
 - A standalone file becomes a hidden subsystem with its own contracts, state, generated outputs, or runtime behavior.

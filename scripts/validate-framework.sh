@@ -112,6 +112,7 @@ grep -q "Delayed reveal verified:" "$ROOT/framework/03-runtime/00-runtime-sequen
 grep -q "Minimum visible duration verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "SSR/hydration parity verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Shared skeleton API contract verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Skeleton family owner and canonical public import verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Cancellation and refresh behavior verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "Design source of truth identified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -224,6 +225,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.23.md" ] || { echo "Missing screenshot-block prevention release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.24.md" ] || { echo "Missing Chrome readiness release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.9.0.md" ] || { echo "Missing skeleton hardening release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.9.1.md" ] || { echo "Missing component-family organization release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/third-party/spec-kit-attribution.md" ] || { echo "Missing Spec Kit attribution" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/README.md" ] || { echo "Missing spec-driven README" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/INDEX.md" ] || { echo "Missing spec-driven index" >&2; exit 1; }

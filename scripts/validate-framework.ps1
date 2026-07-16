@@ -204,6 +204,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.23.md",
   "docs/releases/v2.8.24.md",
   "docs/releases/v2.9.0.md",
+  "docs/releases/v2.9.1.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -318,7 +319,7 @@ $bootstrapTerms = @("Environment Ready:","Profiles Loaded:","Mandatory Dependenc
 foreach ($term in $bootstrapTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing bootstrap field: $term" } }
 $browserTerms = @("User-owned browser/profile verified:","Chrome readiness flow completed:","Extension/tab-claim authorization granted:","Exact user.openTabs() object claimed:","Existing window state preserved:","Target tab and domain verified:","Control provenance:","Control channel:","Automatic ownership repair run when needed:","Verification evidence:","Separate automation surface created:","Banner classification:","Signed-in state verified when required:","Browser session gate:")
 foreach ($term in $browserTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing browser session field: $term" } }
-$skeletonTerms = @("Skeleton system selected:","Existing loading pattern searched:","Skeleton reused or updated:","State matrix defined:","Skeleton parity verified:","Layout shift checked:","Skeleton timing policy selected:","Delayed reveal verified:","Minimum visible duration verified:","SSR/hydration parity verified:","Shared skeleton API contract verified:","Cancellation and refresh behavior verified:","Skeleton gate:")
+$skeletonTerms = @("Skeleton system selected:","Existing loading pattern searched:","Skeleton reused or updated:","State matrix defined:","Skeleton parity verified:","Layout shift checked:","Skeleton timing policy selected:","Delayed reveal verified:","Minimum visible duration verified:","SSR/hydration parity verified:","Shared skeleton API contract verified:","Skeleton family owner and canonical public import verified:","Cancellation and refresh behavior verified:","Skeleton gate:")
 foreach ($term in $skeletonTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skeleton field: $term" } }
 $designTerms = @("Design source of truth identified:","Design extraction run:","Fonts and assets classified:","Colors and theme mappings classified:","Icons and stroke system classified:","Missing roles and recommendations documented:","Design intelligence gate:")
 foreach ($term in $designTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing design intelligence field: $term" } }
