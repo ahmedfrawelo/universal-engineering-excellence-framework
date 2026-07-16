@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.8.24.
+UEEF Enterprise Edition version: 2.9.0.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -72,3 +72,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.22: made mixed-direction Arabic/English response isolation mandatory for inline English in RTL prose.
 - 2.8.23: prevented pending screenshot or task-local Chrome-control degradation from becoming a false BLOCKED state after implementation and tests pass.
 - 2.8.24: added a Chrome control readiness contract and lifecycle guard so browser verification cannot become BLOCKED without independent Chrome unavailability evidence.
+- 2.9.0: expanded skeleton loading with shared timing policy, flicker prevention, SSR/hydration parity, streaming boundaries, and a registered shared component API.

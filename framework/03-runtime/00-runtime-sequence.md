@@ -165,6 +165,12 @@ Skeleton reused or updated:
 State matrix defined:
 Skeleton parity verified:
 Layout shift checked:
+Skeleton timing policy selected:
+Delayed reveal verified:
+Minimum visible duration verified:
+SSR/hydration parity verified:
+Shared skeleton API contract verified:
+Cancellation and refresh behavior verified:
 Skeleton gate: PASS / BLOCKED
 ```
 

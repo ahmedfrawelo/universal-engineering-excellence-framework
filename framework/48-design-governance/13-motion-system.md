@@ -13,6 +13,7 @@ Creates a consistent motion language across navigation, overlays, feedback, and 
 - Define enter, exit, emphasis, and progress patterns.
 - Use reduced-motion alternatives and avoid decorative motion that competes with work.
 - Keep motion consistent across shared components rather than per-page.
+- Use one governed skeleton progress pattern and prohibit page-specific shimmer implementations when a shared motion contract exists.
 
 ## Source-of-Truth Contract
 

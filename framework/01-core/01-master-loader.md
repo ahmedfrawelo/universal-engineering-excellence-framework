@@ -158,7 +158,7 @@ For any page opening, navigation, browser inspection, clicking, typing, upload, 
 
 ## Skeleton Loading
 
-For any data-backed UI, page, component, table, card, dashboard, form, or async interaction, select `framework/53-skeleton-loading/`. Load the system, structure-parity, state-contract, theme-responsive-accessibility, performance, reuse, and verification modules as applicable. Update an existing skeleton whenever the final content structure changes; never add a duplicate loader for the same region.
+For any data-backed UI, page, component, table, card, dashboard, form, or async interaction, select `framework/53-skeleton-loading/`. Load the system, structure-parity, state-contract, theme-responsive-accessibility, performance, reuse, verification, timing, SSR/hydration, and shared-API modules as applicable. Update an existing skeleton whenever the final content structure changes; never add a duplicate loader for the same region. Reusable skeleton primitives and proven recipes belong in the existing shared design-system owner, public API, and component registry. Require shared reveal/minimum-duration policy and deterministic server/client structure where applicable.
 
 ## Design Intelligence
 

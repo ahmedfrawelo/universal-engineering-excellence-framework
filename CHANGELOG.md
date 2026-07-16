@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.24`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.9.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.9.0 - 2026-07-16
+
+- Added shared reveal-delay, minimum-visible-duration, timeout, cancellation, and stale-request contracts for skeleton loading.
+- Added SSR, hydration, pre-rendering, server-component, and streaming-boundary parity requirements.
+- Added a registered shared skeleton API contract with public exports, real-consumer evidence, and duplicate-local-primitive rejection.
+- Added cross-platform skeleton contract tests and runtime preflight fields.
 
 ## 2.8.24 - 2026-07-16
 

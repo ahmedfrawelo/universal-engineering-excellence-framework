@@ -13,6 +13,7 @@ Defines component ownership, maturity, API contracts, supported states, and prom
 - Separate primitives, composites, feature components, layouts, and templates.
 - Require documented states, accessibility, themes, responsive behavior, and performance expectations.
 - Retire or deprecate components through an explicit migration path.
+- Shared skeleton primitives and recipes must declare timing, hydration, cancellation, refresh, accessibility, and ownership contracts before adoption.
 
 ## Source-of-Truth Contract
 

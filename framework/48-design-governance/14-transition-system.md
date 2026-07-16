@@ -13,6 +13,7 @@ Standardizes state transitions and visual continuity without changing layout bou
 - Use shared easing and timing tokens.
 - Prefer ease-out entry and faster exit for responsive feedback.
 - Test interrupted transitions, reduced motion, keyboard focus, and slow devices.
+- Govern `pending-hidden -> skeleton-visible -> settled` transitions centrally, including interruption, cancellation, stale requests, and content-preserving refresh.
 
 ## Source-of-Truth Contract
 

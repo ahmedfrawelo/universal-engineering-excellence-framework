@@ -13,6 +13,7 @@ Blocks design changes that violate token, visual, component, responsive, theme, 
 - Require source-of-truth inspection and registry search evidence.
 - Fail hardcoded visual values, duplicate capabilities, arbitrary typography, mixed icon families, page-specific behavior, missing theme or responsive coverage, and inconsistent overlays.
 - Require direct design-system compliance evidence, not only build output.
+- For skeleton loading, fail hardcoded feature timing, duplicate shared contracts, undefined hydration behavior, missing cancellation cleanup, or refresh flows that replace usable content with an initial skeleton.
 
 ## Source-of-Truth Contract
 

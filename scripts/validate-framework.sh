@@ -107,6 +107,12 @@ grep -q "Control provenance:" "$ROOT/framework/03-runtime/00-runtime-sequence.md
 grep -q "Banner classification:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Skeleton system selected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Skeleton parity verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Skeleton timing policy selected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Delayed reveal verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Minimum visible duration verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "SSR/hydration parity verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Shared skeleton API contract verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Cancellation and refresh behavior verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "Design source of truth identified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Design intelligence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -217,6 +223,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.22.md" ] || { echo "Missing mandatory mixed-direction response release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.23.md" ] || { echo "Missing screenshot-block prevention release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.24.md" ] || { echo "Missing Chrome readiness release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.9.0.md" ] || { echo "Missing skeleton hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/third-party/spec-kit-attribution.md" ] || { echo "Missing Spec Kit attribution" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/README.md" ] || { echo "Missing spec-driven README" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/INDEX.md" ] || { echo "Missing spec-driven index" >&2; exit 1; }
@@ -306,6 +313,9 @@ grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-f
 [ -f "$ROOT/scripts/test-browser-control-contract.ps1" ] || { echo "Missing browser control contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-browser-control-contract.sh" ] || { echo "Missing Unix browser control contract tests" >&2; exit 1; }
 sh "$ROOT/scripts/test-browser-control-contract.sh"
+[ -f "$ROOT/scripts/test-skeleton-loading-contract.ps1" ] || { echo "Missing skeleton loading contract tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-skeleton-loading-contract.sh" ] || { echo "Missing Unix skeleton loading contract tests" >&2; exit 1; }
+sh "$ROOT/scripts/test-skeleton-loading-contract.sh"
 [ -f "$ROOT/scripts/test-delivery-continuation-contract.ps1" ] || { echo "Missing delivery continuation contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle validator" >&2; exit 1; }

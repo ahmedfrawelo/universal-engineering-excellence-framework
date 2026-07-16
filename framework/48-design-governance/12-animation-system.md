@@ -13,6 +13,7 @@ Governs animation purpose, duration, easing, interruption, and performance.
 - Animate only state, hierarchy, or cause-and-effect changes.
 - Use tokenized durations and transform or opacity for performant transitions.
 - Make animation interruptible and reserve layout space to prevent shift.
+- Keep skeleton animation duration separate from reveal delay and minimum visible duration. Reduced motion may remove shimmer or pulse without changing the loading state timing contract.
 
 ## Source-of-Truth Contract
 

@@ -13,6 +13,7 @@ Makes approved components discoverable and prevents duplicate creation.
 - Record name, owner, maturity, import path, semantics, states, variants, examples, theme coverage, responsive limits, and tests.
 - Search the registry before adding any UI capability.
 - Track adoption and deprecations so the registry reflects actual code.
+- Skeleton entries include reveal and minimum-duration tokens, SSR/hydration support, cancellation and refresh behavior, public imports, real consumers, and duplicate-detection evidence.
 
 ## Source-of-Truth Contract
 

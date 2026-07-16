@@ -85,6 +85,9 @@ $requiredAcceptance = @(
   "framework/53-skeleton-loading/README.md",
   "framework/53-skeleton-loading/INDEX.md",
   "framework/53-skeleton-loading/00-skeleton-loading-system.md",
+  "framework/53-skeleton-loading/07-render-timing-and-flicker-control.md",
+  "framework/53-skeleton-loading/08-ssr-hydration-and-streaming.md",
+  "framework/53-skeleton-loading/09-shared-skeleton-api-and-registry.md",
   "scripts/extract-design-system.mjs",
   "scripts/recommend-design-system.mjs",
   "framework/27-quality-gates/26-design-intelligence-gate.md",
@@ -156,6 +159,8 @@ $requiredAcceptance = @(
   "scripts/test-agent-route.ps1",
   "scripts/test-agent-route.sh",
   "scripts/test-browser-control-contract.ps1",
+  "scripts/test-skeleton-loading-contract.ps1",
+  "scripts/test-skeleton-loading-contract.sh",
   "scripts/repair-chrome-tab-ownership.ps1",
   "scripts/test-repair-chrome-tab-ownership.ps1",
   "scripts/test-delivery-continuation-contract.ps1",
@@ -198,6 +203,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.22.md",
   "docs/releases/v2.8.23.md",
   "docs/releases/v2.8.24.md",
+  "docs/releases/v2.9.0.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -312,7 +318,7 @@ $bootstrapTerms = @("Environment Ready:","Profiles Loaded:","Mandatory Dependenc
 foreach ($term in $bootstrapTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing bootstrap field: $term" } }
 $browserTerms = @("User-owned browser/profile verified:","Chrome readiness flow completed:","Extension/tab-claim authorization granted:","Exact user.openTabs() object claimed:","Existing window state preserved:","Target tab and domain verified:","Control provenance:","Control channel:","Automatic ownership repair run when needed:","Verification evidence:","Separate automation surface created:","Banner classification:","Signed-in state verified when required:","Browser session gate:")
 foreach ($term in $browserTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing browser session field: $term" } }
-$skeletonTerms = @("Skeleton system selected:","Existing loading pattern searched:","Skeleton reused or updated:","State matrix defined:","Skeleton parity verified:","Layout shift checked:","Skeleton gate:")
+$skeletonTerms = @("Skeleton system selected:","Existing loading pattern searched:","Skeleton reused or updated:","State matrix defined:","Skeleton parity verified:","Layout shift checked:","Skeleton timing policy selected:","Delayed reveal verified:","Minimum visible duration verified:","SSR/hydration parity verified:","Shared skeleton API contract verified:","Cancellation and refresh behavior verified:","Skeleton gate:")
 foreach ($term in $skeletonTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skeleton field: $term" } }
 $designTerms = @("Design source of truth identified:","Design extraction run:","Fonts and assets classified:","Colors and theme mappings classified:","Icons and stroke system classified:","Missing roles and recommendations documented:","Design intelligence gate:")
 foreach ($term in $designTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing design intelligence field: $term" } }
@@ -333,6 +339,7 @@ foreach ($term in $specDrivenTerms) { if ($runtimeText -notmatch [regex]::Escape
 if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-skeleton-loading-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null

@@ -13,6 +13,7 @@ Makes existing capabilities discoverable before teams create alternatives.
 - Record owner, maturity, supported states, accessibility, theme coverage, responsive behavior, and examples.
 - Mark patterns experimental, supported, deprecated, or retired.
 - Require registry search evidence in reviews that introduce new UI primitives or composites.
+- Skeleton registry entries record the public import, timing-policy tokens, supported loading and refresh states, SSR/hydration behavior, cancellation support, reduced-motion behavior, consumers, tests, and migration status.
 
 ## Delivery Contract
 

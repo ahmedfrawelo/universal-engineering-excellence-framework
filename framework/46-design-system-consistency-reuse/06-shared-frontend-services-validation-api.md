@@ -16,6 +16,7 @@ Prevents duplicate transport, validation, and cross-cutting frontend behavior.
 - Place repeated hooks, stores, formatters, validators, mappers, API clients, data loaders, permission helpers, error handling, and cross-cutting UI services in shared owners.
 - Feature code should import shared services through their public API. Do not duplicate transport, validation, mapping, notification, telemetry, or feature-flag logic inside each feature.
 - When extending shared behavior, keep the public API narrow and add tests that cover at least one real consumer.
+- Shared skeleton services expose one public timing and state API for delayed reveal, minimum visible duration, cancellation, stale-request suppression, retry, and content-preserving refresh. Keep this API independent of feature data access, register its owner, and verify it through real consumers.
 
 ## Delivery Contract
 

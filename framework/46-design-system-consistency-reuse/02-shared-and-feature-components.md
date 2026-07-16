@@ -11,6 +11,7 @@ Defines when a component belongs globally and when it remains feature-owned.
 ## Required Practice
 
 - Keep domain rules in feature components and generic interaction in shared components.
+- Keep skeleton timing, cancellation, accessibility, motion, and base geometry in the shared loading contract. Feature components may compose domain structure but must not recreate the loading state machine or make the shared primitive depend on a feature store.
 - Use explicit inputs, outputs, states, and accessibility contracts.
 - Do not make global components depend on a feature store or feature API.
 
