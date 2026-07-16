@@ -34,6 +34,7 @@ grep -q "52-workspace-hygiene" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "53-skeleton-loading" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "58-agent-model-orchestration" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "59-skill-invocation-protocol" "$ROOT/framework/MASTER_INDEX.md"
 for f in \
   framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
   framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
@@ -193,6 +194,19 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.15.md" ] || { echo "Missing file organization and SSR release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.16.md" ] || { echo "Missing shared-first reuse release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.17.md" ] || { echo "Missing project-context release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.18.md" ] || { echo "Missing skill invocation protocol release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/third-party/superpowers-attribution.md" ] || { echo "Missing Superpowers attribution" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/README.md" ] || { echo "Missing skill invocation protocol README" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/INDEX.md" ] || { echo "Missing skill invocation protocol index" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md" ] || { echo "Missing skill invocation protocol system" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/01-skill-discovery-and-routing.md" ] || { echo "Missing skill discovery module" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/02-red-flag-detection.md" ] || { echo "Missing red flag module" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/03-spec-plan-execution-chain.md" ] || { echo "Missing spec-plan module" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/04-tdd-and-evidence-loop.md" ] || { echo "Missing TDD evidence module" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/05-subagent-review-chain.md" ] || { echo "Missing subagent review module" >&2; exit 1; }
+[ -f "$ROOT/framework/59-skill-invocation-protocol/06-skill-authoring-quality.md" ] || { echo "Missing skill authoring module" >&2; exit 1; }
+[ -f "$ROOT/framework/27-quality-gates/32-skill-invocation-protocol-gate.md" ] || { echo "Missing skill invocation protocol gate" >&2; exit 1; }
+[ -f "$ROOT/framework/29-checklists/41-skill-invocation-protocol-checklist.md" ] || { echo "Missing skill invocation protocol checklist" >&2; exit 1; }
 [ -f "$ROOT/assets/ueef-display.json" ] || { echo "Missing UEEF display metadata" >&2; exit 1; }
 [ -f "$ROOT/assets/ueef-skill-icon.svg" ] || { echo "Missing UEEF skill icon asset" >&2; exit 1; }
 [ -f "$ROOT/scripts/project-context-map.ps1" ] || { echo "Missing project context map script" >&2; exit 1; }
@@ -205,6 +219,14 @@ grep -q "Final responses must answer" "$ROOT/framework/01-core/00-core-system.md
 grep -q 'Runtime drift:' "$ROOT/scripts/ueef-status.ps1" || { echo "Status script missing runtime drift field" >&2; exit 1; }
 grep -q 'emil-design-eng' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing motion skill route" >&2; exit 1; }
 grep -q 'animation' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing animation route" >&2; exit 1; }
+grep -q 'superpowers' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing Superpowers route" >&2; exit 1; }
+grep -q '32-skill-invocation-protocol-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing skill protocol gate" >&2; exit 1; }
+grep -q 'Skill invocation protocol:' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing skill protocol section" >&2; exit 1; }
+grep -q 'TDD or an equivalent evidence loop' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing skill evidence loop" >&2; exit 1; }
+grep -q 'Skill candidates:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing skill candidates" >&2; exit 1; }
+grep -q 'Red flags checked:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing red flag field" >&2; exit 1; }
+grep -q 'MIT License' "$ROOT/docs/third-party/superpowers-attribution.md" || { echo "Superpowers attribution missing MIT License" >&2; exit 1; }
+grep -q '6fd4507659784c351abbd2bc264c7162cfd386dc' "$ROOT/docs/third-party/superpowers-attribution.md" || { echo "Superpowers attribution missing reviewed commit" >&2; exit 1; }
 grep -q 'server-side filtering, sorting, pagination, aggregation' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing backend data-shaping rule" >&2; exit 1; }
 grep -q 'evaluate SSR, SSG, streaming' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing SSR rule" >&2; exit 1; }
 grep -q 'Prevent over-rendering on both frontend and backend-driven UI paths' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing over-render rule" >&2; exit 1; }

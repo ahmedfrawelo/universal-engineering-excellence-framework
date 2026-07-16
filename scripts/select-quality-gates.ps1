@@ -133,6 +133,13 @@ if ($text -match "doc|readme|manual|guide|documentation|changelog") {
   Add-Unique $gates @("framework/27-quality-gates/documentation-gate.md")
 }
 
+if ($text -match "skill|superpower|superpowers|protocol|workflow|red flag|red-flag|tdd|test-driven|subagent review|skill authoring|skill-routing|skill invocation") {
+  Add-Unique $modules @(
+    "framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md"
+  )
+  Add-Unique $gates @("framework/27-quality-gates/32-skill-invocation-protocol-gate.md")
+}
+
 Assert-ExistingFrameworkPaths ($modules.ToArray() + $gates.ToArray())
 
 Write-Output "UEEF Quality Gate Selection"

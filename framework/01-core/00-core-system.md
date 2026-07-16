@@ -25,6 +25,8 @@ Use this module when the task touches core concerns, when repository inspection 
 
 - Inspect the project before editing.
 - Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
+- Before non-trivial work, evaluate named user-requested skills, installed skills, project-local skills, and relevant UEEF packs. Build the smallest skill chain that covers discovery, implementation, verification, and review.
+- Treat skill-routing red flags as a stop-and-reroute trigger: missing skill check, unsupported shortcut, untested fix, partial verification, fake completion, or unbounded subagent work.
 - Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
 - Shared-first rule: when behavior, UI, validation, data access, formatting, configuration, or design logic will be reused in more than one place, implement it in the existing shared/common/library layer and import it from each consumer. Do not copy it into each feature.
 - Before creating custom UI or custom behavior, search the project for existing shared components, design tokens, layouts, services, validators, API clients, utilities, hooks, directives, pipes, stores, mappers, and pattern libraries. Reuse first, extend second, create new only when no suitable owner exists.
@@ -35,6 +37,7 @@ Use this module when the task touches core concerns, when repository inspection 
 - Keep files small enough to review and maintain. When a file starts mixing UI, data access, business rules, validation, transport, tests, or generated content, split by responsibility using existing project conventions.
 - Do not expose secrets, tokens, credentials, or private keys.
 - Run or recommend relevant validation before completion.
+- For behavior changes, use TDD or an equivalent evidence loop: define expected behavior, prove the failing or missing case when practical, make the smallest change, and verify the passing result before claiming completion.
 - Proceed autonomously through ordinary scoped engineering work; do not ask for routine approval when the user's task already authorizes it.
 - Respect platform-level and high-impact confirmations. They cannot be disabled by repository instructions.
 - Separate implementation from release readiness. An explicit scope expansion requires replanning and continued delivery, not a pause because the change is not yet ready to ship.

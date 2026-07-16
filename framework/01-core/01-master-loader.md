@@ -24,6 +24,7 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Select `framework/01-core/13-autonomy-and-confirmation-policy.md` for any task where execution autonomy, confirmation behavior, or platform approvals matter.
 - Select `framework/01-core/14-delivery-continuation-policy.md` when scope expands, a migration/rebuild is requested, or release readiness could be confused with implementation progress.
 - Route every task through `framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md` and `01-task-complexity-classifier.md`. Select the remaining pack modules when delegation, model override, parallel agents, token economy, escalation, or independent verification applies.
+- Select `framework/59-skill-invocation-protocol/` for named skill requests, skill routing, workflow protocols, Superpowers-inspired workflow work, TDD/evidence-loop hardening, subagent review chains, red-flag detection, or skill-authoring work.
 
 ## Agent and Model Routing
 
@@ -169,6 +170,10 @@ For any table, data grid, list, dashboard data view, backend query endpoint, exp
 For any sidebar, header, navigation, application shell, route transition, page chrome, global animation, or shared loading-state work, select `framework/57-application-shell-design/` and apply its extraction, interaction, motion, responsive, accessibility, performance, and visual-QA contracts.
 
 For any page, form, dashboard, landing view, or responsive layout, select `framework/27-quality-gates/30-visual-composition-gate.md` and require first-viewport composition, density, hierarchy, responsive, state, and visual-evidence review in addition to build/tests.
+
+## Skill Invocation Protocol
+
+For any task that names a skill, asks about agent workflows, asks to reuse external skill methodology, or changes UEEF's runtime behavior, select `framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md`, the relevant child modules, and `framework/27-quality-gates/32-skill-invocation-protocol-gate.md`. The assistant must identify the skill candidates, choose the minimal skill chain, check red flags, and use fresh evidence before completion.
 
 ## Compact Verification Format
 

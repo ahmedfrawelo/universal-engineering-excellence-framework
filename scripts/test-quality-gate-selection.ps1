@@ -97,6 +97,13 @@ $cases = @(
     UIUX = 'YES'
     Modules = @('framework/51-browser-session-control/00-browser-session-first.md')
     Gates = @('framework/27-quality-gates/23-browser-session-control-gate.md', 'framework/27-quality-gates/30-visual-composition-gate.md')
+  },
+  @{
+    Name = 'skill-protocol'
+    Task = 'Add a Superpowers inspired skill invocation protocol with TDD red flags and subagent review'
+    UIUX = 'NO'
+    Modules = @('framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md')
+    Gates = @('framework/27-quality-gates/32-skill-invocation-protocol-gate.md')
   }
 )
 

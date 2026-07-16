@@ -51,6 +51,12 @@ Design engineering skill routing:
 - Add `review-animations` for motion review, `improve-animations` for read-only motion audits, `animation-vocabulary` for naming effects, and `apple-design` for gesture, spring, momentum, and Apple-style interaction work.
 - Select only matching skills; never load the full suite by default.
 
+Skill invocation protocol:
+- Before non-trivial work, evaluate named user-requested skills, installed skills, project-local skills, and UEEF packs.
+- Build the smallest useful skill chain for discovery, implementation, verification, and review.
+- Treat shortcut red flags as reroute triggers: missing skill check, untested fix, unsupported claim, partial verification, fake completion, or unbounded subagent work.
+- Use TDD or an equivalent evidence loop when behavior changes.
+
 Agent routing hardening:
 - Risk score 3 requires an explicit risk floor.
 - Parallel agents require positive delegation benefit and at least two independently owned workstreams.

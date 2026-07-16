@@ -18,10 +18,11 @@ The runtime sequence defines how UEEF is applied without wasting context. It pri
 5. If the request expands, revise the plan and continue implementation. Treat release readiness as a separate decision.
 6. Use `framework/01-core/01-master-loader.md` only to select relevant modules.
 7. Load the minimum useful module set for the task.
-8. Inspect the project and current implementation path.
-9. Plan edits for non-trivial work.
-10. Apply selected quality gates before final response.
-11. Return compact UEEF verification.
+8. Evaluate named, installed, project-local, and UEEF skill candidates; select the minimal skill chain.
+9. Inspect the project and current implementation path.
+10. Plan edits for non-trivial work.
+11. Apply selected quality gates before final response.
+12. Return compact UEEF verification.
 
 ## Compact Runtime Check
 
@@ -217,6 +218,16 @@ Performance budget verified:
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
 
 ## Agent and Model Routing Preflight
+
+For skill, workflow, and UEEF-runtime work, also record:
+
+```text
+Skill candidates:
+Selected skill chain:
+Skipped skills and reason:
+Red flags checked:
+Skill protocol gate:
+```
 
 Every task records:
 

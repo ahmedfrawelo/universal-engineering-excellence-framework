@@ -116,6 +116,18 @@ $requiredAcceptance = @(
   "framework/58-agent-model-orchestration/README.md",
   "framework/58-agent-model-orchestration/INDEX.md",
   "framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md",
+  "framework/59-skill-invocation-protocol/README.md",
+  "framework/59-skill-invocation-protocol/INDEX.md",
+  "framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md",
+  "framework/59-skill-invocation-protocol/01-skill-discovery-and-routing.md",
+  "framework/59-skill-invocation-protocol/02-red-flag-detection.md",
+  "framework/59-skill-invocation-protocol/03-spec-plan-execution-chain.md",
+  "framework/59-skill-invocation-protocol/04-tdd-and-evidence-loop.md",
+  "framework/59-skill-invocation-protocol/05-subagent-review-chain.md",
+  "framework/59-skill-invocation-protocol/06-skill-authoring-quality.md",
+  "framework/27-quality-gates/32-skill-invocation-protocol-gate.md",
+  "framework/29-checklists/41-skill-invocation-protocol-checklist.md",
+  "docs/third-party/superpowers-attribution.md",
   "scripts/select-agent-route.ps1",
   "scripts/select-agent-route.sh",
   "scripts/test-agent-route.ps1",
@@ -156,6 +168,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.15.md",
   "docs/releases/v2.8.16.md",
   "docs/releases/v2.8.17.md",
+  "docs/releases/v2.8.18.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -239,7 +252,7 @@ $master = Join-Path $Root "framework/MASTER_INDEX.md"
 if (!(Test-Path $master)) { throw "Missing framework/MASTER_INDEX.md" }
 $masterText = Get-Content $master -Raw
 if ($masterText -notmatch "00-foundation" -or $masterText -notmatch "27-quality-gates" -or $masterText -notmatch "38-templates") { throw "Master index missing expected pack references" }
-$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control","52-workspace-hygiene","53-skeleton-loading","54-design-intelligence","55-continuous-assurance","56-data-grid-platform","57-application-shell-design","58-agent-model-orchestration")
+$requiredLinks = @("45-identity-access-application-models","46-design-system-consistency-reuse","47-theme-responsive-interaction-security-performance","48-design-governance","49-engineering-guardian","50-environment-bootstrap","51-browser-session-control","52-workspace-hygiene","53-skeleton-loading","54-design-intelligence","55-continuous-assurance","56-data-grid-platform","57-application-shell-design","58-agent-model-orchestration","59-skill-invocation-protocol")
 foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($link)) { throw "Master index missing $link" } }
 $environmentModules = @("README.md","INDEX.md","00-environment-bootstrap.md","01-profile-selection.md","02-core-profile.md","03-frontend-profile.md","04-backend-profile.md","05-database-profile.md","06-uiux-profile.md","07-devops-profile.md","08-ai-profile.md","09-optional-profile.md","10-dependency-levels.md","11-detection-and-installation.md","12-mcp-detection.md","13-runtime-bootstrap-sequence.md")
 foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "framework/50-environment-bootstrap/$file"))) { throw "Environment Bootstrap missing module: $file" } }
@@ -283,6 +296,8 @@ $visualTerms = @("First-viewport composition reviewed:","Density and responsive 
 foreach ($term in $visualTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing visual-composition field: $term" } }
 $agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Model capability class:","Agent topology:","Delegation benefit verified:","Independent workstreams:","Agent capability available:","Named model availability verified:","Agent model routing gate:")
 foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing agent-routing field: $term" } }
+$skillProtocolTerms = @("Skill candidates:","Selected skill chain:","Skipped skills and reason:","Red flags checked:","Skill protocol gate:")
+foreach ($term in $skillProtocolTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skill protocol field: $term" } }
 & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
 & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
@@ -310,6 +325,9 @@ foreach ($term in @("Agent and model routing:","Design engineering skill routing
 foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system","Reusable behavior, UI, validation","Before creating custom UI or behavior","Large-project reuse:","Discover module boundaries","project-context-map","Skill/display metadata","Skill/display icon")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing new operating policy: $term" }
 }
+foreach ($term in @("Skill invocation protocol:","skill chain","red flags","TDD or an equivalent evidence loop")) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing skill protocol policy: $term" }
+}
 $displayMetadata = Get-Content (Join-Path $Root "assets/ueef-display.json") -Raw | ConvertFrom-Json
 if ($displayMetadata.icon -ne "assets/ueef-skill-icon.svg" -or $displayMetadata.displayName -ne "UEEF") { throw "Display metadata does not reference the UEEF icon correctly" }
 $iconText = Get-Content (Join-Path $Root "assets/ueef-skill-icon.svg") -Raw
@@ -320,6 +338,9 @@ $statusAndTestText = (Get-Content (Join-Path $Root "scripts/ueef-status.ps1") -R
 foreach ($term in @("Runtime drift:","Runtime drift did not invalidate ACTIVE status","sourceRepositoryPath")) { if ($statusAndTestText -notmatch [regex]::Escape($term)) { throw "Runtime status/drift coverage missing: $term" } }
 $selectorText = Get-Content (Join-Path $Root "scripts/select-quality-gates.ps1") -Raw
 foreach ($term in @("motion","animation","emil-design-eng","Specialist skill route:")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing motion routing: $term" } }
+foreach ($term in @("superpowers","skill invocation","32-skill-invocation-protocol-gate","59-skill-invocation-protocol")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing skill protocol routing: $term" } }
+$attributionText = Get-Content (Join-Path $Root "docs/third-party/superpowers-attribution.md") -Raw
+foreach ($term in @("Superpowers","MIT License","6fd4507659784c351abbd2bc264c7162cfd386dc","https://github.com/TheACJ/superpower")) { if ($attributionText -notmatch [regex]::Escape($term)) { throw "Superpowers attribution missing required term: $term" } }
 $unixAudit = Get-Content (Join-Path $Root "scripts/ueef-audit.sh") -Raw
 if ($unixAudit -match '\[0-9\.\]\*') { throw "Unix audit uses an unsafe broad version pattern" }
 Write-Host "UEEF validation passed"

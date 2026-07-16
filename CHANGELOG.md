@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.17`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.18`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.18 - 2026-07-16
+
+- Added pack 59 Skill Invocation Protocol for mandatory skill discovery, routing, red flags, spec-plan execution, TDD evidence loops, bounded subagent review, and skill-authoring quality.
+- Added a skill invocation protocol quality gate and checklist.
+- Added Superpowers attribution with reviewed repository, commit, and MIT license context.
+- Integrated skill protocol routing into core behavior, master loader, runtime sequence, quality gate selection, validation, generated Codex loader, and generated AGENTS.
 
 ## 2.8.17 - 2026-07-15
 

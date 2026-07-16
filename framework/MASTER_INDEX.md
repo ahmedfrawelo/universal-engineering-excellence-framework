@@ -9,6 +9,7 @@ This index links framework packs and modules for assistant loading.
 - [56-data-grid-platform](56-data-grid-platform/README.md)
 - [57-application-shell-design](57-application-shell-design/README.md)
 - [58-agent-model-orchestration](58-agent-model-orchestration/README.md)
+- [59-skill-invocation-protocol](59-skill-invocation-protocol/README.md)
 
 - [00-foundation/00-constitution.md](00-foundation/00-constitution.md)
 - [00-foundation/01-mission.md](00-foundation/01-mission.md)
@@ -209,3 +210,11 @@ This index links framework packs and modules for assistant loading.
 
 - [51-browser-session-control/README.md](51-browser-session-control/README.md)
 - [51-browser-session-control/INDEX.md](51-browser-session-control/INDEX.md)
+
+## Version 2.8.18 Skill Invocation Protocol
+
+- [59-skill-invocation-protocol/README.md](59-skill-invocation-protocol/README.md)
+- [59-skill-invocation-protocol/INDEX.md](59-skill-invocation-protocol/INDEX.md)
+- [59-skill-invocation-protocol/00-skill-invocation-protocol-system.md](59-skill-invocation-protocol/00-skill-invocation-protocol-system.md)
+- [27-quality-gates/32-skill-invocation-protocol-gate.md](27-quality-gates/32-skill-invocation-protocol-gate.md)
+- [29-checklists/41-skill-invocation-protocol-checklist.md](29-checklists/41-skill-invocation-protocol-checklist.md)
