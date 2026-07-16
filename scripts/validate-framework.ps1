@@ -193,6 +193,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.18.md",
   "docs/releases/v2.8.19.md",
   "docs/releases/v2.8.20.md",
+  "docs/releases/v2.8.21.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -292,7 +293,7 @@ foreach ($term in @("SSR, SSG, streaming","Split large frontend files","Prevent 
 $backendText = Get-Content (Join-Path $Root "framework/11-backend/00-backend-engineering.md") -Raw
 foreach ($term in @("pagination, filtering, sorting, aggregation, projection","Split large backend files","latency budgets","Prevent backend-driven over-render","publish minimal scoped events")) { if ($backendText -notmatch [regex]::Escape($term)) { throw "Backend pack missing required rule: $term" } }
 $finalResponseText = Get-Content (Join-Path $Root "framework/03-runtime/10-final-response-format.md") -Raw
-foreach ($term in @("Answer the user's direct question first","Separate verified facts from assumptions",'Do not claim "perfect"')) { if ($finalResponseText -notmatch [regex]::Escape($term)) { throw "Final response format missing required rule: $term" } }
+foreach ($term in @("Answer the user's direct question first","Separate verified facts from assumptions",'Do not claim "perfect"',"display-only bidirectional isolation","copyable file paths")) { if ($finalResponseText -notmatch [regex]::Escape($term)) { throw "Final response format missing required rule: $term" } }
 $codeGateText = Get-Content (Join-Path $Root "framework/27-quality-gates/code-quality-gate.md") -Raw
 foreach ($term in @("limited to the requested feature","Unrelated pre-existing errors were not repaired","opportunistic fixes outside the requested scope","Reusable behavior was placed in the existing shared/common/library owner","Existing shared components, tokens, services")) { if ($codeGateText -notmatch [regex]::Escape($term)) { throw "Code quality gate missing required rule: $term" } }
 $reuseText = (Get-Content (Join-Path $Root "framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md") -Raw) + "`n" + (Get-Content (Join-Path $Root "framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md") -Raw)
@@ -362,6 +363,9 @@ foreach ($term in @("Agent and model routing:","Design engineering skill routing
 }
 foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system","Reusable behavior, UI, validation","Before creating custom UI or behavior","Large-project reuse:","Discover module boundaries","project-context-map","Skill/display metadata","Skill/display icon")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing new operating policy: $term" }
+}
+foreach ($term in @("Arabic or other RTL prose","display readability only","Do not insert hidden bidirectional control characters")) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing mixed-direction response policy: $term" }
 }
 foreach ($term in @("Skill invocation protocol:","skill chain","red flags","TDD or an equivalent evidence loop")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing skill protocol policy: $term" }

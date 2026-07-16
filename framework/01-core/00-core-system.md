@@ -152,6 +152,7 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - Do not claim perfection, completion, passing gates, browser verification, release readiness, or runtime activation without direct current evidence.
 - If a task changes files, report the real changed scope and validation. If a requested item was not applicable, say why in concrete terms.
 - Keep user-facing status clear and short; do not expose internal retry noise, irrelevant logs, or speculative explanations as facts.
+- In Arabic or other RTL prose, mixed English terms may be isolated for display readability only. Never add hidden bidirectional control characters to code, commands, copyable paths, JSON/YAML, source files, configuration, or saved repository content.
 
 ## Task Scope Discipline
 

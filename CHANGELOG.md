@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.20`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.21`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.21 - 2026-07-16
+
+- Added a mixed-direction response readability policy for Arabic/RTL prose with embedded English terms.
+- Restricted bidirectional isolation to display prose only.
+- Explicitly prohibited hidden direction characters in code, commands, copyable paths, JSON/YAML, source files, configuration, and saved artifacts.
 
 ## 2.8.20 - 2026-07-16
 
