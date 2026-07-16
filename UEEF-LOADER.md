@@ -57,6 +57,12 @@ Skill invocation protocol:
 - Treat shortcut red flags as reroute triggers: missing skill check, untested fix, unsupported claim, partial verification, fake completion, or unbounded subagent work.
 - Use TDD or an equivalent evidence loop when behavior changes.
 
+Spec-driven development:
+- For broad, ambiguous, multi-file, high-impact, or durable work, make the specification the source of truth before implementation.
+- Separate what and why from how, resolve or document ambiguities, then translate requirements into a technical plan and traceable tasks.
+- Check consistency across specification, plan, tasks, code, tests, and final claims before completion.
+- If implementation reveals a requirement gap, update the specification or task list before continuing.
+
 Agent routing hardening:
 - Risk score 3 requires an explicit risk floor.
 - Parallel agents require positive delegation benefit and at least two independently owned workstreams.

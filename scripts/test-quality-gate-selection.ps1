@@ -104,6 +104,13 @@ $cases = @(
     UIUX = 'NO'
     Modules = @('framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md')
     Gates = @('framework/27-quality-gates/32-skill-invocation-protocol-gate.md')
+  },
+  @{
+    Name = 'spec-driven'
+    Task = 'Use Spec Kit style specification-driven development with acceptance criteria, technical plan, task breakdown, and convergence'
+    UIUX = 'NO'
+    Modules = @('framework/60-spec-driven-development/00-spec-driven-development-system.md')
+    Gates = @('framework/27-quality-gates/33-spec-driven-development-gate.md')
   }
 )
 

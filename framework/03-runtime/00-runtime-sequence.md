@@ -229,6 +229,19 @@ Red flags checked:
 Skill protocol gate:
 ```
 
+For spec-driven, broad, ambiguous, multi-file, or high-impact work, also record:
+
+```text
+Spec-driven applicability:
+Specification artifact:
+Open ambiguities:
+Requirements-to-plan trace:
+Task breakdown trace:
+Consistency analysis:
+Convergence evidence:
+Spec-driven gate:
+```
+
 Every task records:
 
 ```text

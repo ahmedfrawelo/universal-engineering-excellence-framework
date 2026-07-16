@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.18; it includes governed application models, shared-first reuse, design-system-first UI, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, skill invocation protocol routing, active-goal continuation enforcement, strict file/folder ownership, project-context mapping, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.8.19; it includes governed application models, shared-first reuse, design-system-first UI, responsive-first UI, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, non-destructive runtime updates, operational agent/model routing, skill invocation protocol routing, spec-driven development, active-goal continuation enforcement, strict file/folder ownership, project-context mapping, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
 
 ## Why UEEF Exists
 
@@ -50,7 +50,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.8.18. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.8.19. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 

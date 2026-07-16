@@ -10,6 +10,7 @@ This index links framework packs and modules for assistant loading.
 - [57-application-shell-design](57-application-shell-design/README.md)
 - [58-agent-model-orchestration](58-agent-model-orchestration/README.md)
 - [59-skill-invocation-protocol](59-skill-invocation-protocol/README.md)
+- [60-spec-driven-development](60-spec-driven-development/README.md)
 
 - [00-foundation/00-constitution.md](00-foundation/00-constitution.md)
 - [00-foundation/01-mission.md](00-foundation/01-mission.md)
@@ -218,3 +219,12 @@ This index links framework packs and modules for assistant loading.
 - [59-skill-invocation-protocol/00-skill-invocation-protocol-system.md](59-skill-invocation-protocol/00-skill-invocation-protocol-system.md)
 - [27-quality-gates/32-skill-invocation-protocol-gate.md](27-quality-gates/32-skill-invocation-protocol-gate.md)
 - [29-checklists/41-skill-invocation-protocol-checklist.md](29-checklists/41-skill-invocation-protocol-checklist.md)
+
+## Version 2.8.19 Spec-Driven Development
+
+- [60-spec-driven-development/README.md](60-spec-driven-development/README.md)
+- [60-spec-driven-development/INDEX.md](60-spec-driven-development/INDEX.md)
+- [60-spec-driven-development/00-spec-driven-development-system.md](60-spec-driven-development/00-spec-driven-development-system.md)
+- [27-quality-gates/33-spec-driven-development-gate.md](27-quality-gates/33-spec-driven-development-gate.md)
+- [29-checklists/42-spec-driven-development-checklist.md](29-checklists/42-spec-driven-development-checklist.md)
+- [38-templates/29-spec-driven-development-template.md](38-templates/29-spec-driven-development-template.md)

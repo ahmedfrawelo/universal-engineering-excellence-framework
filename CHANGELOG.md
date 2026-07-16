@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.18`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.19`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.19 - 2026-07-16
+
+- Added pack 60 Spec-Driven Development for constitution, specification, clarification, technical planning, task breakdown, consistency analysis, convergence, extension/preset/bundle governance, and third-party attribution.
+- Added a spec-driven development quality gate, checklist, and template.
+- Added Spec Kit attribution with reviewed repository, commit, docs, and MIT license context.
+- Integrated spec-driven routing into core behavior, master loader, runtime sequence, quality gate selection, validation, generated Codex loader, and generated AGENTS.
 
 ## 2.8.18 - 2026-07-16
 

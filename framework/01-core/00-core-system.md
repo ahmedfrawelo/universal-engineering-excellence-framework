@@ -27,6 +27,7 @@ Use this module when the task touches core concerns, when repository inspection 
 - Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
 - Before non-trivial work, evaluate named user-requested skills, installed skills, project-local skills, and relevant UEEF packs. Build the smallest skill chain that covers discovery, implementation, verification, and review.
 - Treat skill-routing red flags as a stop-and-reroute trigger: missing skill check, unsupported shortcut, untested fix, partial verification, fake completion, or unbounded subagent work.
+- For broad, ambiguous, multi-file, high-impact, or durable product/architecture work, use spec-driven development: define the specification, clarify ambiguity, map plan decisions to requirements, break work into traceable tasks, and converge code/tests/final claims back to the spec.
 - Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
 - Shared-first rule: when behavior, UI, validation, data access, formatting, configuration, or design logic will be reused in more than one place, implement it in the existing shared/common/library layer and import it from each consumer. Do not copy it into each feature.
 - Before creating custom UI or custom behavior, search the project for existing shared components, design tokens, layouts, services, validators, API clients, utilities, hooks, directives, pipes, stores, mappers, and pattern libraries. Reuse first, extend second, create new only when no suitable owner exists.

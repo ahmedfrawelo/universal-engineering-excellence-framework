@@ -140,6 +140,13 @@ if ($text -match "skill|superpower|superpowers|protocol|workflow|red flag|red-fl
   Add-Unique $gates @("framework/27-quality-gates/32-skill-invocation-protocol-gate.md")
 }
 
+if ($text -match "spec kit|speckit|spec-driven|specification-driven|specification|requirements|acceptance criteria|clarification|ambiguity|technical plan|task breakdown|convergence|constitution|project principles|preset|extension|bundle|third-party attribution") {
+  Add-Unique $modules @(
+    "framework/60-spec-driven-development/00-spec-driven-development-system.md"
+  )
+  Add-Unique $gates @("framework/27-quality-gates/33-spec-driven-development-gate.md")
+}
+
 Assert-ExistingFrameworkPaths ($modules.ToArray() + $gates.ToArray())
 
 Write-Output "UEEF Quality Gate Selection"

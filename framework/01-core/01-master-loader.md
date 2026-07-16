@@ -25,6 +25,7 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Select `framework/01-core/14-delivery-continuation-policy.md` when scope expands, a migration/rebuild is requested, or release readiness could be confused with implementation progress.
 - Route every task through `framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md` and `01-task-complexity-classifier.md`. Select the remaining pack modules when delegation, model override, parallel agents, token economy, escalation, or independent verification applies.
 - Select `framework/59-skill-invocation-protocol/` for named skill requests, skill routing, workflow protocols, Superpowers-inspired workflow work, TDD/evidence-loop hardening, subagent review chains, red-flag detection, or skill-authoring work.
+- Select `framework/60-spec-driven-development/` for Spec Kit-inspired work, specifications, requirements, acceptance criteria, project principles, clarification, technical plans, task breakdown, cross-artifact analysis, convergence, extension/preset/bundle governance, or third-party attribution.
 
 ## Agent and Model Routing
 
@@ -174,6 +175,10 @@ For any page, form, dashboard, landing view, or responsive layout, select `frame
 ## Skill Invocation Protocol
 
 For any task that names a skill, asks about agent workflows, asks to reuse external skill methodology, or changes UEEF's runtime behavior, select `framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md`, the relevant child modules, and `framework/27-quality-gates/32-skill-invocation-protocol-gate.md`. The assistant must identify the skill candidates, choose the minimal skill chain, check red flags, and use fresh evidence before completion.
+
+## Spec-Driven Development
+
+For any broad, ambiguous, multi-file, high-impact, or durable feature, redesign, migration, integration, platform workflow, or agent-runtime change, select `framework/60-spec-driven-development/00-spec-driven-development-system.md`, the relevant child modules, and `framework/27-quality-gates/33-spec-driven-development-gate.md`. The assistant must keep requirements, plan, tasks, code, tests, and final claims traceable to the current specification or explicitly documented assumptions.
 
 ## Compact Verification Format
 

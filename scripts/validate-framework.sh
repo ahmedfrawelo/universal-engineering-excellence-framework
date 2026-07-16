@@ -35,6 +35,7 @@ grep -q "53-skeleton-loading" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "58-agent-model-orchestration" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "59-skill-invocation-protocol" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "60-spec-driven-development" "$ROOT/framework/MASTER_INDEX.md"
 for f in \
   framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
   framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
@@ -207,6 +208,23 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/framework/59-skill-invocation-protocol/06-skill-authoring-quality.md" ] || { echo "Missing skill authoring module" >&2; exit 1; }
 [ -f "$ROOT/framework/27-quality-gates/32-skill-invocation-protocol-gate.md" ] || { echo "Missing skill invocation protocol gate" >&2; exit 1; }
 [ -f "$ROOT/framework/29-checklists/41-skill-invocation-protocol-checklist.md" ] || { echo "Missing skill invocation protocol checklist" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.19.md" ] || { echo "Missing spec-driven release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/third-party/spec-kit-attribution.md" ] || { echo "Missing Spec Kit attribution" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/README.md" ] || { echo "Missing spec-driven README" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/INDEX.md" ] || { echo "Missing spec-driven index" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/00-spec-driven-development-system.md" ] || { echo "Missing spec-driven system" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/01-constitution-and-principles.md" ] || { echo "Missing spec constitution module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/02-specification-artifact.md" ] || { echo "Missing spec artifact module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/03-clarification-and-ambiguity.md" ] || { echo "Missing spec clarification module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/04-technical-plan-translation.md" ] || { echo "Missing spec plan module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/05-task-breakdown-and-parallelization.md" ] || { echo "Missing spec task breakdown module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/06-consistency-analysis-and-checklists.md" ] || { echo "Missing spec consistency module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/07-implementation-and-convergence.md" ] || { echo "Missing spec convergence module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/08-extension-preset-bundle-governance.md" ] || { echo "Missing spec extension governance module" >&2; exit 1; }
+[ -f "$ROOT/framework/60-spec-driven-development/09-third-party-attribution.md" ] || { echo "Missing spec third-party attribution module" >&2; exit 1; }
+[ -f "$ROOT/framework/27-quality-gates/33-spec-driven-development-gate.md" ] || { echo "Missing spec-driven gate" >&2; exit 1; }
+[ -f "$ROOT/framework/29-checklists/42-spec-driven-development-checklist.md" ] || { echo "Missing spec-driven checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/38-templates/29-spec-driven-development-template.md" ] || { echo "Missing spec-driven template" >&2; exit 1; }
 [ -f "$ROOT/assets/ueef-display.json" ] || { echo "Missing UEEF display metadata" >&2; exit 1; }
 [ -f "$ROOT/assets/ueef-skill-icon.svg" ] || { echo "Missing UEEF skill icon asset" >&2; exit 1; }
 [ -f "$ROOT/scripts/project-context-map.ps1" ] || { echo "Missing project context map script" >&2; exit 1; }
@@ -227,6 +245,14 @@ grep -q 'Skill candidates:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" 
 grep -q 'Red flags checked:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing red flag field" >&2; exit 1; }
 grep -q 'MIT License' "$ROOT/docs/third-party/superpowers-attribution.md" || { echo "Superpowers attribution missing MIT License" >&2; exit 1; }
 grep -q '6fd4507659784c351abbd2bc264c7162cfd386dc' "$ROOT/docs/third-party/superpowers-attribution.md" || { echo "Superpowers attribution missing reviewed commit" >&2; exit 1; }
+grep -q 'spec kit' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing Spec Kit route" >&2; exit 1; }
+grep -q '33-spec-driven-development-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing spec-driven gate" >&2; exit 1; }
+grep -q 'Spec-driven development:' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing spec-driven section" >&2; exit 1; }
+grep -q 'specification the source of truth' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing spec-driven source-of-truth rule" >&2; exit 1; }
+grep -q 'Spec-driven applicability:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing spec-driven applicability" >&2; exit 1; }
+grep -q 'Convergence evidence:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing convergence evidence" >&2; exit 1; }
+grep -q 'MIT License' "$ROOT/docs/third-party/spec-kit-attribution.md" || { echo "Spec Kit attribution missing MIT License" >&2; exit 1; }
+grep -q 'fd101d531eaec8a1e709db2f37632bc93b6ce4d6' "$ROOT/docs/third-party/spec-kit-attribution.md" || { echo "Spec Kit attribution missing reviewed commit" >&2; exit 1; }
 grep -q 'server-side filtering, sorting, pagination, aggregation' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing backend data-shaping rule" >&2; exit 1; }
 grep -q 'evaluate SSR, SSG, streaming' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing SSR rule" >&2; exit 1; }
 grep -q 'Prevent over-rendering on both frontend and backend-driven UI paths' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing over-render rule" >&2; exit 1; }
