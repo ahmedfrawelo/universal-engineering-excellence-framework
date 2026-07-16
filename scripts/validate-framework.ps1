@@ -195,6 +195,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.20.md",
   "docs/releases/v2.8.21.md",
   "docs/releases/v2.8.22.md",
+  "docs/releases/v2.8.23.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -372,6 +373,9 @@ $responsePolicyText = (Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) + "`
 if ($responsePolicyText -match 'mixed English terms may be isolated|when it improves readability') { throw "Mixed-direction response policy must be mandatory, not optional" }
 foreach ($term in @("Skill invocation protocol:","skill chain","red flags","TDD or an equivalent evidence loop")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing skill protocol policy: $term" }
+}
+foreach ($term in @("Missing screenshot evidence","pCloud screenshot delay","not a valid BLOCKED condition","screenshot is pending")) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing visual-blocker policy: $term" }
 }
 foreach ($term in @("Spec-driven development:","specification the source of truth","technical plan and traceable tasks","Check consistency across specification, plan, tasks, code, tests, and final claims")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing spec-driven policy: $term" }

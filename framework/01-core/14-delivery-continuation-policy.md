@@ -11,13 +11,14 @@ An expanded request is not a reason to pause implementation. When the user expli
 - Repetition does not convert an internal bug into an external blocker. After repeated failure, change the diagnostic approach and continue meaningful work.
 - Mark a goal `BLOCKED` only when the blocking condition is external or requires a user-only decision/action and no meaningful local implementation, investigation, testing, or documentation work remains.
 - A task-local Node REPL or browser-client failure is internal control-channel degradation, not a Chrome outage. It cannot justify a `BLOCKED` transition or requesting a Chrome restart unless external Chrome unavailability is independently proven.
+- Missing screenshot evidence, pCloud screenshot delay, or task-local Chrome control degradation is not a valid `BLOCKED` transition when implementation, build, non-visual tests, source inspection, or documentation can continue or have passed. Use `ACTIVE` for ongoing work or `PARTIAL` in status-only reporting when the only missing gate is visual verification.
 - Never stop and wait for the user merely to resume an incomplete code path. If a goal was incorrectly paused for an internal failure, resume it immediately and continue from current state.
 
 ## Goal Transition Contract
 
 `BLOCKED_ALLOWED = repeated_external_condition AND no_meaningful_local_work_remaining AND user_or_external_state_change_required`
 
-Compile failures, test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, regressions, and unsuccessful patches never satisfy `repeated_external_condition`.
+Compile failures, test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, regressions, unsuccessful patches, pending screenshots, pCloud screenshot delays, and task-local Chrome control degradation never satisfy `repeated_external_condition`.
 
 `FINAL_ALLOWED = user_requested_status_only OR GoalStatus_COMPLETE OR BLOCKED_ALLOWED`
 

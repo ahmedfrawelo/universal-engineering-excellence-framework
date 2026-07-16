@@ -81,6 +81,7 @@ Delivery continuation:
 - Revise the plan and continue implementation and tests. `Not ready to release` blocks only a release claim, never requested coding work.
 - Use BLOCKED only for a real impasse: missing required access, unavailable mandatory dependency, unresolved destructive decision, or external state that prevents meaningful progress.
 - Compile/test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, and repeated failed patches are internal engineering work, never BLOCKED conditions. Replan, escalate, delegate bounded verification, and continue. Repetition does not convert an internal bug into an external blocker.
+- Missing screenshot evidence, pCloud screenshot delay, or task-local Chrome control degradation is not a valid BLOCKED condition when implementation, build, and non-visual tests can continue or have passed. Keep the task ACTIVE for more work, or report PARTIAL/visual-not-verified for status-only answers.
 - Mark a goal BLOCKED only for an external or user-only condition after no meaningful local work remains. Never pause an incomplete code path waiting for the user to resume it.
 - When a goal is ACTIVE, never emit a final answer saying the work is incomplete or no complete result exists. Use commentary and continue execution. Before finalizing a goal task, read current goal status; final is allowed only for COMPLETE, valid external BLOCKED, or an explicit user request for status-only reporting.
 
@@ -98,6 +99,7 @@ Browser hard stop:
 - Before a browser-task turn ends, finalize its claimed tabs through `chrome.tabs.finalize(...)` as the final browser action. This releases the user's tab for the next task without closing it and prevents stale ownership locks.
 - If `claimTab()` reports a stale browser-session owner, run `scripts/repair-chrome-tab-ownership.ps1`, reset the task browser binding, and reclaim the exact existing tab once. This is autonomous; do not ask another task or the user to intervene.
 - When browser or visual verification is required, keep the task active until the exact user-owned tab is claimed and verified. Build, tests, component reuse, source inspection, and structural equivalence cannot substitute for this gate or justify `COMPLETE`.
+- If visual verification is the only missing gate after implementation and tests passed, do not mark the goal BLOCKED only because a screenshot is pending. Report the implementation as verified by non-visual gates and keep visual verification explicitly pending unless the user's requested outcome was visual-only.
 - Preserve the user's browser window state. Do not resize, emulate, move, restore, minimize, maximize, or alter full screen unless explicitly requested.
 - A minimized, background, or non-foreground user-owned Chrome window remains controllable through the extension and must not block or pause the goal. If one visual-only operation genuinely requires foreground visibility, continue all non-visual work and defer only that visual gate.
 - Use visible Windows control only as a fallback when the Chrome plugin is unavailable. If the user-owned tab cannot be proven, stop without opening another browser.
