@@ -194,6 +194,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.19.md",
   "docs/releases/v2.8.20.md",
   "docs/releases/v2.8.21.md",
+  "docs/releases/v2.8.22.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -364,9 +365,11 @@ foreach ($term in @("Agent and model routing:","Design engineering skill routing
 foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system","Reusable behavior, UI, validation","Before creating custom UI or behavior","Large-project reuse:","Discover module boundaries","project-context-map","Skill/display metadata","Skill/display icon")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing new operating policy: $term" }
 }
-foreach ($term in @("Arabic or other RTL prose","display readability only","Do not insert hidden bidirectional control characters")) {
+foreach ($term in @("Arabic or other RTL prose","every inline English word","must be isolated for display readability","Do not insert hidden bidirectional control characters")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing mixed-direction response policy: $term" }
 }
+$responsePolicyText = (Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) + "`n" + (Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw) + "`n" + $finalResponseText + "`n" + $syncText
+if ($responsePolicyText -match 'mixed English terms may be isolated|when it improves readability') { throw "Mixed-direction response policy must be mandatory, not optional" }
 foreach ($term in @("Skill invocation protocol:","skill chain","red flags","TDD or an equivalent evidence loop")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing skill protocol policy: $term" }
 }

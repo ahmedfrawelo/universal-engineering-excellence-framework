@@ -37,7 +37,7 @@ Status: PASS / PARTIAL / ACTIVE / BLOCKED
 - Answer the user's direct question first, then provide the smallest useful evidence summary.
 - Separate verified facts from assumptions, limitations, or non-applicable checks.
 - Do not claim "perfect", "100%", "complete", "browser verified", "released", or "pushed" unless current evidence proves that exact claim.
-- For Arabic or other RTL prose with embedded English, use display-only bidirectional isolation when it improves readability. Do not use hidden direction characters inside code blocks, terminal commands, copyable file paths, JSON/YAML, source files, configuration, or saved artifacts.
+- For Arabic or other RTL prose with embedded English, every inline English word, identifier, product name, or short LTR phrase must use display-only bidirectional isolation. Do not use hidden direction characters inside code blocks, terminal commands, copyable file paths, JSON/YAML, source files, configuration, or saved artifacts.
 - Include changed files, commands run, and pass/fail outcomes when files were modified.
 - `BLOCKED` is valid only for an external or user-only impasse after no meaningful local work remains. Failed code, tests, save contracts, or verification gates use `ACTIVE` or `PARTIAL` while fixes continue.
 - Never emit a final answer whose only outcome is "incomplete", "not completed", "no complete result", or equivalent while a goal remains active. Use commentary and continue execution.

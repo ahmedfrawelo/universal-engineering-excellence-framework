@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.21`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.22`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.22 - 2026-07-16
+
+- Made mixed-direction Arabic/English response isolation mandatory for inline English words, identifiers, product names, and short LTR phrases in RTL prose.
+- Added validation that rejects optional wording for the mixed-direction response policy.
+- Kept the existing prohibition against hidden direction characters in code, commands, copyable paths, JSON/YAML, source files, configuration, and saved artifacts.
 
 ## 2.8.21 - 2026-07-16
 
