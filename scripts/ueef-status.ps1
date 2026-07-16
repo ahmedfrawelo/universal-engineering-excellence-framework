@@ -1,6 +1,7 @@
 param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
-  [string]$GlobalPath = ""
+  [string]$GlobalPath = "",
+  [switch]$SkipRuntimeDrift
 )
 $ErrorActionPreference = "Stop"
 if ([string]::IsNullOrWhiteSpace($GlobalPath)) {
@@ -81,7 +82,7 @@ $oldHomePath = Join-Path $HOME ".ueef"
 $oldHomeAbsent = !(Test-Item $oldHomePath)
 $runtimeDriftPass = $true
 $runtimeDriftStatus = "SKIPPED"
-if ($isManagedRuntime -and (Test-Item $activeStatePath)) {
+if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath)) {
   try {
     $stateForDrift = Get-Content -LiteralPath $activeStatePath -Raw | ConvertFrom-Json
     $sourceForDrift = [string]$stateForDrift.sourceRepositoryPath
@@ -89,6 +90,7 @@ if ($isManagedRuntime -and (Test-Item $activeStatePath)) {
       $sourceRootForDrift = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $sourceForDrift).Path)
       $runtimeRootForDrift = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryPath).Path)
       $driftFound = $false
+      $ownedRuntimeDirsForDrift = @('framework','scripts','docs','examples','tools','assets')
       $sourceFilesForDrift = @(Get-ChildItem -LiteralPath $sourceRootForDrift -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object {
         $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -ne 'UEEF-LOADER.md'
       })
@@ -97,6 +99,20 @@ if ($isManagedRuntime -and (Test-Item $activeStatePath)) {
         $runtimeFileForDrift = Join-Path $runtimeRootForDrift $relativeForDrift
         if (!(Test-Path -LiteralPath $runtimeFileForDrift)) { $driftFound = $true; break }
         if ((Get-FileHash -LiteralPath $sourceFileForDrift.FullName -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $runtimeFileForDrift -Algorithm SHA256).Hash) { $driftFound = $true; break }
+      }
+      if (!$driftFound) {
+        foreach ($ownedDirForDrift in $ownedRuntimeDirsForDrift) {
+          $sourceOwnedDirForDrift = Join-Path $sourceRootForDrift $ownedDirForDrift
+          $runtimeOwnedDirForDrift = Join-Path $runtimeRootForDrift $ownedDirForDrift
+          if (!(Test-Path -LiteralPath $runtimeOwnedDirForDrift)) { continue }
+          $runtimeFilesForDrift = @(Get-ChildItem -LiteralPath $runtimeOwnedDirForDrift -Recurse -File -Force -ErrorAction SilentlyContinue)
+          foreach ($runtimeFileForDriftExtra in $runtimeFilesForDrift) {
+            $relativeOwnedForDrift = $runtimeFileForDriftExtra.FullName.Substring($runtimeOwnedDirForDrift.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+            $sourceEquivalentForDrift = Join-Path $sourceOwnedDirForDrift $relativeOwnedForDrift
+            if (!(Test-Path -LiteralPath $sourceEquivalentForDrift)) { $driftFound = $true; break }
+          }
+          if ($driftFound) { break }
+        }
       }
       $runtimeDriftPass = !$driftFound
       $runtimeDriftStatus = if ($runtimeDriftPass) { "PASS" } else { "FAIL" }

@@ -1,7 +1,8 @@
 param(
   [string]$Root = (Split-Path -Parent $PSScriptRoot),
   [switch]$Json,
-  [string]$ReportPath
+  [string]$ReportPath,
+  [switch]$Quick
 )
 $ErrorActionPreference = 'Stop'
 $resolvedRoot = (Resolve-Path $Root).Path
@@ -18,10 +19,18 @@ if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) {
 }
 $results = [System.Collections.Generic.List[object]]::new()
 function Check($name, [scriptblock]$action) {
-  try { & $action; $results.Add([pscustomobject]@{ name = $name; status = 'PASS' }) }
-  catch { $results.Add([pscustomobject]@{ name = $name; status = 'FAIL'; detail = $_.Exception.Message }) }
+  $duration = [System.Diagnostics.Stopwatch]::StartNew()
+  try {
+    & $action
+    $duration.Stop()
+    $results.Add([pscustomobject]@{ name = $name; status = 'PASS'; durationMs = [int]$duration.ElapsedMilliseconds })
+  }
+  catch {
+    $duration.Stop()
+    $results.Add([pscustomobject]@{ name = $name; status = 'FAIL'; durationMs = [int]$duration.ElapsedMilliseconds; detail = $_.Exception.Message })
+  }
 }
-Check 'framework-validation' { & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $resolvedRoot 'scripts/validate-framework.ps1') | Out-Null }
+Check 'framework-validation' { & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $resolvedRoot 'scripts/validate-framework.ps1') -SkipNestedTests | Out-Null }
 Check 'git-clean-diff' { if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) { throw 'Source Git repository unavailable' }; git -C $gitRoot diff --check | Out-Null; if ($LASTEXITCODE -ne 0) { throw 'git diff --check failed' } }
 Check 'source-hygiene' {
   $bad = Get-ChildItem $resolvedRoot -Recurse -File -Force | Where-Object { $_.FullName -notmatch '\\.git\\' -and $_.Name -match '(\.env$|\.pem$|\.key$|id_rsa)' }
@@ -52,7 +61,9 @@ Check 'runtime-path-safety' {
   $sync = Get-Content (Join-Path $resolvedRoot 'scripts/sync-runtime.ps1') -Raw
   foreach ($term in @('Refusing to sync from inside CODEX_HOME', 'runtimePrefix', 'OrdinalIgnoreCase')) { if ($sync -notmatch [regex]::Escape($term)) { throw "Missing path safety control: $term" } }
 }
-Check 'runtime-hardening' { & (Join-Path $resolvedRoot 'scripts/test-runtime-hardening.ps1') | Out-Null }
+if (!$Quick) {
+  Check 'runtime-hardening' { & (Join-Path $resolvedRoot 'scripts/test-runtime-hardening.ps1') | Out-Null }
+}
 $summary = [pscustomobject]@{ generatedAt = (Get-Date).ToUniversalTime().ToString('o'); root = '<project-root>'; checks = $results; status = if (($results.status -contains 'FAIL')) { 'FAIL' } else { 'PASS' } }
 if ($ReportPath) { $summary | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $ReportPath }
 if ($Json) { $summary | ConvertTo-Json -Depth 5 } else { $results | Format-Table -AutoSize; Write-Host "UEEF audit: $($summary.status)" }

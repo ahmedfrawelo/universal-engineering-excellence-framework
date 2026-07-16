@@ -51,6 +51,21 @@ Get-ChildItem -LiteralPath $SourcePath -Force | Where-Object { $_.Name -ne ".git
   Copy-Item -LiteralPath $_.FullName -Destination $runtimePath -Recurse -Force
 }
 
+$ownedRuntimeDirs = @('framework','scripts','docs','examples','tools','assets')
+foreach ($ownedDir in $ownedRuntimeDirs) {
+  $sourceOwnedDir = Join-Path $SourcePath $ownedDir
+  $runtimeOwnedDir = Join-Path $runtimePath $ownedDir
+  if (!(Test-Path -LiteralPath $runtimeOwnedDir)) { continue }
+
+  Get-ChildItem -LiteralPath $runtimeOwnedDir -Recurse -Force | Sort-Object FullName -Descending | ForEach-Object {
+    $relativeOwnedPath = $_.FullName.Substring($runtimeOwnedDir.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+    $sourceEquivalent = Join-Path $sourceOwnedDir $relativeOwnedPath
+    if (!(Test-Path -LiteralPath $sourceEquivalent)) {
+      Remove-Item -LiteralPath $_.FullName -Recurse -Force
+    }
+  }
+}
+
 $core = Join-Path $runtimePath "framework\01-core\00-core-system.md"
 $master = Join-Path $runtimePath "framework\01-core\01-master-loader.md"
 $index = Join-Path $runtimePath "framework\01-core\02-master-index.md"

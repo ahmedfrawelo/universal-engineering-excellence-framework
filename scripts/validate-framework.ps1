@@ -1,10 +1,16 @@
+param(
+  [string]$Root = (Split-Path -Parent $PSScriptRoot),
+  [switch]$SkipNestedTests
+)
 $ErrorActionPreference = "Stop"
-$Root = Split-Path -Parent $PSScriptRoot
 $requiredRoot = @("README.md","INSTALL.md","QUICK_START.md","VERSION.md","CHANGELOG.md","LICENSE","CONTRIBUTING.md","CODE_OF_CONDUCT.md","SECURITY.md","ROADMAP.md","BUILD_PROGRESS.md","UEEF-LOADER.md")
 $missing = @()
 foreach ($f in $requiredRoot) { if (!(Test-Path (Join-Path $Root $f))) { $missing += $f } }
 $requiredDirs = @("framework","scripts","docs","examples","tools")
 foreach ($d in $requiredDirs) { if (!(Test-Path (Join-Path $Root $d))) { $missing += $d } }
+$manifestPath = Join-Path $Root "release-manifest.json"
+if (!(Test-Path -LiteralPath $manifestPath)) { $missing += "release-manifest.json" }
+$manifest = if (Test-Path -LiteralPath $manifestPath) { Get-Content $manifestPath -Raw | ConvertFrom-Json } else { $null }
 $requiredAcceptance = @(
   "docs/token-efficiency.md",
   "framework/01-core/00-boot-loader.md",
@@ -186,6 +192,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.17.md",
   "docs/releases/v2.8.18.md",
   "docs/releases/v2.8.19.md",
+  "docs/releases/v2.8.20.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -258,7 +265,8 @@ foreach ($p in $packs) {
 }
 if ($missing.Count) { throw "Missing required items: $($missing -join ', ')" }
 $md = Get-ChildItem $Root -Filter *.md -Recurse
-if ($md.Count -lt 160) { throw "Markdown count below minimum: $($md.Count)" }
+$minimumMarkdownFiles = if ($manifest -and $manifest.minimumMarkdownFiles) { [int]$manifest.minimumMarkdownFiles } else { 160 }
+if ($md.Count -lt $minimumMarkdownFiles) { throw "Markdown count below minimum: $($md.Count) < $minimumMarkdownFiles" }
 $empty = $md | Where-Object { $_.Length -eq 0 }
 if ($empty) { throw "Empty Markdown files: $($empty.FullName -join ', ')" }
 $weak = Select-String -Path $md.FullName -Pattern 'TODO only|lorem ipsum|placeholder only|TBD only' -CaseSensitive:$false -ErrorAction SilentlyContinue
@@ -317,23 +325,34 @@ $skillProtocolTerms = @("Skill candidates:","Selected skill chain:","Skipped ski
 foreach ($term in $skillProtocolTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skill protocol field: $term" } }
 $specDrivenTerms = @("Spec-driven applicability:","Specification artifact:","Open ambiguities:","Requirements-to-plan trace:","Task breakdown trace:","Consistency analysis:","Convergence evidence:","Spec-driven gate:")
 foreach ($term in $specDrivenTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing spec-driven field: $term" } }
-& (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
-& (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
-& (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
-& (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
-& (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
-& (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
-& (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
-& (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
+if (!$SkipNestedTests) {
+  & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
+  & (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
+}
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
 foreach ($term in @("Unsafe agent name","runtimeRootPrefix","-Agent `$Agent","environment-bootstrap")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime sync missing hardening contract: $term" }
 }
-$manifest = Get-Content (Join-Path $Root "release-manifest.json") -Raw | ConvertFrom-Json
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
 if ($manifest.version -ne $version) { throw "Version and release manifest do not match" }
+if ($manifest.releaseDate -notmatch '^\d{4}-\d{2}-\d{2}$') { throw "Manifest releaseDate must use yyyy-MM-dd" }
+try { [datetime]::ParseExact([string]$manifest.releaseDate, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture) | Out-Null } catch { throw "Manifest releaseDate is not a valid date" }
 if ([int]$manifest.frameworkPacks -ne $packs.Count) { throw "Manifest framework pack count does not match the repository" }
 if (!(Test-Path -LiteralPath (Join-Path $Root $manifest.releaseNotes))) { throw "Manifest release notes do not exist: $($manifest.releaseNotes)" }
+$releaseNotesText = Get-Content -LiteralPath (Join-Path $Root $manifest.releaseNotes) -Raw
+if ($releaseNotesText -notmatch [regex]::Escape($manifest.version)) { throw "Manifest release notes do not mention version $($manifest.version)" }
+foreach ($entrypoint in $manifest.entrypoints.psobject.Properties) {
+  if (!(Test-Path -LiteralPath (Join-Path $Root ([string]$entrypoint.Value)))) { throw "Manifest entrypoint does not exist: $($entrypoint.Name)=$($entrypoint.Value)" }
+}
+foreach ($asset in $manifest.assets.psobject.Properties) {
+  if (!(Test-Path -LiteralPath (Join-Path $Root ([string]$asset.Value)))) { throw "Manifest asset does not exist: $($asset.Name)=$($asset.Value)" }
+}
 foreach ($pack in $manifest.expansionPacks) { if (!(Test-Path -LiteralPath (Join-Path $Root $pack))) { throw "Manifest expansion pack does not exist: $pack" } }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch "58-agent-model-orchestration|pack 58") { throw "Loader missing agent model routing rule" }

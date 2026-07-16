@@ -9,6 +9,7 @@ $runtimeRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RuntimePath).P
 $sourceFiles = @(Get-ChildItem -LiteralPath $sourceRoot -Recurse -File -Force | Where-Object {
   $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -ne 'UEEF-LOADER.md'
 })
+$ownedRuntimeDirs = @('framework','scripts','docs','examples','tools','assets')
 
 $mismatches = @()
 foreach ($sourceFile in $sourceFiles) {
@@ -18,6 +19,17 @@ foreach ($sourceFile in $sourceFiles) {
   $sourceHash = (Get-FileHash -LiteralPath $sourceFile.FullName -Algorithm SHA256).Hash
   $runtimeHash = (Get-FileHash -LiteralPath $runtimeFile -Algorithm SHA256).Hash
   if ($sourceHash -ne $runtimeHash) { $mismatches += "Different: $file" }
+}
+foreach ($ownedDir in $ownedRuntimeDirs) {
+  $sourceOwnedDir = Join-Path $sourceRoot $ownedDir
+  $runtimeOwnedDir = Join-Path $runtimeRoot $ownedDir
+  if (!(Test-Path -LiteralPath $runtimeOwnedDir)) { continue }
+  $runtimeFiles = @(Get-ChildItem -LiteralPath $runtimeOwnedDir -Recurse -File -Force)
+  foreach ($runtimeFile in $runtimeFiles) {
+    $relativeOwnedPath = $runtimeFile.FullName.Substring($runtimeOwnedDir.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+    $sourceEquivalent = Join-Path $sourceOwnedDir $relativeOwnedPath
+    if (!(Test-Path -LiteralPath $sourceEquivalent)) { $mismatches += "Extra runtime: $ownedDir/$relativeOwnedPath" }
+  }
 }
 
 $oldHomePath = Join-Path $HOME ".ueef"

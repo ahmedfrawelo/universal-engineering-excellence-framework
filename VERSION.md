@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.8.19.
+UEEF Enterprise Edition version: 2.8.20.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -67,3 +67,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.17: added the official UEEF skill icon asset and project-context-map helpers for broad project discovery.
 - 2.8.18: added the skill invocation protocol, Superpowers attribution, skill red flags, TDD evidence loops, and skill-routing gates.
 - 2.8.19: added spec-driven development, Spec Kit attribution, specification traceability, ambiguity handling, and convergence gates.
+- 2.8.20: hardened runtime sync pruning, release-manifest validation, audit duration reporting, and faster routine audit paths.

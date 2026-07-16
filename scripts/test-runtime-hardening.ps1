@@ -16,6 +16,14 @@ try {
   Set-Content -LiteralPath $sentinel -Value 'must survive a runtime update' -Encoding utf8
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
   if (!(Test-Path -LiteralPath $sentinel)) { throw 'Runtime sync removed active-task files instead of updating in place.' }
+  $staleRuntimeFile = Join-Path $runtime 'framework\stale-runtime-file.md'
+  Set-Content -LiteralPath $staleRuntimeFile -Value 'must be pruned from owned runtime folders' -Encoding utf8
+  & (Join-Path $root 'scripts\check-runtime-drift.ps1') -SourcePath $root -RuntimePath $runtime | Out-Null
+  $staleDetected = $LASTEXITCODE -ne 0
+  if (!$staleDetected) { throw 'Runtime drift check accepted a stale file inside an owned runtime folder.' }
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  if (Test-Path -LiteralPath $staleRuntimeFile) { throw 'Runtime sync left a stale file inside an owned runtime folder.' }
+  if (!(Test-Path -LiteralPath $sentinel)) { throw 'Runtime sync pruned an active-task root file while removing stale owned files.' }
   $syncText = Get-Content -LiteralPath (Join-Path $root 'scripts\sync-runtime.ps1') -Raw
   if ($syncText -match [regex]::Escape('Remove-Item -LiteralPath $resolvedRuntime -Recurse -Force')) { throw 'Runtime sync can still delete the active runtime.' }
   $statePath = Join-Path $codexHome 'ueef\UEEF-ACTIVE.json'
@@ -30,7 +38,7 @@ try {
   foreach ($term in @('save-contract bugs','Repetition does not convert','external or user-only condition','no meaningful local work remains','When a goal is ACTIVE','read current goal status')) {
     if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing delivery continuation contract: $term" }
   }
-  $status = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
+  $status = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
   if ($status -notcontains 'Overall: ACTIVE') { throw 'Valid generated runtime did not become ACTIVE.' }
   Set-Content -LiteralPath (Join-Path $runtime 'README.md') -Value 'intentional runtime drift' -Encoding utf8
   $driftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
@@ -46,7 +54,7 @@ try {
 
   $state.active = $false
   $state | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $statePath -Encoding utf8
-  $invalidStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
+  $invalidStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
   if ($invalidStatus -notcontains 'Overall: INACTIVE') { throw 'Malformed/inactive state was accepted.' }
   Write-Host 'Runtime hardening tests passed'
 } finally {

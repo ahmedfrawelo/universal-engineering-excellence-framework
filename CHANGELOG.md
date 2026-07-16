@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.19`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.20`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.20 - 2026-07-16
+
+- Pruned stale files from owned runtime folders during non-destructive runtime sync while preserving task-local root files.
+- Added release-manifest contract validation for markdown minimums, entrypoints, assets, release notes, and release date format.
+- Added per-check audit durations and a quick audit mode for faster routine assurance.
+- Reduced repeated runtime-hardening/status work without weakening explicit deep drift checks.
 
 ## 2.8.19 - 2026-07-16
 
