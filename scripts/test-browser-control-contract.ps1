@@ -11,11 +11,12 @@ $required = @{
   'framework/51-browser-session-control/12-cross-session-evidence-handoff.md' = @('THREAD_CONTROL_CHANNEL_DEGRADED', 'CHROME_EXTERNALLY_UNAVAILABLE', 'VERIFIED_HANDOFF', 'current code state')
   'framework/51-browser-session-control/13-user-facing-recovery-protocol.md' = @('first local bridge failure', 'Do not expose attempt counts', 'Browser verification is being completed on your existing tab; implementation continues.')
   'framework/51-browser-session-control/14-automatic-tab-ownership-recovery.md' = @('already part of another browser session', 'repair-chrome-tab-ownership.ps1', 'without a coordinator or user action')
+  'framework/51-browser-session-control/15-chrome-control-readiness.md' = @('Chrome readiness flow', 'browser-client.mjs', 'user.openTabs()', 'claimTab()', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'CHROME_EXTERNALLY_UNAVAILABLE', 'VERIFIED_HANDOFF', 'chrome.tabs.finalize(...)', 'not enough to prove that Chrome cannot be used')
   'framework/51-browser-session-control/07-browser-task-verification.md' = @('do not report `COMPLETE`', 'structural equivalence', 'same-tab evidence', 'chrome.tabs.finalize(...)', 'prevents stale cross-task ownership')
-  'framework/27-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'claimTab()', 'Do not fail because')
-  'framework/03-runtime/00-runtime-sequence.md' = @('Exact user.openTabs() object claimed:', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
+  'framework/27-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'Do not fail because')
+  'framework/03-runtime/00-runtime-sequence.md' = @('Chrome readiness flow completed:', 'Exact user.openTabs() object claimed:', 'Automatic ownership repair run when needed:', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
   'framework/29-checklists/32-browser-session-control-checklist.md' = @('exact returned object', 'Debugging/CDP authorization')
-  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Extension attachment', 'must not pause the goal', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF', 'Do not expose retry counts', 'repair-chrome-tab-ownership.ps1')
+  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'Extension attachment', 'must not pause the goal', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF', 'Do not expose retry counts', 'repair-chrome-tab-ownership.ps1')
   'scripts/repair-chrome-tab-ownership.ps1' = @('extension-host.exe', 'chrome-extension://hehggadaopoacecdllhhajmbjkdcmajg/', 'Stop-Process', 'DryRun')
 }
 foreach ($relative in $required.Keys) {
@@ -35,13 +36,17 @@ foreach ($term in $forbiddenBrowserTerms) {
   if ((Get-ChildItem -LiteralPath (Join-Path $root 'framework') -Recurse -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -match [regex]::Escape($term)) { throw "Obsolete browser contract term remains: $term" }
 }
 $masterText = Get-Content -LiteralPath (Join-Path $root 'framework/01-core/01-master-loader.md') -Raw
-if ($masterText -notmatch 'Load modules `00`, `01`, `02`, `03`') { throw 'No-isolated-browser module is not selected.' }
+if ($masterText -notmatch 'Load modules `00`, `01`, `02`, `03`' -or $masterText -notmatch '`15`') { throw 'Required browser modules are not selected.' }
 $isolatedText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-session-control/03-no-isolated-browser-by-default.md') -Raw
 if ($isolatedText -match 'Isolated contexts are acceptable') { throw 'Isolated Chrome fallback remains.' }
 $checklistText = Get-Content -LiteralPath (Join-Path $root 'framework/29-checklists/32-browser-session-control-checklist.md') -Raw
 if ($checklistText -match 'Explicit consent recorded if an isolated fallback was necessary') { throw 'Consent-based isolated fallback remains.' }
 $handoffText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-session-control/12-cross-session-evidence-handoff.md') -Raw
 if ($handoffText -notmatch 'Do not mark the task `BLOCKED`') { throw 'Cross-session evidence handoff does not prohibit false blocking.' }
+$readinessText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-session-control/15-chrome-control-readiness.md') -Raw
+foreach ($term in @('A platform permission prompt is normal authorization', 'Only report `CHROME_EXTERNALLY_UNAVAILABLE`', 'not enough to prove that Chrome cannot be used', 'cannot become a false `BLOCKED` state')) {
+  if ($readinessText -notmatch [regex]::Escape($term)) { throw "Chrome readiness contract missing root-cause guard: $term" }
+}
 
 $previousCodexHome = $env:CODEX_HOME
 try {

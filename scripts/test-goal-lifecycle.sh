@@ -8,6 +8,7 @@ if "$v" --goal-status BLOCKED --terminal-final >/dev/null 2>&1; then echo 'Inval
 if "$v" --goal-status COMPLETE --terminal-final --outcome-satisfied --gates-pass-or-accepted --verification-recorded --browser-verification-required >/dev/null 2>&1; then echo 'COMPLETE accepted without browser verification' >&2; exit 1; fi
 if "$v" --goal-status COMPLETE --terminal-final --outcome-satisfied --gates-pass-or-accepted --verification-recorded --visual-verification-required >/dev/null 2>&1; then echo 'COMPLETE accepted without visual verification' >&2; exit 1; fi
 if "$v" --goal-status BLOCKED --terminal-final --external-blocker --no-meaningful-local-work --external-state-change-required --thread-control-channel-degraded >/dev/null 2>&1; then echo 'BLOCKED accepted for thread-local control degradation' >&2; exit 1; fi
+if "$v" --goal-status BLOCKED --terminal-final --external-blocker --no-meaningful-local-work --external-state-change-required --browser-verification-required >/dev/null 2>&1; then echo 'BLOCKED accepted for browser verification without external Chrome evidence' >&2; exit 1; fi
 if "$v" --goal-status ACTIVE --browser-verification-required --verified-browser-evidence-handoff >/dev/null 2>&1; then echo 'Stale handoff accepted' >&2; exit 1; fi
 if "$v" --goal-status ACTIVE --user-restart-chrome-requested >/dev/null 2>&1; then echo 'Restart request accepted without external Chrome evidence' >&2; exit 1; fi
 if "$v" --goal-status ACTIVE --thread-control-channel-degraded --user-facing-status 'Browser bridge failed three times.' >/dev/null 2>&1; then echo 'Retry-count status accepted' >&2; exit 1; fi
@@ -21,4 +22,5 @@ if "$v" --goal-status BLOCKED --terminal-final --external-blocker --no-meaningfu
 "$v" --goal-status ACTIVE --thread-control-channel-degraded --user-facing-status 'Browser verification is being completed on your existing tab; implementation continues.' >/dev/null
 "$v" --goal-status ACTIVE --pending-screenshot-evidence >/dev/null
 "$v" --goal-status BLOCKED --terminal-final --external-blocker --no-meaningful-local-work --external-state-change-required >/dev/null
+"$v" --goal-status BLOCKED --terminal-final --external-blocker --no-meaningful-local-work --external-state-change-required --browser-verification-required --chrome-externally-unavailable >/dev/null
 echo 'Unix goal lifecycle tests passed'

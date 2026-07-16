@@ -70,6 +70,7 @@ $requiredAcceptance = @(
   "framework/51-browser-session-control/12-cross-session-evidence-handoff.md",
   "framework/51-browser-session-control/13-user-facing-recovery-protocol.md",
   "framework/51-browser-session-control/14-automatic-tab-ownership-recovery.md",
+  "framework/51-browser-session-control/15-chrome-control-readiness.md",
   "docs/releases/v1.5.0.md",
   "scripts/cleanup-workspace.ps1",
   "scripts/cleanup-workspace.sh",
@@ -196,6 +197,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.21.md",
   "docs/releases/v2.8.22.md",
   "docs/releases/v2.8.23.md",
+  "docs/releases/v2.8.24.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -308,7 +310,7 @@ $guardianTerms = @("Affected baseline recorded:","Regression monitors selected:"
 foreach ($term in $guardianTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing guardian field: $term" } }
 $bootstrapTerms = @("Environment Ready:","Profiles Loaded:","Mandatory Dependencies:","Recommended Dependencies:","Optional Dependencies:","Installation Performed:")
 foreach ($term in $bootstrapTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing bootstrap field: $term" } }
-$browserTerms = @("User-owned browser/profile verified:","Extension/tab-claim authorization granted:","Exact user.openTabs() object claimed:","Existing window state preserved:","Target tab and domain verified:","Control provenance:","Separate automation surface created:","Banner classification:","Signed-in state verified when required:","Browser session gate:")
+$browserTerms = @("User-owned browser/profile verified:","Chrome readiness flow completed:","Extension/tab-claim authorization granted:","Exact user.openTabs() object claimed:","Existing window state preserved:","Target tab and domain verified:","Control provenance:","Control channel:","Automatic ownership repair run when needed:","Verification evidence:","Separate automation surface created:","Banner classification:","Signed-in state verified when required:","Browser session gate:")
 foreach ($term in $browserTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing browser session field: $term" } }
 $skeletonTerms = @("Skeleton system selected:","Existing loading pattern searched:","Skeleton reused or updated:","State matrix defined:","Skeleton parity verified:","Layout shift checked:","Skeleton gate:")
 foreach ($term in $skeletonTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skeleton field: $term" } }
@@ -376,6 +378,9 @@ foreach ($term in @("Skill invocation protocol:","skill chain","red flags","TDD 
 }
 foreach ($term in @("Missing screenshot evidence","pCloud screenshot delay","not a valid BLOCKED condition","screenshot is pending")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing visual-blocker policy: $term" }
+}
+foreach ($term in @("Chrome readiness flow","normal authorization","not proof that Chrome is unavailable","run scripts/repair-chrome-tab-ownership.ps1","CHROME_EXTERNALLY_UNAVAILABLE")) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing Chrome readiness policy: $term" }
 }
 foreach ($term in @("Spec-driven development:","specification the source of truth","technical plan and traceable tasks","Check consistency across specification, plan, tasks, code, tests, and final claims")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing spec-driven policy: $term" }

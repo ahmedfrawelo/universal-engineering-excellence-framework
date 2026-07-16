@@ -35,6 +35,7 @@ blocked=false; complete=false; allowed=false; browser_allowed=false; visual_allo
 [ "$status" = COMPLETE ] && [ "$outcome" = true ] && [ "$remaining" = false ] && [ "$gates" = true ] && [ "$verified" = true ] && [ "$browser_allowed" = true ] && [ "$visual_allowed" = true ] && complete=true
 if [ "$status_only" = true ] || [ "$blocked" = true ] || [ "$complete" = true ]; then allowed=true; fi
 [ "$status" != BLOCKED ] || [ "$blocked" = true ] || { echo 'Invalid BLOCKED transition.' >&2; exit 1; }
+[ "$status" != BLOCKED ] || [ "$browser_required" = false ] || [ "$chrome_unavailable" = true ] || { echo 'Browser verification requirement is not a valid BLOCKED transition without independent Chrome unavailability evidence.' >&2; exit 1; }
 [ "$status" != BLOCKED ] || [ "$thread_degraded" = false ] || [ "$chrome_unavailable" = true ] || { echo 'Thread-local browser control degradation is not a valid BLOCKED transition.' >&2; exit 1; }
 [ "$status" != BLOCKED ] || [ "$pending_screenshot" = false ] || { echo 'Pending screenshot evidence is not a valid BLOCKED transition.' >&2; exit 1; }
 [ "$restart_requested" = false ] || [ "$chrome_unavailable" = true ] || { echo 'A Chrome restart request requires independent Chrome unavailability evidence.' >&2; exit 1; }

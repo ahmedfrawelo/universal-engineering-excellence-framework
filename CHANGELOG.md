@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.23`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.8.24`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.8.24 - 2026-07-16
+
+- Added a Chrome control readiness contract that requires supported skill bootstrap, exact tab claim, automatic stale-ownership repair, handoff, and tab finalization before browser-unavailable claims.
+- Rejected browser-verification `BLOCKED` lifecycle transitions unless independent `CHROME_EXTERNALLY_UNAVAILABLE` evidence exists.
+- Propagated the readiness contract into runtime generation and browser contract validators.
 
 ## 2.8.23 - 2026-07-16
 

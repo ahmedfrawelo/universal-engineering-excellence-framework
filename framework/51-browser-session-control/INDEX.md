@@ -1,6 +1,6 @@
 # Browser Session Control Index
 
-Version: 1.5.0
+Version: 1.5.1
 
 - 00-browser-session-first.md
 - 01-user-owned-browser.md
@@ -17,3 +17,4 @@ Version: 1.5.0
 - 12-cross-session-evidence-handoff.md
 - 13-user-facing-recovery-protocol.md
 - 14-automatic-tab-ownership-recovery.md
+- 15-chrome-control-readiness.md

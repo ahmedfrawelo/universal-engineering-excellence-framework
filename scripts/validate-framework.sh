@@ -98,8 +98,10 @@ grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-s
 grep -q "Affected baseline recorded:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "User-owned browser/profile verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Chrome readiness flow completed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Extension/tab-claim authorization granted:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Exact user.openTabs() object claimed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Automatic ownership repair run when needed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Existing window state preserved:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Control provenance:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Banner classification:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -142,6 +144,7 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/framework/51-browser-session-control/12-cross-session-evidence-handoff.md" ] || { echo "Missing cross-session browser-evidence handoff module" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/13-user-facing-recovery-protocol.md" ] || { echo "Missing user-facing browser recovery module" >&2; exit 1; }
 [ -f "$ROOT/framework/51-browser-session-control/14-automatic-tab-ownership-recovery.md" ] || { echo "Missing automatic tab ownership recovery module" >&2; exit 1; }
+[ -f "$ROOT/framework/51-browser-session-control/15-chrome-control-readiness.md" ] || { echo "Missing Chrome control readiness module" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.5.0.md" ] || { echo "Missing browser session release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.ps1" ] || { echo "Missing cleanup script" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.sh" ] || { echo "Missing cleanup script" >&2; exit 1; }
@@ -209,6 +212,11 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/framework/27-quality-gates/32-skill-invocation-protocol-gate.md" ] || { echo "Missing skill invocation protocol gate" >&2; exit 1; }
 [ -f "$ROOT/framework/29-checklists/41-skill-invocation-protocol-checklist.md" ] || { echo "Missing skill invocation protocol checklist" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.19.md" ] || { echo "Missing spec-driven release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.20.md" ] || { echo "Missing runtime hardening release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.21.md" ] || { echo "Missing mixed-direction response release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.22.md" ] || { echo "Missing mandatory mixed-direction response release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.23.md" ] || { echo "Missing screenshot-block prevention release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.8.24.md" ] || { echo "Missing Chrome readiness release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/third-party/spec-kit-attribution.md" ] || { echo "Missing Spec Kit attribution" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/README.md" ] || { echo "Missing spec-driven README" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/INDEX.md" ] || { echo "Missing spec-driven index" >&2; exit 1; }

@@ -31,6 +31,7 @@ $completeAllowed = $GoalStatus -eq 'COMPLETE' -and $RequestedOutcomeSatisfied -a
 $terminalAllowed = $StatusOnly -or $completeAllowed -or $blockedAllowed
 
 if ($GoalStatus -eq 'BLOCKED' -and !$blockedAllowed) { throw 'Invalid BLOCKED transition.' }
+if ($GoalStatus -eq 'BLOCKED' -and $BrowserVerificationRequired -and !$ChromeExternallyUnavailable) { throw 'Browser verification requirement is not a valid BLOCKED transition without independent Chrome unavailability evidence.' }
 if ($GoalStatus -eq 'BLOCKED' -and $ThreadControlChannelDegraded -and !$ChromeExternallyUnavailable) { throw 'Thread-local browser control degradation is not a valid BLOCKED transition.' }
 if ($GoalStatus -eq 'BLOCKED' -and $PendingScreenshotEvidence) { throw 'Pending screenshot evidence is not a valid BLOCKED transition.' }
 if ($UserRestartChromeRequested -and !$ChromeExternallyUnavailable) { throw 'A Chrome restart request requires independent Chrome unavailability evidence.' }

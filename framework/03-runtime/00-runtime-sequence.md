@@ -141,12 +141,14 @@ For browser tasks, implementation must not begin until the assistant records:
 
 ```text
 User-owned browser/profile verified:
+Chrome readiness flow completed:
 Extension/tab-claim authorization granted:
 Exact user.openTabs() object claimed:
 Existing window state preserved:
 Target tab and domain verified:
 Control provenance: EXISTING_EXTENSION_TAB / BLOCKED
 Control channel: READY / THREAD_CONTROL_CHANNEL_DEGRADED
+Automatic ownership repair run when needed:
 Verification evidence: LOCAL / VERIFIED_HANDOFF / PENDING
 Separate automation surface created: NO / BLOCKED
 Banner classification: ABSENT / VERIFIED_EXISTING_TAB / UNVERIFIED_BLOCKED
