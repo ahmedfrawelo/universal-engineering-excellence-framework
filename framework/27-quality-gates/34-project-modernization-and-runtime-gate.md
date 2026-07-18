@@ -1,6 +1,6 @@
 # Project Modernization And Runtime Gate
 
-Version: 1.0.0  
+Version: 1.0.0
 Status: Release Blocking
 
 Pass only when applicable evidence proves:

@@ -1,7 +1,7 @@
 # Project Modernization System
 
-Version: 1.0.0  
-Status: Enforced  
+Version: 1.0.0
+Status: Enforced
 Applies to: existing projects, legacy code, broad refactors, dependency upgrades, runtime upgrades, architecture modernization
 
 ## Purpose

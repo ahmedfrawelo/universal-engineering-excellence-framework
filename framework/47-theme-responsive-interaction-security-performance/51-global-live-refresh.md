@@ -1,7 +1,7 @@
 # Global Live Refresh And State Reconciliation
 
-Version: 1.2.0  
-Status: Enforced  
+Version: 1.2.0
+Status: Enforced
 Applies to: any mutable remote state, notifications, counters, dashboards, detail views, forms, workflows, jobs, collaboration, and data views
 
 ## Required Practice

@@ -1,7 +1,7 @@
 # Application Lazy Loading
 
-Version: 1.2.0  
-Status: Enforced  
+Version: 1.2.0
+Status: Enforced
 Applies to: routes, features, components, assets, data, integrations, workers, and backend optional capabilities
 
 ## Required Practice
