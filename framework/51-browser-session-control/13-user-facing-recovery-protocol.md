@@ -6,7 +6,7 @@
 
 ## Required Action
 
-On the first local bridge failure, the task must stop repeating local bootstrap attempts in the same turn, preserve the user-owned Chrome surface, and request a `VERIFIED_HANDOFF` from a trusted coordinator. It continues all non-browser work while the handoff is obtained. It does not ask the user to restart Chrome or to open another browser.
+On the first local bridge failure, the task must stop repeating local bootstrap attempts in the same turn, preserve the user-owned Chrome surface, and automatically seek a `VERIFIED_HANDOFF` from a trusted coordinator. It continues all non-browser work while the handoff is obtained. It does not ask the user to acknowledge the transfer, restart Chrome, or open another browser.
 
 ## Required User-Facing Status
 

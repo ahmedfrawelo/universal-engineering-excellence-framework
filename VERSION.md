@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.10.0.
+UEEF Enterprise Edition version: 2.10.1.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -76,3 +76,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.9.1: enforced one component-family owner folder, canonical public imports, recipe-to-primitive reuse, and duplicate shared skeleton prevention.
 - 2.9.2: enforced release metadata and public documentation consistency across Windows and Unix validation paths.
 - 2.10.0: added project modernization, safe refactoring, technology currency, global live refresh, application lazy loading, performance hardening, and false-green assurance prevention.
+- 2.10.1: automatic same-tab browser control-channel failover with no manual acknowledgement requirement.

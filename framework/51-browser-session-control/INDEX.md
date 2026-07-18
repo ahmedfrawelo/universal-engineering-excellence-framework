@@ -18,3 +18,4 @@ Version: 1.5.1
 - 13-user-facing-recovery-protocol.md
 - 14-automatic-tab-ownership-recovery.md
 - 15-chrome-control-readiness.md
+- 16-control-channel-failover.md

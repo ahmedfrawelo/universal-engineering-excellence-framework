@@ -16,9 +16,10 @@ Before using Chrome for navigation, inspection, screenshots, clicking, typing, u
 3. Enumerate `user.openTabs()` and select the exact returned object for the user-owned tab. Do not reconstruct the tab from URL text.
 4. Run `claimTab()` on that exact object. A platform permission prompt is normal authorization, not a failure and not permission to create another browser profile.
 5. If `claimTab()` reports a stale browser-session owner, run `scripts/repair-chrome-tab-ownership.ps1`, reset the task browser binding, rebootstrap the same extension binding, and reclaim the exact tab once.
-6. If the local bridge is still degraded after documented bootstrap troubleshooting, classify it as `THREAD_CONTROL_CHANNEL_DEGRADED`, request or accept a current `VERIFIED_HANDOFF` for the same tab and current code state, and continue non-browser work.
-7. Only report `CHROME_EXTERNALLY_UNAVAILABLE` when Chrome, the extension, or the required user tab is independently proven unavailable outside the task-local control channel.
-8. Finalize claimed tabs with `chrome.tabs.finalize(...)` before the turn ends unless an explicit handoff keeps the tab live for the next task.
+6. If the local bridge is still degraded after documented bootstrap troubleshooting, classify it as `THREAD_CONTROL_CHANNEL_DEGRADED`, automatically seek or accept a current `VERIFIED_HANDOFF` for the same tab and current code state, and continue non-browser work. Do not ask the user to acknowledge, confirm, or type "done" to begin this failover.
+7. If no trusted coordinator channel can supply current same-tab evidence, use verified visible Windows control only when the Chrome plugin itself is independently unavailable and the same user-owned window can be identified. Do not create a browser, profile, or isolated context.
+8. Only report `CHROME_EXTERNALLY_UNAVAILABLE` when Chrome, the extension, and every authorized same-window control path are independently proven unavailable outside the task-local control channel.
+9. Finalize claimed tabs with `chrome.tabs.finalize(...)` before the turn ends unless an explicit handoff keeps the tab live for the next task.
 
 ## Non-Blocking Conditions
 

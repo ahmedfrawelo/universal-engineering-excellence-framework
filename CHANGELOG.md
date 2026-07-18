@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.10.1 - 2026-07-18
+
+- Added deterministic same-tab Chrome control-channel failover: repair existing ownership, automatically seek a trusted handoff, then use verified visible Windows control only when the plugin itself is unavailable.
+- Prohibited asking the user to acknowledge a handoff or type "done" to resume browser verification.
+- Kept the existing prohibition on connector-created browsers, isolated profiles, and unauthenticated fallback sessions.
 
 ## 2.10.0 - 2026-07-18
 
