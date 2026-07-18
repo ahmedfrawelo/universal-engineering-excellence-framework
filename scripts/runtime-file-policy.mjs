@@ -32,6 +32,15 @@ export function walkFiles(root) {
   return files;
 }
 
+function assertNoSymbolicPath(source, relative) {
+  let current = source;
+  for (const segment of relative.split('/')) {
+    current = path.join(current, segment);
+    if (!fs.existsSync(current)) throw new Error(`Release file is missing: ${relative}`);
+    if (fs.lstatSync(current).isSymbolicLink()) throw new Error(`Runtime policy rejects symbolic link: ${relative}`);
+  }
+}
+
 export function releaseFiles(source, { includeLoader = false } = {}) {
   let files;
   if (fs.existsSync(path.join(source, '.git'))) {
@@ -43,6 +52,7 @@ export function releaseFiles(source, { includeLoader = false } = {}) {
   for (const relative of files) {
     if (isSensitive(relative)) throw new Error(`Sensitive file cannot enter the runtime: ${relative}`);
     const full = path.join(source, ...relative.split('/'));
+    assertNoSymbolicPath(source, relative);
     if (!fs.existsSync(full) || !fs.statSync(full).isFile()) throw new Error(`Release file is missing: ${relative}`);
   }
   return files;

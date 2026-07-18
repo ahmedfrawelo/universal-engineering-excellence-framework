@@ -61,6 +61,7 @@ $state = [ordered]@{
   sourceRepositoryPath = $SourceRepositoryPath
   sourceCommit = $commit
   loaderPath = $loader
+  runtimeLoaderSha256 = (Get-FileHash -LiteralPath $loader -Algorithm SHA256).Hash.ToLowerInvariant()
   agentsPath = $agents
   requireAgents = $RequireAgents.IsPresent
   oldHomeUeefExists = (Test-Path -LiteralPath (Join-Path $HOME ".ueef"))
@@ -68,6 +69,8 @@ $state = [ordered]@{
 }
 $statePath = Join-Path $runtimeRoot "UEEF-ACTIVE.json"
 New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
+$stateItem = Get-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
+if ($stateItem -and (($stateItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { throw "Refusing reparse-point active state: $statePath" }
 $temporaryState = "$statePath.tmp.$([guid]::NewGuid().ToString('N'))"
 [IO.File]::WriteAllText($temporaryState, ($state | ConvertTo-Json -Depth 8) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
 Move-Item -LiteralPath $temporaryState -Destination $statePath -Force

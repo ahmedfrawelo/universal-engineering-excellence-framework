@@ -56,7 +56,8 @@ if [ "$WINDOWS_PATHS" = 1 ]; then
 fi
 if [ "$WINDOWS_PATHS" = 1 ] && command -v cygpath >/dev/null 2>&1; then
   WINDOWS_ROOT=$(cygpath -w "$ROOT")
-  case "$WINDOWS_ROOT" in [A-Za-z]:\\) echo "Refusing to clean a filesystem root: $ROOT" >&2; exit 2;; esac
+  WINDOWS_ROOT_NORMALIZED=$(printf '%s' "$WINDOWS_ROOT" | tr '\\' '/')
+  case "$WINDOWS_ROOT_NORMALIZED" in [A-Za-z]:/) echo "Refusing to clean a filesystem root: $ROOT" >&2; exit 2;; esac
 fi
 
 if [ -n "${HOME:-}" ] && [ -d "$HOME" ]; then

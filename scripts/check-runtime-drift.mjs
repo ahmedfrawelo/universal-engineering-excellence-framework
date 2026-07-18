@@ -20,6 +20,21 @@ for (const relative of sourceFiles) {
 for (const relative of walkFiles(runtime)) {
   if (relative !== 'UEEF-LOADER.md' && !sourceFiles.includes(relative)) mismatches.push(`Extra runtime: ${relative}`);
 }
+const loader = path.join(runtime, 'UEEF-LOADER.md');
+if (!fs.existsSync(loader)) mismatches.push('Missing runtime: UEEF-LOADER.md');
+else {
+  const loaderText = fs.readFileSync(loader, 'utf8');
+  for (const term of ['Agent and model routing:','environment-bootstrap','Loaded: boot-loader, core-system']) {
+    if (!loaderText.includes(term)) mismatches.push(`Runtime loader missing contract: ${term}`);
+  }
+  const statePath = path.join(path.dirname(runtime), 'UEEF-ACTIVE.json');
+  if (fs.existsSync(statePath)) {
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    if (path.resolve(state.runtimePath || '') === runtime && typeof state.runtimeLoaderSha256 === 'string' && hash(loader) !== state.runtimeLoaderSha256) {
+      mismatches.push('Different: UEEF-LOADER.md');
+    }
+  }
+}
 if (mismatches.length) {
   console.error(mismatches.join('\n'));
   process.exit(1);

@@ -49,6 +49,38 @@ try {
   if ($nodeNonEmptyExit -eq 0 -or $nodeNonEmpty -notlike '*must be empty*') { throw 'Portable release copier accepted a non-empty destination.' }
   if ($nodeOverlapExit -eq 0 -or $nodeOverlap -notlike '*overlapping release destination*') { throw 'Portable release copier accepted a destination inside its source.' }
 
+  New-Item -ItemType Directory -Path (Join-Path $policySource 'Framework') -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $policySource 'Framework\wrong-case.md') -Value '# must not ship'
+  & git -C $policySource init --quiet
+  & git -C $policySource add README.md docs/guide.md Framework/wrong-case.md
+  Set-Content -LiteralPath (Join-Path $policySource 'docs\untracked.md') -Value '# must not ship'
+  $windowsTrackedDestination = Join-Path $sandbox 'windows-tracked-destination'
+  Copy-UeefReleaseFiles -SourcePath $policySource -DestinationPath $windowsTrackedDestination
+  if (Test-Path -LiteralPath (Join-Path $windowsTrackedDestination 'docs\untracked.md')) { throw 'Windows release policy copied an untracked file.' }
+  if (Test-Path -LiteralPath (Join-Path $windowsTrackedDestination 'Framework\wrong-case.md')) { throw 'Windows release policy accepted a wrong-case owned directory.' }
+  $nodeTrackedDestination = Join-Path $sandbox 'node-tracked-destination'
+  & node (Join-Path $root 'scripts\copy-release-files.mjs') $policySource $nodeTrackedDestination | Out-Null
+  if ($LASTEXITCODE -ne 0 -or (Test-Path -LiteralPath (Join-Path $nodeTrackedDestination 'docs\untracked.md'))) { throw 'Portable release policy copied an untracked file.' }
+  if (Test-Path -LiteralPath (Join-Path $nodeTrackedDestination 'Framework\wrong-case.md')) { throw 'Portable release policy accepted a wrong-case owned directory.' }
+
+  $outsideDocs = Join-Path $sandbox 'outside-docs'
+  $junctionSource = Join-Path $sandbox 'junction-source'
+  New-Item -ItemType Directory -Path $outsideDocs -Force | Out-Null
+  New-Item -ItemType Directory -Path $junctionSource -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $outsideDocs 'external.md') -Value '# external'
+  Set-Content -LiteralPath (Join-Path $junctionSource 'README.md') -Value '# fixture'
+  New-Item -ItemType Junction -Path (Join-Path $junctionSource 'docs') -Target $outsideDocs | Out-Null
+  $windowsJunctionRejected = $false
+  try { Get-UeefReleaseRelativeFiles -SourcePath $junctionSource | Out-Null } catch { $windowsJunctionRejected = $_.Exception.Message -like '*Reparse-point*' }
+  if (!$windowsJunctionRejected) { throw 'Windows release policy followed a reparse-point parent.' }
+  $previousErrorAction = $ErrorActionPreference
+  try {
+    $ErrorActionPreference = 'Continue'
+    $nodeJunctionOutput = & node (Join-Path $root 'scripts\copy-release-files.mjs') $junctionSource (Join-Path $sandbox 'node-junction-destination') 2>&1 | Out-String
+    $nodeJunctionExit = $LASTEXITCODE
+  } finally { $ErrorActionPreference = $previousErrorAction }
+  if ($nodeJunctionExit -eq 0 -or $nodeJunctionOutput -notlike '*symbolic link*') { throw 'Portable release policy followed a linked parent.' }
+
   New-Item -ItemType Directory -Path $codexHome -Force | Out-Null
   Set-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Value "# User rules`n`nKeep this custom rule." -Encoding utf8
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
@@ -64,6 +96,15 @@ try {
   if (!$staleDetected) { throw 'Runtime drift check accepted a stale file inside an owned runtime folder.' }
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
   if (Test-Path -LiteralPath $staleRuntimeFile) { throw 'Runtime sync left a stale file inside an owned runtime folder.' }
+  $runtimeLinkTarget = Join-Path $sandbox 'runtime-link-target'
+  $runtimeLink = Join-Path $runtime 'framework\runtime-link'
+  New-Item -ItemType Directory -Path $runtimeLinkTarget -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $runtimeLinkTarget 'external.md') -Value '# external runtime content'
+  New-Item -ItemType Junction -Path $runtimeLink -Target $runtimeLinkTarget | Out-Null
+  try {
+    $runtimeLinkMismatches = @(Get-UeefRuntimeDriftMismatches -SourcePath $root -RuntimePath $runtime)
+    if (!($runtimeLinkMismatches | Where-Object { $_ -like 'Unsafe runtime reparse point:*' })) { throw 'Runtime drift accepted a reparse point inside the runtime.' }
+  } finally { if (Test-Path -LiteralPath $runtimeLink) { [IO.Directory]::Delete($runtimeLink) } }
   $syncText = Get-Content -LiteralPath (Join-Path $root 'scripts\sync-runtime.ps1') -Raw
   foreach ($term in @('stagingPath','rollbackPath','Copy-UeefReleaseFiles','validate-framework.ps1')) {
     if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime sync is missing transactional control: $term" }
@@ -83,6 +124,22 @@ try {
   foreach ($term in @('save-contract bugs','Repetition does not convert','external or user-only condition','no meaningful local work remains','When a goal is ACTIVE','read current goal status')) {
     if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing delivery continuation contract: $term" }
   }
+  $stateBeforeRollback = Get-Content -LiteralPath $statePath -Raw
+  $agentsBeforeRollback = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
+  $rollbackTriggered = $false
+  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' -TestFailAfterState | Out-Null }
+  catch { $rollbackTriggered = $_.Exception.Message -like '*Injected test failure*' }
+  if (!$rollbackTriggered) { throw 'Runtime sync rollback injection did not fail.' }
+  if ((Get-Content -LiteralPath $statePath -Raw) -cne $stateBeforeRollback) { throw 'Runtime sync did not restore the previous active state.' }
+  if ((Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw) -cne $agentsBeforeRollback) { throw 'Runtime sync did not restore the previous AGENTS file.' }
+  $freshCodexHome = Join-Path $sandbox 'fresh-codex-home'
+  $freshRollbackTriggered = $false
+  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $freshCodexHome -Agent 'fresh-agent' -TestFailAfterState | Out-Null }
+  catch { $freshRollbackTriggered = $_.Exception.Message -like '*Injected test failure*' }
+  if (!$freshRollbackTriggered) { throw 'First-install rollback injection did not fail.' }
+  if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'AGENTS.md')) { throw 'Failed first sync left a generated AGENTS file.' }
+  if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'ueef\UEEF-ACTIVE.json')) { throw 'Failed first sync left an active state.' }
+  if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'ueef\fresh-agent')) { throw 'Failed first sync left a runtime.' }
   $status = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
   if ($status -notcontains 'Overall: ACTIVE') { throw 'Valid generated runtime did not become ACTIVE.' }
   Set-Content -LiteralPath (Join-Path $runtime 'README.md') -Value 'intentional runtime drift' -Encoding utf8
@@ -91,6 +148,16 @@ try {
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
   $statusAfterRepair = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw 'Runtime resync did not repair drift status.' }
+  Add-Content -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md') -Value "`nUnauthorized loader mutation." -Encoding utf8
+  $loaderDriftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
+  if ($loaderDriftStatus -notcontains 'Runtime drift: FAIL' -or $loaderDriftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime status accepted a tampered loader.' }
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  $untrackedStatusFixture = Join-Path $root 'docs\.ueef-untracked-runtime-test.tmp'
+  try {
+    Set-Content -LiteralPath $untrackedStatusFixture -Value 'untracked files are outside the release policy'
+    $statusWithUntrackedSource = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
+    if ($statusWithUntrackedSource -notcontains 'Runtime drift: PASS' -or $statusWithUntrackedSource -notcontains 'Overall: ACTIVE') { throw 'Runtime status disagrees with the tracked-file release policy.' }
+  } finally { Remove-Item -LiteralPath $untrackedStatusFixture -Force -ErrorAction SilentlyContinue }
   $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
   if ($bashPath) {
     $shellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)

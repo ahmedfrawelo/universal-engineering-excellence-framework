@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const [command, ...args] = process.argv.slice(2);
+const sha256 = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 
 function readState(file) {
   const state = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -11,6 +13,7 @@ function readState(file) {
 
 if (command === 'write') {
   const [file, version, codexHome, runtimeRoot, runtimePath, agent, repositoryPath, sourceRepositoryPath, loaderPath, agentsPath, requireAgents, agentsOk] = args;
+  if (fs.existsSync(file) && fs.lstatSync(file).isSymbolicLink()) throw new Error(`Refusing symbolic-link active state: ${file}`);
   const state = {
     active: true,
     agentRoutingContractVersion: 3,
@@ -25,6 +28,7 @@ if (command === 'write') {
     sourceRepositoryPath,
     sourceCommit: 'UNKNOWN',
     loaderPath,
+    runtimeLoaderSha256: sha256(loaderPath),
     agentsPath,
     requireAgents: requireAgents === '1',
     oldHomeUeefExists: false,
@@ -45,8 +49,11 @@ if (command === 'write') {
 } else if (command === 'validate') {
   const [file, expectedVersion, expectedAgent] = args;
   const state = readState(file);
+  const loaderHashValid = typeof state.runtimeLoaderSha256 === 'string' && typeof state.loaderPath === 'string' &&
+    fs.existsSync(state.loaderPath) && !fs.lstatSync(state.loaderPath).isSymbolicLink() && state.runtimeLoaderSha256 === sha256(state.loaderPath);
   const valid = state.active === true && state.agentRoutingContractVersion === 3 && state.reasoningCeiling === 'medium' &&
     state.version === expectedVersion && state.agent === expectedAgent && state.requiredChecks &&
+    loaderHashValid &&
     Object.values(state.requiredChecks).every(Boolean);
   if (!valid) process.exit(1);
 } else if (command === 'source') {

@@ -1,7 +1,8 @@
 param(
   [string]$SourcePath = (Split-Path -Parent $PSScriptRoot),
   [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { "E:\shared folder\codex-home" }),
-  [string]$Agent = "codex"
+  [string]$Agent = "codex",
+  [switch]$TestFailAfterState
 )
 $ErrorActionPreference = "Stop"
 
@@ -26,8 +27,14 @@ $versionText = Get-Content -LiteralPath (Join-Path $SourcePath "VERSION.md") -Ra
 $versionMatch = [regex]::Match($versionText, '\b\d+\.\d+\.\d+\b')
 $version = if ($versionMatch.Success) { $versionMatch.Value } else { throw "Could not read VERSION.md" }
 New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
+$codexHomeItem = Get-Item -LiteralPath $CodexHome -Force
+if (($codexHomeItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw "Refusing reparse-point CODEX_HOME: $CodexHome" }
 
 $runtimeRoot = Join-Path $CodexHome "ueef"
+if (Test-Path -LiteralPath $runtimeRoot) {
+  $runtimeRootItem = Get-Item -LiteralPath $runtimeRoot -Force
+  if (($runtimeRootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw "Refusing reparse-point runtime root: $runtimeRoot" }
+}
 $resolvedRuntimeRoot = [IO.Path]::GetFullPath($runtimeRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePath = [IO.Path]::GetFullPath((Join-Path $resolvedRuntimeRoot $Agent))
 $resolvedCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $CodexHome).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
@@ -208,6 +215,19 @@ Write-Utf8File $stagingLoader @(
 & (Join-Path $stagingPath 'scripts\validate-framework.ps1') -Root $stagingPath -SkipNestedTests | Out-Null
 $runtimeSwapped = $false
 $agentsBackup = $null
+$agents = Join-Path $CodexHome 'AGENTS.md'
+$agentsItem = Get-Item -LiteralPath $agents -Force -ErrorAction SilentlyContinue
+if ($agentsItem -and (($agentsItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { throw "Refusing reparse-point AGENTS file: $agents" }
+$agentsExisted = Test-Path -LiteralPath $agents -PathType Leaf
+$statePath = Join-Path $resolvedRuntimeRoot 'UEEF-ACTIVE.json'
+$stateItem = Get-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
+if ($stateItem -and (($stateItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { throw "Refusing reparse-point active state: $statePath" }
+$stateExisted = Test-Path -LiteralPath $statePath -PathType Leaf
+$stateBackup = $null
+if ($stateExisted) {
+  $stateBackup = Join-Path $resolvedRuntimeRoot ('.state-' + [guid]::NewGuid().ToString('N') + '.json')
+  Copy-Item -LiteralPath $statePath -Destination $stateBackup -Force
+}
 try {
   if (Test-Path -LiteralPath $runtimePath) {
     Move-Item -LiteralPath $runtimePath -Destination $rollbackPath
@@ -215,7 +235,6 @@ try {
   Move-Item -LiteralPath $stagingPath -Destination $runtimePath
   $runtimeSwapped = $true
 
-$agents = Join-Path $CodexHome "AGENTS.md"
 $managedAgentsLines = @(
   "# Codex Global Runtime: UEEF",
   "",
@@ -390,20 +409,36 @@ if ($existingAgents -match '(?s)<!-- UEEF-MANAGED:START -->.*?<!-- UEEF-MANAGED:
 [IO.File]::WriteAllText($agents, $nextAgents.TrimEnd() + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
 
 & (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -RuntimeRoot $resolvedRuntimeRoot -Agent $Agent -RequireAgents -SourceRepositoryPath $SourcePath -SourceCommit $sourceCommit | Out-Null
+if ($TestFailAfterState) { throw 'Injected test failure after active-state write.' }
 if (Test-Path -LiteralPath $rollbackPath) { Remove-Item -LiteralPath $rollbackPath -Recurse -Force }
+$runtimeSwapped = $false
+if ($stateBackup -and (Test-Path -LiteralPath $stateBackup)) { Remove-Item -LiteralPath $stateBackup -Force -ErrorAction SilentlyContinue }
 Write-Output "UEEF runtime synced to $runtimePath"
 Write-Output "Codex AGENTS updated at $agents"
 } catch {
   $failure = $_
-  if ($runtimeSwapped -and (Test-Path -LiteralPath $runtimePath)) {
-    Remove-Item -LiteralPath $runtimePath -Recurse -Force
-  }
-  if (Test-Path -LiteralPath $rollbackPath) {
-    Move-Item -LiteralPath $rollbackPath -Destination $runtimePath
-  }
+  $rollbackFailure = $null
+  try {
+    if ($runtimeSwapped -and (Test-Path -LiteralPath $runtimePath)) {
+      Remove-Item -LiteralPath $runtimePath -Recurse -Force
+    }
+    if (Test-Path -LiteralPath $rollbackPath) {
+      Move-Item -LiteralPath $rollbackPath -Destination $runtimePath
+    }
+  } catch { $rollbackFailure = $_ }
   if ($agentsBackup -and (Test-Path -LiteralPath $agentsBackup)) {
-    Copy-Item -LiteralPath $agentsBackup -Destination (Join-Path $CodexHome 'AGENTS.md') -Force
+    Copy-Item -LiteralPath $agentsBackup -Destination $agents -Force
+  } elseif (!$agentsExisted -and (Test-Path -LiteralPath $agents)) {
+    Remove-Item -LiteralPath $agents -Force
   }
+  if ($stateExisted -and $stateBackup -and (Test-Path -LiteralPath $stateBackup)) {
+    Copy-Item -LiteralPath $stateBackup -Destination $statePath -Force
+  } elseif (!$stateExisted -and (Test-Path -LiteralPath $statePath)) {
+    Remove-Item -LiteralPath $statePath -Force
+  }
+  Get-ChildItem -LiteralPath $resolvedRuntimeRoot -Filter 'UEEF-ACTIVE.json.tmp.*' -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+  if ($stateBackup -and (Test-Path -LiteralPath $stateBackup)) { Remove-Item -LiteralPath $stateBackup -Force -ErrorAction SilentlyContinue }
   if (Test-Path -LiteralPath $stagingPath) { Remove-Item -LiteralPath $stagingPath -Recurse -Force }
+  if ($rollbackFailure) { throw "Runtime sync failed and rollback was incomplete: $($rollbackFailure.Exception.Message)" }
   throw $failure
 }

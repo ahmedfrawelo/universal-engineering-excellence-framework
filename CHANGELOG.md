@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.3`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.10.3 - 2026-07-18
+
+- Unified PowerShell status, drift checks, installers, and runtime synchronization on one tracked-file release policy.
+- Rejected tracked files reached through symlink or reparse-point parents, preventing external content from entering a runtime payload.
+- Restored the previous active-state file and Codex rules after any post-activation failure; failed first installs now leave neither generated rules nor an active runtime.
+- Bound the generated runtime loader to its active state with SHA-256 so any loader mutation invalidates Windows and Unix status.
+- Added Windows, Node, and Git Bash regressions for untracked files, linked parents, transaction rollback, and cleanup root guards.
 
 ## 2.10.2 - 2026-07-18
 

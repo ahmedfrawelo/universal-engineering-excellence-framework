@@ -20,6 +20,7 @@ for required in "$loader_path" "$runtime_path/framework/01-core/00-core-system.m
 done
 mkdir -p "$RUNTIME_ROOT"
 state_path="$RUNTIME_ROOT/UEEF-ACTIVE.json"
+[ ! -L "$state_path" ] || { echo "Refusing symbolic-link active state: $state_path" >&2; exit 1; }
 sh "$REPOSITORY_PATH/scripts/validate-framework.sh" "$REPOSITORY_PATH" >/dev/null
 node "$REPOSITORY_PATH/scripts/active-state.mjs" write "$state_path" "$version" "$CODEX_HOME" "$RUNTIME_ROOT" "$runtime_path" "$AGENT" "$REPOSITORY_PATH" "$SOURCE_REPOSITORY_PATH" "$loader_path" "$agents_path" "$REQUIRE_AGENTS" "$agents_ok"
 echo "UEEF active state written: $state_path"

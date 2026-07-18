@@ -70,7 +70,8 @@ if ($isManagedRuntime) {
       $expectedLoader = [IO.Path]::GetFullPath((Join-Path $RepositoryPath 'UEEF-LOADER.md'))
       $checksPass = $state.requiredChecks -and !(@($state.requiredChecks.psobject.Properties | Where-Object { $_.Value -ne $true }).Count)
       if ($state.requireAgents -ne $true) { $agentsPass = $true }
-      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 3 -and $state.reasoningCeiling -eq 'medium' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $checksPass
+      $loaderHashPass = ![string]::IsNullOrWhiteSpace([string]$state.runtimeLoaderSha256) -and (Get-FileHash -LiteralPath $expectedLoader -Algorithm SHA256).Hash -ceq ([string]$state.runtimeLoaderSha256).ToUpperInvariant()
+      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 3 -and $state.reasoningCeiling -eq 'medium' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $loaderHashPass -and $checksPass
     } catch { $activeStatePass = $false }
   }
 } else {
@@ -87,34 +88,8 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
     $stateForDrift = Get-Content -LiteralPath $activeStatePath -Raw | ConvertFrom-Json
     $sourceForDrift = [string]$stateForDrift.sourceRepositoryPath
     if (![string]::IsNullOrWhiteSpace($sourceForDrift) -and (Test-Item $sourceForDrift)) {
-      $sourceRootForDrift = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $sourceForDrift).Path)
-      $runtimeRootForDrift = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryPath).Path)
-      $driftFound = $false
-      $ownedRuntimeDirsForDrift = @('framework','scripts','docs','examples','tools','assets')
-      $sourceFilesForDrift = @(Get-ChildItem -LiteralPath $sourceRootForDrift -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object {
-        $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -ne 'UEEF-LOADER.md'
-      })
-      foreach ($sourceFileForDrift in $sourceFilesForDrift) {
-        $relativeForDrift = $sourceFileForDrift.FullName.Substring($sourceRootForDrift.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-        $runtimeFileForDrift = Join-Path $runtimeRootForDrift $relativeForDrift
-        if (!(Test-Path -LiteralPath $runtimeFileForDrift)) { $driftFound = $true; break }
-        if ((Get-FileHash -LiteralPath $sourceFileForDrift.FullName -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $runtimeFileForDrift -Algorithm SHA256).Hash) { $driftFound = $true; break }
-      }
-      if (!$driftFound) {
-        foreach ($ownedDirForDrift in $ownedRuntimeDirsForDrift) {
-          $sourceOwnedDirForDrift = Join-Path $sourceRootForDrift $ownedDirForDrift
-          $runtimeOwnedDirForDrift = Join-Path $runtimeRootForDrift $ownedDirForDrift
-          if (!(Test-Path -LiteralPath $runtimeOwnedDirForDrift)) { continue }
-          $runtimeFilesForDrift = @(Get-ChildItem -LiteralPath $runtimeOwnedDirForDrift -Recurse -File -Force -ErrorAction SilentlyContinue)
-          foreach ($runtimeFileForDriftExtra in $runtimeFilesForDrift) {
-            $relativeOwnedForDrift = $runtimeFileForDriftExtra.FullName.Substring($runtimeOwnedDirForDrift.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-            $sourceEquivalentForDrift = Join-Path $sourceOwnedDirForDrift $relativeOwnedForDrift
-            if (!(Test-Path -LiteralPath $sourceEquivalentForDrift)) { $driftFound = $true; break }
-          }
-          if ($driftFound) { break }
-        }
-      }
-      $runtimeDriftPass = !$driftFound
+      . (Join-Path $RepositoryPath 'scripts\runtime-file-policy.ps1')
+      $runtimeDriftPass = !(@(Get-UeefRuntimeDriftMismatches -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash ([string]$stateForDrift.runtimeLoaderSha256)).Count)
       $runtimeDriftStatus = if ($runtimeDriftPass) { "PASS" } else { "FAIL" }
     }
   } catch {
