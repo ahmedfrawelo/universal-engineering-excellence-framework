@@ -17,3 +17,4 @@ Relationships:
 - [Risk Assessment Template](./risk-assessment-template.md)
 - [Incident Report Template](./incident-report-template.md)
 - [Engineering Review Template](./engineering-review-template.md)
+- [Project Modernization Plan Template](./30-project-modernization-plan-template.md)

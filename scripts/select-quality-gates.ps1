@@ -147,6 +147,39 @@ if ($text -match "spec kit|speckit|spec-driven|specification-driven|specificatio
   Add-Unique $gates @("framework/27-quality-gates/33-spec-driven-development-gate.md")
 }
 
+if ($text -match "refactor|refactoring|legacy|dead code|obsolete code|modernize|modernise|modernization|modernisation|dependency upgrade|package upgrade|runtime upgrade|framework upgrade|outdated|end of life|eol|technical debt") {
+  Add-Unique $modules @(
+    "framework/61-project-modernization/00-project-modernization-system.md",
+    "framework/61-project-modernization/01-discovery-and-baseline.md",
+    "framework/61-project-modernization/02-behavior-preserving-refactoring.md",
+    "framework/61-project-modernization/03-dead-and-obsolete-code.md",
+    "framework/61-project-modernization/05-technology-currency-assessment.md",
+    "framework/61-project-modernization/06-upgrade-decision-and-execution.md",
+    "framework/61-project-modernization/08-verification-rollout-and-rollback.md"
+  )
+  Add-Unique $gates @(
+    "framework/27-quality-gates/architecture-gate.md",
+    "framework/27-quality-gates/code-quality-gate.md",
+    "framework/27-quality-gates/performance-gate.md",
+    "framework/27-quality-gates/testing-gate.md",
+    "framework/27-quality-gates/34-project-modernization-and-runtime-gate.md"
+  )
+}
+
+if ($text -match "real.?time|live refresh|auto.?refresh|without reload|no reload|lazy load|lazy loading|code split|code splitting|prefetch|preload") {
+  Add-Unique $modules @(
+    "framework/47-theme-responsive-interaction-security-performance/42-frontend-rendering-performance.md",
+    "framework/47-theme-responsive-interaction-security-performance/43-backend-api-performance.md",
+    "framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md",
+    "framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md"
+  )
+  Add-Unique $gates @(
+    "framework/27-quality-gates/performance-gate.md",
+    "framework/27-quality-gates/security-gate.md",
+    "framework/27-quality-gates/34-project-modernization-and-runtime-gate.md"
+  )
+}
+
 Assert-ExistingFrameworkPaths ($modules.ToArray() + $gates.ToArray())
 
 Write-Output "UEEF Quality Gate Selection"

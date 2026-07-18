@@ -18,6 +18,8 @@ Status: Release blocking
 - Overlay triggers, outside click, peers, Escape, focus, scrolling, collision, and layering follow one contract.
 - Accessibility, server authorization, tenant isolation, duplicate-action protection, and security tests pass.
 - Rendering, API, database, network, and bundle behavior meet recorded budgets with repeatable evidence.
+- Non-trivial load boundaries have measured eager/lazy/preload/prefetch/defer decisions without waterfalls, duplicate chunks, layout shift, inaccessible states, or first-request cold starts.
+- Mutable remote state reconciles without page reload and proves context preservation, transport authorization, revocation, Origin/CORS rules, bounded retry ownership, backpressure, and burst performance.
 
 ## Fail Conditions
 

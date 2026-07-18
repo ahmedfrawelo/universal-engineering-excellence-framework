@@ -17,6 +17,9 @@ Controls request latency, concurrency, allocation, serialization, dependencies, 
 - Review serialization payload size, index/query plans, rate limits, burst behavior, cache invalidation, and tenant/security filters as part of endpoint performance.
 - Avoid backend over-render triggers: over-fetching, over-serialization, repeated query execution, broad realtime broadcasts, broad cache invalidation, and unbounded recomputation.
 - Scope realtime or refresh events to the smallest safe tenant/user/entity/view and coalesce bursts so the frontend can update targeted regions without full-page refresh or excessive renders.
+- Defer heavyweight optional integrations, providers, jobs, and resources where beneficial, but keep initialization out of the first user request through bounded warmup, pooling, health checks, and failure isolation.
+- Publish versioned, authorized, minimal events after source-of-truth commit and support gap recovery without forcing page reload.
+- Assign one retry owner per operation. Retry only allowlisted transient failures, honor `Retry-After`, bound attempts and elapsed time, propagate cancellation, use jittered exponential backoff, and prevent retries across browser, proxy, and service layers from multiplying.
 
 ## Delivery Contract
 

@@ -21,3 +21,4 @@ Relationships:
 - [Production Gate](./production-gate.md)
 - [Enterprise Gate](./enterprise-gate.md)
 - [Final Gate](./final-gate.md)
+- [Project Modernization And Runtime Gate](./34-project-modernization-and-runtime-gate.md)

@@ -6,13 +6,14 @@ Applies to: product UI, services, APIs, and data paths where relevant
 
 ## Purpose
 
-Routes tasks to theme modules 01-09, responsive modules 10-20, interaction modules 21-35, security modules 36-40, performance modules 41-46, and review modules 47-49.
+Routes tasks to theme modules 01-09, responsive modules 10-20, interaction modules 21-35, security modules 36-40, performance modules 41-46, review modules 47-49, application lazy loading module 50, and global live-refresh module 51.
 
 ## Required Practice
 
 - Theme work begins with existing-theme compatibility and token architecture.
 - Responsive and overlay work includes accessibility and input-mode contracts.
 - Security and performance selections follow the affected trust and execution paths.
+- Mutable remote state selects module 51; non-trivial load boundaries select module 50.
 
 ## Delivery Contract
 

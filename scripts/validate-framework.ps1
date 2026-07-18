@@ -175,6 +175,10 @@ $requiredAcceptance = @(
   "scripts/test-documentation-links.ps1",
   "scripts/test-release-consistency.ps1",
   "scripts/test-release-consistency.sh",
+  "scripts/project-technology-inventory.mjs",
+  "scripts/test-project-modernization-contract.ps1",
+  "scripts/test-project-modernization-contract.sh",
+  "scripts/test-continuous-assurance-failure-propagation.ps1",
   "scripts/test-quality-gate-selection.ps1",
   "scripts/write-active-state.sh",
   "docs/releases/v2.6.0.md",
@@ -208,6 +212,24 @@ $requiredAcceptance = @(
   "docs/releases/v2.9.0.md",
   "docs/releases/v2.9.1.md",
   "docs/releases/v2.9.2.md",
+  "docs/releases/v2.10.0.md",
+  "docs/specifications/application-evolution-runtime-performance.md",
+  "framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md",
+  "framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md",
+  "framework/61-project-modernization/README.md",
+  "framework/61-project-modernization/INDEX.md",
+  "framework/61-project-modernization/00-project-modernization-system.md",
+  "framework/61-project-modernization/01-discovery-and-baseline.md",
+  "framework/61-project-modernization/02-behavior-preserving-refactoring.md",
+  "framework/61-project-modernization/03-dead-and-obsolete-code.md",
+  "framework/61-project-modernization/04-architecture-and-data-modernization.md",
+  "framework/61-project-modernization/05-technology-currency-assessment.md",
+  "framework/61-project-modernization/06-upgrade-decision-and-execution.md",
+  "framework/61-project-modernization/07-performance-freshness-and-lazy-loading.md",
+  "framework/61-project-modernization/08-verification-rollout-and-rollback.md",
+  "framework/27-quality-gates/34-project-modernization-and-runtime-gate.md",
+  "framework/29-checklists/43-project-modernization-and-runtime-checklist.md",
+  "framework/38-templates/30-project-modernization-plan-template.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -350,6 +372,8 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-release-consistency.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-project-modernization-contract.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-continuous-assurance-failure-propagation.ps1") | Out-Null
   & (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
 }
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
@@ -397,6 +421,11 @@ foreach ($term in @("Chrome readiness flow","normal authorization","not proof th
 foreach ($term in @("Spec-driven development:","specification the source of truth","technical plan and traceable tasks","Check consistency across specification, plan, tasks, code, tests, and final claims")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing spec-driven policy: $term" }
 }
+foreach ($term in @("Reconcile mutable remote state without page reload","eager, lazy, preload, prefetch, stream, or defer","inventory runtimes, frameworks, SDKs","Broad legacy refactoring requires")) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing modernization policy: $term" }
+}
+$modernizationRuntimeTerms = @("Repository and behavior baseline captured:","Technology inventory and support evidence captured:","Refactoring and dead-code reachability proof verified:","Live refresh no-page-reload and context-preservation proof verified:","Project modernization and runtime gate:")
+foreach ($term in $modernizationRuntimeTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing modernization field: $term" } }
 $displayMetadata = Get-Content (Join-Path $Root "assets/ueef-display.json") -Raw | ConvertFrom-Json
 if ($displayMetadata.icon -ne "assets/ueef-skill-icon.svg" -or $displayMetadata.displayName -ne "UEEF") { throw "Display metadata does not reference the UEEF icon correctly" }
 $iconText = Get-Content (Join-Path $Root "assets/ueef-skill-icon.svg") -Raw
@@ -409,6 +438,7 @@ $selectorText = Get-Content (Join-Path $Root "scripts/select-quality-gates.ps1")
 foreach ($term in @("motion","animation","emil-design-eng","Specialist skill route:")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing motion routing: $term" } }
 foreach ($term in @("superpowers","skill invocation","32-skill-invocation-protocol-gate","59-skill-invocation-protocol")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing skill protocol routing: $term" } }
 foreach ($term in @("spec kit","spec-driven","33-spec-driven-development-gate","60-spec-driven-development")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing spec-driven routing: $term" } }
+foreach ($term in @("refactor","dependency upgrade","34-project-modernization-and-runtime-gate","61-project-modernization","global-live-refresh","application-lazy-loading")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing modernization routing: $term" } }
 $attributionText = Get-Content (Join-Path $Root "docs/third-party/superpowers-attribution.md") -Raw
 foreach ($term in @("Superpowers","MIT License","6fd4507659784c351abbd2bc264c7162cfd386dc","https://github.com/TheACJ/superpower")) { if ($attributionText -notmatch [regex]::Escape($term)) { throw "Superpowers attribution missing required term: $term" } }
 $specAttributionText = Get-Content (Join-Path $Root "docs/third-party/spec-kit-attribution.md") -Raw

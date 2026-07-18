@@ -226,6 +226,19 @@ Performance budget verified:
 
 Cookies, passwords, local storage, tokens, and profile stores must never be inspected.
 
+For project modernization, live refresh, lazy loading, or technology upgrade work, also record:
+
+```text
+Repository and behavior baseline captured:
+Technology inventory and support evidence captured:
+Refactoring and dead-code reachability proof verified:
+Upgrade compatibility, migration, and rollback verified:
+Lazy/eager boundary map and measured loading proof verified:
+Live refresh no-page-reload and context-preservation proof verified:
+Frontend/backend performance and burst budgets verified:
+Project modernization and runtime gate: PASS / BLOCKED
+```
+
 ## Agent and Model Routing Preflight
 
 For skill, workflow, and UEEF-runtime work, also record:

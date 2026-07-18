@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.9.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.10.0 - 2026-07-18
+
+- Added a complete project-modernization workflow for discovery, characterization, safe refactoring, dead-code evidence, architecture/data migration, rollout, and rollback.
+- Added technology inventory and governed compatible-versus-high-risk dependency upgrade decisions.
+- Generalized live refresh to all mutable remote state with no-page-reload, transport security, retry ownership, backpressure, and burst-performance evidence.
+- Added measured application lazy-loading contracts across routes, features, assets, workers, integrations, and backend optional capabilities.
+- Fixed PowerShell continuous assurance so failed external validators and Node syntax checks cannot report false PASS.
 
 ## 2.9.2 - 2026-07-18
 

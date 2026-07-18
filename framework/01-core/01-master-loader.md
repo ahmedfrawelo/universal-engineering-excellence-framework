@@ -167,7 +167,11 @@ For any UI audit, redesign, new visual system, or recommendation about fonts, co
 
 For UEEF audits, releases, installer/runtime changes, security hardening, or broad quality work, select `framework/55-continuous-assurance/` and run the repository audit before and after edits.
 
-For any table, data grid, list, dashboard data view, backend query endpoint, export, notification feed, auto-refresh, or realtime data feature, select `framework/56-data-grid-platform/` and apply its frontend, backend, performance, security, and realtime contracts.
+For any table, data grid, collection list, dashboard data view, backend collection query, aggregate, export, or bulk data feature, select `framework/56-data-grid-platform/` and apply its frontend, backend, performance, security, and data-query contracts.
+
+For any mutable remote state, live refresh, collaboration, notifications, counters, workflow state, background-job progress, or auto-refresh behavior, select `framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md`. Add `framework/56-data-grid-platform/12-live-refresh-hardening.md` when query, collection, table, list, dashboard, or data-view semantics apply. Full page reload is not a normal synchronization strategy.
+
+For any non-trivial route, feature, component, asset, locale, integration, worker, editor, chart, map, or optional backend capability, select `framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md` and the applicable frontend, backend, network, measurement, skeleton, accessibility, and security modules. Require a measured eager/lazy decision rather than mechanically splitting everything.
 
 For any sidebar, header, navigation, application shell, route transition, page chrome, global animation, or shared loading-state work, select `framework/57-application-shell-design/` and apply its extraction, interaction, motion, responsive, accessibility, performance, and visual-QA contracts.
 
@@ -180,6 +184,10 @@ For any task that names a skill, asks about agent workflows, asks to reuse exter
 ## Spec-Driven Development
 
 For any broad, ambiguous, multi-file, high-impact, or durable feature, redesign, migration, integration, platform workflow, or agent-runtime change, select `framework/60-spec-driven-development/00-spec-driven-development-system.md`, the relevant child modules, and `framework/27-quality-gates/33-spec-driven-development-gate.md`. The assistant must keep requirements, plan, tasks, code, tests, and final claims traceable to the current specification or explicitly documented assumptions.
+
+## Project Modernization
+
+For broad refactoring, legacy cleanup, dead or obsolete code, architecture modernization, dependency or runtime upgrades, end-of-life technology, or whole-project improvement, select `framework/61-project-modernization/`, `framework/27-quality-gates/34-project-modernization-and-runtime-gate.md`, and the applicable architecture, code-quality, security, performance, testing, migration, Guardian, and continuous-assurance modules. Run `scripts/project-technology-inventory.mjs` before upgrade recommendations. Safe compatible upgrades may proceed with evidence; major or high-risk upgrades require an explicit user decision before mutation.
 
 ## Compact Verification Format
 

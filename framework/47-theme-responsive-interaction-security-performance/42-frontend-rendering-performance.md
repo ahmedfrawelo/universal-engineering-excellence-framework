@@ -17,6 +17,8 @@ Minimizes rendering, JavaScript, layout, media, and main-thread cost.
 - Keep animation work on compositor-friendly properties such as transform and opacity; avoid layout-triggering animation, animation-driven server calls, and state loops that repaint unrelated regions.
 - Evaluate SSR, SSG, streaming, route-level pre-rendering, or server components for public, content-heavy, SEO-sensitive, slow-to-hydrate, or first-view data-heavy routes when the stack supports them.
 - Keep authenticated operational screens client-rendered when that matches the product architecture, but document why SSR is not useful for those routes.
+- Build and measure a route/feature/component/asset lazy-loading map. Preserve the critical path, avoid request waterfalls and duplicate chunks, and verify real navigation plus failure recovery.
+- Reconcile remote updates at the smallest state boundary without page reload, broad component-tree reset, lost focus, lost scroll, or discarded unsaved work.
 
 ## Delivery Contract
 

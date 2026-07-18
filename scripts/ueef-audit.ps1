@@ -30,7 +30,10 @@ function Check($name, [scriptblock]$action) {
     $results.Add([pscustomobject]@{ name = $name; status = 'FAIL'; durationMs = [int]$duration.ElapsedMilliseconds; detail = $_.Exception.Message })
   }
 }
-Check 'framework-validation' { & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $resolvedRoot 'scripts/validate-framework.ps1') -SkipNestedTests | Out-Null }
+Check 'framework-validation' {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $resolvedRoot 'scripts/validate-framework.ps1') -SkipNestedTests | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw "Framework validator exited with code $LASTEXITCODE" }
+}
 Check 'git-clean-diff' { if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) { throw 'Source Git repository unavailable' }; git -C $gitRoot diff --check | Out-Null; if ($LASTEXITCODE -ne 0) { throw 'git diff --check failed' } }
 Check 'source-hygiene' {
   $bad = Get-ChildItem $resolvedRoot -Recurse -File -Force | Where-Object { $_.FullName -notmatch '\\.git\\' -and $_.Name -match '(\.env$|\.pem$|\.key$|id_rsa)' }
@@ -50,7 +53,10 @@ Check 'script-syntax' {
     [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
     if ($errors.Count) { throw "PowerShell parse errors in $($_.Name)" }
   }
-  Get-ChildItem (Join-Path $resolvedRoot 'scripts') -Filter '*.mjs' | ForEach-Object { & node --check $_.FullName | Out-Null }
+  Get-ChildItem (Join-Path $resolvedRoot 'scripts') -Filter '*.mjs' | ForEach-Object {
+    & node --check $_.FullName | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Node syntax check failed for $($_.Name) with code $LASTEXITCODE" }
+  }
 }
 Check 'release-parity' {
   & (Join-Path $resolvedRoot 'scripts/test-release-consistency.ps1') -Root $resolvedRoot | Out-Null
@@ -60,7 +66,10 @@ Check 'runtime-path-safety' {
   foreach ($term in @('Refusing to sync from inside CODEX_HOME', 'runtimePrefix', 'OrdinalIgnoreCase')) { if ($sync -notmatch [regex]::Escape($term)) { throw "Missing path safety control: $term" } }
 }
 if (!$Quick) {
-  Check 'runtime-hardening' { & (Join-Path $resolvedRoot 'scripts/test-runtime-hardening.ps1') | Out-Null }
+  Check 'runtime-hardening' {
+    & (Join-Path $resolvedRoot 'scripts/test-runtime-hardening.ps1') | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Runtime hardening tests exited with code $LASTEXITCODE" }
+  }
 }
 $summary = [pscustomobject]@{ generatedAt = (Get-Date).ToUniversalTime().ToString('o'); root = '<project-root>'; checks = $results; status = if (($results.status -contains 'FAIL')) { 'FAIL' } else { 'PASS' } }
 if ($ReportPath) { $summary | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $ReportPath }

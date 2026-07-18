@@ -11,6 +11,7 @@ This index links framework packs and modules for assistant loading.
 - [58-agent-model-orchestration](58-agent-model-orchestration/README.md)
 - [59-skill-invocation-protocol](59-skill-invocation-protocol/README.md)
 - [60-spec-driven-development](60-spec-driven-development/README.md)
+- [61-project-modernization](61-project-modernization/README.md)
 
 - [00-foundation/00-constitution.md](00-foundation/00-constitution.md)
 - [00-foundation/01-mission.md](00-foundation/01-mission.md)
@@ -228,3 +229,14 @@ This index links framework packs and modules for assistant loading.
 - [27-quality-gates/33-spec-driven-development-gate.md](27-quality-gates/33-spec-driven-development-gate.md)
 - [29-checklists/42-spec-driven-development-checklist.md](29-checklists/42-spec-driven-development-checklist.md)
 - [38-templates/29-spec-driven-development-template.md](38-templates/29-spec-driven-development-template.md)
+
+## Version 2.10.0 Project Modernization And Runtime Performance
+
+- [61-project-modernization/README.md](61-project-modernization/README.md)
+- [61-project-modernization/INDEX.md](61-project-modernization/INDEX.md)
+- [61-project-modernization/00-project-modernization-system.md](61-project-modernization/00-project-modernization-system.md)
+- [47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md](47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md)
+- [47-theme-responsive-interaction-security-performance/51-global-live-refresh.md](47-theme-responsive-interaction-security-performance/51-global-live-refresh.md)
+- [27-quality-gates/34-project-modernization-and-runtime-gate.md](27-quality-gates/34-project-modernization-and-runtime-gate.md)
+- [29-checklists/43-project-modernization-and-runtime-checklist.md](29-checklists/43-project-modernization-and-runtime-checklist.md)
+- [38-templates/30-project-modernization-plan-template.md](38-templates/30-project-modernization-plan-template.md)

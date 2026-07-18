@@ -227,6 +227,11 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.9.0.md" ] || { echo "Missing skeleton hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.9.1.md" ] || { echo "Missing component-family organization release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.9.2.md" ] || { echo "Missing release-consistency hardening release notes" >&2; exit 1; }
+[ -f "$ROOT/docs/releases/v2.10.0.md" ] || { echo "Missing project-modernization release notes" >&2; exit 1; }
+[ -f "$ROOT/framework/61-project-modernization/00-project-modernization-system.md" ] || { echo "Missing project modernization system" >&2; exit 1; }
+[ -f "$ROOT/framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md" ] || { echo "Missing application lazy-loading contract" >&2; exit 1; }
+[ -f "$ROOT/framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md" ] || { echo "Missing global live-refresh contract" >&2; exit 1; }
+[ -f "$ROOT/framework/27-quality-gates/34-project-modernization-and-runtime-gate.md" ] || { echo "Missing project modernization gate" >&2; exit 1; }
 [ -f "$ROOT/docs/third-party/spec-kit-attribution.md" ] || { echo "Missing Spec Kit attribution" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/README.md" ] || { echo "Missing spec-driven README" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/INDEX.md" ] || { echo "Missing spec-driven index" >&2; exit 1; }
@@ -332,11 +337,16 @@ grep -q 'BLOCKED_ALLOWED' "$ROOT/framework/01-core/14-delivery-continuation-poli
 [ -f "$ROOT/scripts/test-documentation-links.ps1" ] || { echo "Missing documentation link tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-release-consistency.ps1" ] || { echo "Missing Windows release consistency tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-release-consistency.sh" ] || { echo "Missing Unix release consistency tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/project-technology-inventory.mjs" ] || { echo "Missing project technology inventory" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-project-modernization-contract.ps1" ] || { echo "Missing Windows project modernization tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-project-modernization-contract.sh" ] || { echo "Missing Unix project modernization tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-continuous-assurance-failure-propagation.ps1" ] || { echo "Missing assurance failure-propagation tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-quality-gate-selection.ps1" ] || { echo "Missing quality-gate selector tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/write-active-state.sh" ] || { echo "Missing Unix active-state writer" >&2; exit 1; }
 "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
 "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null || { echo "Unix release consistency tests failed" >&2; exit 1; }
+sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }
 route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"spawnAgents":false' || { echo "Unix agent route delegation guard failed" >&2; exit 1; }

@@ -1,10 +1,10 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.9.2",
+  "version": "2.10.0",
   "releaseDate": "2026-07-18",
   "minimumMarkdownFiles": 490,
-  "frameworkPacks": 61,
+  "frameworkPacks": 62,
   "entrypoints": {
     "loaderTemplate": "UEEF-LOADER.md",
     "core": "framework/01-core/00-core-system.md",
@@ -32,7 +32,8 @@
     "framework/57-application-shell-design",
     "framework/58-agent-model-orchestration",
     "framework/59-skill-invocation-protocol",
-    "framework/60-spec-driven-development"
+    "framework/60-spec-driven-development",
+    "framework/61-project-modernization"
   ],
-  "releaseNotes": "docs/releases/v2.9.2.md"
+  "releaseNotes": "docs/releases/v2.10.0.md"
 }

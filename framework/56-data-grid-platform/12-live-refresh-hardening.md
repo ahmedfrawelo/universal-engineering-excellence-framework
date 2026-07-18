@@ -2,6 +2,8 @@
 
 Live refresh means the visible data changes without a browser/page reload. A refresh request may revalidate or reconcile data, but it must not reset the route, shell, scroll position, filters, selection, or unsaved edits.
 
+This contract also applies outside grids whenever a detail view, form, counter, notification, workflow, dashboard, or other mutable remote state requires freshness. Use pack 47 module 51 as the global owner and this module for data-query and collection-specific behavior.
+
 ## Frontend
 
 - Subscribe once per active query/scope and dispose on route, tenant, permission, and component changes.

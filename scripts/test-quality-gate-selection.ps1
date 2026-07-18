@@ -111,6 +111,20 @@ $cases = @(
     UIUX = 'NO'
     Modules = @('framework/60-spec-driven-development/00-spec-driven-development-system.md')
     Gates = @('framework/27-quality-gates/33-spec-driven-development-gate.md')
+  },
+  @{
+    Name = 'modernization'
+    Task = 'Refactor a legacy project, remove proven dead code, and plan outdated dependency upgrades'
+    UIUX = 'NO'
+    Modules = @('framework/61-project-modernization/00-project-modernization-system.md', 'framework/61-project-modernization/02-behavior-preserving-refactoring.md', 'framework/61-project-modernization/05-technology-currency-assessment.md')
+    Gates = @('framework/27-quality-gates/architecture-gate.md', 'framework/27-quality-gates/code-quality-gate.md', 'framework/27-quality-gates/34-project-modernization-and-runtime-gate.md')
+  },
+  @{
+    Name = 'live-lazy-performance'
+    Task = 'Add realtime live refresh without reload and lazy loading with backend performance'
+    UIUX = 'NO'
+    Modules = @('framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md', 'framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md')
+    Gates = @('framework/27-quality-gates/performance-gate.md', 'framework/27-quality-gates/security-gate.md', 'framework/27-quality-gates/34-project-modernization-and-runtime-gate.md')
   }
 )
 
