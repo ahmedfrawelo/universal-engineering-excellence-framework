@@ -21,7 +21,6 @@ else pass source-hygiene; fi
 if git -C "$GIT_ROOT" ls-files -- 'dist' 'build' 'coverage' 'test-results' 'playwright-report' '*.log' '*.tmp' | grep -q .; then fail_check tracked-generated-artifacts tracked-files-found; else pass tracked-generated-artifacts; fi
 if find "$ROOT/scripts" -name '*.mjs' -print0 | xargs -0 -r -n1 node --check; then pass script-syntax; else fail_check script-syntax node-check-failed; fi
 if find "$ROOT/scripts" -name '*.sh' -type f -exec sh -n {} \;; then pass shell-syntax; else fail_check shell-syntax sh-parse-failed; fi
-version=$(sed -n 's/.*version: \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "$ROOT/VERSION.md" | head -n1)
-if grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json"; then pass release-parity; else fail_check release-parity version-mismatch; fi
+if sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null; then pass release-parity; else fail_check release-parity release-metadata-or-documentation-mismatch; fi
 if grep -q 'Refusing to sync from inside CODEX_HOME' "$ROOT/scripts/sync-runtime.ps1" && grep -q 'runtimeRootPrefix' "$ROOT/scripts/sync-runtime.ps1"; then pass runtime-path-safety; else fail_check runtime-path-safety missing-controls; fi
 if [ "$fail" -eq 0 ]; then echo "UEEF audit: PASS"; else echo "UEEF audit: FAIL" >&2; exit 1; fi

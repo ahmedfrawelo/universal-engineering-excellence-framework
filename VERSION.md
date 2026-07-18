@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.9.1.
+UEEF Enterprise Edition version: 2.9.2.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -74,3 +74,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.8.24: added a Chrome control readiness contract and lifecycle guard so browser verification cannot become BLOCKED without independent Chrome unavailability evidence.
 - 2.9.0: expanded skeleton loading with shared timing policy, flicker prevention, SSR/hydration parity, streaming boundaries, and a registered shared component API.
 - 2.9.1: enforced one component-family owner folder, canonical public imports, recipe-to-primitive reuse, and duplicate shared skeleton prevention.
+- 2.9.2: enforced release metadata and public documentation consistency across Windows and Unix validation paths.

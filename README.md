@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.9.1; it includes governed application models, shared-first reuse, component-family ownership, design-system-first UI, responsive-first UI, shared skeleton timing and SSR/hydration contracts, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, Chrome readiness gating, non-destructive runtime updates with stale-file pruning, operational agent/model routing, skill invocation protocol routing, spec-driven development, mandatory mixed-direction response readability controls, active-goal continuation enforcement, pending-screenshot BLOCKED prevention, strict file/folder ownership, project-context mapping, backend/SSR performance evaluation, and a hard medium reasoning ceiling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.9.2; it includes governed application models, shared-first reuse, component-family ownership, design-system-first UI, responsive-first UI, shared skeleton timing and SSR/hydration contracts, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, Chrome readiness gating, non-destructive runtime updates with stale-file pruning, operational agent/model routing, skill invocation protocol routing, spec-driven development, mandatory mixed-direction response readability controls, active-goal continuation enforcement, pending-screenshot BLOCKED prevention, strict file/folder ownership, project-context mapping, backend/SSR performance evaluation, release-document consistency enforcement, and a hard medium reasoning ceiling.
 
 ## Why UEEF Exists
 
@@ -50,7 +50,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.9.1. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.9.2. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 

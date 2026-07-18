@@ -53,9 +53,7 @@ Check 'script-syntax' {
   Get-ChildItem (Join-Path $resolvedRoot 'scripts') -Filter '*.mjs' | ForEach-Object { & node --check $_.FullName | Out-Null }
 }
 Check 'release-parity' {
-  $manifest = Get-Content (Join-Path $resolvedRoot 'release-manifest.json') -Raw | ConvertFrom-Json
-  $version = [regex]::Match((Get-Content (Join-Path $resolvedRoot 'VERSION.md') -Raw), '\b\d+\.\d+\.\d+\b').Value
-  if ($manifest.version -ne $version) { throw "Version mismatch: $version vs $($manifest.version)" }
+  & (Join-Path $resolvedRoot 'scripts/test-release-consistency.ps1') -Root $resolvedRoot | Out-Null
 }
 Check 'runtime-path-safety' {
   $sync = Get-Content (Join-Path $resolvedRoot 'scripts/sync-runtime.ps1') -Raw

@@ -173,6 +173,8 @@ $requiredAcceptance = @(
   "scripts/test-installers.ps1",
   "scripts/test-cleanup-workspace.ps1",
   "scripts/test-documentation-links.ps1",
+  "scripts/test-release-consistency.ps1",
+  "scripts/test-release-consistency.sh",
   "scripts/test-quality-gate-selection.ps1",
   "scripts/write-active-state.sh",
   "docs/releases/v2.6.0.md",
@@ -205,6 +207,7 @@ $requiredAcceptance = @(
   "docs/releases/v2.8.24.md",
   "docs/releases/v2.9.0.md",
   "docs/releases/v2.9.1.md",
+  "docs/releases/v2.9.2.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
   "assets/ueef-display.json",
@@ -346,6 +349,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-release-consistency.ps1") | Out-Null
   & (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
 }
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw

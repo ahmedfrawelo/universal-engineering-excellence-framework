@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.9.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.9.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.9.2 - 2026-07-18
+
+- Added cross-platform release-consistency tests for manifest, version, public documentation, changelog, and release notes.
+- Added release-consistency enforcement to framework validation and continuous assurance so stale installation or quick-start versions cannot pass.
+- Corrected stale public documentation that still advertised version 2.8.5.
 
 ## 2.9.1 - 2026-07-16
 
