@@ -48,6 +48,7 @@ agent_routing=0
 if [ -f "$REPOSITORY_PATH/scripts/select-agent-route.ps1" ] && [ -f "$REPOSITORY_PATH/scripts/select-agent-route.sh" ] && [ -f "$REPOSITORY_PATH/UEEF-LOADER.md" ] && grep -q 'reasoningCeiling' "$REPOSITORY_PATH/scripts/select-agent-route.ps1" && grep -q 'noSpawnReason' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'routeEvidenceRequired' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'TOOL_UNAVAILABLE' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'Agent route:' "$REPOSITORY_PATH/UEEF-LOADER.md" && ! grep -Eq 'reasoning=(high|xhigh|max|ultra)' "$REPOSITORY_PATH/scripts/select-agent-route.sh"; then agent_routing=1; fi
 agents_pass=1
 active_state_pass=1
+runtime_drift_pass=1
 old_home_absent=1
 if [ "$managed_runtime" = "1" ]; then
   codex_home="$(dirname "$GLOBAL_PATH")"
@@ -58,8 +59,12 @@ if [ "$managed_runtime" = "1" ]; then
   command -v cygpath >/dev/null 2>&1 && repository_native=$(cygpath -w "$REPOSITORY_PATH")
   if [ -f "$agents_path" ] && { grep -Fq "$REPOSITORY_PATH" "$agents_path" || grep -Fq "$repository_native" "$agents_path"; } && grep -q 'TOOL_UNAVAILABLE' "$agents_path" && grep -q 'Agent route:' "$agents_path"; then agents_pass=1; fi
   active_state_pass=0
-  if [ -f "$state_path" ] && grep -q '"active"[[:space:]]*:[[:space:]]*true' "$state_path" && grep -q '"agentRoutingContractVersion"[[:space:]]*:[[:space:]]*3' "$state_path" && grep -q '"reasoningCeiling"[[:space:]]*:[[:space:]]*"medium"' "$state_path" && grep -q "\"version\"[[:space:]]*:[[:space:]]*\"$version\"" "$state_path" && grep -q "\"agent\"[[:space:]]*:[[:space:]]*\"$(basename "$REPOSITORY_PATH")\"" "$state_path"; then active_state_pass=1; fi
-  if [ -f "$state_path" ] && grep -q '"requireAgents"[[:space:]]*:[[:space:]]*false' "$state_path"; then agents_pass=1; fi
+  if [ -f "$state_path" ] && node "$REPOSITORY_PATH/scripts/active-state.mjs" validate "$state_path" "$version" "$(basename "$REPOSITORY_PATH")"; then active_state_pass=1; fi
+  if [ -f "$state_path" ] && [ "$(node "$REPOSITORY_PATH/scripts/active-state.mjs" require-agents "$state_path" 2>/dev/null || printf true)" = false ]; then agents_pass=1; fi
+  runtime_drift_pass=0
+  source_repository=$(node "$REPOSITORY_PATH/scripts/active-state.mjs" source "$state_path" 2>/dev/null || true)
+  if command -v cygpath >/dev/null 2>&1 && [ -n "$source_repository" ]; then source_repository=$(cygpath -u "$source_repository"); fi
+  if [ -d "$source_repository" ] && node "$REPOSITORY_PATH/scripts/check-runtime-drift.mjs" "$source_repository" "$REPOSITORY_PATH" >/dev/null 2>&1; then runtime_drift_pass=1; fi
 fi
 [ -e "$HOME/.ueef" ] && old_home_absent=0
 markdown_count=0
@@ -68,18 +73,14 @@ if [ "$repo_exists" = "1" ]; then
 fi
 
 global_exists=0; exists "$GLOBAL_PATH" && global_exists=1
-loader_count=0
-if [ "$global_exists" = "1" ]; then
-  loader_count="$(find "$GLOBAL_PATH" -name UEEF-LOADER.md -type f 2>/dev/null | wc -l | tr -d ' ')"
-fi
 global_loader="UNKNOWN"
-if [ "$global_exists" = "1" ] && [ "$loader_count" -gt 0 ]; then global_loader="PASS"; fi
-if [ "$global_exists" = "1" ] && [ "$loader_count" -eq 0 ]; then global_loader="FAIL"; fi
+if [ "$global_exists" = "1" ] && [ -f "$REPOSITORY_PATH/UEEF-LOADER.md" ]; then global_loader="PASS"; fi
+if [ "$global_exists" = "1" ] && [ ! -f "$REPOSITORY_PATH/UEEF-LOADER.md" ]; then global_loader="FAIL"; fi
 
 installed="NO"
 overall="INACTIVE"
-if [ "$repo_exists" = "1" ] && [ "$global_exists" = "1" ] && [ "$loader_count" -gt 0 ]; then installed="YES"; fi
-if [ "$installed" = "YES" ] && [ "$core_pass" = "1" ] && [ "$master_loader" = "1" ] && [ "$master_index" = "1" ] && [ "$activation_proof" = "1" ] && [ "$activation_gate" = "1" ] && [ "$quality_gates" = "1" ] && [ "$validation" = "1" ] && [ "$agent_routing" = "1" ] && [ "$agents_pass" = "1" ] && [ "$active_state_pass" = "1" ] && [ "$old_home_absent" = "1" ]; then overall="ACTIVE"; fi
+if [ "$repo_exists" = "1" ] && [ "$global_exists" = "1" ] && [ "$global_loader" = "PASS" ]; then installed="YES"; fi
+if [ "$installed" = "YES" ] && [ "$core_pass" = "1" ] && [ "$master_loader" = "1" ] && [ "$master_index" = "1" ] && [ "$activation_proof" = "1" ] && [ "$activation_gate" = "1" ] && [ "$quality_gates" = "1" ] && [ "$validation" = "1" ] && [ "$agent_routing" = "1" ] && [ "$agents_pass" = "1" ] && [ "$active_state_pass" = "1" ] && [ "$runtime_drift_pass" = "1" ] && [ "$old_home_absent" = "1" ]; then overall="ACTIVE"; fi
 
 printf "%s\n" "UEEF Status"
 printf "%s\n" "-----------"
@@ -98,6 +99,7 @@ printf "%s\n" "Global loader: $global_loader"
 printf "%s\n" "Codex AGENTS: $(passfail "$agents_pass")"
 printf "%s\n" "Agent routing contract: $(passfail "$agent_routing")"
 printf "%s\n" "Active state: $(passfail "$active_state_pass")"
+printf "%s\n" "Runtime drift: $(passfail "$runtime_drift_pass")"
 printf "%s\n" "Old HOME .ueef absent: $(passfail "$old_home_absent")"
 if [ "$global_loader" != "PASS" ]; then
   printf "%s\n" "Required action: Run scripts/install-codex.sh, scripts/install-cursor.sh, or scripts/install-generic.sh from Codex with CODEX_HOME set, or set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md."

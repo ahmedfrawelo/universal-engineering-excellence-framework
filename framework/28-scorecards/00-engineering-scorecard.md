@@ -1,13 +1,13 @@
-# engineering scorecard
+# engineering scorecard compatibility entry
 
 Version: 1.0  
 Pack: 28-scorecards  
 Status: Stable  
 Applies To: scorecards
 
-## Purpose
+## Canonical Scorecard
 
-engineering scorecard defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+Use [`engineering-scorecard.md`](engineering-scorecard.md) as the authoritative engineering scorecard. This numbered file remains only for backward-compatible links and must not define a competing scoring contract.
 
 ## When To Use This Module
 

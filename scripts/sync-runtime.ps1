@@ -10,6 +10,8 @@ function Write-Utf8File {
   [System.IO.File]::WriteAllLines($Path, $Lines, [System.Text.UTF8Encoding]::new($false))
 }
 
+. (Join-Path $PSScriptRoot 'runtime-file-policy.ps1')
+
 if (!(Test-Path -LiteralPath $SourcePath)) { throw "SourcePath not found: $SourcePath" }
 if (!(Test-Path -LiteralPath (Join-Path $SourcePath "framework"))) { throw "Source framework not found: $SourcePath" }
 if ($Agent -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$' -or $Agent -in @('.', '..')) {
@@ -35,8 +37,10 @@ $runtimeRootPrefix = $resolvedRuntimeRoot + [IO.Path]::DirectorySeparatorChar
 if (!$runtimePath.StartsWith($runtimeRootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or (Split-Path -Parent $runtimePath) -ne $resolvedRuntimeRoot) {
   throw "Refusing unsafe runtime target: $runtimePath"
 }
-if ($resolvedSource -eq $resolvedCodexHome -or $resolvedSource.StartsWith($runtimePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-  throw "Refusing to sync from inside CODEX_HOME: $resolvedSource"
+if ($resolvedSource -eq $resolvedCodexHome -or
+    $resolvedSource.StartsWith($runtimePrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+    $resolvedCodexHome.StartsWith($resolvedSource + [IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+  throw "Refusing overlapping source and CODEX_HOME paths: $resolvedSource -> $resolvedCodexHome"
 }
 if (Test-Path -LiteralPath $runtimePath) {
   $resolvedRuntime = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $runtimePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
@@ -44,27 +48,11 @@ if (Test-Path -LiteralPath $runtimePath) {
     throw "Refusing to update unsafe runtime path: $resolvedRuntime"
   }
 }
-New-Item -ItemType Directory -Path $runtimePath -Force | Out-Null
-# Keep the active runtime intact while tasks can have imported files from it.
-# Copying source updates in place avoids invalidating a live Node REPL/browser client.
-Get-ChildItem -LiteralPath $SourcePath -Force | Where-Object { $_.Name -ne ".git" } | ForEach-Object {
-  Copy-Item -LiteralPath $_.FullName -Destination $runtimePath -Recurse -Force
-}
-
-$ownedRuntimeDirs = @('framework','scripts','docs','examples','tools','assets')
-foreach ($ownedDir in $ownedRuntimeDirs) {
-  $sourceOwnedDir = Join-Path $SourcePath $ownedDir
-  $runtimeOwnedDir = Join-Path $runtimePath $ownedDir
-  if (!(Test-Path -LiteralPath $runtimeOwnedDir)) { continue }
-
-  Get-ChildItem -LiteralPath $runtimeOwnedDir -Recurse -Force | Sort-Object FullName -Descending | ForEach-Object {
-    $relativeOwnedPath = $_.FullName.Substring($runtimeOwnedDir.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-    $sourceEquivalent = Join-Path $sourceOwnedDir $relativeOwnedPath
-    if (!(Test-Path -LiteralPath $sourceEquivalent)) {
-      Remove-Item -LiteralPath $_.FullName -Recurse -Force
-    }
-  }
-}
+& (Join-Path $SourcePath 'scripts\validate-framework.ps1') -Root $SourcePath -SkipNestedTests | Out-Null
+$stagingPath = Join-Path $resolvedRuntimeRoot ('.s' + [guid]::NewGuid().ToString('N').Substring(0,8))
+$rollbackPath = Join-Path $resolvedRuntimeRoot ('.r' + [guid]::NewGuid().ToString('N').Substring(0,8))
+New-Item -ItemType Directory -Path $resolvedRuntimeRoot -Force | Out-Null
+Copy-UeefReleaseFiles -SourcePath $resolvedSource -DestinationPath $stagingPath
 
 $core = Join-Path $runtimePath "framework\01-core\00-core-system.md"
 $master = Join-Path $runtimePath "framework\01-core\01-master-loader.md"
@@ -73,9 +61,10 @@ $masterIndex = Join-Path $runtimePath "framework\MASTER_INDEX.md"
 $preflight = Join-Path $runtimePath "framework\01-core\12-ueef-required-preflight.md"
 $activationGate = Join-Path $runtimePath "framework\27-quality-gates\16-ueef-activation-gate.md"
 $loader = Join-Path $runtimePath "UEEF-LOADER.md"
+$stagingLoader = Join-Path $stagingPath "UEEF-LOADER.md"
 $statusScript = Join-Path $runtimePath "scripts\ueef-status.ps1"
 
-Write-Utf8File $loader @(
+Write-Utf8File $stagingLoader @(
   "# UEEF Global Loader",
   "",
   "Runtime owner: Codex",
@@ -216,8 +205,18 @@ Write-Utf8File $loader @(
   "When status is BLOCKED, do not edit project files."
 )
 
+& (Join-Path $stagingPath 'scripts\validate-framework.ps1') -Root $stagingPath -SkipNestedTests | Out-Null
+$runtimeSwapped = $false
+$agentsBackup = $null
+try {
+  if (Test-Path -LiteralPath $runtimePath) {
+    Move-Item -LiteralPath $runtimePath -Destination $rollbackPath
+  }
+  Move-Item -LiteralPath $stagingPath -Destination $runtimePath
+  $runtimeSwapped = $true
+
 $agents = Join-Path $CodexHome "AGENTS.md"
-Write-Utf8File $agents @(
+$managedAgentsLines = @(
   "# Codex Global Runtime: UEEF",
   "",
   "This Codex installation must use the self-contained UEEF runtime before non-trivial engineering work.",
@@ -368,6 +367,43 @@ Write-Utf8File $agents @(
   "Do not use legacy verbose verification labels. Use only: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status."
 )
 
+$managedStart = '<!-- UEEF-MANAGED:START -->'
+$managedEnd = '<!-- UEEF-MANAGED:END -->'
+$managedBlock = (@($managedStart) + $managedAgentsLines + @($managedEnd)) -join [Environment]::NewLine
+$existingAgents = ''
+if (Test-Path -LiteralPath $agents -PathType Leaf) {
+  $existingAgents = Get-Content -LiteralPath $agents -Raw
+  $agentsBackupRoot = Join-Path $resolvedRuntimeRoot 'backups\agents'
+  New-Item -ItemType Directory -Path $agentsBackupRoot -Force | Out-Null
+  $agentsBackup = Join-Path $agentsBackupRoot ('AGENTS-{0}-{1}.md' -f (Get-Date -Format yyyyMMddHHmmssfff), [guid]::NewGuid().ToString('N'))
+  Copy-Item -LiteralPath $agents -Destination $agentsBackup -Force
+}
+if ($existingAgents -match '(?s)<!-- UEEF-MANAGED:START -->.*?<!-- UEEF-MANAGED:END -->') {
+  $nextAgents = [regex]::Replace($existingAgents, '(?s)<!-- UEEF-MANAGED:START -->.*?<!-- UEEF-MANAGED:END -->', [System.Text.RegularExpressions.MatchEvaluator]{ param($match) $managedBlock }, 1)
+} elseif ($existingAgents.TrimStart().StartsWith('# Codex Global Runtime: UEEF', [StringComparison]::Ordinal)) {
+  $nextAgents = $managedBlock
+} elseif ([string]::IsNullOrWhiteSpace($existingAgents)) {
+  $nextAgents = $managedBlock
+} else {
+  $nextAgents = $existingAgents.TrimEnd() + [Environment]::NewLine + [Environment]::NewLine + $managedBlock
+}
+[IO.File]::WriteAllText($agents, $nextAgents.TrimEnd() + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+
 & (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -RuntimeRoot $resolvedRuntimeRoot -Agent $Agent -RequireAgents -SourceRepositoryPath $SourcePath -SourceCommit $sourceCommit | Out-Null
+if (Test-Path -LiteralPath $rollbackPath) { Remove-Item -LiteralPath $rollbackPath -Recurse -Force }
 Write-Output "UEEF runtime synced to $runtimePath"
 Write-Output "Codex AGENTS updated at $agents"
+} catch {
+  $failure = $_
+  if ($runtimeSwapped -and (Test-Path -LiteralPath $runtimePath)) {
+    Remove-Item -LiteralPath $runtimePath -Recurse -Force
+  }
+  if (Test-Path -LiteralPath $rollbackPath) {
+    Move-Item -LiteralPath $rollbackPath -Destination $runtimePath
+  }
+  if ($agentsBackup -and (Test-Path -LiteralPath $agentsBackup)) {
+    Copy-Item -LiteralPath $agentsBackup -Destination (Join-Path $CodexHome 'AGENTS.md') -Force
+  }
+  if (Test-Path -LiteralPath $stagingPath) { Remove-Item -LiteralPath $stagingPath -Recurse -Force }
+  throw $failure
+}

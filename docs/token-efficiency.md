@@ -34,15 +34,15 @@ Then select task modules through:
 
 Selected modules:
 
-- `framework/08-performance/01-frontend-performance.md`
-- `framework/10-frontend/00-frontend-architecture.md`
-- `framework/14-ui/00-ui-excellence.md`
-- `framework/15-ux/00-ux-excellence.md`
-- `framework/16-accessibility/00-accessibility-excellence.md`
-- `framework/27-quality-gates/08-ui-gate.md`
-- `framework/27-quality-gates/09-ux-gate.md`
-- `framework/27-quality-gates/10-accessibility-gate.md`
-- `framework/27-quality-gates/05-performance-gate.md`
+- `framework/08-performance/00-performance-philosophy.md`
+- `framework/10-frontend/00-frontend-engineering.md`
+- `framework/14-ui/00-ui-system.md`
+- `framework/15-ux/00-ux-system.md`
+- `framework/16-accessibility/00-accessibility-system.md`
+- `framework/27-quality-gates/ui-gate.md`
+- `framework/27-quality-gates/ux-gate.md`
+- `framework/27-quality-gates/accessibility-gate.md`
+- `framework/27-quality-gates/performance-gate.md`
 - `framework/27-quality-gates/16-ueef-activation-gate.md`
 
 ## Backend API Example
@@ -51,13 +51,13 @@ Selected modules:
 
 - `framework/05-architecture/00-clean-architecture.md`
 - `framework/07-security/00-security-by-default.md`
-- `framework/08-performance/03-backend-performance.md`
-- `framework/11-backend/00-backend-architecture.md`
-- `framework/13-api/00-api-design.md`
-- `framework/27-quality-gates/04-security-gate.md`
-- `framework/27-quality-gates/05-performance-gate.md`
-- `framework/27-quality-gates/07-api-gate.md`
-- `framework/27-quality-gates/11-testing-gate.md`
+- `framework/08-performance/00-performance-philosophy.md`
+- `framework/11-backend/00-backend-engineering.md`
+- `framework/13-api/00-api-engineering.md`
+- `framework/27-quality-gates/security-gate.md`
+- `framework/27-quality-gates/performance-gate.md`
+- `framework/27-quality-gates/api-gate.md`
+- `framework/27-quality-gates/testing-gate.md`
 - `framework/27-quality-gates/16-ueef-activation-gate.md`
 
 ## How This Reduces Token Usage

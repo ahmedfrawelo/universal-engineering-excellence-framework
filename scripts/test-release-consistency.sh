@@ -37,5 +37,8 @@ expected_notes="docs/releases/v$version.md"
 grep -Fq "\"releaseNotes\": \"$expected_notes\"" "$manifest" || { echo "Manifest releaseNotes must be $expected_notes" >&2; exit 1; }
 require_literal "$expected_notes" "# UEEF $version"
 require_literal "$expected_notes" "Release date: $release_date"
+markdown_count=$(find "$ROOT" -path "$ROOT/.git" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')
+manifest_markdown=$(node -e 'const m=require(process.argv[1]); process.stdout.write(String(m.trackedMarkdownFiles || 0))' "$manifest")
+[ "$markdown_count" -eq "$manifest_markdown" ] || { echo "Manifest Markdown inventory mismatch: $manifest_markdown != $markdown_count" >&2; exit 1; }
 
 echo "Release consistency tests passed for $version"

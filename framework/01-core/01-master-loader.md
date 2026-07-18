@@ -42,15 +42,15 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 
 Load only:
 
-- `framework/08-performance/01-frontend-performance.md`
-- `framework/10-frontend/00-frontend-architecture.md`
-- `framework/14-ui/00-ui-excellence.md`
-- `framework/15-ux/00-ux-excellence.md`
-- `framework/16-accessibility/00-accessibility-excellence.md`
-- `framework/27-quality-gates/08-ui-gate.md`
-- `framework/27-quality-gates/09-ux-gate.md`
-- `framework/27-quality-gates/10-accessibility-gate.md`
-- `framework/27-quality-gates/05-performance-gate.md`
+- `framework/08-performance/00-performance-philosophy.md`
+- `framework/10-frontend/00-frontend-engineering.md`
+- `framework/14-ui/00-ui-system.md`
+- `framework/15-ux/00-ux-system.md`
+- `framework/16-accessibility/00-accessibility-system.md`
+- `framework/27-quality-gates/ui-gate.md`
+- `framework/27-quality-gates/ux-gate.md`
+- `framework/27-quality-gates/accessibility-gate.md`
+- `framework/27-quality-gates/performance-gate.md`
 - `framework/27-quality-gates/16-ueef-activation-gate.md`
 
 Apply UI UX Pro Max when available. Do not load backend, database, enterprise, or unrelated technology packs unless the task touches them.
@@ -109,13 +109,14 @@ Load only:
 
 - `framework/05-architecture/00-clean-architecture.md`
 - `framework/07-security/00-security-by-default.md`
-- `framework/08-performance/03-backend-performance.md`
-- `framework/11-backend/00-backend-architecture.md`
-- `framework/13-api/00-api-design.md`
-- `framework/27-quality-gates/04-security-gate.md`
-- `framework/27-quality-gates/05-performance-gate.md`
-- `framework/27-quality-gates/07-api-gate.md`
-- `framework/27-quality-gates/11-testing-gate.md`
+- `framework/07-security/00-security-by-default.md`
+- `framework/08-performance/00-performance-philosophy.md`
+- `framework/11-backend/00-backend-engineering.md`
+- `framework/13-api/00-api-engineering.md`
+- `framework/27-quality-gates/security-gate.md`
+- `framework/27-quality-gates/performance-gate.md`
+- `framework/27-quality-gates/api-gate.md`
+- `framework/27-quality-gates/testing-gate.md`
 - `framework/27-quality-gates/16-ueef-activation-gate.md`
 
 Add database modules only when schema, query, persistence, migration, or transaction behavior is involved.
@@ -136,9 +137,9 @@ Load only database, security, performance, migration, testing, and activation ga
 
 Load only:
 
-- `framework/18-documentation/00-documentation-engineering.md`
+- `framework/18-documentation/00-documentation-system.md`
 - `framework/24-ai-review/00-ai-review-system.md` when review quality matters
-- `framework/27-quality-gates/12-documentation-gate.md`
+- `framework/27-quality-gates/documentation-gate.md`
 - `framework/27-quality-gates/16-ueef-activation-gate.md`
 
 ## UEEF Maintenance Tasks

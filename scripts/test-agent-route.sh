@@ -51,4 +51,9 @@ for route in \
 do
   printf '%s' "$route" | grep -Eq '"reasoning":"(low|medium)"' || { echo "Reasoning ceiling exceeded in $route" >&2; exit 1; }
 done
+capability_routing="$ROOT/framework/58-agent-model-orchestration/02-model-capability-routing.md"
+if grep -Ei '\|[[:space:]]*T[0-4][[:space:]]*\|.*\|[[:space:]]*(high|xhigh|max|ultra)[[:space:]]*\|' "$capability_routing" >/dev/null; then
+  echo 'Model capability routing exceeds the medium reasoning ceiling.' >&2
+  exit 1
+fi
 echo 'Unix agent route tests passed'

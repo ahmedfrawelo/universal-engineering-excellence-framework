@@ -19,7 +19,7 @@ This gate prevents fake activation claims. A task is incomplete if UEEF was not 
 - Runtime activation proof exists: framework/01-core/10-runtime-activation-proof.md.
 - Relevant modules were selected for the task.
 - MCPs, tools, connectors, local scripts, and installed skills were checked.
-- UI UX Pro Max was checked for UI, UX, frontend, design, layout, or accessibility work.
+- Both `ui-ux-pro-max` and `impeccable` were checked for UI, UX, frontend, design, layout, or accessibility work when installed.
 - Quality Gates were planned before implementation.
 - Final response includes UEEF verification evidence.
 
@@ -34,7 +34,7 @@ This gate fails if:
 - Runtime sequence is missing.
 - Relevant modules were not selected.
 - MCPs, tools, or installed skills were ignored.
-- UI UX Pro Max was not checked for UI tasks.
+- An installed `ui-ux-pro-max` or `impeccable` skill was not applied to an applicable UI task; unavailable skills must be reported explicitly.
 - Quality Gates were skipped.
 - Final response does not include UEEF verification evidence.
 - The final response `Loaded` line contains anything except `boot-loader, core-system`.

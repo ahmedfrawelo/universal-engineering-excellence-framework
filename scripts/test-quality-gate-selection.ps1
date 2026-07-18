@@ -142,4 +142,22 @@ foreach ($case in $cases) {
   Assert-ExistingPaths -Paths ($selection.Modules + $selection.Gates) -Context $case.Name
 }
 
+$negativeCases = @(
+  @{ Task = 'Audit framework documentation'; ForbiddenModules = @('framework/10-frontend/00-frontend-engineering.md','framework/12-database/00-database-engineering.md','framework/51-browser-session-control/00-browser-session-first.md') },
+  @{ Task = 'Review documentation index'; ForbiddenModules = @('framework/12-database/00-database-engineering.md') },
+  @{ Task = 'Review release index'; ForbiddenModules = @('framework/12-database/00-database-engineering.md') },
+  @{ Task = 'Build backend API'; ForbiddenModules = @('framework/10-frontend/00-frontend-engineering.md') }
+)
+foreach ($case in $negativeCases) {
+  $selection = Get-QualityGateSelection -Task $case.Task
+  foreach ($forbidden in $case.ForbiddenModules) {
+    if ($selection.Modules -contains $forbidden) {
+      throw "'$($case.Task)' selected false-positive module '$forbidden'."
+    }
+  }
+  if ($case.Task -eq 'Audit framework documentation' -and $selection.UIUX -ne 'NO') {
+    throw 'Audit text triggered UIUX through a substring match.'
+  }
+}
+
 Write-Host 'Quality gate selection tests passed'

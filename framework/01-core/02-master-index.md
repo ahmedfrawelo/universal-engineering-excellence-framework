@@ -1,13 +1,13 @@
-# master index
+# master index redirect
 
 Version: 1.0  
 Pack: 01-core  
 Status: Stable  
 Applies To: core
 
-## Purpose
+## Canonical Index
 
-master index defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+The complete generated framework index is [`../MASTER_INDEX.md`](../MASTER_INDEX.md). This compatibility module remains because runtime preflight expects a core-level index path; it is not a second catalog.
 
 ## When To Use This Module
 
@@ -85,4 +85,4 @@ Before every non-trivial engineering task, UEEF requires a preflight check. The 
 
 ## Runtime Selection Rule
 
-Use this index to select exact modules for the task before implementation. UI, UX, frontend, design, accessibility, and visual-polish tasks must include UI UX Pro Max status plus the UI, UX, accessibility, frontend, performance, and activation gates.
+Use the canonical index to select exact modules for the task before implementation. UI, UX, frontend, design, accessibility, and visual-polish tasks must include both `ui-ux-pro-max` and `impeccable` status plus the UI, UX, accessibility, frontend, performance, and activation gates.

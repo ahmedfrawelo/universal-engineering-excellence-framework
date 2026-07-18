@@ -36,7 +36,9 @@ Check 'framework-validation' {
 }
 Check 'git-clean-diff' { if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) { throw 'Source Git repository unavailable' }; git -C $gitRoot diff --check | Out-Null; if ($LASTEXITCODE -ne 0) { throw 'git diff --check failed' } }
 Check 'source-hygiene' {
-  $bad = Get-ChildItem $resolvedRoot -Recurse -File -Force | Where-Object { $_.FullName -notmatch '\\.git\\' -and $_.Name -match '(\.env$|\.pem$|\.key$|id_rsa)' }
+  $bad = Get-ChildItem $resolvedRoot -Recurse -File -Force | Where-Object {
+    $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -match '(^\.env(?:\..+)?$|\.pem$|\.key$|\.pfx$|\.p12$|^id_(rsa|ed25519)$|^credentials\.json$|^service-account(?:-.+)?\.json$)'
+  }
   if ($bad) { throw "Sensitive-looking files present: $($bad.Name -join ', ')" }
   $secretPatterns = '-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}'
   $matches = @(git -C $gitRoot grep -n -I -E -e $secretPatterns -- . ':(exclude)scripts/ueef-audit.ps1' ':(exclude)scripts/ueef-audit.sh' 2>$null)
@@ -48,22 +50,29 @@ Check 'tracked-generated-artifacts' {
   if ($tracked.Count) { throw "Generated artifacts tracked: $($tracked -join ', ')" }
 }
 Check 'script-syntax' {
-  Get-ChildItem (Join-Path $resolvedRoot 'scripts') -Filter '*.ps1' | ForEach-Object {
-    $tokens = $null; $errors = $null
-    [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
-    if ($errors.Count) { throw "PowerShell parse errors in $($_.Name)" }
-  }
-  Get-ChildItem (Join-Path $resolvedRoot 'scripts') -Filter '*.mjs' | ForEach-Object {
-    & node --check $_.FullName | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "Node syntax check failed for $($_.Name) with code $LASTEXITCODE" }
-  }
+  & (Join-Path $resolvedRoot 'scripts/test-script-syntax.ps1') | Out-Null
 }
 Check 'release-parity' {
   & (Join-Path $resolvedRoot 'scripts/test-release-consistency.ps1') -Root $resolvedRoot | Out-Null
 }
+Check 'project-context-map' {
+  & (Join-Path $resolvedRoot 'scripts/test-project-context-map.ps1') | Out-Null
+}
+Check 'documentation-paths' {
+  & node (Join-Path $resolvedRoot 'scripts/test-documentation-links.mjs') $resolvedRoot | Out-Null
+}
+Check 'framework-indexes' {
+  & node (Join-Path $resolvedRoot 'scripts/test-framework-indexes.mjs') $resolvedRoot | Out-Null
+}
 Check 'runtime-path-safety' {
-  $sync = Get-Content (Join-Path $resolvedRoot 'scripts/sync-runtime.ps1') -Raw
-  foreach ($term in @('Refusing to sync from inside CODEX_HOME', 'runtimePrefix', 'OrdinalIgnoreCase')) { if ($sync -notmatch [regex]::Escape($term)) { throw "Missing path safety control: $term" } }
+  $sandbox = Join-Path ([IO.Path]::GetTempPath()) ('ueef-audit-path-' + [guid]::NewGuid().ToString('N'))
+  try {
+    $source = Join-Path $sandbox 'source'; New-Item -ItemType Directory -Path (Join-Path $source 'framework') -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $source 'VERSION.md') -Value 'version: 0.0.0.'
+    $rejected = $false
+    try { & (Join-Path $resolvedRoot 'scripts/sync-runtime.ps1') -SourcePath $source -CodexHome (Join-Path $source 'codex-home') -Agent audit | Out-Null } catch { $rejected = $_.Exception.Message -like '*overlapping source and CODEX_HOME*' }
+    if (!$rejected) { throw 'Runtime accepted an overlapping source and CODEX_HOME.' }
+  } finally { if (Test-Path -LiteralPath $sandbox) { Remove-Item -LiteralPath $sandbox -Recurse -Force } }
 }
 if (!$Quick) {
   Check 'runtime-hardening' {

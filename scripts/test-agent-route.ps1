@@ -65,4 +65,9 @@ if ($bashPath) {
   }
 }
 
+$capabilityRouting = Get-Content -LiteralPath (Join-Path $root 'framework\58-agent-model-orchestration\02-model-capability-routing.md') -Raw
+if ($capabilityRouting -match '\|\s*T[0-4]\s*\|[^\r\n]*\|\s*(high|xhigh|max|ultra)\s*\|') {
+  throw 'Model capability routing exceeds the medium reasoning ceiling.'
+}
+
 Write-Host 'Agent route tests passed'

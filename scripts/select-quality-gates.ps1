@@ -48,8 +48,8 @@ Add-Unique $gates @(
   "framework/27-quality-gates/31-agent-model-routing-gate.md"
 )
 
-$motionRequired = $text -match "motion|animation|animate|transition|easing|micro-interaction|interaction polish"
-if ($text -match "ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind" -or $motionRequired) {
+$motionRequired = $text -match '\b(motion|animation|animate|transition|easing)\b|micro-interaction|interaction polish'
+if ($text -match '\b(ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind)\b' -or $motionRequired) {
   $uiRequired = $true
   Add-Unique $modules @(
     "framework/08-performance/00-performance-philosophy.md",
@@ -66,16 +66,16 @@ if ($text -match "ui|ux|frontend|react|angular|design|layout|accessibility|scree
   )
 }
 
-if ($text -match "browser|chrome|tab|page inspection|visual verification|screenshot|localhost") {
+if ($text -match '\b(browser|chrome|tab|screenshot|localhost)\b|page inspection|visual verification') {
   Add-Unique $modules @("framework/51-browser-session-control/00-browser-session-first.md")
   Add-Unique $gates @("framework/27-quality-gates/23-browser-session-control-gate.md")
 }
 
-if ($text -match "page|layout|visual|design|frontend|screen|responsive|form|dashboard|landing|screenshot") {
+if ($text -match '\b(page|layout|visual|design|frontend|screen|responsive|form|dashboard|landing|screenshot)\b') {
   Add-Unique $gates @("framework/27-quality-gates/30-visual-composition-gate.md")
 }
 
-if ($text -match "api|endpoint|backend|server|controller|route|service") {
+if ($text -match '\b(api|endpoint|backend|server|controller|route|service)\b') {
   Add-Unique $modules @(
     "framework/05-architecture/00-clean-architecture.md",
     "framework/07-security/00-security-by-default.md",
@@ -91,7 +91,7 @@ if ($text -match "api|endpoint|backend|server|controller|route|service") {
   )
 }
 
-if ($text -match "database|sql|migration|schema|query|index|postgres|sql server|mysql") {
+if ($text -match '\b(database|sql|migration|schema|query|postgres|mysql)\b|sql server|database index|sql index|query index') {
   Add-Unique $modules @(
     "framework/07-security/09-database-security.md",
     "framework/08-performance/00-performance-philosophy.md",
@@ -104,7 +104,7 @@ if ($text -match "database|sql|migration|schema|query|index|postgres|sql server|
   )
 }
 
-if ($text -match "security|auth|authorization|authentication|secret|owasp|vulnerability|permission") {
+if ($text -match '\b(security|auth|authorization|authentication|secret|owasp|vulnerability|permission)\b') {
   Add-Unique $modules @(
     "framework/07-security/00-security-by-default.md",
     "framework/07-security/01-owasp-review.md",
@@ -115,7 +115,7 @@ if ($text -match "security|auth|authorization|authentication|secret|owasp|vulner
   Add-Unique $gates @("framework/27-quality-gates/security-gate.md")
 }
 
-if ($text -match "deploy|release|production|ci|cd|pipeline|docker|cloud|rollback") {
+if ($text -match '\b(deploy|release|production|ci|cd|pipeline|docker|cloud|rollback)\b') {
   Add-Unique $modules @(
     "framework/19-devops/00-devops-system.md",
     "framework/20-enterprise/00-enterprise-system.md",
@@ -128,7 +128,7 @@ if ($text -match "deploy|release|production|ci|cd|pipeline|docker|cloud|rollback
   )
 }
 
-if ($text -match "doc|readme|manual|guide|documentation|changelog") {
+if ($text -match '\b(doc|readme|manual|guide|documentation|changelog)\b') {
   Add-Unique $modules @("framework/18-documentation/00-documentation-system.md")
   Add-Unique $gates @("framework/27-quality-gates/documentation-gate.md")
 }

@@ -2,6 +2,7 @@ param(
   [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { "E:\shared folder\codex-home" })
 )
 $ErrorActionPreference = 'Stop'
+$designSkillsRef = '6bf24434f7730ad169077756cf9c7cd7bd675fc6'
 
 $installer = Join-Path $CodexHome 'skills\.system\skill-installer\scripts\install-skill-from-github.py'
 if (!(Test-Path -LiteralPath $installer)) { throw "Skill installer not found: $installer" }
@@ -25,6 +26,6 @@ if (!$missing.Count) {
   exit 0
 }
 
-& $python.Source $installer --repo emilkowalski/skills --path @missing --dest (Join-Path $CodexHome 'skills')
+& $python.Source $installer --repo emilkowalski/skills --ref $designSkillsRef --path @missing --dest (Join-Path $CodexHome 'skills')
 if ($LASTEXITCODE -ne 0) { throw "Design skill installation failed with exit code $LASTEXITCODE" }
-Write-Output "Design engineering skills installed: $($missing.Count)"
+Write-Output "Design engineering skills installed: $($missing.Count) from $designSkillsRef"

@@ -5,6 +5,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 if (!(Test-Path -LiteralPath $Path)) { throw "Path not found: $Path" }
+if ($MaxItems -lt 1) { throw "MaxItems must be at least 1." }
 $Root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $Path).Path)
 
 function Get-RelPath {
@@ -68,14 +69,17 @@ function Find-FilesByPattern {
 }
 
 $manifests = Find-FilesByName @(
-  "package.json","pnpm-workspace.yaml","yarn.lock","package-lock.json","angular.json",
+  "release-manifest.json","package.json","pnpm-workspace.yaml","pnpm-lock.yaml","yarn.lock","package-lock.json","angular.json",
   "vite.config.ts","vite.config.js","next.config.js","next.config.mjs","tsconfig.json",
-  "Dockerfile","docker-compose.yml","global.json",".openai/hosting.json"
+  "Dockerfile","docker-compose.yml","docker-compose.yaml","global.json","hosting.json","pyproject.toml","requirements.txt",
+  "Pipfile","poetry.lock","Cargo.toml","Cargo.lock","go.mod","go.sum","pom.xml","build.gradle","build.gradle.kts"
 ) + (Find-FilesByPattern @("*.sln","*.csproj","*.fsproj","*.vbproj","*.xcodeproj"))
 $sharedDirs = Find-DirsByName @("shared","common","lib","libs","library","components","ui","design-system","services","api","clients","validators","schemas","stores","state","hooks","utils")
-$featureDirs = Find-DirsByName @("features","modules","apps","packages","pages","routes","domains")
+$featureDirs = Find-DirsByName @("src","app","apps","features","framework","modules","packages","pages","routes","domains","cmd","internal","plugins","scripts")
 $designDirs = Find-DirsByName @("tokens","theme","themes","styles","scss","css","icons","assets")
 $testDirs = Find-DirsByName @("test","tests","e2e","spec","specs","__tests__","playwright","cypress")
+$testFiles = Find-FilesByPattern @("test-*","*.test.*","*.spec.*","*_test.*","*Tests.*")
+$ciDirs = Find-DirsByName @(".github",".gitlab","ci","deploy","deployment","infra","infrastructure","terraform","k8s","helm")
 $generatedDirs = Find-DirsByName @("dist","build","out","coverage",".next",".angular","node_modules","bin","obj","logs","screenshots","artifacts")
 
 Write-Output "Project Context Map"
@@ -85,5 +89,6 @@ Write-Section "Manifests" @($manifests | Sort-Object -Unique)
 Write-Section "Shared candidates" @($sharedDirs | Sort-Object -Unique)
 Write-Section "Feature/module candidates" @($featureDirs | Sort-Object -Unique)
 Write-Section "Design system candidates" @($designDirs | Sort-Object -Unique)
-Write-Section "Test candidates" @($testDirs | Sort-Object -Unique)
+Write-Section "Test candidates" @($testDirs + $testFiles | Sort-Object -Unique)
+Write-Section "CI/deployment candidates" @($ciDirs | Sort-Object -Unique)
 Write-Section "Generated/output candidates" @($generatedDirs | Sort-Object -Unique)

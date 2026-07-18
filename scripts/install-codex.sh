@@ -24,7 +24,11 @@ case "$TARGET/" in "$SOURCE_ROOT/"*) echo "Refusing target inside source: $TARGE
 case "$SOURCE_ROOT/" in "$TARGET/"*) echo "Refusing source inside target: $SOURCE_ROOT" >&2; exit 1;; esac
 if [ -e "$TARGET" ]; then
   [ "$FORCE" = 1 ] || { echo "Existing install found. Re-run with --force." >&2; exit 1; }
-  if [ "$NO_BACKUP" = 0 ]; then mkdir -p "$BACKUP_ROOT"; cp -R "$TARGET" "$BACKUP_ROOT/$AGENT-$(date +%Y%m%d%H%M%S)"; fi
+  if [ "$NO_BACKUP" = 0 ]; then
+    mkdir -p "$BACKUP_ROOT"
+    backup=$(mktemp -d "$BACKUP_ROOT/${AGENT}-$(date +%Y%m%d%H%M%S).XXXXXX")
+    cp -R "$TARGET/." "$backup/"
+  fi
 fi
 if command -v pwsh >/dev/null 2>&1; then
   pwsh -NoProfile -File "$SOURCE_ROOT/scripts/sync-runtime.ps1" -SourcePath "$SOURCE_ROOT" -CodexHome "$CODEX_HOME" -Agent "$AGENT"

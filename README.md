@@ -1,10 +1,10 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.10.1; it includes governed application models, shared-first reuse, component-family ownership, design-system-first UI, responsive-first UI, shared skeleton timing and SSR/hydration contracts, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, deterministic same-tab control-channel failover, Chrome readiness gating, non-destructive runtime updates with stale-file pruning, operational agent/model routing, skill invocation protocol routing, spec-driven development, global no-reload live refresh, measured application lazy loading, frontend/backend performance contracts, evidence-first legacy refactoring, technology currency assessment, safe dependency upgrades, release-document consistency enforcement, false-green assurance prevention, and a hard medium reasoning ceiling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. It gives Codex, Cursor, Claude Code, Gemini CLI, Windsurf, Cline, Roo Code, Aider, and future agents a shared professional framework for project inspection, planning, implementation, review, validation, and final reporting. The current release is 2.10.2; it includes governed application models, shared-first reuse, component-family ownership, design-system-first UI, responsive-first UI, shared skeleton timing and SSR/hydration contracts, the Engineering Guardian, environment bootstrap, normalized runtime-path detection, self-repairing existing-tab Chrome control, deterministic same-tab control-channel failover, Chrome readiness gating, validated transactional runtime updates with rollback, operational agent/model routing, skill invocation protocol routing, spec-driven development, global no-reload live refresh, measured application lazy loading, frontend/backend performance contracts, evidence-first legacy refactoring, technology currency assessment, safe dependency upgrades, release-document consistency enforcement, false-green assurance prevention, and a hard medium reasoning ceiling.
 
 ## Why UEEF Exists
 
-AI coding assistants can generate code quickly, but professional engineering requires consistent architecture, security, performance, testing, documentation, maintainability, and product judgment. UEEF turns those expectations into reusable Markdown modules, checklists, templates, installers, validation scripts, and runtime rules. Browser-dependent tasks are blocked when a connector-created Chrome window or automation profile cannot be proven to be the user's visible browser.
+AI coding assistants can generate code quickly, but professional engineering requires consistent architecture, security, performance, testing, documentation, maintainability, and product judgment. UEEF turns those expectations into reusable Markdown modules, checklists, templates, installers, validation scripts, and runtime rules. Connector-created browser windows and automation profiles are never valid substitutes for the user's existing Chrome tab; browser work is blocked only when that user-owned tab cannot be proven after the required recovery and same-tab failover flow.
 
 ## Who Should Use It
 
@@ -50,7 +50,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.10.1. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.10.2. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 

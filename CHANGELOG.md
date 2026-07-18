@@ -2,7 +2,16 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.10.2 - 2026-07-18
+
+- Rebuilt framework and pack indexes as generated, complete, uniquely covered inventories and added cross-platform drift tests.
+- Corrected stale module paths in the master selector, examples, runtime format, and token-efficiency guidance; plain repository-relative documentation paths are now validated.
+- Eliminated quality-gate substring false positives and aligned model routing with the hard medium reasoning ceiling.
+- Hardened workspace cleanup against filesystem roots, home directories, unmarked folders, case variants, reparse points, and symlink escapes.
+- Made runtime installation transactional and release-allowlisted across Codex, Cursor, and generic installers; sensitive files are rejected, stale files are removed, user AGENTS content is preserved, and failed activation rolls back.
+- Added structured active-state handling, Unix runtime-drift parity, pinned design-skill provenance, and exact Markdown inventory enforcement.
 
 ## 2.10.1 - 2026-07-18
 

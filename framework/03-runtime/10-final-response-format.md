@@ -58,7 +58,7 @@ Loaded: boot-loader, core-system, master-loader
 UEEF Verification
 UEEF: ACTIVE
 Loaded: boot-loader, core-system
-Selected: framework/10-frontend/00-frontend-architecture.md, framework/14-ui/00-ui-excellence.md
+Selected: framework/10-frontend/00-frontend-engineering.md, framework/14-ui/00-ui-system.md
 Gates: activation, UI, UX, accessibility, performance
 Tools: shell, test runner
 Skills: UI UX Pro Max checked

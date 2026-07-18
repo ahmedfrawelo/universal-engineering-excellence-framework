@@ -2,6 +2,7 @@
 set -eu
 
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+DESIGN_SKILLS_REF=6bf24434f7730ad169077756cf9c7cd7bd675fc6
 installer="$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py"
 [ -f "$installer" ] || { echo "Skill installer not found: $installer" >&2; exit 1; }
 command -v python3 >/dev/null 2>&1 || { echo "python3 is required" >&2; exit 1; }
@@ -18,5 +19,5 @@ for path in \
 done
 
 [ "$#" -gt 0 ] || { echo "Design engineering skills already installed"; exit 0; }
-python3 "$installer" --repo emilkowalski/skills --path "$@" --dest "$CODEX_HOME/skills"
-echo "Design engineering skills installed: $#"
+python3 "$installer" --repo emilkowalski/skills --ref "$DESIGN_SKILLS_REF" --path "$@" --dest "$CODEX_HOME/skills"
+echo "Design engineering skills installed: $# from $DESIGN_SKILLS_REF"

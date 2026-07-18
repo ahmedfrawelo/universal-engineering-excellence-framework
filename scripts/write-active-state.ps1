@@ -39,6 +39,13 @@ $requiredChecks = [ordered]@{
   statusScript = (Test-Path -LiteralPath (Join-Path $RepositoryPath "scripts/ueef-status.ps1"))
 }
 $checksPass = !(@($requiredChecks.GetEnumerator() | Where-Object { $_.Value -ne $true }).Count)
+if (!$checksPass) {
+  $failed = @($requiredChecks.GetEnumerator() | Where-Object { $_.Value -ne $true } | ForEach-Object Key)
+  throw "Refusing to write ACTIVE state; required checks failed: $($failed -join ', ')"
+}
+$validator = Join-Path $RepositoryPath 'scripts\validate-framework.ps1'
+if (!(Test-Path -LiteralPath $validator -PathType Leaf)) { throw "Refusing to write ACTIVE state without validator: $validator" }
+& $validator -Root $RepositoryPath -SkipNestedTests | Out-Null
 
 $state = [ordered]@{
   active = $checksPass
@@ -61,5 +68,7 @@ $state = [ordered]@{
 }
 $statePath = Join-Path $runtimeRoot "UEEF-ACTIVE.json"
 New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
-$state | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $statePath -Encoding utf8
+$temporaryState = "$statePath.tmp.$([guid]::NewGuid().ToString('N'))"
+[IO.File]::WriteAllText($temporaryState, ($state | ConvertTo-Json -Depth 8) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+Move-Item -LiteralPath $temporaryState -Destination $statePath -Force
 Write-Output "UEEF active state written: $statePath"

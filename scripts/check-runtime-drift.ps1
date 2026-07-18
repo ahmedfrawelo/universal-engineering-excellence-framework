@@ -3,33 +3,25 @@ param(
   [string]$RuntimePath = $(if ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "ueef\codex" } else { "E:\shared folder\codex-home\ueef\codex" })
 )
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'runtime-file-policy.ps1')
 
 $sourceRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path)
 $runtimeRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RuntimePath).Path)
-$sourceFiles = @(Get-ChildItem -LiteralPath $sourceRoot -Recurse -File -Force | Where-Object {
-  $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -ne 'UEEF-LOADER.md'
-})
-$ownedRuntimeDirs = @('framework','scripts','docs','examples','tools','assets')
+$sourceFiles = @(Get-UeefReleaseRelativeFiles -SourcePath $sourceRoot)
 
 $mismatches = @()
-foreach ($sourceFile in $sourceFiles) {
-  $file = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+foreach ($file in $sourceFiles) {
+  $sourceFile = Join-Path $sourceRoot $file
   $runtimeFile = Join-Path $runtimeRoot $file
   if (!(Test-Path -LiteralPath $runtimeFile)) { $mismatches += "Missing runtime: $file"; continue }
-  $sourceHash = (Get-FileHash -LiteralPath $sourceFile.FullName -Algorithm SHA256).Hash
+  $sourceHash = (Get-FileHash -LiteralPath $sourceFile -Algorithm SHA256).Hash
   $runtimeHash = (Get-FileHash -LiteralPath $runtimeFile -Algorithm SHA256).Hash
   if ($sourceHash -ne $runtimeHash) { $mismatches += "Different: $file" }
 }
-foreach ($ownedDir in $ownedRuntimeDirs) {
-  $sourceOwnedDir = Join-Path $sourceRoot $ownedDir
-  $runtimeOwnedDir = Join-Path $runtimeRoot $ownedDir
-  if (!(Test-Path -LiteralPath $runtimeOwnedDir)) { continue }
-  $runtimeFiles = @(Get-ChildItem -LiteralPath $runtimeOwnedDir -Recurse -File -Force)
-  foreach ($runtimeFile in $runtimeFiles) {
-    $relativeOwnedPath = $runtimeFile.FullName.Substring($runtimeOwnedDir.Length).TrimStart([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
-    $sourceEquivalent = Join-Path $sourceOwnedDir $relativeOwnedPath
-    if (!(Test-Path -LiteralPath $sourceEquivalent)) { $mismatches += "Extra runtime: $ownedDir/$relativeOwnedPath" }
-  }
+foreach ($runtimeFile in Get-ChildItem -LiteralPath $runtimeRoot -Recurse -File -Force) {
+  $relative = $runtimeFile.FullName.Substring($runtimeRoot.Length).TrimStart('\','/').Replace('\','/')
+  if ($relative -eq 'UEEF-LOADER.md') { continue }
+  if ($sourceFiles -notcontains $relative) { $mismatches += "Extra runtime: $relative" }
 }
 
 $oldHomePath = Join-Path $HOME ".ueef"

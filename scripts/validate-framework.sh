@@ -18,7 +18,11 @@ for p in "$ROOT"/framework/[0-9][0-9]-*; do
   [ -f "$p/INDEX.md" ] || { echo "Missing $p/INDEX.md" >&2; exit 1; }
 done
 count="$(find "$ROOT" -name '*.md' -type f | wc -l)"
-[ "$count" -ge 160 ] || { echo "Markdown count below minimum: $count" >&2; exit 1; }
+manifest_counts=$(node -e 'const m=require(process.argv[1]); process.stdout.write(`${m.minimumMarkdownFiles || 0}\n${m.trackedMarkdownFiles || 0}\n`)' "$ROOT/release-manifest.json")
+minimum_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '1p')
+tracked_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '2p')
+[ "$count" -ge "$minimum_markdown" ] || { echo "Markdown count below minimum: $count < $minimum_markdown" >&2; exit 1; }
+[ "$tracked_markdown" -gt 0 ] && [ "$count" -eq "$tracked_markdown" ] || { echo "Markdown inventory mismatch: actual $count, manifest $tracked_markdown" >&2; exit 1; }
 if find "$ROOT" -name '*.md' -type f -size 0c | grep .; then echo "Empty Markdown files found" >&2; exit 1; fi
 grep -q "00-foundation" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "27-quality-gates" "$ROOT/framework/MASTER_INDEX.md"
@@ -335,17 +339,35 @@ grep -q 'BLOCKED_ALLOWED' "$ROOT/framework/01-core/14-delivery-continuation-poli
 [ -f "$ROOT/scripts/test-installers.ps1" ] || { echo "Missing installer tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-cleanup-workspace.ps1" ] || { echo "Missing cleanup tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-documentation-links.ps1" ] || { echo "Missing documentation link tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-documentation-links.sh" ] || { echo "Missing Unix documentation link tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-documentation-links.mjs" ] || { echo "Missing portable documentation link tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/generate-framework-indexes.mjs" ] || { echo "Missing framework index generator" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-framework-indexes.mjs" ] || { echo "Missing framework index tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-release-consistency.ps1" ] || { echo "Missing Windows release consistency tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-release-consistency.sh" ] || { echo "Missing Unix release consistency tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-project-context-map.ps1" ] || { echo "Missing Windows project context map tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-project-context-map.sh" ] || { echo "Missing Unix project context map tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/project-technology-inventory.mjs" ] || { echo "Missing project technology inventory" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-project-modernization-contract.ps1" ] || { echo "Missing Windows project modernization tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-project-modernization-contract.sh" ] || { echo "Missing Unix project modernization tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-continuous-assurance-failure-propagation.ps1" ] || { echo "Missing assurance failure-propagation tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-quality-gate-selection.ps1" ] || { echo "Missing quality-gate selector tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/active-state.mjs" ] || { echo "Missing structured active-state helper" >&2; exit 1; }
+[ -f "$ROOT/scripts/runtime-file-policy.ps1" ] || { echo "Missing Windows runtime file policy" >&2; exit 1; }
+[ -f "$ROOT/scripts/runtime-file-policy.mjs" ] || { echo "Missing portable runtime file policy" >&2; exit 1; }
+[ -f "$ROOT/scripts/copy-release-files.mjs" ] || { echo "Missing portable release copier" >&2; exit 1; }
+[ -f "$ROOT/scripts/check-runtime-drift.mjs" ] || { echo "Missing portable runtime drift check" >&2; exit 1; }
+[ -f "$ROOT/scripts/install-runtime.ps1" ] || { echo "Missing shared Windows runtime installer" >&2; exit 1; }
+[ -f "$ROOT/scripts/install-runtime.sh" ] || { echo "Missing shared Unix runtime installer" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-script-syntax.ps1" ] || { echo "Missing Windows script syntax tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-script-syntax.sh" ] || { echo "Missing Unix script syntax tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/write-active-state.sh" ] || { echo "Missing Unix active-state writer" >&2; exit 1; }
 "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
 "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null || { echo "Unix release consistency tests failed" >&2; exit 1; }
+sh "$ROOT/scripts/test-documentation-links.sh" "$ROOT" >/dev/null || { echo "Unix documentation link tests failed" >&2; exit 1; }
+node "$ROOT/scripts/test-framework-indexes.mjs" "$ROOT" >/dev/null || { echo "Framework index tests failed" >&2; exit 1; }
+sh "$ROOT/scripts/test-project-context-map.sh" >/dev/null || { echo "Unix project context map tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }
 route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
@@ -363,4 +385,4 @@ done
 echo "UEEF validation passed"
 echo "Markdown file count: $count"
 echo "Framework pack count: $(find "$ROOT/framework" -maxdepth 1 -type d -name '[0-9][0-9]-*' | wc -l)"
-echo "Total file count: $(find "$ROOT" -type f | wc -l)"
+echo "Total file count: $(find "$ROOT" -path "$ROOT/.git" -prune -o -type f -print | wc -l | tr -d ' ')"

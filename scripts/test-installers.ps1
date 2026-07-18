@@ -37,6 +37,12 @@ try {
   $unsafeRejected = $false
   try { & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent '..\escape' -Force -NoBackup | Out-Null } catch { $unsafeRejected = $true }
   if (!$unsafeRejected) { throw 'Installer accepted unsafe agent name.' }
+  foreach ($installerName in @('install-design-engineering-skills.ps1','install-design-engineering-skills.sh')) {
+    $installerText = Get-Content -LiteralPath (Join-Path $root "scripts\$installerName") -Raw
+    if ($installerText -notmatch '--ref' -or $installerText -notmatch '\b[0-9a-f]{40}\b') {
+      throw "$installerName does not pin the audited design-skill commit."
+    }
+  }
   Write-Host 'Installer tests passed'
 } finally {
   Remove-Item Env:UEEF_INSTALL_ROOT -ErrorAction SilentlyContinue

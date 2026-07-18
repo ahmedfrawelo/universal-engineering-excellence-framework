@@ -173,14 +173,29 @@ $requiredAcceptance = @(
   "scripts/test-installers.ps1",
   "scripts/test-cleanup-workspace.ps1",
   "scripts/test-documentation-links.ps1",
+  "scripts/test-documentation-links.sh",
+  "scripts/test-documentation-links.mjs",
+  "scripts/generate-framework-indexes.mjs",
+  "scripts/test-framework-indexes.mjs",
   "scripts/test-release-consistency.ps1",
   "scripts/test-release-consistency.sh",
+  "scripts/test-project-context-map.ps1",
+  "scripts/test-project-context-map.sh",
   "scripts/project-technology-inventory.mjs",
   "scripts/test-project-modernization-contract.ps1",
   "scripts/test-project-modernization-contract.sh",
   "scripts/test-continuous-assurance-failure-propagation.ps1",
   "scripts/test-quality-gate-selection.ps1",
   "scripts/write-active-state.sh",
+  "scripts/active-state.mjs",
+  "scripts/runtime-file-policy.ps1",
+  "scripts/runtime-file-policy.mjs",
+  "scripts/copy-release-files.mjs",
+  "scripts/check-runtime-drift.mjs",
+  "scripts/install-runtime.ps1",
+  "scripts/install-runtime.sh",
+  "scripts/test-script-syntax.ps1",
+  "scripts/test-script-syntax.sh",
   "docs/releases/v2.6.0.md",
   "docs/releases/v2.7.0.md",
   "docs/releases/v2.7.1.md",
@@ -304,6 +319,8 @@ if ($missing.Count) { throw "Missing required items: $($missing -join ', ')" }
 $md = Get-ChildItem $Root -Filter *.md -Recurse
 $minimumMarkdownFiles = if ($manifest -and $manifest.minimumMarkdownFiles) { [int]$manifest.minimumMarkdownFiles } else { 160 }
 if ($md.Count -lt $minimumMarkdownFiles) { throw "Markdown count below minimum: $($md.Count) < $minimumMarkdownFiles" }
+$trackedMarkdownFiles = if ($manifest -and $manifest.trackedMarkdownFiles) { [int]$manifest.trackedMarkdownFiles } else { 0 }
+if ($trackedMarkdownFiles -le 0 -or $md.Count -ne $trackedMarkdownFiles) { throw "Markdown inventory mismatch: actual $($md.Count), manifest $trackedMarkdownFiles" }
 $empty = $md | Where-Object { $_.Length -eq 0 }
 if ($empty) { throw "Empty Markdown files: $($empty.FullName -join ', ')" }
 $weak = Select-String -Path $md.FullName -Pattern 'TODO only|lorem ipsum|placeholder only|TBD only' -CaseSensitive:$false -ErrorAction SilentlyContinue
@@ -371,7 +388,9 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
+  & node (Join-Path $Root "scripts/test-framework-indexes.mjs") $Root | Out-Null
   & (Join-Path $Root "scripts/test-release-consistency.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-project-context-map.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-modernization-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-continuous-assurance-failure-propagation.ps1") | Out-Null
   & (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
@@ -448,4 +467,5 @@ if ($unixAudit -match '\[0-9\.\]\*') { throw "Unix audit uses an unsafe broad ve
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"
-Write-Host "Total file count: $((Get-ChildItem $Root -File -Recurse).Count)"
+$totalFileCount = @(Get-ChildItem $Root -File -Recurse -Force | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' }).Count
+Write-Host "Total file count: $totalFileCount"

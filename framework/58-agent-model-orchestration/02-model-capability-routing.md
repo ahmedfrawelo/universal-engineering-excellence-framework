@@ -14,7 +14,7 @@ When the platform exposes the current Codex model family:
 | --- | --- | --- |
 | T0 | lead agent; no override | inherited |
 | T1 | `gpt-5.6-luna` | low, medium when code changes |
-| T2 | `gpt-5.6-terra` | medium or high |
+| T2 | `gpt-5.6-terra` | medium |
 | T3 | `gpt-5.6-sol` | medium |
 | T4 | `gpt-5.6-sol` | medium |
 
