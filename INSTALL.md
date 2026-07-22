@@ -2,6 +2,8 @@
 
 UEEF installs globally by copying the framework and writing an assistant loader. Use PowerShell on Windows and shell scripts on macOS/Linux. Installers detect likely global rule locations, ask before overwriting, back up existing files, print verification steps, and fail safely.
 
+The current release is 2.11.0.
+
 ## Codex
 
 ```powershell
@@ -11,6 +13,8 @@ UEEF installs globally by copying the framework and writing an assistant loader.
 ```sh
 ./scripts/install-codex.sh
 ```
+
+The Codex installer also installs the pinned Open Design `design-brief` and `frontend-design` skills when they are missing. They are optional runtime specialists; `ui-ux-pro-max` and `impeccable` remain the required UI/UX baseline.
 
 ## Cursor
 

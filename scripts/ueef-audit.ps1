@@ -2,7 +2,8 @@ param(
   [string]$Root = (Split-Path -Parent $PSScriptRoot),
   [switch]$Json,
   [string]$ReportPath,
-  [switch]$Quick
+  [switch]$Quick,
+  [switch]$Detailed
 )
 $ErrorActionPreference = 'Stop'
 $resolvedRoot = (Resolve-Path $Root).Path
@@ -82,5 +83,13 @@ if (!$Quick) {
 }
 $summary = [pscustomobject]@{ generatedAt = (Get-Date).ToUniversalTime().ToString('o'); root = '<project-root>'; checks = $results; status = if (($results.status -contains 'FAIL')) { 'FAIL' } else { 'PASS' } }
 if ($ReportPath) { $summary | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $ReportPath }
-if ($Json) { $summary | ConvertTo-Json -Depth 5 } else { $results | Format-Table -AutoSize; Write-Host "UEEF audit: $($summary.status)" }
+if ($Json) {
+  $summary | ConvertTo-Json -Depth 5
+} elseif ($Detailed -or $summary.status -eq 'FAIL') {
+  $results | Format-Table -AutoSize
+  Write-Host "UEEF audit: $($summary.status)"
+} else {
+  Write-Host "UEEF audit: PASS ($($results.Count) checks; use -Detailed for per-check output)"
+}
 if ($summary.status -eq 'FAIL') { exit 1 }
+exit 0

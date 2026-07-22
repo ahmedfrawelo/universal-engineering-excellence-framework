@@ -247,6 +247,8 @@ $requiredAcceptance = @(
   "framework/38-templates/30-project-modernization-plan-template.md",
   "scripts/install-design-engineering-skills.ps1",
   "scripts/install-design-engineering-skills.sh",
+  "scripts/install-open-design-skills.ps1",
+  "scripts/install-open-design-skills.sh",
   "assets/ueef-display.json",
   "assets/ueef-skill-icon.svg",
   "scripts/project-context-map.ps1",
