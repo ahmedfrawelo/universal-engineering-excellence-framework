@@ -11,10 +11,29 @@ function Assert-Installed([string]$RuntimeRoot, [string]$Agent) {
   if ($state.agent -ne $Agent) { throw "Installer state agent mismatch: $Agent" }
 }
 
+function Initialize-FakeSkillInstaller([string]$TargetHome) {
+  $installer = Join-Path $TargetHome 'skills\.system\skill-installer\scripts\install-skill-from-github.py'
+  New-Item -ItemType Directory -Path (Split-Path -Parent $installer) -Force | Out-Null
+  Set-Content -LiteralPath $installer -Encoding utf8 -Value @'
+import pathlib
+import sys
+destination = pathlib.Path(sys.argv[sys.argv.index("--dest") + 1])
+paths = sys.argv[sys.argv.index("--path") + 1:sys.argv.index("--dest")]
+for path in paths:
+    target = destination / pathlib.PurePosixPath(path).name
+    target.mkdir(parents=True, exist_ok=True)
+    (target / "SKILL.md").write_text("# test skill\n", encoding="utf-8")
+'@
+}
+
 try {
   $codexHome = Join-Path $sandbox 'codex-home'
+  Initialize-FakeSkillInstaller $codexHome
   & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -Force -NoBackup | Out-Null
   Assert-Installed (Join-Path $codexHome 'ueef') 'codex-test'
+  foreach ($skill in @('design-brief','frontend-design')) {
+    if (!(Test-Path -LiteralPath (Join-Path $codexHome "skills\$skill\SKILL.md"))) { throw "Codex installer did not install $skill" }
+  }
 
   $installRoot = Join-Path $sandbox 'other-runtimes'
   & (Join-Path $root 'scripts\install-cursor.ps1') -InstallRoot $installRoot -Agent 'cursor-test' -Force -NoBackup | Out-Null
@@ -62,6 +81,12 @@ try {
     $installerText = Get-Content -LiteralPath (Join-Path $root "scripts\$installerName") -Raw
     if ($installerText -notmatch '--ref' -or $installerText -notmatch '\b[0-9a-f]{40}\b') {
       throw "$installerName does not pin the audited design-skill commit."
+    }
+  }
+  foreach ($installerName in @('install-open-design-skills.ps1','install-open-design-skills.sh')) {
+    $installerText = Get-Content -LiteralPath (Join-Path $root "scripts\$installerName") -Raw
+    if ($installerText -notmatch 'nexu-io/open-design' -or $installerText -notmatch '034c3895d127743038c18c09a38eab9c7d6a7641') {
+      throw "$installerName does not pin the audited Open Design source."
     }
   }
   $global:LASTEXITCODE = 0

@@ -39,6 +39,7 @@ if has_profile Frontend; then
   echo "Frontend SELECTED"
   for cmd in node npm; do if check_cmd "$cmd"; then echo "$cmd PASS"; else echo "$cmd MISSING (Mandatory)"; status=2; fi; done
   if check_cmd npx; then echo "Playwright capability PASS"; else echo "Playwright capability MISSING (Recommended)"; fi
+  if check_path "$CODEX_HOME/skills/frontend-design/SKILL.md"; then echo "frontend-design PASS"; else echo "frontend-design MISSING (Optional)"; fi
 else echo "Frontend NOT REQUIRED"; fi
 if has_profile Backend; then
   echo "Backend SELECTED"
@@ -53,6 +54,9 @@ if has_profile UIUX; then
   if check_path "$CODEX_HOME/skills/ui-ux-pro-max/SKILL.md"; then echo "ui-ux-pro-max PASS"; else echo "ui-ux-pro-max MISSING (Mandatory)"; status=2; fi
   if check_path "$CODEX_HOME/skills/impeccable/SKILL.md"; then echo "impeccable PASS"; else echo "impeccable MISSING (Mandatory)"; status=2; fi
   if check_path "$CODEX_HOME/skills/emil-design-eng/SKILL.md"; then echo "emil-design-eng PASS"; else echo "emil-design-eng MISSING (Recommended)"; fi
+  for skill in frontend-design design-brief; do
+    if check_path "$CODEX_HOME/skills/$skill/SKILL.md"; then echo "$skill PASS"; else echo "$skill MISSING (Optional)"; fi
+  done
   for skill in review-animations improve-animations animation-vocabulary apple-design; do
     if check_path "$CODEX_HOME/skills/$skill/SKILL.md"; then echo "$skill PASS"; else echo "$skill MISSING (Optional)"; fi
   done

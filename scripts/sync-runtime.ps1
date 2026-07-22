@@ -2,13 +2,31 @@ param(
   [string]$SourcePath = (Split-Path -Parent $PSScriptRoot),
   [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { "E:\shared folder\codex-home" }),
   [string]$Agent = "codex",
-  [switch]$TestFailAfterState
+  [switch]$TestFailAfterState,
+  [switch]$SkipOpenDesignSkills
 )
 $ErrorActionPreference = "Stop"
 
 function Write-Utf8File {
   param([string]$Path, [string[]]$Lines)
   [System.IO.File]::WriteAllLines($Path, $Lines, [System.Text.UTF8Encoding]::new($false))
+}
+
+function Clear-StaleRuntimeTransactions {
+  param([string]$RuntimeRoot, [TimeSpan]$MinimumAge = ([TimeSpan]::FromMinutes(10)))
+
+  if (!(Test-Path -LiteralPath $RuntimeRoot -PathType Container)) { return }
+  $rootItem = Get-Item -LiteralPath $RuntimeRoot -Force
+  if (($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+    throw "Refusing to clean a reparse-point runtime root: $RuntimeRoot"
+  }
+
+  $cutoff = (Get-Date).Subtract($MinimumAge)
+  foreach ($candidate in Get-ChildItem -LiteralPath $RuntimeRoot -Force -Directory) {
+    if ($candidate.Name -notmatch '^\.(s|r)[0-9a-f]{8}$' -or $candidate.LastWriteTime -gt $cutoff) { continue }
+    if (($candidate.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
+    Remove-Item -LiteralPath $candidate.FullName -Recurse -Force
+  }
 }
 
 . (Join-Path $PSScriptRoot 'runtime-file-policy.ps1')
@@ -59,6 +77,7 @@ if (Test-Path -LiteralPath $runtimePath) {
 $stagingPath = Join-Path $resolvedRuntimeRoot ('.s' + [guid]::NewGuid().ToString('N').Substring(0,8))
 $rollbackPath = Join-Path $resolvedRuntimeRoot ('.r' + [guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $resolvedRuntimeRoot -Force | Out-Null
+Clear-StaleRuntimeTransactions -RuntimeRoot $resolvedRuntimeRoot
 Copy-UeefReleaseFiles -SourcePath $resolvedSource -DestinationPath $stagingPath
 
 $core = Join-Path $runtimePath "framework\01-core\00-core-system.md"
@@ -115,6 +134,8 @@ Write-Utf8File $stagingLoader @(
   "",
   "Design engineering skill routing:",
   "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",
+  "- Add design-brief to turn an ambiguous visual request into an explicit design specification before implementation.",
+  "- Add frontend-design when building or materially polishing a production frontend interface.",
   "- Add emil-design-eng for motion implementation and interaction polish.",
   "- Use review-animations for motion diffs, improve-animations for read-only audits and plans, animation-vocabulary for naming effects, and apple-design for gesture and spring work.",
   "- Select only skills whose triggers apply; do not load the full design suite by default.",
@@ -190,7 +211,7 @@ Write-Utf8File $stagingLoader @(
   "- Block a newly created automation/Codex window, temporary profile, or unverified profile. A control banner on the verified existing user tab is not an automatic block.",
   "- For Chrome, read the installed Chrome control skill and bootstrap its browser client only through mcp__node_repl__js, then use the extension binding, enumerate user.openTabs(), and claimTab() the verified user-owned tab.",
   "- Chrome readiness flow is mandatory before any Chrome-unavailable or BLOCKED claim: use the supported browser-client.mjs bootstrap, treat platform permission prompts as normal authorization, enumerate user.openTabs(), claimTab() the exact returned object, run scripts/repair-chrome-tab-ownership.ps1 for stale ownership, and finalize with chrome.tabs.finalize(...).",
-  "- Never use directly exposed mcp__playwright__*, mcp__chrome_devtools__*, or in-app-browser tools for Chrome work. Playwright is allowed only through the claimed tab's tab.playwright API. Use visible Windows control only if the plugin is unavailable. Never open another browser surface as recovery.",
+  "- When work depends on an existing user-owned Chrome session, never use directly exposed mcp__playwright__*, mcp__chrome_devtools__*, or in-app-browser tools as substitutes. They remain valid for authorized isolated/local testing. Playwright is allowed through the claimed tab's tab.playwright API. Use visible Windows control only if the plugin is unavailable.",
   "- A transient Node REPL, browser-client, or extension bridge failure requires bootstrap-troubleshooting and chrome-troubleshooting plus retry on the same extension binding. Do not invent alternate import syntax or switch browser surfaces.",
   "- A task-local Node REPL or browser-client failure is THREAD_CONTROL_CHANNEL_DEGRADED, not proof that Chrome is unavailable. It cannot justify BLOCKED or asking the user to restart Chrome. Accept a trusted current VERIFIED_HANDOFF for the same user tab; request a fresh handoff after relevant code changes.",
   "- Only CHROME_EXTERNALLY_UNAVAILABLE can justify a browser-related BLOCKED state or asking the user to restart Chrome; a task-local control channel failure is not proof that Chrome is unavailable.",
@@ -284,6 +305,8 @@ $managedAgentsLines = @(
   "",
   "Design engineering skill routing:",
   "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",
+  "- Add design-brief to turn an ambiguous visual request into an explicit design specification before implementation.",
+  "- Add frontend-design when building or materially polishing a production frontend interface.",
   "- Add emil-design-eng for motion implementation, easing, timing, transitions, and interaction polish.",
   "- Use review-animations for motion diffs and improve-animations for read-only codebase motion audits and plans.",
   "- Use animation-vocabulary only to name effects and apple-design for gesture, spring, momentum, interruptibility, sheets, drag/swipe, or Apple-style interaction work.",
@@ -360,7 +383,7 @@ $managedAgentsLines = @(
   "- Newly created automation/Codex windows, temporary profiles, and unverified profiles are BLOCKED. A banner on a proven existing extension-claimed tab is not automatically blocked.",
   "- For Chrome, read the installed Chrome control skill and bootstrap its browser client only through mcp__node_repl__js, then use the extension binding, enumerate user.openTabs(), and claimTab() the verified user-owned tab. Extension attachment to an existing tab is allowed and must not be treated as a connector-created window.",
   "- Chrome readiness flow is mandatory before any Chrome-unavailable or BLOCKED claim: use the supported browser-client.mjs bootstrap, treat platform permission prompts as normal authorization, enumerate user.openTabs(), claimTab() the exact returned object, run scripts/repair-chrome-tab-ownership.ps1 for stale ownership, and finalize with chrome.tabs.finalize(...).",
-  "- Never use directly exposed mcp__playwright__*, mcp__chrome_devtools__*, or in-app-browser tools for Chrome work. Playwright is allowed only through the claimed tab's tab.playwright API.",
+  "- When work depends on an existing user-owned Chrome session, never use directly exposed mcp__playwright__*, mcp__chrome_devtools__*, or in-app-browser tools as substitutes. They remain valid for authorized isolated/local testing. Playwright is allowed through the claimed tab's tab.playwright API.",
   "- A transient Node REPL, browser-client, or extension bridge failure requires bootstrap-troubleshooting and chrome-troubleshooting plus retry on the same extension binding. Do not invent alternate import syntax or switch browser surfaces.",
   "- A task-local Node REPL or browser-client failure is THREAD_CONTROL_CHANNEL_DEGRADED, not proof that Chrome is unavailable. It cannot justify BLOCKED or asking the user to restart Chrome. Accept a trusted current VERIFIED_HANDOFF for the same user tab; request a fresh handoff after relevant code changes.",
   "- Only CHROME_EXTERNALLY_UNAVAILABLE can justify a browser-related BLOCKED state or asking the user to restart Chrome; a task-local control channel failure is not proof that Chrome is unavailable.",
@@ -386,6 +409,34 @@ $managedAgentsLines = @(
   "Do not use legacy verbose verification labels. Use only: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status."
 )
 
+# Keep the globally injected AGENTS block compact. Detailed guidance remains in the
+# canonical runtime modules selected by the loader instead of being duplicated on every turn.
+$managedAgentsLines = @(
+  "# Codex Global Runtime: UEEF",
+  "",
+  "UEEF runtime: $runtimePath (version $version)",
+  "Loader: $loader",
+  "Status: $statusScript",
+  "",
+  "Before non-trivial work: read the loader, verify status, select task modules through $master, run environment bootstrap, inspect installed skills/tools, plan, and run applicable gates.",
+  "Always load only boot-loader and core-system. The sole valid line is: Loaded: boot-loader, core-system.",
+  "Final verification labels: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status.",
+  "",
+  "Route every task through pack 58. Use the lowest capable tier, cap reasoning at medium, and spawn a bounded child for non-trivial T1-T4 code changes when tooling is available. Before the first project command or edit, show Agent route: <tier> | Agent: spawned <id>; TOOL_UNAVAILABLE is the only no-spawn reason for code changes.",
+  "For UI work, apply ui-ux-pro-max and impeccable; add design-brief, frontend-design, or motion specialists only when their trigger matches.",
+  "For broad or durable work, use the specification, plan, tasks, and evidence loop in pack 60.",
+  "",
+  "Stay within requested scope, preserve existing user work, and use the shared owner before creating a parallel implementation.",
+  "Compile/test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, and repeated failed patches are implementation work, not blockers.",
+  "Repetition does not convert an internal bug into an external blocker; BLOCKED requires an external or user-only condition when no meaningful local work remains.",
+  "When a goal is ACTIVE, continue implementation; read current goal status before finalizing.",
+  "",
+  "For tasks requiring an existing Chrome session, use the verified user-owned tab through the Chrome plugin + Node REPL. Direct Playwright, Chrome DevTools, and in-app browser tools are not substitutes for that session; they remain allowed for authorized isolated/local testing.",
+  "Preserve the user's browser window state and finalize claimed tabs when browser work ends.",
+  "",
+  "Canonical details live in the selected UEEF modules. Do not duplicate them in this managed block."
+)
+
 $managedStart = '<!-- UEEF-MANAGED:START -->'
 $managedEnd = '<!-- UEEF-MANAGED:END -->'
 $managedBlock = (@($managedStart) + $managedAgentsLines + @($managedEnd)) -join [Environment]::NewLine
@@ -407,6 +458,10 @@ if ($existingAgents -match '(?s)<!-- UEEF-MANAGED:START -->.*?<!-- UEEF-MANAGED:
   $nextAgents = $existingAgents.TrimEnd() + [Environment]::NewLine + [Environment]::NewLine + $managedBlock
 }
 [IO.File]::WriteAllText($agents, $nextAgents.TrimEnd() + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+
+if (!$SkipOpenDesignSkills) {
+  & (Join-Path $runtimePath 'scripts\install-open-design-skills.ps1') -CodexHome $CodexHome | Out-Null
+}
 
 & (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -RuntimeRoot $resolvedRuntimeRoot -Agent $Agent -RequireAgents -SourceRepositoryPath $SourcePath -SourceCommit $sourceCommit | Out-Null
 if ($TestFailAfterState) { throw 'Injected test failure after active-state write.' }

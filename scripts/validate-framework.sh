@@ -316,6 +316,8 @@ grep -q "Answer the user's direct question first" "$ROOT/framework/03-runtime/10
 grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-format.md" || { echo "Final response format missing overclaim rule" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
+[ -f "$ROOT/scripts/install-open-design-skills.ps1" ] || { echo "Missing Open Design skills installer" >&2; exit 1; }
+[ -f "$ROOT/scripts/install-open-design-skills.sh" ] || { echo "Missing Unix Open Design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
 [ -f "$ROOT/framework/27-quality-gates/31-agent-model-routing-gate.md" ] || { echo "Missing agent routing gate" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-agent-route.ps1" ] || { echo "Missing agent route selector" >&2; exit 1; }

@@ -3,6 +3,21 @@ $root = Split-Path -Parent $PSScriptRoot
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ("ueef-runtime-test-" + [guid]::NewGuid().ToString('N'))
 $codexHome = Join-Path $sandbox 'codex-home'
 
+function Initialize-FakeSkillInstaller([string]$TargetHome) {
+  $installer = Join-Path $TargetHome 'skills\.system\skill-installer\scripts\install-skill-from-github.py'
+  New-Item -ItemType Directory -Path (Split-Path -Parent $installer) -Force | Out-Null
+  Set-Content -LiteralPath $installer -Encoding utf8 -Value @'
+import pathlib
+import sys
+destination = pathlib.Path(sys.argv[sys.argv.index("--dest") + 1])
+paths = sys.argv[sys.argv.index("--path") + 1:sys.argv.index("--dest")]
+for path in paths:
+    target = destination / pathlib.PurePosixPath(path).name
+    target.mkdir(parents=True, exist_ok=True)
+    (target / "SKILL.md").write_text("# test skill\n", encoding="utf-8")
+'@
+}
+
 try {
   . (Join-Path $root 'scripts\runtime-file-policy.ps1')
   $unsafeRejected = $false
@@ -82,9 +97,19 @@ try {
   if ($nodeJunctionExit -eq 0 -or $nodeJunctionOutput -notlike '*symbolic link*') { throw 'Portable release policy followed a linked parent.' }
 
   New-Item -ItemType Directory -Path $codexHome -Force | Out-Null
+  Initialize-FakeSkillInstaller $codexHome
   Set-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Value "# User rules`n`nKeep this custom rule." -Encoding utf8
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
   $runtime = Join-Path $codexHome 'ueef\test-agent'
+  $runtimeRoot = Join-Path $codexHome 'ueef'
+  $staleTransaction = Join-Path $runtimeRoot '.sdeadbeef'
+  $nonTransaction = Join-Path $runtimeRoot '.snot-a-transaction'
+  New-Item -ItemType Directory -Path $staleTransaction,$nonTransaction | Out-Null
+  (Get-Item -LiteralPath $staleTransaction).LastWriteTime = (Get-Date).AddMinutes(-11)
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  if (Test-Path -LiteralPath $staleTransaction) { throw 'Runtime sync retained a stale transaction directory.' }
+  if (!(Test-Path -LiteralPath $nonTransaction)) { throw 'Runtime sync removed a non-transaction directory.' }
+  Remove-Item -LiteralPath $nonTransaction -Recurse -Force
   $sentinel = Join-Path $runtime 'active-task-sentinel.txt'
   Set-Content -LiteralPath $sentinel -Value 'must be removed because it is not part of the release' -Encoding utf8
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
@@ -133,6 +158,7 @@ try {
   if ((Get-Content -LiteralPath $statePath -Raw) -cne $stateBeforeRollback) { throw 'Runtime sync did not restore the previous active state.' }
   if ((Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw) -cne $agentsBeforeRollback) { throw 'Runtime sync did not restore the previous AGENTS file.' }
   $freshCodexHome = Join-Path $sandbox 'fresh-codex-home'
+  Initialize-FakeSkillInstaller $freshCodexHome
   $freshRollbackTriggered = $false
   try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $freshCodexHome -Agent 'fresh-agent' -TestFailAfterState | Out-Null }
   catch { $freshRollbackTriggered = $_.Exception.Message -like '*Injected test failure*' }
@@ -141,7 +167,7 @@ try {
   if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'ueef\UEEF-ACTIVE.json')) { throw 'Failed first sync left an active state.' }
   if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'ueef\fresh-agent')) { throw 'Failed first sync left a runtime.' }
   $status = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
-  if ($status -notcontains 'Overall: ACTIVE') { throw 'Valid generated runtime did not become ACTIVE.' }
+  if ($status -notcontains 'Overall: ACTIVE') { throw "Valid generated runtime did not become ACTIVE: $($status -join ' | ')" }
   Set-Content -LiteralPath (Join-Path $runtime 'README.md') -Value 'intentional runtime drift' -Encoding utf8
   $driftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($driftStatus -notcontains 'Runtime drift: FAIL' -or $driftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime drift did not invalidate ACTIVE status.' }

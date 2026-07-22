@@ -16,6 +16,7 @@ Requires both UI UX Pro Max and Impeccable for UI work, plus relevant browser to
 - For UI/UX work, both `ui-ux-pro-max` and `impeccable` are Mandatory and must be selected together.
 - The bootstrap result must list both skill names under Mandatory Dependencies and mark UIUX PASS only after both paths are verified.
 - Treat `emil-design-eng` as Recommended for UIUX work. Detect `review-animations`, `improve-animations`, `animation-vocabulary`, and `apple-design` as Optional specialist capabilities.
+- Detect `frontend-design` and `design-brief` as Optional Open Design specialists; use them only when their frontend implementation or design-planning triggers match.
 - Missing specialist motion skills must not block unrelated UI work; select them only for matching tasks.
 - When browser interaction is required, add Browser Session Control and require the user's existing browser and tab; browser session access is not satisfied by an isolated browser.
 

@@ -56,6 +56,7 @@ foreach($p in $selectedProfiles){
       Add-Check Frontend Playwright Recommended (Has-Command npx) 'npx can invoke Playwright'
       Add-Check Frontend 'UI UX Pro Max' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path' 'npx skills add github:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max'
       Add-Check Frontend Impeccable Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'
+      Add-Check Frontend 'Frontend Design' Optional ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\frontend-design\SKILL.md'))) 'Open Design specialist skill path' 'Install from nexu-io/open-design'
     }
     'Backend' { Add-Check Backend '.NET or Node or Python' Recommended ((Has-Command dotnet) -or (Has-Command node) -or (Has-Command python)) 'at least one detected backend runtime' }
     'Database' { Add-Check Database 'Database CLI' Recommended ((Has-Command sqlcmd) -or (Has-Command psql) -or (Has-Command mysql)) 'provider CLI detected' }
@@ -63,6 +64,9 @@ foreach($p in $selectedProfiles){
       Add-Check UIUX 'UI UX Pro Max' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path'
       Add-Check UIUX Impeccable Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'
       Add-Check UIUX 'Emil Design Engineering' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\emil-design-eng\SKILL.md'))) 'specialist skill path' 'scripts/install-design-engineering-skills.ps1'
+      foreach($skill in @('frontend-design','design-brief')) {
+        Add-Check UIUX $skill Optional ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome "skills\$skill\SKILL.md"))) 'Open Design specialist skill path' 'Install from nexu-io/open-design'
+      }
       foreach($skill in @('review-animations','improve-animations','animation-vocabulary','apple-design')) {
         Add-Check UIUX $skill Optional ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome "skills\$skill\SKILL.md"))) 'specialist skill path' 'scripts/install-design-engineering-skills.ps1'
       }

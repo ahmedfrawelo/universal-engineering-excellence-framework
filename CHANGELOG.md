@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.10.3`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.11.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.11.0 - 2026-07-22
+
+- Added pinned, idempotent Open Design skill installation for Codex (`design-brief` and `frontend-design`) during runtime sync and fresh installation.
+- Kept those skills optional above the existing mandatory `ui-ux-pro-max` and `impeccable` UI/UX baseline.
+- Reduced generated global runtime guidance to a compact canonical-policy pointer, while retaining mandatory preflight, routing, safety, and verification contracts.
+- Scoped direct Playwright and Chrome DevTools restrictions to tasks that require the user's existing Chrome session; isolated/local testing remains supported.
+- Made the default continuous-assurance output concise; `-Detailed` now exposes per-check diagnostics.
 
 ## 2.10.3 - 2026-07-18
 
