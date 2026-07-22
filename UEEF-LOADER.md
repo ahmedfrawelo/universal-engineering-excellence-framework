@@ -54,6 +54,8 @@ Large-project reuse:
 - When adding reusable capability, update the shared public export, tests, and at least one real consumer where project conventions expect it.
 
 Design engineering skill routing:
+- Add `design-brief` to turn an ambiguous visual request into an explicit design specification before implementation.
+- Add `frontend-design` when building or materially polishing a production frontend interface.
 - Add `emil-design-eng` for motion implementation and polish.
 - Add `review-animations` for motion review, `improve-animations` for read-only motion audits, `animation-vocabulary` for naming effects, and `apple-design` for gesture, spring, momentum, and Apple-style interaction work.
 - Select only matching skills; never load the full suite by default.

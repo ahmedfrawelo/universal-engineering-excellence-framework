@@ -9,7 +9,7 @@ Checks frontend tools only when frontend work is detected.
 
 ## Required Practice
 
-- Detect Node, npm, package manager, framework CLI, Playwright, UI UX Pro Max, Impeccable, Context7, and browser tooling from project evidence.
+- Detect Node, npm, package manager, framework CLI, Playwright, UI UX Pro Max, Impeccable, Frontend Design, Context7, and browser tooling from project evidence.
 - Unix and PowerShell bootstrap implementations auto-detect this profile from frontend manifests and source extensions when no explicit profile list is supplied.
 - Install or warn according to dependency level and task needs.
 - Classify every dependency as Mandatory, Recommended, or Optional.

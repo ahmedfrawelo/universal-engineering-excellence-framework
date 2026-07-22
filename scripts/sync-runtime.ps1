@@ -11,6 +11,23 @@ function Write-Utf8File {
   [System.IO.File]::WriteAllLines($Path, $Lines, [System.Text.UTF8Encoding]::new($false))
 }
 
+function Clear-StaleRuntimeTransactions {
+  param([string]$RuntimeRoot, [TimeSpan]$MinimumAge = ([TimeSpan]::FromMinutes(10)))
+
+  if (!(Test-Path -LiteralPath $RuntimeRoot -PathType Container)) { return }
+  $rootItem = Get-Item -LiteralPath $RuntimeRoot -Force
+  if (($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+    throw "Refusing to clean a reparse-point runtime root: $RuntimeRoot"
+  }
+
+  $cutoff = (Get-Date).Subtract($MinimumAge)
+  foreach ($candidate in Get-ChildItem -LiteralPath $RuntimeRoot -Force -Directory) {
+    if ($candidate.Name -notmatch '^\.(s|r)[0-9a-f]{8}$' -or $candidate.LastWriteTime -gt $cutoff) { continue }
+    if (($candidate.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
+    Remove-Item -LiteralPath $candidate.FullName -Recurse -Force
+  }
+}
+
 . (Join-Path $PSScriptRoot 'runtime-file-policy.ps1')
 
 if (!(Test-Path -LiteralPath $SourcePath)) { throw "SourcePath not found: $SourcePath" }
@@ -59,6 +76,7 @@ if (Test-Path -LiteralPath $runtimePath) {
 $stagingPath = Join-Path $resolvedRuntimeRoot ('.s' + [guid]::NewGuid().ToString('N').Substring(0,8))
 $rollbackPath = Join-Path $resolvedRuntimeRoot ('.r' + [guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $resolvedRuntimeRoot -Force | Out-Null
+Clear-StaleRuntimeTransactions -RuntimeRoot $resolvedRuntimeRoot
 Copy-UeefReleaseFiles -SourcePath $resolvedSource -DestinationPath $stagingPath
 
 $core = Join-Path $runtimePath "framework\01-core\00-core-system.md"
@@ -115,6 +133,8 @@ Write-Utf8File $stagingLoader @(
   "",
   "Design engineering skill routing:",
   "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",
+  "- Add design-brief to turn an ambiguous visual request into an explicit design specification before implementation.",
+  "- Add frontend-design when building or materially polishing a production frontend interface.",
   "- Add emil-design-eng for motion implementation and interaction polish.",
   "- Use review-animations for motion diffs, improve-animations for read-only audits and plans, animation-vocabulary for naming effects, and apple-design for gesture and spring work.",
   "- Select only skills whose triggers apply; do not load the full design suite by default.",
@@ -284,6 +304,8 @@ $managedAgentsLines = @(
   "",
   "Design engineering skill routing:",
   "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",
+  "- Add design-brief to turn an ambiguous visual request into an explicit design specification before implementation.",
+  "- Add frontend-design when building or materially polishing a production frontend interface.",
   "- Add emil-design-eng for motion implementation, easing, timing, transitions, and interaction polish.",
   "- Use review-animations for motion diffs and improve-animations for read-only codebase motion audits and plans.",
   "- Use animation-vocabulary only to name effects and apple-design for gesture, spring, momentum, interruptibility, sheets, drag/swipe, or Apple-style interaction work.",
