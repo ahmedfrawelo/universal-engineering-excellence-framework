@@ -11,7 +11,7 @@ Before every non-trivial engineering task:
 3. For a self-contained T0/T1 answer or narrow change, start core-only and use tools only when they directly help the requested outcome. Run `scripts/environment-bootstrap.ps1` or `scripts/environment-bootstrap.sh` for non-trivial repository work or capability uncertainty. The optional read-only `scripts/get-ueef-task-preflight.ps1 -Task '<task summary>'` selects route/profile/workflow evidence but never proves an MCP callable. For multi-file changes, optional `scripts/get-diff-impact.ps1` suggests affected packs and gates with heuristic confidence only. Use optional project memory only for explicit local decisions; resolve a team profile only when one is declared; export evidence before closing a high-risk task or preparing a PR.
 4. Select task-specific modules through `framework/01-core/01-master-loader.md`.
 5. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
-6. Apply the Engineering Guardian, relevant quality gates, and final verification before completion.
+6. For T2+ or elevated-risk work, apply the relevant Engineering Guardian modules and quality gates. For T0/T1, use only a focused relevant check unless risk, scope, or the user request requires more.
 
 File, folder, and size discipline:
 - Every new file must live under an owned feature, layer, package, route, docs, tests, scripts, generated-artifact, deployment, or configuration folder.

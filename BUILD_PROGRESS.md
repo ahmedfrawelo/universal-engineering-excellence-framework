@@ -1,6 +1,6 @@
 # Build Progress
 
-Current release: 2.14.0 (2026-07-23)
+Current release: 2.16.2 (2026-07-23)
 
 ## Delivered baseline
 
@@ -8,11 +8,11 @@ Current release: 2.14.0 (2026-07-23)
 - Pack 58 routing, Pack 59 workflow evidence, and Pack 60 opt-in specification workflows.
 - 2.12.x added capability diagnostics, proportional selection, timed assurance, and structured health output.
 - 2.13.x added task preflight, governed UI capability provenance, spec clarification/convergence artifacts, diff impact, and optional workflow utilities.
-- 2.14.0 deepens memory, diff-impact, and evidence workflows; adds bounded Unix counterparts, Unix CI coverage, and static local callable readiness evidence.
+- 2.16.x reconciles intent-first routing across the source loader, master loader, Pack 58, quality gates, and generated runtime; it keeps narrow `T1` work single-agent by default and allows recorded higher reasoning only where justified.
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.14.0.
+- Source validation and nested deterministic tests pass for 2.16.2.
 - Active Codex runtime is synchronized and reports `Overall: ACTIVE`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 

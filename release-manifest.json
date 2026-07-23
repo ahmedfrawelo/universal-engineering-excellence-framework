@@ -1,10 +1,10 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.16.1",
+  "version": "2.16.2",
   "releaseDate": "2026-07-23",
-  "minimumMarkdownFiles": 744,
-  "trackedMarkdownFiles": 744,
+  "minimumMarkdownFiles": 745,
+  "trackedMarkdownFiles": 745,
   "frameworkPacks": 62,
   "entrypoints": {
     "loaderTemplate": "UEEF-LOADER.md",
@@ -36,5 +36,5 @@
     "framework/60-spec-driven-development",
     "framework/61-project-modernization"
   ],
-  "releaseNotes": "docs/releases/v2.16.1.md"
+  "releaseNotes": "docs/releases/v2.16.2.md"
 }

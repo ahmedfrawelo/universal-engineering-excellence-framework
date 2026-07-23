@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.14.0
+## Current: 2.16.2
 
-UEEF now has proportional routing, optional specification artifacts, capability diagnostics, task preflight, deeper project-local memory, bounded impact signals, evidence previews, safe static local callable readiness, and selected Unix counterparts. The runtime remains selective: core work is light, while risk triggers add evidence and tools.
+UEEF now has intent-first proportional routing, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, and selected Unix counterparts. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified.
 
 ## Next delivery sequence
 

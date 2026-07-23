@@ -13,6 +13,7 @@ Require-Term 'framework/01-core/14-delivery-continuation-policy.md' 'Stop When D
 Require-Term 'framework/58-agent-model-orchestration/02-model-capability-routing.md' 'economical default, not a hard ceiling'
 Require-Term 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' 'economical default, not a hard ceiling'
 Require-Term 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' 'A single-agent T1 route with `NO_INDEPENDENT_WORK` needs no child-agent evidence.'
+Require-Term 'framework/01-core/01-master-loader.md' '`medium` is the economical reasoning default.'
 Require-Term 'UEEF-LOADER.md' 'Never turn a T0/T1 request into an autonomous inventory or upgrade.'
 Require-Term 'framework/01-core/00-core-system.md' 'Do not turn T0/T1 work into an autonomous upgrade or inventory.'
 Require-Term 'framework/01-core/01-master-loader.md' 'mere mention of a browser'
@@ -23,6 +24,8 @@ Require-Term 'examples/intent-fidelity-fixtures.md' 'Change this one validation 
 Require-Term 'examples/intent-fidelity-fixtures.md' 'Agent route: T1 | Agent: not spawned - NO_INDEPENDENT_WORK'
 Require-Term 'QUICK_START.md' 'sync-runtime.ps1'
 Require-Term 'QUICK_START.md' 'strict-scope'
+Require-Term 'QUICK_START.md' 'master loader/runtime is likely old'
+Require-Term 'QUICK_START.md' 'intent-fidelity regression contract is Windows-first'
 
 $activeContracts = @(
   'UEEF-LOADER.md',
@@ -32,7 +35,7 @@ $activeContracts = @(
   'scripts/select-agent-route.ps1',
   'scripts/select-agent-route.sh'
 ) | ForEach-Object { Get-Content -LiteralPath (Join-Path $root $_) -Raw }
-if (($activeContracts -join "`n") -match 'For every non-trivial T1-T4 code change, spawn at least one bounded child|only valid no-spawn reason|No route may emit or request a higher level|reasoning ceiling is `medium`') {
+if (($activeContracts -join "`n") -match 'For every non-trivial T1-T4 code change, spawn at least one bounded child|only valid no-spawn reason|No route may emit or request a higher level|reasoning ceiling is `medium`|Cap every requested.*medium|never request a reasoning level above medium') {
   throw 'An absolute T1 child-spawn contract remains.'
 }
 

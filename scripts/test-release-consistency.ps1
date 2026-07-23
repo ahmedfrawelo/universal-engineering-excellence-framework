@@ -37,6 +37,10 @@ Assert-ContainsLiteral 'INSTALL.md' "current release is $version"
 Assert-ContainsLiteral 'CHANGELOG.md' "through ``v$version``"
 Assert-ContainsLiteral 'CHANGELOG.md' "## $version - $releaseDate"
 foreach ($path in @('README.md', 'QUICK_START.md', 'INSTALL.md')) { Assert-CurrentReleaseMentions $path }
+Assert-ContainsLiteral 'BUILD_PROGRESS.md' "Current release: $version"
+Assert-ContainsLiteral 'ROADMAP.md' "Current: $version"
+$supportedMinor = ($version -replace '\.\d+$', '.x')
+Assert-ContainsLiteral 'SECURITY.md' "| $supportedMinor | Yes |"
 
 $expectedNotes = "docs/releases/v$version.md"
 if ([string]$manifest.releaseNotes -ne $expectedNotes) { throw "Manifest releaseNotes must be $expectedNotes" }
