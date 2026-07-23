@@ -19,6 +19,23 @@ Before asking an AI assistant to modify a project, verify UEEF:
 ```
 
 The assistant must start non-trivial engineering work with the UEEF Runtime Check block and finish with the UEEF Verification block.
+
+## Optional workflow tools
+
+Use these only when the task needs them; routine work stays lightweight.
+
+```powershell
+# Create and validate a project-local specification workflow.
+.\scripts\new-spec-workflow.ps1 -Id feature-name
+.\scripts\validate-spec-workflow.ps1 -Path .\.ueef\specs\feature-name -Mode Draft
+
+# Inspect configured skills, MCPs, plugins, and the combined UEEF health view.
+.\scripts\get-capability-health.ps1
+.\scripts\get-ueef-health.ps1
+
+# Explain the selected capability and workflow profile for a task.
+.\scripts\select-capability-profile.ps1 -Task 'Describe the task here'
+```
 ## Exact Codex installation
 
 For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:

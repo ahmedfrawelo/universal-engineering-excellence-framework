@@ -395,6 +395,10 @@ foreach ($term in $skillProtocolTerms) { if ($runtimeText -notmatch [regex]::Esc
 $specDrivenTerms = @("Spec-driven applicability:","Specification artifact:","Open ambiguities:","Requirements-to-plan trace:","Task breakdown trace:","Consistency analysis:","Convergence evidence:","Spec-driven gate:")
 foreach ($term in $specDrivenTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing spec-driven field: $term" } }
 if (!$SkipNestedTests) {
+  & (Join-Path $Root "scripts/test-spec-workflow.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-assurance-performance.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-skeleton-loading-contract.ps1") | Out-Null

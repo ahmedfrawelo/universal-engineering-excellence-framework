@@ -19,12 +19,24 @@ function Assert-ContainsLiteral([string]$RelativePath, [string]$Expected) {
   }
 }
 
+function Assert-CurrentReleaseMentions([string]$RelativePath) {
+  $path = Join-Path $rootPath $RelativePath
+  $text = Get-Content -LiteralPath $path -Raw
+  $matches = [regex]::Matches($text, '(?im)\b(?:this\s+repository''s\s+)?current\s+release\s+is\s+(\d+\.\d+\.\d+)')
+  foreach ($match in $matches) {
+    if ($match.Groups[1].Value -ne $version) {
+      throw "$RelativePath has stale current-release text: $($match.Groups[1].Value); expected $version"
+    }
+  }
+}
+
 Assert-ContainsLiteral 'VERSION.md' "version: $version."
 Assert-ContainsLiteral 'README.md' "current release is $version"
 Assert-ContainsLiteral 'QUICK_START.md' "current release is $version"
 Assert-ContainsLiteral 'INSTALL.md' "current release is $version"
 Assert-ContainsLiteral 'CHANGELOG.md' "through ``v$version``"
 Assert-ContainsLiteral 'CHANGELOG.md' "## $version - $releaseDate"
+foreach ($path in @('README.md', 'QUICK_START.md', 'INSTALL.md')) { Assert-CurrentReleaseMentions $path }
 
 $expectedNotes = "docs/releases/v$version.md"
 if ([string]$manifest.releaseNotes -ne $expectedNotes) { throw "Manifest releaseNotes must be $expectedNotes" }
