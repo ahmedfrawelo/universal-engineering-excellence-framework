@@ -81,7 +81,7 @@ if (!$Quick) {
     if ($LASTEXITCODE -ne 0) { throw "Runtime hardening tests exited with code $LASTEXITCODE" }
   }
 }
-$summary = [pscustomobject]@{ generatedAt = (Get-Date).ToUniversalTime().ToString('o'); root = '<project-root>'; checks = $results; status = if (($results.status -contains 'FAIL')) { 'FAIL' } else { 'PASS' } }
+$summary = [pscustomobject]@{ schemaVersion = 1; generatedAt = (Get-Date).ToUniversalTime().ToString('o'); root = '<project-root>'; mode = if ($Quick) { 'quick' } else { 'full' }; checks = $results; status = if (($results.status -contains 'FAIL')) { 'FAIL' } else { 'PASS' } }
 if ($ReportPath) { $summary | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $ReportPath }
 if ($Json) {
   $summary | ConvertTo-Json -Depth 5

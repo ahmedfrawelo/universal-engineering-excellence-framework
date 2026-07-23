@@ -23,9 +23,9 @@ jobs:
           ./scripts/test-spec-workflow.ps1
           ./scripts/test-capability-health.ps1
           ./scripts/test-capability-profile.ps1
-      - name: Quick assurance
+      - name: Quick assurance within budget
         shell: pwsh
-        run: ./scripts/ueef-audit.ps1 -Quick
+        run: ./scripts/measure-assurance.ps1 -Mode Quick -Enforce
 
   unix:
     name: Unix validation

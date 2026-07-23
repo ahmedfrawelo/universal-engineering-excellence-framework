@@ -11,6 +11,8 @@ done
 [ -f "$ROOT/scripts/validate-spec-workflow.ps1" ] || { echo "Missing spec workflow validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-capability-health.ps1" ] || { echo "Missing capability health doctor" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-capability-profile.ps1" ] || { echo "Missing capability profile selector" >&2; exit 1; }
+[ -f "$ROOT/scripts/measure-assurance.ps1" ] || { echo "Missing assurance measurement script" >&2; exit 1; }
+[ -f "$ROOT/config/assurance-budgets.json" ] || { echo "Missing assurance budget configuration" >&2; exit 1; }
 [ -f "$ROOT/config/capability-registry.json" ] || { echo "Missing capability registry" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/13-autonomy-and-confirmation-policy.md" ] || { echo "Missing autonomy policy" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/14-delivery-continuation-policy.md" ] || { echo "Missing delivery continuation policy" >&2; exit 1; }

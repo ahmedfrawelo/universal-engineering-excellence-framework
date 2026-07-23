@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.12.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.12.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.12.1 - 2026-07-23
+
+- Added an assurance-performance budget evaluator with deterministic fixtures; it verifies audit success, per-check time limits, and total duration.
+- Added generous initial Windows quick-assurance enforcement in CI while retaining evidence-only timing on other platforms until CI calibration data is collected.
+- Added `quick`/`full` modes, millisecond check durations, and a shared schema version to the Unix audit output, matching the PowerShell audit contract.
 
 ## 2.12.0 - 2026-07-23
 

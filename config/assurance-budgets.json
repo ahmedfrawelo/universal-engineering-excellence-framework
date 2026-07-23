@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "quick": {
+    "totalMaxMs": 30000,
+    "checks": {
+      "framework-validation": 10000,
+      "script-syntax": 10000
+    }
+  },
+  "full": {
+    "totalMaxMs": 180000,
+    "checks": {
+      "framework-validation": 15000,
+      "script-syntax": 15000,
+      "runtime-hardening": 150000
+    }
+  }
+}

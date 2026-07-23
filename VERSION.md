@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.12.0.
+UEEF Enterprise Edition version: 2.12.1.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -81,3 +81,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.10.3: tracked-file allowlist parity, full symlink/reparse traversal rejection, transaction-wide state and AGENTS rollback, and one shared runtime-drift policy.
 - 2.11.0: automatic, pinned Open Design skill installation for Codex; compact generated runtime guidance; scoped browser-tool routing; and concise continuous-assurance reporting.
 - 2.12.0: executable optional spec workflows, capability health diagnostics, proportional tool selection, and runtime release-policy coverage for capability contracts.
+- 2.12.1: bounded assurance-performance measurement, Windows budget enforcement, and a shared Windows/Unix audit timing schema.
