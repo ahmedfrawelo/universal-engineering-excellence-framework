@@ -15,4 +15,6 @@ Assert-Profile 'Inspect the existing Chrome tab visually' 'SELECTIVE' @() @('nod
 Assert-Profile 'Fix a reproducible validation regression' 'SELECTIVE' @() @() @('systematic-debugging','tdd-evidence-loop') @{ 'systematic-debugging'='required'; 'tdd-evidence-loop'='required_when_practical' }
 Assert-Profile 'Clarify ambiguous requirements for a new feature' 'SELECTIVE' @() @() @('brainstorming-and-clarification') @{ 'brainstorming-and-clarification'='recommended' }
 Assert-Profile 'Perform a production payment migration' 'ASSURED' @() @() @('independent-review','evidence-loop') @{ 'independent-review'='required'; 'evidence-loop'='required' }
+$explicit = & $selector -Task 'Plain implementation request' -TaskTag browser -RouteTier T3 -RiskFloor Security -CodeChange -Json | ConvertFrom-Json
+if ($explicit.profile -ne 'ASSURED' -or $explicit.mcps -notcontains 'node_repl' -or $explicit.classificationEvidence.source -ne 'explicit' -or $explicit.classificationEvidence.routeTier -ne 'T3' -or $explicit.classificationEvidence.riskFloor -ne 'Security') { throw 'Explicit route signals must override keyword inference and remain explainable.' }
 Write-Host 'Capability profile tests passed'
