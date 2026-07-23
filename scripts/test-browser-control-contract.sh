@@ -51,6 +51,12 @@ for term in "status = 'REQUIRED'" "enforcement = 'HARD_FAIL_BEFORE_BROWSER_TOOL'
   grep -Fq "$term" "$ROOT/scripts/get-ueef-task-preflight.ps1" || { echo "Missing structured browser preflight gate term: $term" >&2; exit 1; }
 done
 
+for file in "$ROOT/QUICK_START.md" "$ROOT/INSTALL.md"; do
+  for term in 'sync-runtime' 'still opens or proposes another browser' 'immediately'; do
+    grep -Fq "$term" "$file" || { echo "Missing browser runtime-sync guidance $term in $file" >&2; exit 1; }
+  done
+done
+
 for term in 'same user-owned tab' 'Automatic Failover' 'VERIFIED_HANDOFF' 'visible Windows control' 'never creates' 'No user acknowledgement'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/16-control-channel-failover.md" || { echo "Missing control-channel failover term: $term" >&2; exit 1; }
 done

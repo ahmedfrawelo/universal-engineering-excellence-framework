@@ -91,6 +91,12 @@ $preflightText = Get-Content -LiteralPath (Join-Path $root 'scripts/get-ueef-tas
 foreach ($term in @("status = 'REQUIRED'", "enforcement = 'HARD_FAIL_BEFORE_BROWSER_TOOL'", 'requiredBeforeTool', 'allowedPath', 'forbiddenSurfaces', 'Do not select or call a browser tool')) {
   if ($preflightText -notmatch [regex]::Escape($term)) { throw "Structured browser preflight gate term '$term' missing." }
 }
+foreach ($relative in @('QUICK_START.md','INSTALL.md')) {
+  $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw
+  foreach ($term in @('sync-runtime','still opens or proposes another browser','immediately')) {
+    if ($text -notmatch [regex]::Escape($term)) { throw "Browser runtime-sync guidance '$term' missing from $relative." }
+  }
+}
 
 $previousCodexHome = $env:CODEX_HOME
 try {

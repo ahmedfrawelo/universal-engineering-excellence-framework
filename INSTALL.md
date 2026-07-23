@@ -46,6 +46,8 @@ The copied loader must preserve the boot contract: it always loads `framework/01
 
 Run `scripts/update.ps1` or `scripts/update.sh` from either the source repository or an installed runtime. A generated runtime uses `UEEF-ACTIVE.json` to update the recorded Git source and then regenerate itself; it never attempts `git pull` inside the copied non-Git runtime.
 
+After every release that changes browser policy, run `scripts/sync-runtime.ps1` from the source repository or reinstall the target adapter so its generated loader and `AGENTS.md` receive the policy. Then run `scripts/ueef-status.ps1` and require `Runtime drift: PASS`. If an assistant still opens or proposes another browser, profile, context, IDE browser, or in-app browser, synchronize immediately; updating the source checkout alone is not sufficient.
+
 ## Uninstall
 
 Remove the copied UEEF folder from the printed install location after confirming backups exist.

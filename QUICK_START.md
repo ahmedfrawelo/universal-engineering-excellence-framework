@@ -14,6 +14,8 @@ The current release is 2.14.1. See [VERSION.md](VERSION.md) for the version poli
 
 Browser work = your existing Chrome only; never a second browser.
 
+After any browser-policy release, synchronize the installed runtime before the next browser task: run `./scripts/sync-runtime.ps1` from the source repository (or reinstall with the Codex installer), then run `./scripts/ueef-status.ps1`. If the assistant still opens or proposes another browser, profile, context, IDE browser, or in-app browser, sync the runtime immediately; do not treat the source repository alone as proof that the installed loader was updated.
+
 Before asking an AI assistant to modify a project, verify UEEF:
 
 ```powershell
@@ -40,6 +42,9 @@ Use these only when the task needs them; routine work stays lightweight.
 
 # Compose task route, profile, and workflow evidence before non-trivial work.
 .\scripts\get-ueef-task-preflight.ps1 -Task 'Describe the task here'
+
+# Browser tasks add a mandatory hard-fail browser gate before any browser tool.
+.\scripts\get-ueef-task-preflight.ps1 -Task 'Inspect the existing Chrome tab' -TaskTag browser -Json
 
 # Inspect a multi-file change before selecting packs and gates. Results are heuristic.
 .\scripts\get-diff-impact.ps1 -RepositoryPath . -Json
