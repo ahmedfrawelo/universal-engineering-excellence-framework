@@ -440,7 +440,7 @@ $managedAgentsLines = @(
   "Stay within requested scope, preserve existing user work, and use the shared owner before creating a parallel implementation.",
   "Compile/test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, and repeated failed patches are implementation work, not blockers.",
   "Repetition does not convert an internal bug into an external blocker; BLOCKED requires an external or user-only condition when no meaningful local work remains.",
-  "Stop when done: answer finally once the bounded requested outcome is complete; continue only explicit unfinished in-scope implementation.",
+  "Stop when done: answer finally once the bounded requested outcome is complete. When a goal is ACTIVE, continue only explicit unfinished in-scope implementation and read current goal status before finalizing longer goal work.",
   "Before non-trivial execution, state Intent, Tier, Spawn reason, and Browser reason in one short route line.",
   "",
   "HARD FAIL BEFORE ANY BROWSER TOOL: for a browser task, run scripts/get-ueef-task-preflight.ps1 -Task <task> -TaskTag browser and resolve browserGate before selecting or calling a browser tool. Use only mcp__node_repl__js -> extension binding -> exact user.openTabs() object -> claimTab() -> claimed tab.playwright; if unresolved, do not select a browser tool or open an alternate surface.",
