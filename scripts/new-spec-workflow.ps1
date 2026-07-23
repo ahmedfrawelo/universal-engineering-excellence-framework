@@ -117,6 +117,37 @@ Status: DRAFT
 
 - {{RESIDUAL_RISK}}
 '@
+  'clarifications.md' = @'
+# Clarifications: {{TITLE}}
+
+Status: DRAFT
+
+## Clarification register
+
+| ID | Question | Status | Decision or assumption | Owner | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| CLAR-001 | {{QUESTION}} | ASSUMED | {{DECISION_OR_ASSUMPTION}} | {{OWNER}} | {{EVIDENCE}} |
+
+## Scope-changing decisions
+
+- {{SCOPE_DECISION}}
+'@
+  'convergence.md' = @'
+# Convergence: {{TITLE}}
+
+Status: DRAFT
+
+## Traceability convergence
+
+| Requirement or AC | Spec | Plan | Task | Implementation | Evidence | State | Residual risk |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| REQ-001 | REQ-001 | {{PLAN_REFERENCE}} | TASK-001 | {{IMPLEMENTATION}} | {{EVIDENCE}} | PENDING | {{RESIDUAL_RISK}} |
+| AC-001 | AC-001 | {{PLAN_REFERENCE}} | TASK-001 | {{IMPLEMENTATION}} | {{EVIDENCE}} | PENDING | {{RESIDUAL_RISK}} |
+
+## Divergences, waivers, and follow-up
+
+- {{FOLLOW_UP}}
+'@
 }
 
 foreach ($entry in $files.GetEnumerator()) {
@@ -131,5 +162,5 @@ foreach ($entry in $files.GetEnumerator()) {
   workflowId = $Id
   path = $specRoot
   files = @($files.Keys)
-  next = 'Replace {{PLACEHOLDERS}}, then run validate-spec-workflow.ps1.'
+  next = 'Resolve clarifications, replace {{PLACEHOLDERS}}, then run validate-spec-workflow.ps1.'
 } | ConvertTo-Json -Depth 3

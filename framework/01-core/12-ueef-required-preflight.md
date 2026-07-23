@@ -26,6 +26,8 @@ Reading a file is not the same as loading it as an always-loaded runtime module.
 
 ## Compact Runtime Check
 
+For non-trivial work, `scripts/get-ueef-task-preflight.ps1` is the optional single entrypoint for the Pack 58 route, proportional capability profile, workflow decisions, and conditional health evidence. It is read-only and advisory: activation remains mandatory, and selected capabilities are never claimed callable without task-time verification.
+
 ```text
 UEEF: ACTIVE / INACTIVE
 Loaded: boot-loader, core-system

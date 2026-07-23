@@ -8,7 +8,7 @@ Before every non-trivial engineering task:
 
 1. Route the task through pack 58, select the lowest-cost capable model, and spawn only when delegation has positive benefit.
 2. Load only `boot-loader` and `core-system` as always-loaded modules.
-3. Run `scripts/environment-bootstrap.ps1` or `scripts/environment-bootstrap.sh` before inspection.
+3. Run `scripts/environment-bootstrap.ps1` or `scripts/environment-bootstrap.sh` before inspection. For non-trivial work or capability uncertainty, run optional read-only `scripts/get-ueef-task-preflight.ps1 -Task '<task summary>'`; it selects route/profile/workflow evidence but never proves an MCP callable.
 4. Select task-specific modules through `framework/01-core/01-master-loader.md`.
 5. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
 6. Apply the Engineering Guardian, relevant quality gates, and final verification before completion.

@@ -40,6 +40,44 @@
       "configKey": "mcp_servers.node_repl",
       "fallback": "Use non-browser local verification when browser session control is not selected.",
       "consumerPacks": ["51-browser-session-control"]
+    },
+    {
+      "type": "skill",
+      "id": "ui-ux-pro-max",
+      "required": false,
+      "requiredForProfiles": ["UIUX"],
+      "source": "Codex installed skill",
+      "versionOrPin": "user-managed",
+      "installEvidence": "skills/ui-ux-pro-max/SKILL.md",
+      "fallback": "Use the existing repository design system and record that UI/UX Pro Max is unavailable.",
+      "consumerPacks": ["14-ui", "15-ux", "46-design-system-consistency-reuse", "47-theme-responsive-interaction-security-performance"],
+      "governance": {"selection":"required-for-profile","trigger":"UI, UX, frontend, layout, accessibility, or visual-polish work","policyRefs":["framework/01-core/01-master-loader.md"]},
+      "provenance": {"kind":"runtime-observed","repository":null,"ref":null,"installer":null}
+    },
+    {
+      "type": "skill",
+      "id": "impeccable",
+      "required": false,
+      "requiredForProfiles": ["UIUX"],
+      "source": "Codex installed skill",
+      "versionOrPin": "user-managed",
+      "installEvidence": "skills/impeccable/SKILL.md",
+      "fallback": "Use the existing repository design system and record that Impeccable is unavailable.",
+      "consumerPacks": ["14-ui", "15-ux", "46-design-system-consistency-reuse", "47-theme-responsive-interaction-security-performance"],
+      "governance": {"selection":"required-for-profile","trigger":"UI, UX, frontend, layout, accessibility, or visual-polish work","policyRefs":["framework/01-core/01-master-loader.md"]},
+      "provenance": {"kind":"runtime-observed","repository":null,"ref":null,"installer":null}
+    },
+    {
+      "type": "skill",
+      "id": "design-brief",
+      "required": false,
+      "source": "Open Design pinned skill",
+      "versionOrPin": "034c3895d127743038c18c09a38eab9c7d6a7641",
+      "installEvidence": "skills/design-brief/SKILL.md",
+      "fallback": "Use explicit local design constraints and record the missing design-brief skill.",
+      "consumerPacks": ["14-ui", "59-skill-invocation-protocol"],
+      "governance": {"selection":"conditional","trigger":"ambiguous visual request requiring explicit design specification","policyRefs":["framework/01-core/01-master-loader.md"]},
+      "provenance": {"kind":"pinned-github","repository":"nexu-io/open-design","ref":"034c3895d127743038c18c09a38eab9c7d6a7641","installer":"scripts/install-open-design-skills.ps1"}
     }
   ]
 }

@@ -2,6 +2,10 @@
 param(
   [Parameter(Mandatory)][string]$Task,
   [ValidateSet('low','medium','high','critical')][string]$Risk = 'low',
+  [ValidateSet('ui','browser','current-docs','ambiguous','debugging')][string[]]$TaskTag = @(),
+  [ValidateSet('T0','T1','T2','T3','T4')][string]$RouteTier,
+  [ValidateSet('None','Architecture','Authentication','Authorization','Security','Production','Migration','Destructive','Privacy','Payment','Incident','Release')][string]$RiskFloor = 'None',
+  [switch]$CodeChange,
   [switch]$Json
 )
 
@@ -18,7 +22,8 @@ function Add-WorkflowDecision([string]$Id, [string]$Selection, [string]$Trigger,
   if (!($workflowDecisions | Where-Object { $_.id -eq $Id })) { $workflowDecisions.Add([pscustomobject]@{ id=$Id; selection=$Selection; trigger=$Trigger; evidence=$Evidence }) }
 }
 
-$isReadOnly = $text -match '\b(explain|answer|summari[sz]e|translate|define|what is|review status)\b' -and $text -notmatch '\b(current|latest|online|browser|file|repository|code)\b'
+$hasExplicitClassification = $TaskTag.Count -gt 0 -or $RouteTier -or $RiskFloor -ne 'None' -or $CodeChange
+$isReadOnly = !$hasExplicitClassification -and $text -match '\b(explain|answer|summari[sz]e|translate|define|what is|review status)\b' -and $text -notmatch '\b(current|latest|online|browser|file|repository|code)\b'
 $needsBrowser = $text -match '\b(browser|chrome|tab|website|visual check|screenshot|figma)\b'
 $needsCurrentDocs = $text -match '\b(latest|current|up.to.date|documentation|api docs|library version)\b'
 $isUi = $text -match '\b(ui|ux|frontend|react|angular|css|layout|accessibility|design)\b'
@@ -26,11 +31,20 @@ $isSecurity = $Risk -in @('high','critical') -or $text -match '\b(security|auth|
 $isAmbiguous = $text -match '\b(ambiguous|unclear|brainstorm|explore|idea|requirements|acceptance criteria)\b'
 $isDebugging = $text -match '\b(bug|debug|regression|failure|broken|error|fix)\b'
 $isCodeChange = $text -match '\b(build|implement|add|change|refactor|fix|migrat\w*|create)\b'
+if ($hasExplicitClassification) {
+  $needsBrowser = $TaskTag -contains 'browser'
+  $needsCurrentDocs = $TaskTag -contains 'current-docs'
+  $isUi = $TaskTag -contains 'ui'
+  $isAmbiguous = $TaskTag -contains 'ambiguous'
+  $isDebugging = $TaskTag -contains 'debugging'
+  $isCodeChange = $CodeChange.IsPresent
+  $isSecurity = $RouteTier -in @('T3','T4') -or $RiskFloor -ne 'None' -or $Risk -in @('high','critical')
+}
 
 if ($isReadOnly) {
   $profile = 'CORE_ONLY'
   Add-Unique $reasons 'The request is self-contained and read-only.'
-} elseif ($isSecurity) {
+} elseif ($isSecurity -or $RouteTier -in @('T3','T4')) {
   $profile = 'ASSURED'
   Add-Unique $reasons 'High-impact or regulated work needs verified capabilities and independent evidence.'
 } else {
@@ -59,6 +73,7 @@ $result = [ordered]@{
   workflows = @($workflows)
   workflowDecisions = @($workflowDecisions)
   capabilityHealthRequired = ($profile -eq 'ASSURED' -or $mcps.Count -gt 0)
+  classificationEvidence = [ordered]@{ source=if($hasExplicitClassification){'explicit'}else{'legacy-inferred'}; taskTags=@($TaskTag); routeTier=$RouteTier; riskFloor=$RiskFloor; codeChange=$CodeChange.IsPresent }
   reasons = @($reasons)
 }
 if ($Json) { $result | ConvertTo-Json -Depth 3 } else {

@@ -1,5 +1,11 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
+$registry = Get-Content -LiteralPath (Join-Path $root 'config\capability-registry.json') -Raw | ConvertFrom-Json
+foreach ($id in @('ui-ux-pro-max','impeccable','design-brief')) {
+  $entry = $registry.capabilities | Where-Object { $_.type -eq 'skill' -and $_.id -eq $id }
+  if (!$entry -or !$entry.governance -or !$entry.provenance -or !$entry.installEvidence -or !$entry.fallback) { throw "Registry governance/provenance contract missing for $id." }
+}
+if (($registry.capabilities | Where-Object { $_.id -in @('ui-ux-pro-max','impeccable') -and $_.required }).Count) { throw 'UI baseline skills must not be global-required.' }
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ('ueef-capability-health-' + [guid]::NewGuid().ToString('N'))
 try {
   $testCodexHome = Join-Path $sandbox 'codex-home'
