@@ -1,0 +1,6 @@
+[CmdletBinding()]
+param([string]$RepositoryPath=(Get-Location).Path,[Parameter(Mandatory)][string]$OutputPath,[switch]$IncludeDiff)
+$ErrorActionPreference='Stop';$scriptRoot=$PSScriptRoot;$status=(& (Join-Path $scriptRoot 'ueef-status.ps1') -RepositoryPath $RepositoryPath -SkipRuntimeDrift -Json|Out-String)|ConvertFrom-Json
+$health=$null;try{$health=(& (Join-Path $scriptRoot 'get-ueef-health.ps1') -RepositoryPath $RepositoryPath -Json|Out-String)|ConvertFrom-Json}catch{}
+$diff=$null;if($IncludeDiff){$diff=(& (Join-Path $scriptRoot 'get-diff-impact.ps1') -RepositoryPath $RepositoryPath -Json|Out-String)|ConvertFrom-Json}
+$redact={param($text) [regex]::Replace($text,'(?i)(password|token|secret|api[_-]?key)\s*[:=]\s*[^\s,;]+','$1=[REDACTED]')};$report=[ordered]@{schemaVersion=1;generatedAt=(Get-Date).ToUniversalTime().ToString('o');provenance=[ordered]@{repositoryPath=$RepositoryPath;runtimeVersion=$status.version};runtime=$status;health=$health;diff=$diff;redaction='credential-like values are redacted'};$json=&$redact ($report|ConvertTo-Json -Depth 12);New-Item -ItemType Directory -Path (Split-Path -Parent $OutputPath) -Force|Out-Null;Set-Content -LiteralPath $OutputPath -Value $json -Encoding utf8;Write-Output "Evidence exported: $OutputPath"

@@ -1,0 +1,1 @@
+$ErrorActionPreference='Stop';$root=Split-Path -Parent $PSScriptRoot;$r=(& (Join-Path $root 'scripts\get-workspace-boundaries.ps1') -Root $root -Json|Out-String)|ConvertFrom-Json;if($r.schemaVersion -ne 1 -or !$r.mode -or $r.mutation){throw 'Workspace boundary contract failed.'};Write-Host 'Workspace boundaries tests passed'

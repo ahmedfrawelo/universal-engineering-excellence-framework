@@ -44,6 +44,18 @@ $requiredAcceptance = @(
   "scripts/resolve-team-policy.ps1",
   "scripts/test-team-policy.ps1",
   "config/team-policy-profiles.json",
+  "scripts/export-ueef-evidence.ps1",
+  "scripts/test-evidence-export.ps1",
+  "scripts/get-task-budget-advice.ps1",
+  "scripts/test-task-budget-advice.ps1",
+  "scripts/record-learning-loop.ps1",
+  "scripts/test-learning-loop.ps1",
+  "scripts/get-workspace-boundaries.ps1",
+  "scripts/test-workspace-boundaries.ps1",
+  "scripts/new-refactor-recipe.ps1",
+  "scripts/test-refactor-recipe.ps1",
+  "scripts/get-onboarding-preview.ps1",
+  "scripts/test-onboarding-preview.ps1",
   "scripts/measure-assurance.ps1",
   "scripts/test-assurance-performance.ps1",
   "config/assurance-budgets.json",
@@ -412,6 +424,12 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-diff-impact.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-memory.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-team-policy.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-evidence-export.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-task-budget-advice.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-learning-loop.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-workspace-boundaries.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-refactor-recipe.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-onboarding-preview.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-assurance-performance.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null

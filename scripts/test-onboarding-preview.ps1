@@ -1,0 +1,1 @@
+$ErrorActionPreference='Stop';$root=Split-Path -Parent $PSScriptRoot;$r=(& (Join-Path $root 'scripts\get-onboarding-preview.ps1') -Root $root -TeamProfile startup -Json|Out-String)|ConvertFrom-Json;if(!$r.dryRun -or $r.mutation -or @($r.firstRules).Count -ne 5){throw 'Onboarding preview contract failed.'};Write-Host 'Onboarding preview tests passed'

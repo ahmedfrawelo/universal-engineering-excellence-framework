@@ -1,0 +1,3 @@
+[CmdletBinding()]
+param([Parameter(Mandatory)][string]$Failure,[Parameter(Mandatory)][string]$Lesson,[string]$Root=(Get-Location).Path,[switch]$Json)
+$ErrorActionPreference='Stop';$detail="Failure: $Failure`nLesson: $Lesson`nReview required before any policy change.";$writer=Join-Path $PSScriptRoot 'write-project-memory.ps1';$record=(& $writer -Kind lesson -Title 'Reviewed failure lesson' -Detail $detail -Root $Root -Json|Out-String)|ConvertFrom-Json;$result=[ordered]@{schemaVersion=1;record=$record;requiresHumanApproval=$true;automaticRuleChange=$false};if($Json){$result|ConvertTo-Json -Depth 5}else{Write-Output "Learning record: $($record.id); human approval required."}
