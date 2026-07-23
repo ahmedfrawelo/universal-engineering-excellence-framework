@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant applies only the evidence and controls proportionate to the task, then verifies the requested outcome.
 
-The current release is 2.16.2. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
+The current release is 2.17.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
 
 ## Minimal path
 
@@ -28,7 +28,17 @@ The current release is 2.16.2. See [VERSION.md](VERSION.md) for the version poli
 - If the AI starts expanding scope or responding below the requested depth, run `git pull` and then `./scripts/sync-runtime.ps1` so the installed runtime receives the `2.16` intent-first policy.
 - To use the opt-in strict policy, resolve the `strict-scope` team profile: `./scripts/resolve-team-policy.ps1 -Profile strict-scope -Json`. It keeps `T0/T1` gates focused and forbids autonomous upgrades without an explicit request.
 - If difficult work still feels artificially limited after `2.16+`, the installed master loader/runtime is likely old: run `git pull`, `./scripts/sync-runtime.ps1`, then `./scripts/ueef-status.ps1`.
-- The intent-fidelity regression contract is Windows-first (`test-intent-fidelity-contract.ps1`) and runs from `validate-framework.ps1`; Unix validation keeps structural coverage but has no equivalent intent-fidelity script yet.
+- Intent-fidelity regressions run on both validation paths: `test-intent-fidelity-contract.ps1` on Windows and `test-intent-fidelity-contract.sh` on Unix.
+
+Strict scope remains opt-in. Its machine-readable policy can be inspected without changing the active profile:
+
+```json
+{
+  "profile": "strict-scope",
+  "autonomousUpgrades": false,
+  "t0t1": "focused"
+}
+```
 
 ## Runtime Check
 
@@ -84,6 +94,8 @@ Use these only when the task needs them; routine work stays lightweight.
 ```
 
 On Unix, use `get-ueef-task-preflight.sh`, `write-project-memory.sh`, `get-project-memory.sh`, and `export-ueef-evidence.sh` for the bounded local equivalents, plus `get-diff-impact.sh` and `get-task-budget-advice.sh`. Unix preflight explicitly reports unsupported health rather than claiming capability or callable parity.
+
+Unix preflight health is `UNSUPPORTED_ON_UNIX`; it is an honest fallback, not full Windows capability-health parity.
 ## Exact Codex installation
 
 For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:

@@ -35,6 +35,8 @@ $requiredAcceptance = @(
   "scripts/select-capability-profile.ps1",
   "scripts/test-capability-profile.ps1",
   "scripts/get-ueef-task-preflight.ps1",
+  "scripts/ueef-doctor.ps1",
+  "scripts/test-ueef-doctor.ps1",
   "scripts/test-ueef-task-preflight.ps1",
   "scripts/get-diff-impact.ps1",
   "scripts/test-diff-impact.ps1",
@@ -425,6 +427,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-ueef-doctor.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-diff-impact.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-memory.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-team-policy.ps1") | Out-Null

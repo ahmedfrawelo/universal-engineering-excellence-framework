@@ -117,7 +117,7 @@ Browser hard stop:
 - If visual verification is the only missing gate after implementation and tests passed, do not mark the goal BLOCKED only because a screenshot is pending. Report the implementation as verified by non-visual gates and keep visual verification explicitly pending unless the user's requested outcome was visual-only.
 - Preserve the user's browser window state. Do not resize, emulate, move, restore, minimize, maximize, or alter full screen unless explicitly requested.
 - A minimized, background, or non-foreground user-owned Chrome window remains controllable through the extension and must not block or pause the goal. If one visual-only operation genuinely requires foreground visibility, continue all non-visual work and defer only that visual gate.
-- An isolated/local browser test requires an explicit separate user request; it never substitutes for a user-owned Chrome task or its visual verification. Use visible Windows control only as a fallback when the Chrome plugin is unavailable. If the user-owned tab cannot be proven after readiness/failover, stop and request the user to activate or share the existing tab—never open another browser.
+- An isolated/local browser test requires an explicit separate user request; it never substitutes for a user-owned Chrome task or its visual verification. Visible Windows control is a Windows-only fallback when the Chrome plugin is unavailable. On macOS/Linux, stop and request the user to activate or share the existing tab—never invent another browser surface.
 
 The only valid compact verification line is:
 

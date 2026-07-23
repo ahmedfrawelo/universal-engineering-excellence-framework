@@ -11,6 +11,7 @@ done
 [ -f "$ROOT/scripts/validate-spec-workflow.ps1" ] || { echo "Missing spec workflow validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-capability-health.ps1" ] || { echo "Missing capability health doctor" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-ueef-health.ps1" ] || { echo "Missing unified UEEF health report" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-intent-fidelity-contract.sh" ] || { echo "Missing Unix intent-fidelity contract test" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-capability-profile.ps1" ] || { echo "Missing capability profile selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/measure-assurance.ps1" ] || { echo "Missing assurance measurement script" >&2; exit 1; }
 [ -f "$ROOT/config/assurance-budgets.json" ] || { echo "Missing assurance budget configuration" >&2; exit 1; }
@@ -98,6 +99,8 @@ grep -q "Task scope discipline:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Run
 grep -q "Prevent over-rendering end to end" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing over-render policy" >&2; exit 1; }
 grep -q "Animations must be smooth" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing animation policy" >&2; exit 1; }
 grep -q "SSR, SSG, streaming" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing SSR policy" >&2; exit 1; }
+
+sh "$ROOT/scripts/test-intent-fidelity-contract.sh"
 grep -q "Reusable behavior, UI, validation" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing shared-first policy" >&2; exit 1; }
 grep -q "Before creating custom UI or behavior" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing design-system-first policy" >&2; exit 1; }
 grep -q "Large-project reuse:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing large-project reuse section" >&2; exit 1; }
@@ -384,7 +387,8 @@ sh "$ROOT/scripts/test-evidence-export.sh" >/dev/null || { echo "Unix evidence e
 sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }
 route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
-printf '%s' "$route" | grep -q '"spawnAgents":false' || { echo "Unix agent route delegation guard failed" >&2; exit 1; }
+printf '%s' "$route" | grep -q '"spawnAgents":true' || { echo "Unix agent route T4 verifier guard failed" >&2; exit 1; }
+printf '%s' "$route" | grep -q '"independentVerificationRequired":true' || { echo "Unix agent route T4 evidence guard failed" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 if grep -q '\[0-9\.\]\*' "$ROOT/scripts/ueef-audit.sh"; then echo "Unix audit uses an unsafe broad version pattern" >&2; exit 1; fi

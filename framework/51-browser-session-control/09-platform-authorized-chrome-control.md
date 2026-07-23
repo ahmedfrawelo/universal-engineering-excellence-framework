@@ -1,6 +1,6 @@
 # Platform-Authorized Chrome Control
 
-When a user asks to inspect, test, navigate, or operate a website in Chrome, use the Chrome plugin extension binding to enumerate and claim the verified user-owned tab. Claiming an existing tab is ordinary Chrome control, not creation of a debugging browser. Use visible Windows control only if the plugin is unavailable.
+When a user asks to inspect, test, navigate, or operate a website in Chrome, use the Chrome plugin extension binding to enumerate and claim the verified user-owned tab. Claiming an existing tab is ordinary Chrome control, not creation of a debugging browser. Visible Windows control is available only on Windows if the plugin is unavailable; on macOS/Linux, stop and ask for the existing tab instead of creating a substitute surface.
 
 ## Default Flow
 

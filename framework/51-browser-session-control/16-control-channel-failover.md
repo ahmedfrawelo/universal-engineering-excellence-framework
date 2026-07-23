@@ -9,7 +9,7 @@ Browser verification must survive a task-local transport failure without asking 
 1. Reuse the existing Chrome extension binding and exact user-owned tab.
 2. Run the documented readiness troubleshooting and automatic stale-ownership repair once.
 3. Automatically seek a current `VERIFIED_HANDOFF` from a trusted coordinator that can claim the same user-owned tab and cover the current code state.
-4. If the Chrome plugin itself is independently unavailable, use verified visible Windows control for that same user-owned window only.
+4. If the Chrome plugin itself is independently unavailable, use verified visible Windows control for that same user-owned window only on Windows. On macOS/Linux, stop and ask the user to activate or share the existing tab; never create a substitute surface.
 5. Ask the user for action only after every authorized same-window path is independently unavailable, and state the externally verified missing condition.
 
 ## Invariants

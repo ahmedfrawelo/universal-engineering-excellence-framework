@@ -8,7 +8,7 @@ Use the least intrusive control surface that can complete the user's browser tas
 - Do not use directly exposed `mcp__playwright__*`, `mcp__chrome_devtools__*`, `browser_*`, Cursor/IDE Simple Browser, in-app-browser, `browser.newContext`, `browser.launch`, or standalone automation tools for Chrome work. Their presence does not prove ownership of the user's Chrome window. Playwright is allowed only as the claimed tab's in-plugin `tab.playwright` API.
 - An isolated/local browser test is allowed only after an explicit separate user request. It must not open a second browser as fallback, and it never satisfies a user-owned Chrome task or its visual verification.
 - Use the claimed tab's DOM, console, network, or performance capabilities only when the task needs them.
-- Use visible Windows control only when the Chrome plugin is unavailable; never switch surfaces merely to bypass a recoverable stale tab binding.
+- Use visible Windows control only on Windows when the Chrome plugin is unavailable; on macOS/Linux stop and ask for the existing tab. Never switch surfaces merely to bypass a recoverable stale tab binding.
 
 ## User Indicators
 

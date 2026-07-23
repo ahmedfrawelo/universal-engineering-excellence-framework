@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.16.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.17.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.17.0 - 2026-07-23
+
+- Added a Unix intent-fidelity contract and Ubuntu CI coverage for prohibited hard-medium, universal caps, mandatory spawning, and T1 child-evidence regressions.
+- Replaced the generated `AGENTS.md` ritual copy with a compact precedence-first contract and source-loader pointers; runtime hardening proves the generated file remains small and complete.
+- Made browser fallback platform-honest, added behavioral preflight fixtures, documented Unix health limits, and added opt-in `ueef-doctor.ps1` runtime/drift guidance.
 
 ## 2.16.2 - 2026-07-23
 

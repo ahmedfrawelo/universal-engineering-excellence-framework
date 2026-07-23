@@ -143,17 +143,12 @@ try {
     if ($loader -notmatch [regex]::Escape($term)) { throw "Generated loader missing: $term" }
   }
   $agents = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
-  foreach ($term in @('HARD FAIL BEFORE ANY BROWSER TOOL','get-ueef-task-preflight.ps1','browserGate','do not select a browser tool','mcp__node_repl__js','claimTab()','tab.playwright')) {
-    if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing mandatory browser gate: $term" }
+  if ($agents.Length -gt 2200) { throw "Generated AGENTS is too large for a precedence-only runtime block: $($agents.Length) characters." }
+  foreach ($term in @('Precedence: Scope wins','stop when done','T1 defaults to single-agent','economical default, not a hard ceiling','browser control is explicit-task only','mcp__node_repl__js','claimTab()','tab.playwright','Windows-only; on macOS/Linux stop')) {
+    if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing compact precedence contract: $term" }
   }
   foreach ($term in @('# User rules','Keep this custom rule.','<!-- UEEF-MANAGED:START -->','<!-- UEEF-MANAGED:END -->')) {
     if ($agents -notmatch [regex]::Escape($term)) { throw "Runtime sync did not preserve managed AGENTS content: $term" }
-  }
-  foreach ($term in @('save-contract bugs','Repetition does not convert','external or user-only condition','no meaningful local work remains','When a goal is ACTIVE','read current goal status')) {
-    if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing delivery continuation contract: $term" }
-  }
-  foreach ($term in @('get-ueef-task-preflight.ps1','get-diff-impact.ps1','project memory only for explicit local decisions','not a T0/T1 checklist')) {
-    if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing optional-tool guidance: $term" }
   }
   $stateBeforeRollback = Get-Content -LiteralPath $statePath -Raw
   $agentsBeforeRollback = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
