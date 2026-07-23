@@ -1,0 +1,1 @@
+$ErrorActionPreference='Stop';$root=Split-Path -Parent $PSScriptRoot;$items=(& (Join-Path $root 'scripts\get-assistant-adapters.ps1') -Json|Out-String)|ConvertFrom-Json;if(@($items).Count -ne 3 -or @($items|Where-Object {!$_.verified}).Count){throw 'Assistant adapter contract failed.'};Write-Host 'Assistant adapter tests passed'

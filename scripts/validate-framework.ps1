@@ -56,6 +56,9 @@ $requiredAcceptance = @(
   "scripts/test-refactor-recipe.ps1",
   "scripts/get-onboarding-preview.ps1",
   "scripts/test-onboarding-preview.ps1",
+  "config/assistant-adapters.json",
+  "scripts/get-assistant-adapters.ps1",
+  "scripts/test-assistant-adapters.ps1",
   "scripts/measure-assurance.ps1",
   "scripts/test-assurance-performance.ps1",
   "config/assurance-budgets.json",
@@ -430,6 +433,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-workspace-boundaries.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-refactor-recipe.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-onboarding-preview.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-assistant-adapters.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-assurance-performance.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null

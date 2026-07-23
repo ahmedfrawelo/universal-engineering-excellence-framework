@@ -1,0 +1,3 @@
+[CmdletBinding()]
+param([string]$ConfigPath=(Join-Path (Split-Path -Parent $PSScriptRoot) 'config\assistant-adapters.json'),[switch]$Json)
+$ErrorActionPreference='Stop';$doc=Get-Content $ConfigPath -Raw|ConvertFrom-Json;$items=@($doc.adapters|ForEach-Object{[pscustomobject]@{id=$_.id;installer=$_.installer;loader=$_.loader;smokeTest=$_.smokeTest;status=$_.status;verified=[bool]((Test-Path (Join-Path (Split-Path -Parent $PSScriptRoot) $_.installer)) -and (Test-Path (Join-Path (Split-Path -Parent $PSScriptRoot) $_.smokeTest)))}});if($Json){$items|ConvertTo-Json}else{$items|Format-Table -AutoSize}
