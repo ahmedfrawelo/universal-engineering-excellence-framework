@@ -23,7 +23,7 @@ Overall: ACTIVE
 UEEF must run from Codex home:
 
 ```text
-E:\shared folder\codex-home\ueef\codex
+`$CODEX_HOME/ueef/codex` (defaults to `E:\shared folder\codex-home` when `CODEX_HOME` is unset)
 ```
 
 The old home runtime must be absent:

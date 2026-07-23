@@ -47,14 +47,13 @@ case "$risk_floor" in
 esac
 
 case "$tier" in
-  T0) capability=Inherited; model=inherit; reasoning=medium; routed_topology=single-agent ;;
-  T1) capability=Fast; model=gpt-5.6-luna; reasoning=low; routed_topology=single-agent ;;
-  T2) capability=Balanced; model=gpt-5.6-terra; reasoning=medium; routed_topology=lead-plus-sidecar ;;
-  T3) capability=Frontier; model=gpt-5.6-sol; reasoning=high; routed_topology=parallel-specialists ;;
-  T4) capability=Frontier; model=gpt-5.6-sol; reasoning=high; routed_topology=lead-workers-independent-verifier ;;
+  T0) capability=Inherited; model=inherit; reasoning=low; routed_topology=single-agent ;;
+  T1) capability=Fast; model=inherit; reasoning=medium; routed_topology=single-agent ;;
+  T2) capability=Balanced; model=inherit; reasoning=medium; routed_topology=lead-plus-sidecar ;;
+  T3) capability=Frontier; model=inherit; reasoning=high; routed_topology=parallel-specialists ;;
+  T4) capability=Frontier; model=inherit; reasoning=high; routed_topology=lead-workers-independent-verifier ;;
 esac
 
-[ "$tier" = T1 ] && [ "$code_change" = true ] && reasoning=medium
 spawn_agents=false
 if [ "$agents_available" = true ] && { [ "$delegation_benefit" = true ] || [ "$tier" = T4 ]; }; then spawn_agents=true; fi
 if [ "$spawn_agents" = false ]; then topology=single-agent
@@ -72,5 +71,5 @@ if [ "$models_available" = false ]; then model_json=null; model_verify=false
 else model_json="\"$model\""; if [ "$model" = inherit ]; then model_verify=false; else model_verify=true; fi
 fi
 
-printf '{"schemaVersion":4,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"proportional","topology":"%s","delegationBenefit":%s,"codeChange":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"noSpawnReason":%s,"routeEvidenceRequired":true,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Delegation is optional and requires an independent benefit. T1 defaults to single-agent; T4 requires independent verification."}\n' \
+printf '{"schemaVersion":4,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"proportional","topology":"%s","delegationBenefit":%s,"codeChange":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"noSpawnReason":%s,"routeEvidenceRequired":true,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Delegation is optional and requires an independent benefit. T0/T1 default to single-agent; models inherit the platform default; T4 requires independent verification."}\n' \
   "$score" "$risk_floor" "$tier" "$capability" "$model_json" "$reasoning" "$topology" "$delegation_benefit" "$code_change" "$independent_workstreams" "$agents_available" "$spawn_agents" "$no_spawn_reason" "$independent" "$model_verify"

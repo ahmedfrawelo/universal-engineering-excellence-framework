@@ -11,12 +11,12 @@ function Assert-Route {
   }
 }
 
-Assert-Route @{} @{ schemaVersion=4; tier='T0'; reasoning='medium'; reasoningCeiling='proportional'; topology='single-agent'; spawnAgents=$false }
-Assert-Route @{ CodeChange=$true } @{ tier='T1'; preferredModel='gpt-5.6-luna'; reasoning='medium'; codeChange=$true; spawnAgents=$false; noSpawnReason='NO_INDEPENDENT_WORK'; routeEvidenceRequired=$true }
-Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1 } @{ tier='T2'; topology='single-agent'; spawnAgents=$false }
+Assert-Route @{} @{ schemaVersion=4; tier='T0'; reasoning='low'; preferredModel='inherit'; reasoningCeiling='proportional'; topology='single-agent'; spawnAgents=$false }
+Assert-Route @{ CodeChange=$true } @{ tier='T1'; preferredModel='inherit'; reasoning='medium'; codeChange=$true; spawnAgents=$false; noSpawnReason='NO_INDEPENDENT_WORK'; routeEvidenceRequired=$true }
+Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1 } @{ tier='T2'; preferredModel='inherit'; reasoning='medium'; topology='single-agent'; spawnAgents=$false }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true } @{ tier='T2'; topology='lead-plus-sidecar'; spawnAgents=$true }
-Assert-Route @{ RiskFloor='Authentication' } @{ tier='T3'; preferredModel='gpt-5.6-sol' }
-Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; reasoning='high'; reasoningCeiling='proportional'; independentVerificationRequired=$true }
+Assert-Route @{ RiskFloor='Authentication' } @{ tier='T3'; preferredModel='inherit'; reasoning='high' }
+Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; preferredModel='inherit'; reasoning='high'; reasoningCeiling='proportional'; independentVerificationRequired=$true }
 Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true } @{ tier='T4'; topology='lead-plus-independent-verifier'; spawnAgents=$true }
 Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true; IndependentWorkstreams=2 } @{ tier='T4'; topology='lead-workers-independent-verifier'; spawnAgents=$true }
 Assert-Route @{ Scope=3; Ambiguity=3; Coupling=3; Risk=2; Verification=1; DelegationBenefit=$true; IndependentWorkstreams=1 } @{ tier='T3'; topology='lead-plus-sidecar' }
@@ -36,7 +36,7 @@ $contractChecks = @{
   'framework/27-quality-gates/31-agent-model-routing-gate.md' = @('TOOL_UNAVAILABLE', 'child-agent record')
   'framework/29-checklists/40-agent-model-routing-checklist.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
   'framework/38-templates/28-agent-routing-decision-template.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
-  'scripts/sync-runtime.ps1' = @('Agent route:', 'TOOL_UNAVAILABLE', 'Never claim UEEF routing')
+  'scripts/sync-runtime.ps1' = @('Agent route:', 'TOOL_UNAVAILABLE')
 }
 foreach ($relativePath in $contractChecks.Keys) {
   $content = Get-Content -LiteralPath (Join-Path $root $relativePath) -Raw

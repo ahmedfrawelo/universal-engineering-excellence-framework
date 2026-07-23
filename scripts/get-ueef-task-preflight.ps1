@@ -29,15 +29,15 @@ if ($TaskTag -contains 'browser') {
     status = 'REQUIRED'
     enforcement = 'HARD_FAIL_BEFORE_BROWSER_TOOL'
     requiredBeforeTool = @(
-      'Read the installed Chrome control skill.',
-      'Bootstrap browser-client.mjs only through mcp__node_repl__js.',
-      'Select the Chrome extension binding.',
-      'Enumerate user.openTabs() and pass the exact returned object to claimTab().',
-      'Use tab.playwright only after the exact user-owned tab is claimed.'
+      'Read the installed Chrome control skill for the current host.',
+      'Prefer the Codex Chrome control plugin against the user existing tabs/profile when available.',
+      'On Claude hosts, bootstrap browser-client.mjs only through mcp__node_repl__js, then use the Chrome extension binding.',
+      'Enumerate user.openTabs() and pass the exact returned object to claimTab() when that bridge is present.',
+      'Never launch Playwright MCP, chrome-devtools MCP, IDE Simple Browser, in-app browser, browser.newContext, or browser.launch as a substitute.'
     )
-    allowedPath = @('mcp__node_repl__js', 'Chrome extension binding', 'user.openTabs()', 'claimTab()', 'claimed tab.playwright')
+    allowedPath = @('Codex Chrome control plugin', 'mcp__node_repl__js', 'Chrome extension binding', 'user.openTabs()', 'claimTab()', 'claimed tab.playwright')
     forbiddenSurfaces = @('mcp__playwright__*', 'mcp__chrome_devtools__*', 'browser_*', 'Cursor/IDE Simple Browser', 'in-app browser', 'browser.newContext', 'browser.launch', 'second browser', 'temporary profile', 'isolated context')
-    failureAction = 'Do not select or call a browser tool and do not open an alternate surface. Run the Chrome readiness and same-tab recovery flow.'
+    failureAction = 'Do not select or call a browser tool and do not open an alternate surface. Stop and ask if Chrome control is unavailable.'
   }
 }
 $result = [ordered]@{ schemaVersion=2; generatedAt=(Get-Date).ToUniversalTime().ToString('o'); status=$status; task=$Task; classification=[ordered]@{source='explicit';tags=@($TaskTag);route=$route}; profile=$profile; health=[ordered]@{required=$healthRequired;checked=[bool]$health;status=if($health){$health.overall.status}else{'SKIPPED'};report=$health}; browserGate=$browserGate; decisions=@($profile.workflowDecisions) }

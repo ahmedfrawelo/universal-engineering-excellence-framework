@@ -11,12 +11,15 @@ assert_contains() {
 route="$("$selector")"
 assert_contains "$route" '"schemaVersion":4'
 assert_contains "$route" '"tier":"T0"'
-assert_contains "$route" '"reasoning":"medium"'
+assert_contains "$route" '"reasoning":"low"'
+assert_contains "$route" '"preferredModel":"inherit"'
 assert_contains "$route" '"reasoningCeiling":"proportional"'
 assert_contains "$route" '"spawnAgents":false'
 
 route="$("$selector" --code-change)"
 assert_contains "$route" '"tier":"T1"'
+assert_contains "$route" '"reasoning":"medium"'
+assert_contains "$route" '"preferredModel":"inherit"'
 assert_contains "$route" '"codeChange":true'
 assert_contains "$route" '"spawnAgents":false'
 assert_contains "$route" '"noSpawnReason":"NO_INDEPENDENT_WORK"'
@@ -34,6 +37,11 @@ route="$("$selector" --risk-floor Payment --delegation-benefit --independent-wor
 assert_contains "$route" '"tier":"T4"'
 assert_contains "$route" '"reasoning":"high"'
 assert_contains "$route" '"topology":"lead-workers-independent-verifier"'
+
+route="$("$selector" --risk-floor Authentication)"
+assert_contains "$route" '"tier":"T3"'
+assert_contains "$route" '"preferredModel":"inherit"'
+assert_contains "$route" '"reasoning":"high"'
 
 route="$("$selector" --risk-floor Authentication --models-unavailable)"
 assert_contains "$route" '"preferredModel":null'

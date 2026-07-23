@@ -12,15 +12,17 @@ When the platform exposes the current Codex model family:
 
 | Tier | Model | Reasoning |
 | --- | --- | --- |
-| T0 | lead agent; no override | inherited |
-| T1 | `gpt-5.6-luna` | low, medium when code changes |
-| T2 | `gpt-5.6-terra` | medium |
-| T3 | `gpt-5.6-sol` | high when ambiguity or risk justifies it; otherwise medium |
-| T4 | `gpt-5.6-sol` | high |
+| T0 | inherited | low |
+| T1 | inherited (Fast class) | medium |
+| T2 | inherited (Balanced class) | medium |
+| T3 | inherited (Frontier class) | high |
+| T4 | inherited (Frontier class) | high |
+
+The route selector emits `preferredModel: inherit` for every tier. UEEF describes capability classes (Fast, Balanced, Frontier), not fixed model names, so platform-supplied model families are not overridden by outdated or fictional identifiers.
 
 `medium` is the economical default, not a hard ceiling. A recorded T3/T4 or high-ambiguity route may request a platform-supported higher level; higher-risk work also increases topology, evidence, and independent verification. UEEF must not override a higher level chosen by the platform.
 
-Use an inherited model when it already satisfies the class. Do not override merely to make routing visible. If names differ or overrides are unavailable, select the nearest available capability class and keep the same risk floor.
+Use an inherited model when it already satisfies the class. Do not override merely to make routing visible. If a specific model must be requested, verify its availability from the current orchestration tool before naming it; otherwise stay with `inherit`.
 
 Verify model entitlement from the current orchestration tool before using a named override. When availability cannot be verified, emit the capability class with no model ID and continue with the strongest available inherited model.
 

@@ -5,7 +5,7 @@ if ($ui.status -ne 'READY' -or $ui.classification.route.tier -ne 'T1' -or $ui.pr
 $browser = (& $preflight -Task 'Inspect browser' -TaskTag browser -SkipHealth -Json | Out-String) | ConvertFrom-Json
 if (!$browser.health.required -or $browser.health.checked) { throw 'Browser preflight must require but not probe health when explicitly skipped.' }
 if ($browser.browserGate.status -ne 'REQUIRED' -or $browser.browserGate.enforcement -ne 'HARD_FAIL_BEFORE_BROWSER_TOOL') { throw 'Browser preflight must emit the mandatory hard-fail browser gate.' }
-if ($browser.browserGate.allowedPath -notcontains 'mcp__node_repl__js' -or $browser.browserGate.allowedPath -notcontains 'claimTab()' -or $browser.browserGate.forbiddenSurfaces -notcontains 'browser.launch') { throw 'Browser preflight gate allowlist or forbidden surfaces are incomplete.' }
+if ($browser.browserGate.allowedPath -notcontains 'Codex Chrome control plugin' -or $browser.browserGate.allowedPath -notcontains 'mcp__node_repl__js' -or $browser.browserGate.allowedPath -notcontains 'claimTab()' -or $browser.browserGate.forbiddenSurfaces -notcontains 'browser.launch') { throw 'Browser preflight gate allowlist or forbidden surfaces are incomplete.' }
 if ($browser.browserGate.failureAction -notmatch 'Do not select or call a browser tool') { throw 'Browser preflight must stop tool selection before the gate is resolved.' }
 $nonBrowser = (& $preflight -Task 'Document the browser policy in this repository' -SkipHealth -Json | Out-String) | ConvertFrom-Json
 if ($null -ne $nonBrowser.browserGate -or $nonBrowser.profile.mcps -contains 'node_repl') { throw 'A docs task that merely mentions a browser must not require browser control.' }

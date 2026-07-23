@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }),
+  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { 'E:\shared folder\codex-home' }),
   [string]$ConfigPath,
   [string]$RegistryPath = (Join-Path (Split-Path -Parent $PSScriptRoot) 'config\capability-registry.json'),
   [switch]$Json

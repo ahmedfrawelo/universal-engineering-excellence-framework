@@ -144,7 +144,7 @@ try {
   }
   $agents = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
   if ($agents.Length -gt 2200) { throw "Generated AGENTS is too large for a precedence-only runtime block: $($agents.Length) characters." }
-  foreach ($term in @('Precedence: Scope wins','stop when done','T1 defaults to single-agent','economical default, not a hard ceiling','browser control is explicit-task only','mcp__node_repl__js','claimTab()','tab.playwright','Windows-only; on macOS/Linux stop')) {
+  foreach ($term in @('Precedence: Scope wins','stop when done','T0/T1 stay single-agent','economical default, not a hard ceiling','read the loader once per task','browser control is explicit-task only','Prefer the installed Chrome control plugin','Never launch Playwright, chrome-devtools','IDE Simple Browser','a second profile, or a new context','stop and ask')) {
     if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing compact precedence contract: $term" }
   }
   foreach ($term in @('# User rules','Keep this custom rule.','<!-- UEEF-MANAGED:START -->','<!-- UEEF-MANAGED:END -->')) {

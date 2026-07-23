@@ -2,7 +2,7 @@
 param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
   [string]$GlobalPath = '',
-  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } elseif ((Split-Path -Leaf $RepositoryPath) -eq 'codex' -and (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq 'ueef') { Split-Path -Parent (Split-Path -Parent $RepositoryPath) } else { Join-Path $env:USERPROFILE '.codex' }),
+  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } elseif ((Split-Path -Leaf $RepositoryPath) -eq 'codex' -and (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq 'ueef') { Split-Path -Parent (Split-Path -Parent $RepositoryPath) } else { 'E:\shared folder\codex-home' }),
   [string]$ConfigPath,
   [string]$RegistryPath = (Join-Path (Split-Path -Parent $PSScriptRoot) 'config\capability-registry.json'),
   [switch]$IncludeRuntimeDrift,

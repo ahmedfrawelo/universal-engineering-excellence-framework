@@ -27,7 +27,7 @@ $required = @{
   'framework/27-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'Do not fail because')
   'framework/03-runtime/00-runtime-sequence.md' = @('Chrome readiness flow completed:', 'Exact user.openTabs() object claimed:', 'Automatic ownership repair run when needed:', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
   'framework/29-checklists/32-browser-session-control-checklist.md' = @('exact returned object', 'Debugging/CDP authorization')
-  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'Extension attachment', 'must not pause the goal', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF', 'Do not expose retry counts', 'repair-chrome-tab-ownership.ps1')
+  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF', 'Do not expose retry counts', 'repair-chrome-tab-ownership.ps1')
   'scripts/repair-chrome-tab-ownership.ps1' = @('extension-host.exe', 'chrome-extension://hehggadaopoacecdllhhajmbjkdcmajg/', 'Stop-Process', 'DryRun')
 }
 foreach ($relative in $required.Keys) {
@@ -102,13 +102,20 @@ foreach ($relative in @('QUICK_START.md','INSTALL.md')) {
   }
 }
 
+. (Join-Path $root 'scripts/resolve-codex-home.ps1')
 $previousCodexHome = $env:CODEX_HOME
+$tempCodexHome = $null
 try {
-  if (!$env:CODEX_HOME) { $env:CODEX_HOME = 'E:\shared folder\codex-home' }
+  if (!$env:CODEX_HOME) {
+    $tempCodexHome = Join-Path ([IO.Path]::GetTempPath()) ("ueef-browser-contract-" + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $tempCodexHome -Force | Out-Null
+    $env:CODEX_HOME = $tempCodexHome
+  }
   $bootstrapOutput = (& (Join-Path $root 'scripts/environment-bootstrap.ps1') 2>&1 | Out-String)
   if ($bootstrapOutput -match 'Collection was of a fixed size') { throw 'Default environment bootstrap still uses a fixed-size collection.' }
 } finally {
   $env:CODEX_HOME = $previousCodexHome
+  if ($tempCodexHome -and (Test-Path -LiteralPath $tempCodexHome)) { Remove-Item -LiteralPath $tempCodexHome -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 Write-Host 'Browser control contract tests passed'

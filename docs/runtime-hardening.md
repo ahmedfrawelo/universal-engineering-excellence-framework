@@ -15,7 +15,7 @@ CODEX_HOME/ueef/codex
 On this machine the active path is:
 
 ```text
-E:\shared folder\codex-home\ueef\codex
+`$CODEX_HOME/ueef/codex` (defaults to `E:\shared folder\codex-home` when `CODEX_HOME` is unset)
 ```
 
 UEEF must not depend on `$HOME/.ueef` for Codex runtime activation.

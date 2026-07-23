@@ -12,14 +12,47 @@ if($env:UEEF_GLOBAL_PATH){
 $CodexHome=if($env:CODEX_HOME){$env:CODEX_HOME}elseif($RuntimePath){Split-Path -Parent (Split-Path -Parent $RuntimePath)}else{''}
 $selectedProfiles=@($Profile | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 if(!$selectedProfiles.Count){
-  $signals=@(Get-ChildItem -LiteralPath $Root -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.FullName -notmatch '\\.git\\'})
-  $names=@($signals|Select-Object -ExpandProperty Name)
+  # Shallow, fast scan: never walks node_modules/.git/dist/.next/.venv/target/build/coverage/.turbo/vendor.
+  # Look only at repo top-level files plus a bounded set of common source-owner folders (depth <= 2).
+  $excludedNames = @('node_modules','.git','dist','.next','.venv','venv','target','build','coverage','.turbo','vendor','out','.cache','bin','obj','__pycache__','.pytest_cache','.mypy_cache','.gradle')
+  $excludeRegex = '\\(node_modules|\.git|dist|\.next|\.venv|venv|target|build|coverage|\.turbo|vendor|out|\.cache|bin|obj|__pycache__|\.pytest_cache|\.mypy_cache|\.gradle)\\'
+  $names = New-Object System.Collections.Generic.List[string]
+  $shallowExt = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+  foreach ($file in Get-ChildItem -LiteralPath $Root -File -Force -ErrorAction SilentlyContinue) {
+    $names.Add($file.Name) | Out-Null
+    if ($file.Extension) { [void]$shallowExt.Add($file.Extension) }
+  }
+  $ownerDirs = @('src','packages','apps','app','pages','components','web','frontend','backend','api','server','client','lib','libs','db','database','migrations','prisma','tests','test','spec','specs')
+  foreach ($dir in $ownerDirs) {
+    $candidate = Join-Path $Root $dir
+    if (!(Test-Path -LiteralPath $candidate -PathType Container)) { continue }
+    $candidateItem = Get-Item -LiteralPath $candidate -Force -ErrorAction SilentlyContinue
+    if (!$candidateItem -or (($candidateItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { continue }
+    # depth-limited walk: immediate children plus one level of subdirectories, skipping excluded folders.
+    foreach ($child in Get-ChildItem -LiteralPath $candidate -Force -ErrorAction SilentlyContinue) {
+      if ($excludedNames -contains $child.Name) { continue }
+      if ($child.PSIsContainer) {
+        foreach ($grand in Get-ChildItem -LiteralPath $child.FullName -File -Force -ErrorAction SilentlyContinue) {
+          if ($grand.FullName -match $excludeRegex) { continue }
+          $names.Add($grand.Name) | Out-Null
+          if ($grand.Extension) { [void]$shallowExt.Add($grand.Extension) }
+        }
+      } else {
+        if ($child.FullName -match $excludeRegex) { continue }
+        $names.Add($child.Name) | Out-Null
+        if ($child.Extension) { [void]$shallowExt.Add($child.Extension) }
+      }
+    }
+  }
+  $namesArray = @($names)
   $selectedProfiles=[System.Collections.Generic.List[string]]::new();$selectedProfiles.Add('Core');$selectedProfiles.Add('AI')
-  if(($names|Where-Object {$_ -match '^(package\.json|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|angular\.json|vite\.config\.|next\.config\.)$'}).Count -or ($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte')}).Count){$selectedProfiles.Add('Frontend')}
-  if(($names|Where-Object {$_ -match '(\.sln|\.csproj|pyproject\.toml|requirements\.txt|pom\.xml|build\.gradle)$'}).Count -or ($names -contains 'Dockerfile')){$selectedProfiles.Add('Backend')}
-  if(($names|Where-Object {$_ -match '(schema\.sql|migration|prisma|flyway|liquibase)' -or $_ -match '\.(sql|dbml)$'}).Count){$selectedProfiles.Add('Database')}
-  if(($signals|Where-Object {$_.Extension -in @('.tsx','.jsx','.vue','.svelte','.html','.css','.scss')}).Count){$selectedProfiles.Add('UIUX')}
-  if(($names|Where-Object {$_ -match '^Dockerfile$|docker-compose|^\.gitlab-ci|^Jenkinsfile$'}).Count -or (Test-Path (Join-Path $Root '.github\workflows'))){$selectedProfiles.Add('DevOps')}
+  $frontendExt = @('.tsx','.jsx','.vue','.svelte')
+  $uiuxExt = @('.tsx','.jsx','.vue','.svelte','.html','.css','.scss')
+  if(($namesArray|Where-Object {$_ -match '^(package\.json|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|angular\.json|vite\.config\.|next\.config\.)$'}).Count -or (@($frontendExt | Where-Object { $shallowExt.Contains($_) })).Count){$selectedProfiles.Add('Frontend')}
+  if(($namesArray|Where-Object {$_ -match '(\.sln|\.csproj|pyproject\.toml|requirements\.txt|pom\.xml|build\.gradle)$'}).Count -or ($namesArray -contains 'Dockerfile')){$selectedProfiles.Add('Backend')}
+  if(($namesArray|Where-Object {$_ -match '(schema\.sql|migration|prisma|flyway|liquibase)' -or $_ -match '\.(sql|dbml)$'}).Count){$selectedProfiles.Add('Database')}
+  if((@($uiuxExt | Where-Object { $shallowExt.Contains($_) })).Count){$selectedProfiles.Add('UIUX')}
+  if(($namesArray|Where-Object {$_ -match '^Dockerfile$|docker-compose|^\.gitlab-ci|^Jenkinsfile$'}).Count -or (Test-Path (Join-Path $Root '.github\workflows'))){$selectedProfiles.Add('DevOps')}
 }
 $allowed=@('Core','Frontend','Backend','Database','UIUX','DevOps','AI','Optional')
 foreach($name in $selectedProfiles){if($allowed -notcontains $name){throw "Unknown environment profile: $name"}}

@@ -2,7 +2,11 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.17.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.17.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.17.1 - 2026-07-23
+
+- Codex-safety hardening: machine-default `CODEX_HOME` at `E:\shared folder\codex-home`, opt-in Open Design install, inherited host models with proportional reasoning, shallow environment bootstrap, compact Codex-safe AGENTS browser policy, once-per-task loader refresh, and dual-host Chrome control (Codex plugin or Claude bridge) without alternate-browser fallbacks.
 
 ## 2.17.0 - 2026-07-23
 

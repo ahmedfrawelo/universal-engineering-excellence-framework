@@ -1,6 +1,6 @@
 param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
-  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { "E:\shared folder\codex-home" }),
+  [string]$CodexHome = '',
   [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$')][string]$Agent = 'codex',
   [string]$RuntimeRoot = '',
   [switch]$RequireAgents,
@@ -8,6 +8,8 @@ param(
   [string]$SourceCommit = ""
 )
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'resolve-codex-home.ps1')
+if ([string]::IsNullOrWhiteSpace($CodexHome)) { $CodexHome = Resolve-CodexHome }
 
 $runtimeRoot = if ([string]::IsNullOrWhiteSpace($RuntimeRoot)) { Join-Path $CodexHome "ueef" } else { $RuntimeRoot }
 $runtimePath = Join-Path $runtimeRoot $Agent

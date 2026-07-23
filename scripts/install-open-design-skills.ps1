@@ -1,8 +1,10 @@
 param(
-  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { "E:\shared folder\codex-home" })
+  [string]$CodexHome = ''
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'resolve-codex-home.ps1')
+if ([string]::IsNullOrWhiteSpace($CodexHome)) { $CodexHome = Resolve-CodexHome }
 $openDesignRef = '034c3895d127743038c18c09a38eab9c7d6a7641'
 $installer = Join-Path $CodexHome 'skills\.system\skill-installer\scripts\install-skill-from-github.py'
 if (!(Test-Path -LiteralPath $installer)) { throw "Skill installer not found: $installer" }

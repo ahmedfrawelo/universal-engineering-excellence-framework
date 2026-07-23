@@ -1,8 +1,10 @@
 param(
   [string]$SourcePath = (Split-Path -Parent $PSScriptRoot),
-  [string]$RuntimePath = $(if ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "ueef\codex" } else { "E:\shared folder\codex-home\ueef\codex" })
+  [string]$RuntimePath = ''
 )
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'resolve-codex-home.ps1')
+if ([string]::IsNullOrWhiteSpace($RuntimePath)) { $RuntimePath = Resolve-UeefCodexRuntimePath }
 . (Join-Path $PSScriptRoot 'runtime-file-policy.ps1')
 
 $sourceRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path)

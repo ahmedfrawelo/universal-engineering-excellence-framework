@@ -26,14 +26,14 @@ if ($RiskFloor -in @('Architecture','Authentication','Authorization','Security',
 if ($RiskFloor -in @('Production','Migration','Destructive','Privacy','Payment','Incident')) { $tier = 'T4' }
 
 $routes = @{
-  T0 = @{ capability='Inherited'; model='inherit'; reasoning='medium'; topology='single-agent' }
-  T1 = @{ capability='Fast'; model='gpt-5.6-luna'; reasoning='low'; topology='single-agent' }
-  T2 = @{ capability='Balanced'; model='gpt-5.6-terra'; reasoning='medium'; topology='lead-plus-sidecar' }
-  T3 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='high'; topology='parallel-specialists' }
-  T4 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='high'; topology='lead-workers-independent-verifier' }
+  T0 = @{ capability='Inherited'; model='inherit'; reasoning='low'; topology='single-agent' }
+  T1 = @{ capability='Fast'; model='inherit'; reasoning='medium'; topology='single-agent' }
+  T2 = @{ capability='Balanced'; model='inherit'; reasoning='medium'; topology='lead-plus-sidecar' }
+  T3 = @{ capability='Frontier'; model='inherit'; reasoning='high'; topology='parallel-specialists' }
+  T4 = @{ capability='Frontier'; model='inherit'; reasoning='high'; topology='lead-workers-independent-verifier' }
 }
 $route = $routes[$tier]
-$reasoning = if ($tier -eq 'T1' -and $CodeChange) { 'medium' } else { $route.reasoning }
+$reasoning = $route.reasoning
 $spawnAgents = !$AgentsUnavailable -and ($DelegationBenefit.IsPresent -or $tier -eq 'T4')
 $topology = if (!$spawnAgents) {
   'single-agent'
@@ -63,6 +63,6 @@ $result = [ordered]@{
   routeEvidenceRequired = $true
   independentVerificationRequired = $tier -eq 'T4'
   modelAvailabilityMustBeVerified = !$ModelsUnavailable -and $route.model -ne 'inherit'
-  note = 'Delegation is optional and requires an independent benefit. T1 defaults to single-agent; T4 requires independent verification.'
+  note = 'Delegation is optional and requires an independent benefit. T0/T1 default to single-agent; models inherit the platform default; T4 requires independent verification.'
 }
 if ($Json) { $result | ConvertTo-Json -Depth 3 } else { [pscustomobject]$result }

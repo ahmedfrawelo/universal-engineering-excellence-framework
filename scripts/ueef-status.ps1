@@ -59,7 +59,7 @@ $codexHome = if ($isManagedRuntime) { Split-Path -Parent $GlobalPath } elseif ($
 $agentsPath = Join-Path $codexHome "AGENTS.md"
 if ($isManagedRuntime) {
   $agentsText = if (Test-Item $agentsPath) { Get-Content -LiteralPath $agentsPath -Raw } else { "" }
-  $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath))) -and $agentsText -match 'T1 defaults to single-agent' -and $agentsText -match 'route rationale'
+  $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath))) -and $agentsText -match 'T0/T1 stay single-agent|T1 defaults to single-agent' -and $agentsText -match 'route rationale'
   $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
   $activeStatePass = $false
   if (Test-Item $activeStatePath) {
