@@ -6,9 +6,9 @@
 4. Verify: run .\scripts\validate-framework.ps1.
 5. First use: have Codex read the installed `UEEF-LOADER.md` before the task. It loads `boot-loader` and `core-system`, then uses the master loader to select task-specific modules.
 
-UEEF is active when the assistant inspects the project, detects stack and architecture, produces a plan, applies relevant modules, and runs quality gates before finishing.
+UEEF is active when the assistant applies only the evidence and controls proportionate to the task, then verifies the requested outcome.
 
-The current release is 2.15.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
+The current release is 2.16.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
 
 ## Minimal path
 
@@ -17,6 +17,14 @@ The current release is 2.15.0. See [VERSION.md](VERSION.md) for the version poli
 3. Preflight a non-trivial task: `./scripts/get-ueef-task-preflight.ps1 -Task 'Describe the task'`.
 4. Make the scoped edit using the selected packs and gates.
 5. Export evidence when needed: `./scripts/export-ueef-evidence.ps1 -RepositoryPath . -Preview`.
+
+## AI must do only what you asked
+
+- Your requested scope wins over continuation, delegation, audits, modernization, and optional improvements. The assistant expands work only when you ask or a direct blocker prevents verification.
+- A bounded answer, review, or small change ends when complete; it does not become an automatic cleanup campaign.
+- `T0/T1` work starts core-only. Bootstrap, broad gates, dependency inventory, and extra skills are used only when the task actually needs them.
+- A child agent is optional for `T1`; it is used only for a genuinely independent benefit. The route should state the reason for spawning or not spawning.
+- Browser control is used only when you explicitly ask for browser/site/visual work or an existing user session is directly required. It always uses your existing Chrome tab, never a second browser.
 
 ## Runtime Check
 

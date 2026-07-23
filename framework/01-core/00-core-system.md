@@ -165,6 +165,12 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - Never use unrelated failures as a reason to abandon the requested work while meaningful scoped progress remains.
 - **Scope wins:** when scope conflicts with continuation, delegation, autonomy, audits, or modernization, follow the user's requested task. Expand only for an explicit request or a direct verification blocker.
 
+## Ask/Do and Route Visibility
+
+- In Ask mode, resolve only material ambiguity: ask one concise question or disclose the smallest reversible assumption.
+- In Do mode, execute the clear requested outcome and direct verification only.
+- Before non-trivial execution, emit: `Intent: <requested outcome> | Tier: <T0-T4> | Spawn: <no/yes and reason> | Browser: <no/yes and reason>`.
+
 ## Backend and SSR Performance Requirements
 
 - Backend work must consider latency budgets, query shape, pagination, filtering, sorting, aggregation, caching, cancellation, concurrency bounds, serialization cost, and authorization cost before completion.

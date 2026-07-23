@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.15.0.
+UEEF Enterprise Edition version: 2.16.0.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -88,4 +88,5 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.13.1: documentation and integration hardening for optional 2.13 tools, generated runtime guidance, adapter transparency, and explicit Windows-first platform scope.
 - 2.14.0: deeper opt-in workflow utilities, selected Unix parity and CI coverage, static local callable readiness, and local-state-safe validation.
 - 2.15.0: added mandatory browser preflight gates, runtime-sync guidance, structured spec IDs, opt-in memory limits, evidence PR summaries, and adapter transparency.
+- 2.16.0: intent-fidelity routing: scope precedence, bounded completion, proportional delegation/reasoning/tooling, explicit browser intent, and regression fixtures.
 - 2.14.1: hardened user-owned browser enforcement and prohibited alternate browser fallbacks.

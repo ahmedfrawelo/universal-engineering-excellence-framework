@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.15.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.16.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.16.0 - 2026-07-23
+
+- Restored user-intent precedence: narrow tasks stop when complete, stay single-agent by default, and do not trigger autonomous upgrades or broad rituals.
+- Replaced the hard `medium` reasoning ceiling with recorded proportional escalation, while preserving risk-matched verification.
+- Made browser control explicit-intent only and added fixtures, contract tests, a strict-scope team policy, and installed-runtime freshness warnings.
 
 ## 2.15.0 - 2026-07-23
 

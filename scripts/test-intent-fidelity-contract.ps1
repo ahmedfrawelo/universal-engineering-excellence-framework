@@ -14,6 +14,10 @@ Require-Term 'framework/58-agent-model-orchestration/02-model-capability-routing
 Require-Term 'UEEF-LOADER.md' 'Never turn a T0/T1 request into an autonomous inventory or upgrade.'
 Require-Term 'framework/01-core/00-core-system.md' 'Do not turn T0/T1 work into an autonomous upgrade or inventory.'
 Require-Term 'framework/01-core/01-master-loader.md' 'mere mention of a browser'
+Require-Term 'UEEF-LOADER.md' 'Ask/Do mode'
+Require-Term 'UEEF-LOADER.md' 'Intent: <requested outcome> | Tier: <T0-T4>'
+Require-Term 'framework/01-core/01-master-loader.md' 'T0/T1 work uses only a focused relevant check'
+Require-Term 'examples/intent-fidelity-fixtures.md' 'Change this one validation message.'
 
 $activeContracts = @(
   'UEEF-LOADER.md',

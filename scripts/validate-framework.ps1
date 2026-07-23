@@ -497,7 +497,7 @@ foreach ($term in @("Chrome readiness flow","normal authorization","not proof th
 foreach ($term in @("Spec-driven development:","specification the source of truth","technical plan and traceable tasks","Check consistency across specification, plan, tasks, code, tests, and final claims")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing spec-driven policy: $term" }
 }
-foreach ($term in @("Reconcile mutable remote state without page reload","eager, lazy, preload, prefetch, stream, or defer","inventory runtimes, frameworks, SDKs","Broad legacy refactoring requires")) {
+foreach ($term in @("Reconcile mutable remote state without page reload","eager, lazy, preload, prefetch, stream, or defer","Inventory runtimes, dependencies, and upgrade opportunities only","Broad legacy refactoring requires")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing modernization policy: $term" }
 }
 $modernizationRuntimeTerms = @("Repository and behavior baseline captured:","Technology inventory and support evidence captured:","Refactoring and dead-code reachability proof verified:","Live refresh no-page-reload and context-preservation proof verified:","Project modernization and runtime gate:")

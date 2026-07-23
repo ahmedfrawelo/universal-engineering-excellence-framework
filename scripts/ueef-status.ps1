@@ -84,6 +84,7 @@ $oldHomePath = Join-Path $HOME ".ueef"
 $oldHomeAbsent = !(Test-Item $oldHomePath)
 $runtimeDriftPass = $true
 $runtimeDriftStatus = "SKIPPED"
+$sourceRevisionStatus = "SKIPPED"
 if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath)) {
   try {
     $stateForDrift = Get-Content -LiteralPath $activeStatePath -Raw | ConvertFrom-Json
@@ -92,6 +93,12 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
       . (Join-Path $RepositoryPath 'scripts\runtime-file-policy.ps1')
       $runtimeDriftPass = !(@(Get-UeefRuntimeDriftMismatches -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash ([string]$stateForDrift.runtimeLoaderSha256)).Count)
       $runtimeDriftStatus = if ($runtimeDriftPass) { "PASS" } else { "FAIL" }
+      $recordedSourceCommit = [string]$stateForDrift.sourceCommit
+      $currentSourceCommit = ''
+      try { $currentSourceCommit = (git -C $sourceForDrift rev-parse HEAD 2>$null | Select-Object -First 1).Trim() } catch { $currentSourceCommit = '' }
+      if ($recordedSourceCommit -and $recordedSourceCommit -ne 'UNKNOWN' -and $currentSourceCommit) {
+        $sourceRevisionStatus = if ($recordedSourceCommit -eq $currentSourceCommit) { 'PASS' } else { 'WARN_OUTDATED' }
+      }
     }
   } catch {
     $runtimeDriftPass = $false
@@ -128,6 +135,7 @@ $statusResult = [ordered]@{
     agentRouting = (PassFail $agentRoutingPass)
     activeState = (PassFail $activeStatePass)
     runtimeDrift = $runtimeDriftStatus
+    sourceRevision = $sourceRevisionStatus
     validationScript = (PassFail $validationPass)
   }
 }
@@ -151,6 +159,8 @@ Write-Output "Codex AGENTS: $(PassFail $agentsPass)"
 Write-Output "Agent routing contract: $(PassFail $agentRoutingPass)"
 Write-Output "Active state: $(PassFail $activeStatePass)"
 Write-Output "Runtime drift: $runtimeDriftStatus"
+Write-Output "Runtime source revision: $sourceRevisionStatus"
+if ($sourceRevisionStatus -eq 'WARN_OUTDATED') { Write-Output 'Required action: Sync the runtime before relying on updated intent or browser policies.' }
 Write-Output "Old HOME .ueef absent: $(PassFail $oldHomeAbsent)"
 if ($globalLoaderStatus -ne "PASS") {
   Write-Output "Required action: Run scripts/install-codex.ps1, scripts/install-cursor.ps1, or scripts/install-generic.ps1 from Codex with CODEX_HOME set, or set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md."
