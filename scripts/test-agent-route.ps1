@@ -12,7 +12,7 @@ function Assert-Route {
 }
 
 Assert-Route @{} @{ schemaVersion=3; tier='T0'; reasoning='medium'; reasoningCeiling='medium'; topology='single-agent'; spawnAgents=$false }
-Assert-Route @{ CodeChange=$true } @{ tier='T1'; preferredModel='gpt-5.6-luna'; reasoning='medium'; codeChange=$true; spawnAgents=$true; noSpawnReason=$null; routeEvidenceRequired=$true }
+Assert-Route @{ CodeChange=$true } @{ tier='T1'; preferredModel='gpt-5.6-luna'; reasoning='medium'; codeChange=$true; spawnAgents=$false; noSpawnReason='NO_INDEPENDENT_WORK'; routeEvidenceRequired=$true }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1 } @{ tier='T2'; topology='single-agent'; spawnAgents=$false }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true } @{ tier='T2'; topology='lead-plus-sidecar'; spawnAgents=$true }
 Assert-Route @{ RiskFloor='Authentication' } @{ tier='T3'; preferredModel='gpt-5.6-sol' }
@@ -31,7 +31,7 @@ if (!$criticalRejected) { throw 'Risk 3 without RiskFloor must be rejected.' }
 
 $root = Split-Path -Parent $PSScriptRoot
 $contractChecks = @{
-  'UEEF-LOADER.md' = @('Agent route:', 'TOOL_UNAVAILABLE')
+  'UEEF-LOADER.md' = @('Agent route:', 'NO_INDEPENDENT_WORK')
   'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' = @('Visible pre-command route line', 'TOOL_UNAVAILABLE')
   'framework/27-quality-gates/31-agent-model-routing-gate.md' = @('TOOL_UNAVAILABLE', 'child-agent record')
   'framework/29-checklists/40-agent-model-routing-checklist.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
@@ -45,7 +45,7 @@ foreach ($relativePath in $contractChecks.Keys) {
   }
 }
 $topologyText = Get-Content -LiteralPath (Join-Path $root 'framework/58-agent-model-orchestration/03-agent-topologies.md') -Raw
-if ($topologyText -match 'most T1 tasks') { throw 'Topology policy still permits silent single-agent code-changing T1 work.' }
+if ($topologyText -notmatch 'T1 defaults to single-agent') { throw 'Topology policy does not preserve the single-agent T1 default.' }
 
 foreach ($routeArgs in @(@{}, @{Scope=1;Ambiguity=1;Coupling=1;Risk=1;Verification=1}, @{RiskFloor='Authentication'}, @{RiskFloor='Privacy'})) {
   $route = & $selector @routeArgs -Json | ConvertFrom-Json

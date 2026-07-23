@@ -34,7 +34,7 @@ $routes = @{
 }
 $route = $routes[$tier]
 $reasoning = if ($tier -eq 'T1' -and $CodeChange) { 'medium' } else { $route.reasoning }
-$spawnAgents = !$AgentsUnavailable -and (($CodeChange -and $tier -in @('T1','T2','T3','T4')) -or ($DelegationBenefit.IsPresent -and $tier -in @('T2','T3','T4')))
+$spawnAgents = !$AgentsUnavailable -and ($DelegationBenefit.IsPresent -or $tier -eq 'T4')
 $topology = if (!$spawnAgents) {
   'single-agent'
 } elseif ($tier -eq 'T2' -or $IndependentWorkstreams -eq 1) {
@@ -63,6 +63,6 @@ $result = [ordered]@{
   routeEvidenceRequired = $true
   independentVerificationRequired = $tier -eq 'T4'
   modelAvailabilityMustBeVerified = !$ModelsUnavailable -and $route.model -ne 'inherit'
-  note = 'Reasoning is capped at medium. Non-trivial code changes spawn a bounded child when tooling is available; T4 requires independent verification.'
+  note = 'Delegation is optional and requires an independent benefit. T1 defaults to single-agent; T4 requires independent verification.'
 }
 if ($Json) { $result | ConvertTo-Json -Depth 3 } else { [pscustomobject]$result }

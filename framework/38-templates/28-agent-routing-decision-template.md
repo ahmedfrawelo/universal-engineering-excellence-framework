@@ -5,8 +5,8 @@
 - Risk floor:
 - Route tier:
 - Visible pre-command route line:
-- Child agent identity and bounded ownership:
-- No-spawn reason: N/A | TOOL_UNAVAILABLE
+- Child agent identity and bounded ownership (when spawned):
+- No-spawn reason: NO_INDEPENDENT_WORK | CRITICAL_PATH_ONLY | TOOL_UNAVAILABLE
 - Model capability:
 - Model override or inherited:
 - Agent topology:

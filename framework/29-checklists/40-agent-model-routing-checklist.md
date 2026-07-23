@@ -2,8 +2,8 @@
 
 - [ ] Route tier recorded.
 - [ ] Visible pre-command route line recorded.
-- [ ] Child agent identity and bounded ownership recorded.
-- [ ] No-spawn reason is N/A or TOOL_UNAVAILABLE for code-changing work.
+- [ ] Child agent identity and bounded ownership recorded when spawned.
+- [ ] No-spawn reason is explicit: NO_INDEPENDENT_WORK, CRITICAL_PATH_ONLY, or TOOL_UNAVAILABLE.
 - [ ] Risk floor checked.
 - [ ] Model capability selected or inherited intentionally.
 - [ ] Delegation benefit is positive.

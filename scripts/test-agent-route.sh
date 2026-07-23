@@ -18,8 +18,8 @@ assert_contains "$route" '"spawnAgents":false'
 route="$("$selector" --code-change)"
 assert_contains "$route" '"tier":"T1"'
 assert_contains "$route" '"codeChange":true'
-assert_contains "$route" '"spawnAgents":true'
-assert_contains "$route" '"noSpawnReason":null'
+assert_contains "$route" '"spawnAgents":false'
+assert_contains "$route" '"noSpawnReason":"NO_INDEPENDENT_WORK"'
 assert_contains "$route" '"routeEvidenceRequired":true'
 
 route="$("$selector" --code-change --agents-unavailable)"

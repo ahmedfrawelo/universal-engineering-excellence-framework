@@ -56,7 +56,7 @@ esac
 
 [ "$tier" = T1 ] && [ "$code_change" = true ] && reasoning=medium
 spawn_agents=false
-if [ "$agents_available" = true ] && { { [ "$code_change" = true ] && [ "$tier" != T0 ]; } || { [ "$delegation_benefit" = true ] && { [ "$tier" = T2 ] || [ "$tier" = T3 ] || [ "$tier" = T4 ]; }; }; }; then spawn_agents=true; fi
+if [ "$agents_available" = true ] && { [ "$delegation_benefit" = true ] || [ "$tier" = T4 ]; }; then spawn_agents=true; fi
 if [ "$spawn_agents" = false ]; then topology=single-agent
 elif [ "$tier" = T4 ] && [ "$independent_workstreams" -eq 1 ]; then topology=lead-plus-independent-verifier
 elif [ "$tier" = T2 ] || [ "$independent_workstreams" -eq 1 ]; then topology=lead-plus-sidecar
@@ -72,5 +72,5 @@ if [ "$models_available" = false ]; then model_json=null; model_verify=false
 else model_json="\"$model\""; if [ "$model" = inherit ]; then model_verify=false; else model_verify=true; fi
 fi
 
-printf '{"schemaVersion":3,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"medium","topology":"%s","delegationBenefit":%s,"codeChange":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"noSpawnReason":%s,"routeEvidenceRequired":true,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Reasoning is capped at medium. Non-trivial code changes spawn a bounded child when tooling is available; T4 requires independent verification."}\n' \
+printf '{"schemaVersion":3,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"medium","topology":"%s","delegationBenefit":%s,"codeChange":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"noSpawnReason":%s,"routeEvidenceRequired":true,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Delegation is optional and requires an independent benefit. T1 defaults to single-agent; T4 requires independent verification."}\n' \
   "$score" "$risk_floor" "$tier" "$capability" "$model_json" "$reasoning" "$topology" "$delegation_benefit" "$code_change" "$independent_workstreams" "$agents_available" "$spawn_agents" "$no_spawn_reason" "$independent" "$model_verify"
