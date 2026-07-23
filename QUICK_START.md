@@ -10,6 +10,14 @@ UEEF is active when the assistant inspects the project, detects stack and archit
 
 The current release is 2.14.1. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
 
+## Minimal path
+
+1. Install: `./scripts/install-codex.ps1`.
+2. Check runtime: `./scripts/ueef-status.ps1`.
+3. Preflight a non-trivial task: `./scripts/get-ueef-task-preflight.ps1 -Task 'Describe the task'`.
+4. Make the scoped edit using the selected packs and gates.
+5. Export evidence when needed: `./scripts/export-ueef-evidence.ps1 -RepositoryPath . -Preview`.
+
 ## Runtime Check
 
 Browser work = your existing Chrome only; never a second browser.
