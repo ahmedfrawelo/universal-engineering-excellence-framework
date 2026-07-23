@@ -1,0 +1,40 @@
+name: Validate UEEF
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows validation
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Framework validation
+        shell: pwsh
+        run: ./scripts/validate-framework.ps1
+      - name: Capability and spec workflow tests
+        shell: pwsh
+        run: |
+          ./scripts/test-spec-workflow.ps1
+          ./scripts/test-capability-health.ps1
+          ./scripts/test-capability-profile.ps1
+      - name: Quick assurance
+        shell: pwsh
+        run: ./scripts/ueef-audit.ps1 -Quick
+
+  unix:
+    name: Unix validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Framework validation
+        shell: bash
+        run: ./scripts/validate-framework.sh
+      - name: Unix assurance
+        shell: bash
+        run: ./scripts/ueef-audit.sh
