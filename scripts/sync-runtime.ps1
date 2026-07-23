@@ -421,6 +421,7 @@ $managedAgentsLines = @(
   "Status: $statusScript",
   "",
   "Before non-trivial work: read the loader, verify status, select task modules through $master, run environment bootstrap, inspect installed skills/tools, plan, and run applicable gates.",
+  "Optional helpers stay proportional: scripts/get-ueef-task-preflight.ps1 for uncertainty, scripts/get-diff-impact.ps1 for multi-file changes (heuristic only), project memory only for explicit local decisions, team policy only when declared, and evidence export before high-risk closure or a PR; not a T0/T1 checklist.",
   "Always load only boot-loader and core-system. The sole valid line is: Loaded: boot-loader, core-system.",
   "Final verification labels: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status.",
   "",
