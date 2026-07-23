@@ -20,7 +20,11 @@ An expanded request is not a reason to pause implementation. When the user expli
 
 Compile failures, test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, regressions, unsuccessful patches, pending screenshots, pCloud screenshot delays, and task-local Chrome control degradation never satisfy `repeated_external_condition`.
 
-`FINAL_ALLOWED = user_requested_status_only OR GoalStatus_COMPLETE OR BLOCKED_ALLOWED`
+`FINAL_ALLOWED = requested_outcome_complete OR user_requested_status_only OR GoalStatus_COMPLETE OR BLOCKED_ALLOWED`
+
+## Stop When Done
+
+When the user asks a bounded question, review, or change and that requested outcome is complete, give the final answer immediately. Do not extend the task with optional improvements, audits, upgrades, or adjacent implementation merely because work could continue. Continuation applies only to explicit multi-step implementation work that remains within the requested scope.
 
 When `GoalStatus` is `ACTIVE`, do not emit a final answer saying the work is incomplete, no result exists, work remains, or execution will continue later. Send a concise commentary progress update and continue execution in the same goal run. Before any final answer on a goal task, read current goal status and reject finalization unless `FINAL_ALLOWED` is true.
 - A known regression blocks claiming completion or release. It does not block working on the fix unless continuing would worsen or destroy user data.
