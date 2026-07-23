@@ -307,7 +307,7 @@ $managedAgentsLines = @(
   "- Verify current agent and named-model availability before spawning or overriding; otherwise use the inherited model with unchanged gates.",
   "- Medium is the economical default. A route may request higher reasoning only for T3/T4 or high ambiguity, with recorded evidence; never lower the risk floor merely to avoid that escalation. If the platform selects a higher inherited level, UEEF does not prohibit it.",
   "- T1 code changes default to a single agent. Record Agent route: <tier> | Agent: spawned <id> or not spawned - NO_INDEPENDENT_WORK/CRITICAL_PATH_ONLY/TOOL_UNAVAILABLE; spawn only when independent work materially improves the requested outcome.",
-  "- Never claim UEEF routing or gates passed when required route evidence or child-agent evidence is missing.",
+  "- Never claim UEEF routing or gates passed when route evidence is missing, or when a spawned route lacks child-agent evidence. A single-agent route needs no child-agent evidence.",
   "",
   "Design engineering skill routing:",
   "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",

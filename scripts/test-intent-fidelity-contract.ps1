@@ -11,6 +11,8 @@ foreach ($relative in @('UEEF-LOADER.md', 'framework/01-core/00-core-system.md',
 }
 Require-Term 'framework/01-core/14-delivery-continuation-policy.md' 'Stop When Done'
 Require-Term 'framework/58-agent-model-orchestration/02-model-capability-routing.md' 'economical default, not a hard ceiling'
+Require-Term 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' 'economical default, not a hard ceiling'
+Require-Term 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' 'A single-agent T1 route with `NO_INDEPENDENT_WORK` needs no child-agent evidence.'
 Require-Term 'UEEF-LOADER.md' 'Never turn a T0/T1 request into an autonomous inventory or upgrade.'
 Require-Term 'framework/01-core/00-core-system.md' 'Do not turn T0/T1 work into an autonomous upgrade or inventory.'
 Require-Term 'framework/01-core/01-master-loader.md' 'mere mention of a browser'
@@ -18,6 +20,9 @@ Require-Term 'UEEF-LOADER.md' 'Ask/Do mode'
 Require-Term 'UEEF-LOADER.md' 'Intent: <requested outcome> | Tier: <T0-T4>'
 Require-Term 'framework/01-core/01-master-loader.md' 'T0/T1 work uses only a focused relevant check'
 Require-Term 'examples/intent-fidelity-fixtures.md' 'Change this one validation message.'
+Require-Term 'examples/intent-fidelity-fixtures.md' 'Agent route: T1 | Agent: not spawned - NO_INDEPENDENT_WORK'
+Require-Term 'QUICK_START.md' 'sync-runtime.ps1'
+Require-Term 'QUICK_START.md' 'strict-scope'
 
 $activeContracts = @(
   'UEEF-LOADER.md',
@@ -27,8 +32,13 @@ $activeContracts = @(
   'scripts/select-agent-route.ps1',
   'scripts/select-agent-route.sh'
 ) | ForEach-Object { Get-Content -LiteralPath (Join-Path $root $_) -Raw }
-if (($activeContracts -join "`n") -match 'For every non-trivial T1-T4 code change, spawn at least one bounded child|only valid no-spawn reason') {
+if (($activeContracts -join "`n") -match 'For every non-trivial T1-T4 code change, spawn at least one bounded child|only valid no-spawn reason|No route may emit or request a higher level|reasoning ceiling is `medium`') {
   throw 'An absolute T1 child-spawn contract remains.'
+}
+
+$t1Route = & (Join-Path $PSScriptRoot 'select-agent-route.ps1') -CodeChange -Json | ConvertFrom-Json
+if ($t1Route.tier -ne 'T1' -or $t1Route.spawnAgents -or $t1Route.noSpawnReason -ne 'NO_INDEPENDENT_WORK') {
+  throw 'A narrow T1 route no longer proves the documented single-agent fixture.'
 }
 
 $profile = & (Join-Path $PSScriptRoot 'select-capability-profile.ps1') -Task 'Document the browser policy in this repository' -Json | ConvertFrom-Json

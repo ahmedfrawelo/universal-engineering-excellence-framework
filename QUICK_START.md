@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant applies only the evidence and controls proportionate to the task, then verifies the requested outcome.
 
-The current release is 2.16.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
+The current release is 2.16.1. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
 
 ## Minimal path
 
@@ -25,6 +25,8 @@ The current release is 2.16.0. See [VERSION.md](VERSION.md) for the version poli
 - `T0/T1` work starts core-only. Bootstrap, broad gates, dependency inventory, and extra skills are used only when the task actually needs them.
 - A child agent is optional for `T1`; it is used only for a genuinely independent benefit. The route should state the reason for spawning or not spawning.
 - Browser control is used only when you explicitly ask for browser/site/visual work or an existing user session is directly required. It always uses your existing Chrome tab, never a second browser.
+- If the AI starts expanding scope or responding below the requested depth, run `git pull` and then `./scripts/sync-runtime.ps1` so the installed runtime receives the `2.16` intent-first policy.
+- To use the opt-in strict policy, resolve the `strict-scope` team profile: `./scripts/resolve-team-policy.ps1 -Profile strict-scope -Json`. It keeps `T0/T1` gates focused and forbids autonomous upgrades without an explicit request.
 
 ## Runtime Check
 
