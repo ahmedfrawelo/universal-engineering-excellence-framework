@@ -71,6 +71,17 @@ foreach ($term in @('A platform permission prompt is normal authorization', 'Onl
 $failoverText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-session-control/16-control-channel-failover.md') -Raw
 if ($failoverText -notmatch 'No user acknowledgement') { throw 'Control-channel failover still permits a manual acknowledgement.' }
 
+$strictBrowserFiles = @('UEEF-LOADER.md','scripts/sync-runtime.ps1','framework/51-browser-session-control/00-browser-session-first.md','framework/51-browser-session-control/11-control-surface-selection.md')
+foreach ($relative in $strictBrowserFiles) {
+  $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw
+  foreach ($term in @('Cursor/IDE Simple Browser','browser.newContext','browser.launch','explicit separate user request')) {
+    if ($text -notmatch [regex]::Escape($term)) { throw "Alternate-browser prohibition '$term' missing from $relative." }
+  }
+  if ($text -match 'They remain valid for authorized isolated/local testing') { throw "Broad isolated-browser fallback remains in $relative." }
+}
+$loaderText = Get-Content -LiteralPath (Join-Path $root 'UEEF-LOADER.md') -Raw
+if ($loaderText -notmatch 'explicit separate user request' -or $loaderText -notmatch 'never substitutes for a user-owned Chrome task' -or $loaderText -notmatch 'stop and request the user to activate or share the existing tab') { throw 'Loader does not constrain isolated tests and hard stop.' }
+
 $previousCodexHome = $env:CODEX_HOME
 try {
   if (!$env:CODEX_HOME) { $env:CODEX_HOME = 'E:\shared folder\codex-home' }
