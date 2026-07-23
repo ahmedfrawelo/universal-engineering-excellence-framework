@@ -29,7 +29,8 @@ try {
     foreach ($globalPath in @($runtime, (Split-Path -Parent $runtime))) {
       $env:UEEF_GLOBAL_PATH = $globalPath
       $env:UEEF_PROFILES = 'Core,AI'
-      $unixOutput = @(& $bashPath './scripts/environment-bootstrap.sh' 2>&1)
+      $unixScript = (Join-Path $root 'scripts\environment-bootstrap.sh').Replace('\','/')
+      $unixOutput = @(& $bashPath $unixScript 2>&1)
       if ($LASTEXITCODE -ne 0 -or $unixOutput -notcontains 'Overall READY') { throw "Unix bootstrap rejected valid UEEF_GLOBAL_PATH '$globalPath': $($unixOutput -join ' ')" }
     }
   }

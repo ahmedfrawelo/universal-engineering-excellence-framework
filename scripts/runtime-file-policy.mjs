@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-export const ownedDirectories = new Set(['framework','scripts','docs','examples','tools','assets']);
+export const ownedDirectories = new Set(['framework','scripts','docs','examples','tools','assets','config']);
 export const ownedRootFiles = new Set(['.gitattributes','.gitignore','BUILD_PROGRESS.md','CHANGELOG.md','CODE_OF_CONDUCT.md','CONTRIBUTING.md','INSTALL.md','LICENSE','QUICK_START.md','README.md','ROADMAP.md','SECURITY.md','VERSION.md','release-manifest.json']);
 
 export const isOwned = (relative, includeLoader = false) => {

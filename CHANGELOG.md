@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.11.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.12.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.12.0 - 2026-07-23
+
+- Added an opt-in, project-local specification workflow generator and Draft/Ready validator for constitution, specification, plan, task, and evidence artifacts.
+- Added a safe capability registry and health doctor that distinguishes declared, configured, installed, enabled, and unverified-callable skills, plugins, and MCP servers without launching processes or sending network requests.
+- Added proportional capability selection so routine tasks stay lightweight while browser, UI, current-documentation, and high-impact tasks select only their relevant skills and MCP contracts.
+- Fixed the Unix environment-bootstrap regression test so it resolves its script path instead of relying on the caller's working directory.
 
 ## 2.11.0 - 2026-07-22
 

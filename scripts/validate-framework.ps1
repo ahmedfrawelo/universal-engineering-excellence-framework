@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 $requiredRoot = @("README.md","INSTALL.md","QUICK_START.md","VERSION.md","CHANGELOG.md","LICENSE","CONTRIBUTING.md","CODE_OF_CONDUCT.md","SECURITY.md","ROADMAP.md","BUILD_PROGRESS.md","UEEF-LOADER.md")
 $missing = @()
 foreach ($f in $requiredRoot) { if (!(Test-Path (Join-Path $Root $f))) { $missing += $f } }
-$requiredDirs = @("framework","scripts","docs","examples","tools")
+$requiredDirs = @("framework","scripts","docs","examples","tools","config")
 foreach ($d in $requiredDirs) { if (!(Test-Path (Join-Path $Root $d))) { $missing += $d } }
 $manifestPath = Join-Path $Root "release-manifest.json"
 if (!(Test-Path -LiteralPath $manifestPath)) { $missing += "release-manifest.json" }
@@ -25,6 +25,14 @@ $requiredAcceptance = @(
   "scripts/select-quality-gates.ps1",
   "scripts/check-runtime-drift.ps1",
   "scripts/sync-runtime.ps1",
+  "scripts/new-spec-workflow.ps1",
+  "scripts/validate-spec-workflow.ps1",
+  "scripts/test-spec-workflow.ps1",
+  "scripts/get-capability-health.ps1",
+  "scripts/test-capability-health.ps1",
+  "scripts/select-capability-profile.ps1",
+  "scripts/test-capability-profile.ps1",
+  "config/capability-registry.json",
   "examples/generic-ai/runtime-check-example.md",
   "framework/27-quality-gates/16-ueef-activation-gate.md",
   "framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md",

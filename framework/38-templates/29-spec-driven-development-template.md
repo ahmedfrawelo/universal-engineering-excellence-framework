@@ -1,21 +1,23 @@
 # Spec-Driven Development Template
 
+Status: DRAFT
+
 ## Specification
 
 - Outcome:
 - In scope:
 - Out of scope:
 - Actors:
-- Requirements:
+- Requirements: `REQ-001` —
 - Non-functional requirements:
-- Acceptance criteria:
+- Acceptance criteria: `AC-001` —
 - Edge cases:
 - Ambiguities:
 - Assumptions:
 
 ## Technical Plan
 
-- Requirement mapping:
+- Requirement mapping: `REQ-001` → decision → owner → verification:
 - Architecture:
 - Data/API/contracts:
 - UI/state:
@@ -26,11 +28,18 @@
 
 ## Tasks
 
-- [ ] Task:
+- [ ] `TASK-001` Task:
   - Owner:
   - Depends on:
+  - Requirements: `REQ-001`
   - Evidence:
   - Done when:
+
+## Evidence
+
+| Acceptance criterion | Evidence command or review | Result | Recorded at |
+| --- | --- | --- | --- |
+| `AC-001` | | PENDING | |
 
 ## Convergence
 

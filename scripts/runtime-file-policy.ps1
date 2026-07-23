@@ -1,4 +1,4 @@
-$script:UeefOwnedDirectories = @('framework','scripts','docs','examples','tools','assets')
+$script:UeefOwnedDirectories = @('framework','scripts','docs','examples','tools','assets','config')
 $script:UeefOwnedRootFiles = @(
   '.gitattributes','.gitignore','BUILD_PROGRESS.md','CHANGELOG.md','CODE_OF_CONDUCT.md',
   'CONTRIBUTING.md','INSTALL.md','LICENSE','QUICK_START.md','README.md','ROADMAP.md',

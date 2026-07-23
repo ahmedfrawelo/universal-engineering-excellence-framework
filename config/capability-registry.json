@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "capabilities": [
+    {
+      "type": "skill",
+      "id": ".system/skill-installer",
+      "required": true,
+      "source": "Codex system skill",
+      "versionOrPin": "runtime-managed",
+      "installEvidence": "skills/.system/skill-installer/SKILL.md",
+      "fallback": "Report the missing installer and continue only with already installed skills.",
+      "consumerPacks": ["01-core", "59-skill-invocation-protocol"]
+    },
+    {
+      "type": "skill",
+      "id": ".system/openai-docs",
+      "required": true,
+      "source": "Codex system skill",
+      "versionOrPin": "runtime-managed",
+      "installEvidence": "skills/.system/openai-docs/SKILL.md",
+      "fallback": "Use verified local documentation or state that current official documentation is unavailable.",
+      "consumerPacks": ["01-core"]
+    },
+    {
+      "type": "skill",
+      "id": ".system/skill-creator",
+      "required": true,
+      "source": "Codex system skill",
+      "versionOrPin": "runtime-managed",
+      "installEvidence": "skills/.system/skill-creator/SKILL.md",
+      "fallback": "Do not claim a new skill was created; use existing documented workflow only.",
+      "consumerPacks": ["01-core", "59-skill-invocation-protocol"]
+    },
+    {
+      "type": "mcp",
+      "id": "node_repl",
+      "required": false,
+      "source": "Codex runtime",
+      "versionOrPin": "runtime-managed",
+      "configKey": "mcp_servers.node_repl",
+      "fallback": "Use non-browser local verification when browser session control is not selected.",
+      "consumerPacks": ["51-browser-session-control"]
+    }
+  ]
+}
