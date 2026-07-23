@@ -2,6 +2,10 @@
 
 Before any browser navigation, clicking, typing, upload, download, or page inspection, identify the user's active browser surface and target tab. Browser selection is a precondition, not an implementation detail.
 
+## Mandatory Browser Tool Gate
+
+Before selecting or calling any browser tool for a user-owned Chrome task, run `scripts/get-ueef-task-preflight.ps1 -Task <task> -TaskTag browser` and resolve its `browserGate`. HARD FAIL BEFORE ANY BROWSER TOOL: when the gate is absent or unresolved, do not select a browser tool and do not create, launch, or switch to another surface. The allowed sequence is `mcp__node_repl__js` -> installed Chrome extension binding -> exact `user.openTabs()` object -> `claimTab()` -> claimed `tab.playwright` only.
+
 - Prefer an existing user-owned tab and session.
 - Do not call a default browser initializer that may create a new or isolated context when the task requires the user's login.
 - Record browser surface, target tab, domain, and visible authentication state without inspecting secrets.

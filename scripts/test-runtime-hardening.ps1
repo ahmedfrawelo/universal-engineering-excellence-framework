@@ -143,6 +143,9 @@ try {
     if ($loader -notmatch [regex]::Escape($term)) { throw "Generated loader missing: $term" }
   }
   $agents = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
+  foreach ($term in @('HARD FAIL BEFORE ANY BROWSER TOOL','get-ueef-task-preflight.ps1','browserGate','do not select a browser tool','mcp__node_repl__js','claimTab()','tab.playwright')) {
+    if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing mandatory browser gate: $term" }
+  }
   foreach ($term in @('# User rules','Keep this custom rule.','<!-- UEEF-MANAGED:START -->','<!-- UEEF-MANAGED:END -->')) {
     if ($agents -notmatch [regex]::Escape($term)) { throw "Runtime sync did not preserve managed AGENTS content: $term" }
   }

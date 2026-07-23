@@ -98,6 +98,7 @@ Local command autonomy:
 - Reuse a healthy existing service before starting another long-running process.
 
 Browser hard stop:
+- HARD FAIL BEFORE ANY BROWSER TOOL: for a task tagged `browser`, run `scripts/get-ueef-task-preflight.ps1 -Task <task> -TaskTag browser` and resolve its `browserGate` checklist before selecting or calling any browser tool. The only allowed user-owned Chrome path is `mcp__node_repl__js` -> installed Chrome extension binding -> exact `user.openTabs()` object -> `claimTab()` -> claimed `tab.playwright`; if the gate is absent or unresolved, do not select a browser tool and do not open an alternate surface.
 - Never use a connector-created Chrome window for a task that depends on the user's visible browser.
 - Block a newly created automation/Codex window, temporary profile, or unverified profile. A control banner on the verified existing user tab requires provenance classification and is not an automatic block.
 - Browser work means the user's existing Chrome only—never a second browser, profile, context, Cursor/IDE Simple Browser, in-app browser, or connector-created window. For Chrome tasks, read the installed Chrome control skill and bootstrap its browser client only through `mcp__node_repl__js`, then use the extension binding, enumerate `user.openTabs()`, and `claimTab()` the verified user-owned tab. Never use directly exposed Playwright, Chrome DevTools, `browser_*`/Cursor/IDE browser tools, `browser.newContext`, or `browser.launch` for Chrome work; Playwright is allowed only through the claimed tab's `tab.playwright` API.

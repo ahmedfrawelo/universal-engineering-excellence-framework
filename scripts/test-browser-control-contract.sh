@@ -42,6 +42,15 @@ for term in 'connector-created Chrome window' 'repair-chrome-tab-ownership.ps1' 
   grep -Fq "$term" "$ROOT/UEEF-LOADER.md" || { echo "Missing loader browser-continuation term: $term" >&2; exit 1; }
 done
 
+for file in "$ROOT/UEEF-LOADER.md" "$ROOT/scripts/sync-runtime.ps1" "$ROOT/framework/51-browser-session-control/00-browser-session-first.md"; do
+  for term in 'HARD FAIL BEFORE ANY BROWSER TOOL' 'get-ueef-task-preflight.ps1' 'browserGate' 'do not select a browser tool' 'mcp__node_repl__js' 'claimTab()' 'tab.playwright'; do
+    grep -Fq "$term" "$file" || { echo "Missing mandatory pre-tool browser gate term $term in $file" >&2; exit 1; }
+  done
+done
+for term in "status = 'REQUIRED'" "enforcement = 'HARD_FAIL_BEFORE_BROWSER_TOOL'" 'requiredBeforeTool' 'allowedPath' 'forbiddenSurfaces' 'Do not select or call a browser tool'; do
+  grep -Fq "$term" "$ROOT/scripts/get-ueef-task-preflight.ps1" || { echo "Missing structured browser preflight gate term: $term" >&2; exit 1; }
+done
+
 for term in 'same user-owned tab' 'Automatic Failover' 'VERIFIED_HANDOFF' 'visible Windows control' 'never creates' 'No user acknowledgement'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/16-control-channel-failover.md" || { echo "Missing control-channel failover term: $term" >&2; exit 1; }
 done

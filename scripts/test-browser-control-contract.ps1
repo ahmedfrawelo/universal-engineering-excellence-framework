@@ -81,6 +81,16 @@ foreach ($relative in $strictBrowserFiles) {
 }
 $loaderText = Get-Content -LiteralPath (Join-Path $root 'UEEF-LOADER.md') -Raw
 if ($loaderText -notmatch 'explicit separate user request' -or $loaderText -notmatch 'never substitutes for a user-owned Chrome task' -or $loaderText -notmatch 'stop and request the user to activate or share the existing tab') { throw 'Loader does not constrain isolated tests and hard stop.' }
+foreach ($relative in @('UEEF-LOADER.md','scripts/sync-runtime.ps1','framework/51-browser-session-control/00-browser-session-first.md')) {
+  $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw
+  foreach ($term in @('HARD FAIL BEFORE ANY BROWSER TOOL','get-ueef-task-preflight.ps1','browserGate','do not select a browser tool','mcp__node_repl__js','claimTab()','tab.playwright')) {
+    if ($text -notmatch [regex]::Escape($term)) { throw "Mandatory pre-tool browser gate term '$term' missing from $relative." }
+  }
+}
+$preflightText = Get-Content -LiteralPath (Join-Path $root 'scripts/get-ueef-task-preflight.ps1') -Raw
+foreach ($term in @("status = 'REQUIRED'", "enforcement = 'HARD_FAIL_BEFORE_BROWSER_TOOL'", 'requiredBeforeTool', 'allowedPath', 'forbiddenSurfaces', 'Do not select or call a browser tool')) {
+  if ($preflightText -notmatch [regex]::Escape($term)) { throw "Structured browser preflight gate term '$term' missing." }
+}
 
 $previousCodexHome = $env:CODEX_HOME
 try {

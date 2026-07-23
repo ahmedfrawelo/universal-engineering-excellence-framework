@@ -2,6 +2,9 @@
 
 Version: 1.5.0
 
+- [ ] `get-ueef-task-preflight.ps1 -TaskTag browser` produced `browserGate: REQUIRED` before any browser tool was selected.
+- [ ] The gate's allowed path is `mcp__node_repl__js` -> extension binding -> exact `user.openTabs()` object -> `claimTab()` -> claimed `tab.playwright` only.
+- [ ] If the gate could not be resolved, no browser tool or alternate surface was selected.
 - [ ] User-owned browser surface selected.
 - [ ] Chrome extension/tab-claim authorization was used for the existing user tab when Chrome control was needed.
 - [ ] The target came from `user.openTabs()` and the exact returned object was passed to `claimTab()`.
