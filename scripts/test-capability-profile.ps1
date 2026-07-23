@@ -12,6 +12,8 @@ Assert-Profile 'Explain dependency injection' 'CORE_ONLY'
 Assert-Profile 'Build a React accessible dashboard' 'SELECTIVE' @('ui-ux-pro-max','impeccable')
 Assert-Profile 'Check the latest OpenAI API documentation' 'SELECTIVE' @('.system/openai-docs')
 Assert-Profile 'Inspect the existing Chrome tab visually' 'SELECTIVE' @() @('node_repl')
+$casualBrowserMention = & $selector -Task 'Document the browser policy in this repository' -Json | ConvertFrom-Json
+if ($casualBrowserMention.mcps -contains 'node_repl') { throw 'A casual browser mention must not select browser control.' }
 Assert-Profile 'Fix a reproducible validation regression' 'SELECTIVE' @() @() @('systematic-debugging','tdd-evidence-loop') @{ 'systematic-debugging'='required'; 'tdd-evidence-loop'='required_when_practical' }
 Assert-Profile 'Clarify ambiguous requirements for a new feature' 'SELECTIVE' @() @() @('brainstorming-and-clarification') @{ 'brainstorming-and-clarification'='recommended' }
 Assert-Profile 'Perform a production payment migration' 'ASSURED' @() @() @('independent-review','evidence-loop') @{ 'independent-review'='required'; 'evidence-loop'='required' }

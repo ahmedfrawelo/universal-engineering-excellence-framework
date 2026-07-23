@@ -202,6 +202,7 @@ $requiredAcceptance = @(
   "scripts/repair-chrome-tab-ownership.ps1",
   "scripts/test-repair-chrome-tab-ownership.ps1",
   "scripts/test-delivery-continuation-contract.ps1",
+  "scripts/test-intent-fidelity-contract.ps1",
   "scripts/validate-goal-lifecycle.ps1",
   "scripts/validate-goal-lifecycle.sh",
   "scripts/test-goal-lifecycle.ps1",
@@ -439,6 +440,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-skeleton-loading-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-intent-fidelity-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null

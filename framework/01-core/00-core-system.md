@@ -163,6 +163,7 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - Do not repair unrelated historical failures, unrelated tests, unrelated UI, unrelated backend endpoints, unrelated dependency warnings, or unrelated generated files unless the user asks for a broader cleanup.
 - If an unrelated error blocks a broad command, rerun a narrower relevant check where possible and report the unrelated blocker separately without claiming the whole project is clean.
 - Never use unrelated failures as a reason to abandon the requested work while meaningful scoped progress remains.
+- **Scope wins:** when scope conflicts with continuation, delegation, autonomy, audits, or modernization, follow the user's requested task. Expand only for an explicit request or a direct verification blocker.
 
 ## Backend and SSR Performance Requirements
 
@@ -174,5 +175,5 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - Animations must be smooth, interruptible, and performance-safe. Animate transform and opacity by default, avoid layout properties, respect reduced motion, and verify that animation state does not trigger avoidable component re-renders, server calls, data refreshes, or layout thrashing.
 - Mutable remote state must reconcile without page reload when freshness is required. Patch or invalidate the smallest authorized scope, preserve user context, and verify ordering, deduplication, reconnect, security, and burst behavior.
 - Every non-trivial route, feature, component, asset, integration, worker, and optional service requires an evidence-based eager, lazy, preload, prefetch, stream, or defer decision. Do not force lazy loading where it worsens the critical path or creates waterfalls.
-- Before substantial work in an existing project, inventory runtime and dependency currency from manifests, lockfiles, local tooling, and official support sources when current facts matter. Apply only bounded compatible upgrades autonomously; propose major or high-risk upgrades with migration and rollback evidence first.
+- Inventory runtime and dependency currency only for explicit modernization/dependency work or when a T2+ task needs it as direct evidence. Do not turn T0/T1 work into an autonomous upgrade or inventory.
 - Broad refactoring of legacy projects requires a repository map, behavior baseline, characterization tests, hidden-reachability checks before dead-code deletion, reversible slices, migration sequencing, performance comparison, rollout, and rollback.

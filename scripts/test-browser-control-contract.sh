@@ -17,7 +17,8 @@ done
 
 ! grep -Fq 'Isolated contexts are acceptable' "$ROOT/framework/51-browser-session-control/03-no-isolated-browser-by-default.md" || { echo 'Isolated Chrome fallback remains' >&2; exit 1; }
 ! grep -Fq 'Explicit consent recorded if an isolated fallback was necessary' "$ROOT/framework/29-checklists/32-browser-session-control-checklist.md" || { echo 'Consent-based isolated fallback remains' >&2; exit 1; }
-grep -Fq 'Load modules `00` through `16`' "$LOADER" || { echo 'Required browser modules are not selected' >&2; exit 1; }
+grep -Fq 'only when the user explicitly asks for browser/site/visual work' "$LOADER" || { echo 'Browser selection is not explicit and proportional' >&2; exit 1; }
+grep -Fq 'mere mention of a browser' "$LOADER" || { echo 'Casual browser mentions can still trigger browser control' >&2; exit 1; }
 for term in 'bootstrap-troubleshooting' 'chrome-troubleshooting' 'Do not invent a `file:///` variant' 'keep the task active'; do
   grep -Fq "$term" "$RECOVERY" || { echo "Missing Chrome bridge recovery term: $term" >&2; exit 1; }
 done

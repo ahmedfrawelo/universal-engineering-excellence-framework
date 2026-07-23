@@ -11,12 +11,12 @@ function Assert-Route {
   }
 }
 
-Assert-Route @{} @{ schemaVersion=3; tier='T0'; reasoning='medium'; reasoningCeiling='medium'; topology='single-agent'; spawnAgents=$false }
+Assert-Route @{} @{ schemaVersion=4; tier='T0'; reasoning='medium'; reasoningCeiling='proportional'; topology='single-agent'; spawnAgents=$false }
 Assert-Route @{ CodeChange=$true } @{ tier='T1'; preferredModel='gpt-5.6-luna'; reasoning='medium'; codeChange=$true; spawnAgents=$false; noSpawnReason='NO_INDEPENDENT_WORK'; routeEvidenceRequired=$true }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1 } @{ tier='T2'; topology='single-agent'; spawnAgents=$false }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true } @{ tier='T2'; topology='lead-plus-sidecar'; spawnAgents=$true }
 Assert-Route @{ RiskFloor='Authentication' } @{ tier='T3'; preferredModel='gpt-5.6-sol' }
-Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; reasoning='medium'; reasoningCeiling='medium'; independentVerificationRequired=$true }
+Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; reasoning='high'; reasoningCeiling='proportional'; independentVerificationRequired=$true }
 Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true } @{ tier='T4'; topology='lead-plus-independent-verifier'; spawnAgents=$true }
 Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true; IndependentWorkstreams=2 } @{ tier='T4'; topology='lead-workers-independent-verifier'; spawnAgents=$true }
 Assert-Route @{ Scope=3; Ambiguity=3; Coupling=3; Risk=2; Verification=1; DelegationBenefit=$true; IndependentWorkstreams=1 } @{ tier='T3'; topology='lead-plus-sidecar' }
@@ -49,7 +49,7 @@ if ($topologyText -notmatch 'T1 defaults to single-agent') { throw 'Topology pol
 
 foreach ($routeArgs in @(@{}, @{Scope=1;Ambiguity=1;Coupling=1;Risk=1;Verification=1}, @{RiskFloor='Authentication'}, @{RiskFloor='Privacy'})) {
   $route = & $selector @routeArgs -Json | ConvertFrom-Json
-  if ($route.reasoning -notin @('low','medium')) { throw "Reasoning ceiling exceeded: $($route.reasoning)" }
+  if ($route.reasoning -notin @('low','medium','high')) { throw "Unsupported proportional reasoning level: $($route.reasoning)" }
 }
 
 $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
@@ -66,8 +66,8 @@ if ($bashPath) {
 }
 
 $capabilityRouting = Get-Content -LiteralPath (Join-Path $root 'framework\58-agent-model-orchestration\02-model-capability-routing.md') -Raw
-if ($capabilityRouting -match '\|\s*T[0-4]\s*\|[^\r\n]*\|\s*(high|xhigh|max|ultra)\s*\|') {
-  throw 'Model capability routing exceeds the medium reasoning ceiling.'
+if ($capabilityRouting -notmatch 'economical default, not a hard ceiling') {
+  throw 'Model capability routing does not document proportional reasoning.'
 }
 
 Write-Host 'Agent route tests passed'

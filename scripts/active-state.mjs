@@ -16,8 +16,8 @@ if (command === 'write') {
   if (fs.existsSync(file) && fs.lstatSync(file).isSymbolicLink()) throw new Error(`Refusing symbolic-link active state: ${file}`);
   const state = {
     active: true,
-    agentRoutingContractVersion: 3,
-    reasoningCeiling: 'medium',
+    agentRoutingContractVersion: 4,
+    reasoningCeiling: 'proportional',
     version,
     generatedAtUtc: new Date().toISOString(),
     codexHome,
@@ -51,7 +51,7 @@ if (command === 'write') {
   const state = readState(file);
   const loaderHashValid = typeof state.runtimeLoaderSha256 === 'string' && typeof state.loaderPath === 'string' &&
     fs.existsSync(state.loaderPath) && !fs.lstatSync(state.loaderPath).isSymbolicLink() && state.runtimeLoaderSha256 === sha256(state.loaderPath);
-  const valid = state.active === true && state.agentRoutingContractVersion === 3 && state.reasoningCeiling === 'medium' &&
+  const valid = state.active === true && state.agentRoutingContractVersion === 4 && state.reasoningCeiling === 'proportional' &&
     state.version === expectedVersion && state.agent === expectedAgent && state.requiredChecks &&
     loaderHashValid &&
     Object.values(state.requiredChecks).every(Boolean);

@@ -2,6 +2,10 @@
 
 UEEF agents operate autonomously for ordinary work that the user has placed in scope.
 
+## Scope Wins
+
+User-requested scope overrides continuation, delegation, autonomous audits, inventories, and modernization. Expand only when the user explicitly asks or a direct blocker prevents verification of the requested outcome.
+
 ## Proceed Without Agent Confirmation
 
 - Inspect repository files, source code, configuration, logs, and local project state.

@@ -29,8 +29,8 @@ $routes = @{
   T0 = @{ capability='Inherited'; model='inherit'; reasoning='medium'; topology='single-agent' }
   T1 = @{ capability='Fast'; model='gpt-5.6-luna'; reasoning='low'; topology='single-agent' }
   T2 = @{ capability='Balanced'; model='gpt-5.6-terra'; reasoning='medium'; topology='lead-plus-sidecar' }
-  T3 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='medium'; topology='parallel-specialists' }
-  T4 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='medium'; topology='lead-workers-independent-verifier' }
+  T3 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='high'; topology='parallel-specialists' }
+  T4 = @{ capability='Frontier'; model='gpt-5.6-sol'; reasoning='high'; topology='lead-workers-independent-verifier' }
 }
 $route = $routes[$tier]
 $reasoning = if ($tier -eq 'T1' -and $CodeChange) { 'medium' } else { $route.reasoning }
@@ -45,14 +45,14 @@ $topology = if (!$spawnAgents) {
 $preferredModel = if ($ModelsUnavailable) { $null } else { $route.model }
 $noSpawnReason = if ($spawnAgents) { $null } elseif ($CodeChange -and $AgentsUnavailable) { 'TOOL_UNAVAILABLE' } elseif ($tier -in @('T0','T1')) { 'NO_INDEPENDENT_WORK' } else { 'CRITICAL_PATH_ONLY' }
 $result = [ordered]@{
-  schemaVersion = 3
+  schemaVersion = 4
   score = $score
   riskFloor = $RiskFloor
   tier = $tier
   capability = $route.capability
   preferredModel = $preferredModel
   reasoning = $reasoning
-  reasoningCeiling = 'medium'
+  reasoningCeiling = 'proportional'
   topology = $topology
   delegationBenefit = $DelegationBenefit.IsPresent
   codeChange = $CodeChange.IsPresent

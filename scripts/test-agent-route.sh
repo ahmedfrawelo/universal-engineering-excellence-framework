@@ -9,10 +9,10 @@ assert_contains() {
 }
 
 route="$("$selector")"
-assert_contains "$route" '"schemaVersion":3'
+assert_contains "$route" '"schemaVersion":4'
 assert_contains "$route" '"tier":"T0"'
 assert_contains "$route" '"reasoning":"medium"'
-assert_contains "$route" '"reasoningCeiling":"medium"'
+assert_contains "$route" '"reasoningCeiling":"proportional"'
 assert_contains "$route" '"spawnAgents":false'
 
 route="$("$selector" --code-change)"
@@ -32,7 +32,7 @@ assert_contains "$route" '"topology":"lead-plus-sidecar"'
 
 route="$("$selector" --risk-floor Payment --delegation-benefit --independent-workstreams 2)"
 assert_contains "$route" '"tier":"T4"'
-assert_contains "$route" '"reasoning":"medium"'
+assert_contains "$route" '"reasoning":"high"'
 assert_contains "$route" '"topology":"lead-workers-independent-verifier"'
 
 route="$("$selector" --risk-floor Authentication --models-unavailable)"
@@ -49,11 +49,11 @@ for route in \
   "$("$selector" --risk-floor Authentication)" \
   "$("$selector" --risk-floor Privacy)"
 do
-  printf '%s' "$route" | grep -Eq '"reasoning":"(low|medium)"' || { echo "Reasoning ceiling exceeded in $route" >&2; exit 1; }
+  printf '%s' "$route" | grep -Eq '"reasoning":"(low|medium|high)"' || { echo "Unsupported proportional reasoning level in $route" >&2; exit 1; }
 done
 capability_routing="$ROOT/framework/58-agent-model-orchestration/02-model-capability-routing.md"
-if grep -Ei '\|[[:space:]]*T[0-4][[:space:]]*\|.*\|[[:space:]]*(high|xhigh|max|ultra)[[:space:]]*\|' "$capability_routing" >/dev/null; then
-  echo 'Model capability routing exceeds the medium reasoning ceiling.' >&2
+if ! grep -Fq 'economical default, not a hard ceiling' "$capability_routing"; then
+  echo 'Model capability routing does not document proportional reasoning.' >&2
   exit 1
 fi
 echo 'Unix agent route tests passed'

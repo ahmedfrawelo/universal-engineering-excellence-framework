@@ -8,7 +8,7 @@ Before every non-trivial engineering task:
 
 1. Route the task through pack 58, select the lowest-cost capable model, and spawn only when delegation has positive benefit.
 2. Load only `boot-loader` and `core-system` as always-loaded modules.
-3. Run `scripts/environment-bootstrap.ps1` or `scripts/environment-bootstrap.sh` before inspection. For non-trivial work or capability uncertainty, run optional read-only `scripts/get-ueef-task-preflight.ps1 -Task '<task summary>'`; it selects route/profile/workflow evidence but never proves an MCP callable. For multi-file changes, optional `scripts/get-diff-impact.ps1` suggests affected packs and gates with heuristic confidence only. Use optional project memory only for explicit local decisions; resolve a team profile only when one is declared; export evidence before closing a high-risk task or preparing a PR. These helpers are proportional, not a mandatory checklist for T0/T1 work.
+3. For a self-contained T0/T1 answer or narrow change, start core-only and use tools only when they directly help the requested outcome. Run `scripts/environment-bootstrap.ps1` or `scripts/environment-bootstrap.sh` for non-trivial repository work or capability uncertainty. The optional read-only `scripts/get-ueef-task-preflight.ps1 -Task '<task summary>'` selects route/profile/workflow evidence but never proves an MCP callable. For multi-file changes, optional `scripts/get-diff-impact.ps1` suggests affected packs and gates with heuristic confidence only. Use optional project memory only for explicit local decisions; resolve a team profile only when one is declared; export evidence before closing a high-risk task or preparing a PR.
 4. Select task-specific modules through `framework/01-core/01-master-loader.md`.
 5. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
 6. Apply the Engineering Guardian, relevant quality gates, and final verification before completion.
@@ -32,7 +32,7 @@ Backend and frontend performance:
 - Animations must be smooth, interruptible, reduced-motion aware, and compositor-friendly. Prefer transform and opacity, avoid layout-triggering animation, and prevent animation state from repainting unrelated UI or triggering avoidable backend refreshes.
 - Reconcile mutable remote state without page reload when freshness is required. Preserve route, shell, focus, scroll, filters, selection, and unsaved edits; verify authorization, ordering, gaps, reconnect, and burst performance.
 - Make an evidence-based eager, lazy, preload, prefetch, stream, or defer decision for every non-trivial load boundary. Do not create waterfalls, duplicate chunks, layout shift, inaccessible loading states, or first-request backend cold starts.
-- Before substantial work in an existing project, inventory runtimes, frameworks, SDKs, packages, lockfiles, databases, containers, CI actions, deprecated APIs, and support status. Apply only bounded compatible upgrades autonomously; propose major or high-risk upgrades with migration and rollback evidence first.
+- Inventory runtimes, dependencies, and upgrade opportunities only when the user asks for modernization/dependency work or when a T2+ task needs that evidence. Never turn a T0/T1 request into an autonomous inventory or upgrade.
 - Broad legacy refactoring requires repository and behavior baselines, characterization tests, hidden-reachability checks before deletion, reversible slices, compatibility and migration strategy, measured performance, rollout, and rollback.
 
 Response quality:
@@ -46,6 +46,7 @@ Task scope discipline:
 - Do not chase unrelated errors, warnings, tests, UI issues, backend endpoints, refactors, dependency warnings, or generated files.
 - If an unrelated pre-existing error appears, record it as unrelated, use narrower relevant validation when possible, and continue the requested work.
 - Broaden scope only when the user asks, when the unrelated issue directly prevents the requested task from being verified, or when the current change caused it.
+- **Scope wins:** if task scope conflicts with continuation, delegation, autonomy, audits, or modernization, the user's requested task wins. Expand only on an explicit user request or for a direct blocker required to verify that task.
 
 Large-project reuse:
 - For broad or unfamiliar repositories, run `scripts/project-context-map.ps1`, `scripts/project-context-map.sh`, or an equivalent repository map before implementation.
@@ -76,7 +77,7 @@ Agent routing hardening:
 - Risk score 3 requires an explicit risk floor.
 - Parallel agents require positive delegation benefit and at least two independently owned workstreams.
 - Verify current agent and named-model availability before spawning or overriding; fall back to the inherited model without lowering quality gates.
-- The hard reasoning ceiling is medium for every model and agent. Never request high, xhigh, max, ultra, or an equivalent level above medium.
+- Medium is the economical default. A route may request higher reasoning only for T3/T4 or high ambiguity, with recorded evidence; never lower the risk floor merely to avoid that escalation. If the platform selects a higher inherited level, UEEF does not prohibit it.
 - T1 code changes default to a single agent. Record `Agent route: <tier> | Agent: spawned <id>` or `not spawned - NO_INDEPENDENT_WORK/CRITICAL_PATH_ONLY/TOOL_UNAVAILABLE`; spawn only when independent work materially improves the requested outcome.
 
 Live runtime refresh:

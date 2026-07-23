@@ -45,7 +45,7 @@ activation_gate=0; exists "$REPOSITORY_PATH/framework/27-quality-gates/16-ueef-a
 quality_gates=0; exists "$REPOSITORY_PATH/framework/27-quality-gates" && quality_gates=1
 validation=0; exists "$REPOSITORY_PATH/scripts/validate-framework.sh" && validation=1
 agent_routing=0
-if [ -f "$REPOSITORY_PATH/scripts/select-agent-route.ps1" ] && [ -f "$REPOSITORY_PATH/scripts/select-agent-route.sh" ] && [ -f "$REPOSITORY_PATH/UEEF-LOADER.md" ] && grep -q 'reasoningCeiling' "$REPOSITORY_PATH/scripts/select-agent-route.ps1" && grep -q 'noSpawnReason' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'routeEvidenceRequired' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'TOOL_UNAVAILABLE' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'Agent route:' "$REPOSITORY_PATH/UEEF-LOADER.md" && ! grep -Eq 'reasoning=(high|xhigh|max|ultra)' "$REPOSITORY_PATH/scripts/select-agent-route.sh"; then agent_routing=1; fi
+if [ -f "$REPOSITORY_PATH/scripts/select-agent-route.ps1" ] && [ -f "$REPOSITORY_PATH/scripts/select-agent-route.sh" ] && [ -f "$REPOSITORY_PATH/UEEF-LOADER.md" ] && grep -q 'reasoningCeiling' "$REPOSITORY_PATH/scripts/select-agent-route.ps1" && grep -q 'noSpawnReason' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'routeEvidenceRequired' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'TOOL_UNAVAILABLE' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'Agent route:' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'proportional' "$REPOSITORY_PATH/scripts/select-agent-route.ps1"; then agent_routing=1; fi
 agents_pass=1
 active_state_pass=1
 runtime_drift_pass=1

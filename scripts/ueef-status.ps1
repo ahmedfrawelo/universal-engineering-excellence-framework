@@ -53,7 +53,7 @@ $routeSh = Join-Path $RepositoryPath 'scripts/select-agent-route.sh'
 $contractFiles = @($routePs, $routeSh, (Join-Path $RepositoryPath 'UEEF-LOADER.md'), (Join-Path $RepositoryPath 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md'), (Join-Path $RepositoryPath 'framework/27-quality-gates/31-agent-model-routing-gate.md'))
 $contractFilesPass = !(($contractFiles | Where-Object { !(Test-Item $_) }).Count)
 $routingText = if ($contractFilesPass) { ($contractFiles | ForEach-Object { Get-Content -LiteralPath $_ -Raw }) -join "`n" } else { '' }
-$agentRoutingPass = $contractFilesPass -and $routingText -match 'reasoningCeiling' -and $routingText -match 'TOOL_UNAVAILABLE' -and $routingText -match 'Visible pre-command route line|Before the first project command or edit' -and $routingText -match 'routeEvidenceRequired' -and $routingText -match 'noSpawnReason' -and $routingText -notmatch 'reasoning=(high|xhigh|max|ultra)'
+$agentRoutingPass = $contractFilesPass -and $routingText -match 'reasoningCeiling' -and $routingText -match 'TOOL_UNAVAILABLE' -and $routingText -match 'Visible pre-command route line|Before the first project command or edit' -and $routingText -match 'routeEvidenceRequired' -and $routingText -match 'noSpawnReason' -and $routingText -match 'proportional'
 $isManagedRuntime = (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq "ueef"
 $codexHome = if ($isManagedRuntime) { Split-Path -Parent $GlobalPath } elseif ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
@@ -72,7 +72,7 @@ if ($isManagedRuntime) {
       $checksPass = $state.requiredChecks -and !(@($state.requiredChecks.psobject.Properties | Where-Object { $_.Value -ne $true }).Count)
       if ($state.requireAgents -ne $true) { $agentsPass = $true }
       $loaderHashPass = ![string]::IsNullOrWhiteSpace([string]$state.runtimeLoaderSha256) -and (Get-FileHash -LiteralPath $expectedLoader -Algorithm SHA256).Hash -ceq ([string]$state.runtimeLoaderSha256).ToUpperInvariant()
-      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 3 -and $state.reasoningCeiling -eq 'medium' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $loaderHashPass -and $checksPass
+      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 4 -and $state.reasoningCeiling -eq 'proportional' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $loaderHashPass -and $checksPass
     } catch { $activeStatePass = $false }
   }
 } else {

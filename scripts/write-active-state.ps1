@@ -49,8 +49,8 @@ if (!(Test-Path -LiteralPath $validator -PathType Leaf)) { throw "Refusing to wr
 
 $state = [ordered]@{
   active = $checksPass
-  agentRoutingContractVersion = 3
-  reasoningCeiling = 'medium'
+  agentRoutingContractVersion = 4
+  reasoningCeiling = 'proportional'
   version = $version
   generatedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
   codexHome = $CodexHome

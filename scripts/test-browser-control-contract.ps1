@@ -47,7 +47,7 @@ foreach ($term in $forbiddenBrowserTerms) {
   if ((Get-ChildItem -LiteralPath (Join-Path $root 'framework') -Recurse -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -match [regex]::Escape($term)) { throw "Obsolete browser contract term remains: $term" }
 }
 $masterText = Get-Content -LiteralPath (Join-Path $root 'framework/01-core/01-master-loader.md') -Raw
-if ($masterText -notmatch 'Load modules `00` through `16`') { throw 'Required browser modules are not selected.' }
+if ($masterText -notmatch 'only when the user explicitly asks for browser/site/visual work' -or $masterText -notmatch 'mere mention of a browser') { throw 'Browser selection is not explicit and proportional.' }
 $isolatedText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-session-control/03-no-isolated-browser-by-default.md') -Raw
 if ($isolatedText -match 'Isolated contexts are acceptable') { throw 'Isolated Chrome fallback remains.' }
 $checklistText = Get-Content -LiteralPath (Join-Path $root 'framework/29-checklists/32-browser-session-control-checklist.md') -Raw

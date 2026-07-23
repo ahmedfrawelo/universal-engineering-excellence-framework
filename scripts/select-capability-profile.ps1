@@ -24,7 +24,7 @@ function Add-WorkflowDecision([string]$Id, [string]$Selection, [string]$Trigger,
 
 $hasExplicitClassification = $TaskTag.Count -gt 0 -or $RouteTier -or $RiskFloor -ne 'None' -or $CodeChange
 $isReadOnly = !$hasExplicitClassification -and $text -match '\b(explain|answer|summari[sz]e|translate|define|what is|review status)\b' -and $text -notmatch '\b(current|latest|online|browser|file|repository|code)\b'
-$needsBrowser = $text -match '\b(browser|chrome|tab|website|visual check|screenshot|figma)\b'
+$needsBrowser = ($text -match '\b(open|navigate|inspect|click|type|upload|download|authenticate|log.?in|browse|screenshot|visual(?:ly)? verify|visual check)\b') -and ($text -match '\b(browser|chrome|tab|website|web page|site|figma)\b')
 $needsCurrentDocs = $text -match '\b(latest|current|up.to.date|documentation|api docs|library version)\b'
 $isUi = $text -match '\b(ui|ux|frontend|react|angular|css|layout|accessibility|design)\b'
 $isSecurity = $Risk -in @('high','critical') -or $text -match '\b(security|auth|payment|privacy|production|migration|destructive)\b'
