@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.13.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.13.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.13.1 - 2026-07-23
+
+- Completed documentation and integration hardening for the optional 2.13 workflow tools.
+- Added proportional optional-tool guidance to Quick Start, the source loader, generated Codex loader, and generated AGENTS guidance.
+- Made adapter support status and diff-impact confidence/limitations explicit; documented the Windows-first scope of optional tools that lack Unix counterparts.
 
 ## 2.13.0 - 2026-07-23
 
