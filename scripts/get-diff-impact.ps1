@@ -20,4 +20,4 @@ foreach($file in $files){
   if($file -match '(?i)(migration|schema|database|sql)'){Add-Unique $gates 'database-gate';Add-Unique $reasons "Data contract path: $file"}
 }
 $result=[ordered]@{schemaVersion=1;repositoryPath=$RepositoryPath;base=$Base;staged=$Staged.IsPresent;files=$files;impact=[ordered]@{confidence=if($files.Count){'HEURISTIC'}else{'NONE'};selectedPacks=@($packs);suggestedGates=@($gates);reasons=@($reasons)};limitations='Path-based analysis only; inspect imports, contracts, and tests before relying on it.'}
-if($Json){$result|ConvertTo-Json -Depth 5}else{Write-Output "Diff impact: $($files.Count) files";Write-Output "Packs: $($packs -join ', ')";Write-Output "Gates: $($gates -join ', ')"}
+if($Json){$result|ConvertTo-Json -Depth 5}else{Write-Output "Diff impact: $($files.Count) files";Write-Output "Confidence: $($result.impact.confidence)";Write-Output "Limitations: $($result.limitations)";Write-Output "Packs: $($packs -join ', ')";Write-Output "Gates: $($gates -join ', ')"}

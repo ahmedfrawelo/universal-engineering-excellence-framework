@@ -139,7 +139,7 @@ try {
   if ($state.agent -ne 'test-agent') { throw 'Active state did not preserve the agent name.' }
   if ([IO.Path]::GetFullPath([string]$state.runtimePath) -ne [IO.Path]::GetFullPath($runtime)) { throw 'Active state runtime path is wrong.' }
   $loader = Get-Content -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md') -Raw
-  foreach ($term in @('environment-bootstrap','Agent and model routing:','Loaded: boot-loader, core-system')) {
+  foreach ($term in @('environment-bootstrap','get-diff-impact.ps1','Agent and model routing:','Loaded: boot-loader, core-system')) {
     if ($loader -notmatch [regex]::Escape($term)) { throw "Generated loader missing: $term" }
   }
   $agents = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
@@ -148,6 +148,9 @@ try {
   }
   foreach ($term in @('save-contract bugs','Repetition does not convert','external or user-only condition','no meaningful local work remains','When a goal is ACTIVE','read current goal status')) {
     if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing delivery continuation contract: $term" }
+  }
+  foreach ($term in @('get-ueef-task-preflight.ps1','get-diff-impact.ps1','project memory only for explicit local decisions','not a T0/T1 checklist')) {
+    if ($agents -notmatch [regex]::Escape($term)) { throw "Generated AGENTS missing optional-tool guidance: $term" }
   }
   $stateBeforeRollback = Get-Content -LiteralPath $statePath -Raw
   $agentsBeforeRollback = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw

@@ -6,7 +6,12 @@ This file is a high-level changelog. Individual release notes are available in [
 
 ## 2.13.0 - 2026-07-23
 
-- Added read-only task preflight, traceable spec clarifications/convergence, governed UI capability provenance, and read-only diff impact analysis.
+- Added read-only task preflight that composes route, capability-profile, workflow, and conditional-health evidence without starting MCPs or claiming callable capabilities.
+- Added traceable specification clarifications and convergence artifacts, plus governed UI-skill provenance and explicit optional-skill selection.
+- Added bounded, read-only diff-impact analysis on Windows and Unix; its output is explicitly heuristic and path-based.
+- Added opt-in, retention-bounded project memory, team-policy profile resolution, evidence-pack export with credential-like-value redaction, learning-loop recording with human approval, workspace-boundary discovery, safe-refactor recipe scaffolding, and an onboarding dry-run preview.
+- Added heuristic task-budget advice on Windows and Unix; it is a planning estimate, not token telemetry or a cost quote.
+- Added an executable adapter compatibility matrix for the tested Codex, Cursor, and generic AGENTS-compatible targets. Other assistants are not claimed as supported installers.
 
 ## 2.12.3 - 2026-07-23
 

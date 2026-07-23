@@ -35,7 +35,27 @@ Use these only when the task needs them; routine work stays lightweight.
 
 # Explain the selected capability and workflow profile for a task.
 .\scripts\select-capability-profile.ps1 -Task 'Describe the task here'
+
+# Compose task route, profile, and workflow evidence before non-trivial work.
+.\scripts\get-ueef-task-preflight.ps1 -Task 'Describe the task here'
+
+# Inspect a multi-file change before selecting packs and gates. Results are heuristic.
+.\scripts\get-diff-impact.ps1 -RepositoryPath . -Json
+
+# Keep an explicit project-local decision or lesson (opt-in; rejects secrets).
+.\scripts\write-project-memory.ps1 -Kind decision -Title 'Cache policy' -Detail 'Use explicit invalidation.'
+.\scripts\get-project-memory.ps1 -Json
+
+# Resolve an optional team policy profile and export high-risk-task evidence.
+.\scripts\resolve-team-policy.ps1 -Profile default -Json
+.\scripts\export-ueef-evidence.ps1 -RepositoryPath . -OutputPath .\ueef-evidence.json -IncludeDiff
+
+# Inspect the only tested adapter targets and estimate a proportional task budget.
+.\scripts\get-assistant-adapters.ps1 -Json
+.\scripts\get-task-budget-advice.ps1 -Tier T2 -ChangedFiles 6 -Json
 ```
+
+`get-diff-impact.sh` and `get-task-budget-advice.sh` are the supported Unix counterparts. The remaining optional 2.13 tools are Windows-first at present; use PowerShell on Windows instead of assuming Unix parity.
 ## Exact Codex installation
 
 For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:

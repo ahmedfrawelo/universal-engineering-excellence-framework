@@ -277,6 +277,7 @@ $managedAgentsLines = @(
   "3. Use $master as the selector for task-specific modules; do not report it under Loaded.",
   "4. Use $index and $masterIndex as references for selection; do not report them under Loaded.",
   "5. Run or mentally satisfy the UEEF Runtime Check from $preflight.",
+  "For non-trivial work or capability uncertainty, optionally run scripts/get-ueef-task-preflight.ps1. For multi-file changes, get-diff-impact.ps1 is heuristic only. Use project memory only for explicit local decisions, team-policy resolution only when a profile is declared, and evidence export before a high-risk closure or PR; these are proportional helpers, not a T0/T1 checklist.",
   "At the beginning of every user turn, including an existing chat, re-read $loader and verify runtime version and status before selecting tools.",
   "Never rely on a loader or tool decision cached from an earlier turn.",
   "6. Select exact relevant UEEF modules for the task.",
