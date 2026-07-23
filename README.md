@@ -62,7 +62,7 @@ Quality means clear architecture, understandable code, minimal duplication, meas
 
 ## Examples
 
-See examples/codex/, examples/cursor/, examples/claude-code/, and examples/generic-ai/ for assistant loaders. See project examples for frontend, backend, fullstack, and enterprise usage.
+Tested assistant adapters are Codex, Cursor, and the generic AGENTS-compatible target only. `examples/claude-code/` is an unverified guidance example, not a tested adapter, installer, or support claim. See examples/codex/, examples/cursor/, examples/claude-code/, and examples/generic-ai/ for assistant-loader guidance; see project examples for frontend, backend, fullstack, and enterprise usage.
 
 ## Contributing
 
