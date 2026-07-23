@@ -38,3 +38,11 @@ jobs:
       - name: Unix assurance
         shell: bash
         run: ./scripts/ueef-audit.sh
+      - name: Unix 2.13 workflow tool tests
+        shell: bash
+        run: |
+          sh ./scripts/test-ueef-task-preflight.sh
+          sh ./scripts/test-project-memory.sh
+          sh ./scripts/test-evidence-export.sh
+          sh ./scripts/test-diff-impact.sh
+          sh ./scripts/test-task-budget-advice.sh

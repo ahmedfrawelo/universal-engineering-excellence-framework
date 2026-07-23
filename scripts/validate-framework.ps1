@@ -356,7 +356,7 @@ foreach ($p in $packs) {
   if (!(Test-Path (Join-Path $p.FullName "INDEX.md"))) { $missing += "$($p.Name)/INDEX.md" }
 }
 if ($missing.Count) { throw "Missing required items: $($missing -join ', ')" }
-$md = Get-ChildItem $Root -Filter *.md -Recurse
+$md = Get-ChildItem $Root -Filter *.md -Recurse | Where-Object { $_.FullName -notmatch '[\\/]\.ueef[\\/]' }
 $minimumMarkdownFiles = if ($manifest -and $manifest.minimumMarkdownFiles) { [int]$manifest.minimumMarkdownFiles } else { 160 }
 if ($md.Count -lt $minimumMarkdownFiles) { throw "Markdown count below minimum: $($md.Count) < $minimumMarkdownFiles" }
 $trackedMarkdownFiles = if ($manifest -and $manifest.trackedMarkdownFiles) { [int]$manifest.trackedMarkdownFiles } else { 0 }

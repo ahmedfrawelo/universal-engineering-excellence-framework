@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant inspects the project, detects stack and architecture, produces a plan, applies relevant modules, and runs quality gates before finishing.
 
-The current release is 2.13.1. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
+The current release is 2.14.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex installation also installs the pinned `design-brief` and `frontend-design` skills when they are missing.
 
 ## Runtime Check
 
@@ -43,11 +43,12 @@ Use these only when the task needs them; routine work stays lightweight.
 .\scripts\get-diff-impact.ps1 -RepositoryPath . -Json
 
 # Keep an explicit project-local decision or lesson (opt-in; rejects secrets).
-.\scripts\write-project-memory.ps1 -Kind decision -Title 'Cache policy' -Detail 'Use explicit invalidation.'
-.\scripts\get-project-memory.ps1 -Json
+.\scripts\write-project-memory.ps1 -Kind decision -Title 'Cache policy' -Detail 'Use explicit invalidation.' -Task 'release hardening'
+.\scripts\get-project-memory.ps1 -Query 'cache' -Summary -Json
 
 # Resolve an optional team policy profile and export high-risk-task evidence.
 .\scripts\resolve-team-policy.ps1 -Profile default -Json
+.\scripts\export-ueef-evidence.ps1 -RepositoryPath . -IncludeMemorySummary -Task 'release hardening' -Preview
 .\scripts\export-ueef-evidence.ps1 -RepositoryPath . -OutputPath .\ueef-evidence.json -IncludeDiff
 
 # Inspect the only tested adapter targets and estimate a proportional task budget.
@@ -55,7 +56,7 @@ Use these only when the task needs them; routine work stays lightweight.
 .\scripts\get-task-budget-advice.ps1 -Tier T2 -ChangedFiles 6 -Json
 ```
 
-`get-diff-impact.sh` and `get-task-budget-advice.sh` are the supported Unix counterparts. The remaining optional 2.13 tools are Windows-first at present; use PowerShell on Windows instead of assuming Unix parity.
+On Unix, use `get-ueef-task-preflight.sh`, `write-project-memory.sh`, `get-project-memory.sh`, and `export-ueef-evidence.sh` for the bounded local equivalents, plus `get-diff-impact.sh` and `get-task-budget-advice.sh`. Unix preflight explicitly reports unsupported health rather than claiming capability or callable parity.
 ## Exact Codex installation
 
 For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:

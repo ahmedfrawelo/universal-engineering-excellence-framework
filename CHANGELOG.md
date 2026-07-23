@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.13.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.14.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.14.0 - 2026-07-23
+
+- Deepened opt-in project memory, diff-impact, and evidence export with search/summaries, textual owner/import signals, and previewable richer evidence.
+- Added bounded Unix preflight, project-memory, and evidence-export commands with selected Ubuntu CI coverage and honest unsupported-health fallback.
+- Added a static local `CALLABLE` readiness contract for explicitly registry-bound skills with an enabled provider plugin; no process, network, or session probe is performed.
+- Excluded project-local `.ueef` state from release Markdown inventory validation.
 
 ## 2.13.1 - 2026-07-23
 

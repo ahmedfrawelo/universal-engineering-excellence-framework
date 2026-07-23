@@ -25,7 +25,7 @@ for p in "$ROOT"/framework/[0-9][0-9]-*; do
   [ -f "$p/README.md" ] || { echo "Missing $p/README.md" >&2; exit 1; }
   [ -f "$p/INDEX.md" ] || { echo "Missing $p/INDEX.md" >&2; exit 1; }
 done
-count="$(find "$ROOT" -name '*.md' -type f | wc -l)"
+count="$(find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -name '*.md' -type f -print | wc -l)"
 manifest_counts=$(node -e 'const m=require(process.argv[1]); process.stdout.write(`${m.minimumMarkdownFiles || 0}\n${m.trackedMarkdownFiles || 0}\n`)' "$ROOT/release-manifest.json")
 minimum_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '1p')
 tracked_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '2p')
@@ -378,6 +378,9 @@ sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null || { echo "Uni
 sh "$ROOT/scripts/test-documentation-links.sh" "$ROOT" >/dev/null || { echo "Unix documentation link tests failed" >&2; exit 1; }
 node "$ROOT/scripts/test-framework-indexes.mjs" "$ROOT" >/dev/null || { echo "Framework index tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-project-context-map.sh" >/dev/null || { echo "Unix project context map tests failed" >&2; exit 1; }
+sh "$ROOT/scripts/test-ueef-task-preflight.sh" >/dev/null || { echo "Unix task preflight tests failed" >&2; exit 1; }
+sh "$ROOT/scripts/test-project-memory.sh" >/dev/null || { echo "Unix project memory tests failed" >&2; exit 1; }
+sh "$ROOT/scripts/test-evidence-export.sh" >/dev/null || { echo "Unix evidence export tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }
 route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }

@@ -42,7 +42,7 @@ $expectedNotes = "docs/releases/v$version.md"
 if ([string]$manifest.releaseNotes -ne $expectedNotes) { throw "Manifest releaseNotes must be $expectedNotes" }
 Assert-ContainsLiteral $expectedNotes "# UEEF $version"
 Assert-ContainsLiteral $expectedNotes "Release date: $releaseDate"
-$markdownCount = @(Get-ChildItem -LiteralPath $rootPath -Recurse -File -Filter '*.md' | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' }).Count
+$markdownCount = @(Get-ChildItem -LiteralPath $rootPath -Recurse -File -Filter '*.md' | Where-Object { $_.FullName -notmatch '[\\/](\.git|\.ueef)[\\/]' }).Count
 if ([int]$manifest.trackedMarkdownFiles -ne $markdownCount) { throw "Manifest Markdown inventory mismatch: $($manifest.trackedMarkdownFiles) != $markdownCount" }
 
 Write-Host "Release consistency tests passed for $version"

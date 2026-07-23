@@ -1,16 +1,15 @@
 # Roadmap
 
-## Current: 2.13.0
+## Current: 2.14.0
 
-UEEF now has proportional routing, optional specification artifacts, capability diagnostics, task preflight, and read-only impact analysis. The runtime remains selective: core work is light, while risk triggers add evidence and tools.
+UEEF now has proportional routing, optional specification artifacts, capability diagnostics, task preflight, deeper project-local memory, bounded impact signals, evidence previews, safe static local callable readiness, and selected Unix counterparts. The runtime remains selective: core work is light, while risk triggers add evidence and tools.
 
 ## Next delivery sequence
 
-1. Cross-platform contracts for workflow, health, profile, and assurance tools.
-2. Project-local memory and team policy profiles with explicit ownership, precedence, and retention.
-3. Evidence export, cost advisor, learning-loop review, and multi-repo context mapping.
-4. Safe refactor recipes, tested assistant adapters, and dry-run onboarding.
-5. Pilot measurements and compatibility matrix before making broader policies mandatory.
+1. Measure cross-platform workflow adoption and add only parity backed by a matching safe contract.
+2. Improve dependency-impact accuracy from textual signals only when fixtures prove value.
+3. Expand adapter support only for a concrete integration demand.
+4. Keep callable readiness local, static, and non-probing unless a separately reviewed transport contract is introduced.
 
 ## Guardrails
 

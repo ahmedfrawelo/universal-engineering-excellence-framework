@@ -10,6 +10,7 @@ $ErrorActionPreference = 'Stop'
 if (!$ConfigPath) { $ConfigPath = Join-Path $CodexHome 'config.toml' }
 $results = [Collections.Generic.List[object]]::new()
 $registry = @{}
+$pluginStates = @{}
 if (Test-Path -LiteralPath $RegistryPath -PathType Leaf) {
   $registryDocument = Get-Content -LiteralPath $RegistryPath -Raw | ConvertFrom-Json
   if ($registryDocument.schemaVersion -ne 1) { throw "Unsupported capability registry schema: $($registryDocument.schemaVersion)" }
@@ -36,7 +37,6 @@ if (Test-Path -LiteralPath $skillRoot -PathType Container) {
 if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
   $lines = Get-Content -LiteralPath $ConfigPath
   $mcpNames = [Collections.Generic.List[string]]::new()
-  $pluginStates = @{}
   foreach ($line in $lines) {
     if ($line -match '^\s*\[mcp_servers\.([^\.\]]+)\]\s*$') { if (!$mcpNames.Contains($matches[1])) { $mcpNames.Add($matches[1]) } }
     if ($line -match '^\s*\[plugins\."?([^"\]]+)"?\]\s*$') { $currentPlugin = $matches[1]; $pluginStates[$currentPlugin] = $false; continue }
@@ -58,6 +58,22 @@ if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
   foreach ($plugin in $pluginStates.Keys | Sort-Object) { Add-Capability 'plugin' $plugin $true $true ([bool]$pluginStates[$plugin]) 'UNVERIFIED' 'Plugin state read from config; capability probing is task-dependent.' }
 } else {
   Add-Capability 'runtime' 'config.toml' $false $false $false 'NOT_RUN' "Configuration file not found: $ConfigPath"
+}
+
+# CALLABLE is deliberately a narrow static-local claim. It is allowed only for
+# a registry-bound skill whose own SKILL.md exists and whose exact provider
+# plugin is explicitly enabled. No process, network, or session-selection probe
+# is performed; every other observed capability remains UNVERIFIED.
+foreach ($item in $results | Where-Object { $_.type -eq 'skill' }) {
+  $declaration = $registry["skill|$($item.name)"]
+  $evidence = if ($declaration) { $declaration.callableEvidence } else { $null }
+  if ($evidence -and $evidence.kind -eq 'local-skill-file-and-enabled-plugin' -and $evidence.pluginId) {
+    $pluginId = [string]$evidence.pluginId
+    if (!$item.installed) { $item.callable='NOT_RUN';$item.health='MISSING_DEPENDENCY';$item.detail='Callable evidence rejected: the declared SKILL.md is missing.' }
+    elseif (!$pluginStates.ContainsKey($pluginId)) { $item.callable='NOT_RUN';$item.health='NOT_CONFIGURED';$item.detail="Callable evidence not configured: provider plugin $pluginId is not declared." }
+    elseif (!$pluginStates[$pluginId]) { $item.callable='NOT_RUN';$item.health='DISABLED';$item.detail="Callable evidence rejected: provider plugin $pluginId is disabled." }
+    else { $item.callable='PASS';$item.health='CALLABLE';$item.detail="Static callable evidence: SKILL.md exists and provider plugin $pluginId is enabled; no process, network, or session probe was run." }
+  }
 }
 
 # Registry entries that are not observed are still emitted so a missing required
