@@ -12,8 +12,8 @@ It does not replace Codex, install untrusted tools automatically, collect user c
 
 ## Current baseline (2026-07-23)
 
-- UEEF runtime version `2.11.0` is `ACTIVE` and has no drift.
-- The source is clean at `2155799` and contains 62 framework packs and 78 scripts.
+- UEEF runtime version `2.13.0` is `ACTIVE` and has no drift after synchronization.
+- The source includes 62 framework packs, task preflight, governed capability registry data, specification clarification/convergence artifacts, and diff impact analysis.
 - Core and AI environment profiles are `READY`.
 - The full audit passes, including runtime hardening.
 - Pack 60 provides UEEF's Spec-Driven Development workflow. It is compatible in intent with Spec Kit, but is not a bundled copy of the upstream project.

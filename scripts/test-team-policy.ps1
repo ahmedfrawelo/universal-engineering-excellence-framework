@@ -1,0 +1,1 @@
+$ErrorActionPreference='Stop';$script=Join-Path $PSScriptRoot 'resolve-team-policy.ps1';$r=(& $script -Profile regulated -Json|Out-String)|ConvertFrom-Json;if($r.precedence -join ',' -ne 'regulated,enterprise,startup,solo' -or $r.policy.independentReview -ne 'required' -or $r.automaticMutation){throw 'Team policy resolution failed.'};Write-Host 'Team policy tests passed'

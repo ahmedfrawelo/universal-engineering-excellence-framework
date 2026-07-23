@@ -1,28 +1,19 @@
 # Roadmap
 
-## 1.1
+## Current: 2.13.0
 
-- Delivered theme architecture, responsive-first standards, unified interactions, application models, design-system reuse, security hardening, and measured performance in 1.1.0.
+UEEF now has proportional routing, optional specification artifacts, capability diagnostics, task preflight, and read-only impact analysis. The runtime remains selective: core work is light, while risk triggers add evidence and tools.
 
-## 1.2
+## Next delivery sequence
 
-- Delivered design governance, token enforcement, visual language, component registry, pattern library, and no-reinvention controls in 1.2.0.
+1. Cross-platform contracts for workflow, health, profile, and assurance tools.
+2. Project-local memory and team policy profiles with explicit ownership, precedence, and retention.
+3. Evidence export, cost advisor, learning-loop review, and multi-repo context mapping.
+4. Safe refactor recipes, tested assistant adapters, and dry-run onboarding.
+5. Pilot measurements and compatibility matrix before making broader policies mandatory.
 
-## 1.3
+## Guardrails
 
-- Delivered Engineering Guardian, zero-regression protection, regression monitors, self-criticism, health scoring, and final guardian gate in 1.3.0.
-
-## 1.4
-
-- Delivered profile-based environment bootstrap and dependency readiness gating in 1.4.0.
-
-## 1.5
-
-- Add machine-readable metadata for profile selection and compatibility.
-- Add executable overlay contract reference implementations for supported frontend packs.
-- Expand automated link, schema, semantic duplication, and hardcoded-value validation.
-
-## 2.0
-
-- Expand AI intelligence, memory, and evaluation systems.
-- Add profile-based enterprise governance.
+- No automatic secret collection, remote installation, or user-configuration overwrite.
+- New tools must have deterministic fixtures, rollback/preview behavior where they write, and a documented fallback.
+- Compatibility claims require a tested adapter, not a generic installer alone.

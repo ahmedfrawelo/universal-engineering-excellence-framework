@@ -38,6 +38,12 @@ $requiredAcceptance = @(
   "scripts/test-ueef-task-preflight.ps1",
   "scripts/get-diff-impact.ps1",
   "scripts/test-diff-impact.ps1",
+  "scripts/write-project-memory.ps1",
+  "scripts/get-project-memory.ps1",
+  "scripts/test-project-memory.ps1",
+  "scripts/resolve-team-policy.ps1",
+  "scripts/test-team-policy.ps1",
+  "config/team-policy-profiles.json",
   "scripts/measure-assurance.ps1",
   "scripts/test-assurance-performance.ps1",
   "config/assurance-budgets.json",
@@ -404,6 +410,8 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-diff-impact.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-project-memory.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-team-policy.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-assurance-performance.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
