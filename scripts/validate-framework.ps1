@@ -30,6 +30,8 @@ $requiredAcceptance = @(
   "scripts/test-spec-workflow.ps1",
   "scripts/get-capability-health.ps1",
   "scripts/test-capability-health.ps1",
+  "scripts/get-ueef-health.ps1",
+  "scripts/test-ueef-health.ps1",
   "scripts/select-capability-profile.ps1",
   "scripts/test-capability-profile.ps1",
   "scripts/measure-assurance.ps1",

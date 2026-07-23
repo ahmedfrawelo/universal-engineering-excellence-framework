@@ -1,7 +1,8 @@
 param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
   [string]$GlobalPath = "",
-  [switch]$SkipRuntimeDrift
+  [switch]$SkipRuntimeDrift,
+  [switch]$Json
 )
 $ErrorActionPreference = "Stop"
 if ([string]::IsNullOrWhiteSpace($GlobalPath)) {
@@ -106,6 +107,31 @@ if ($globalExists) {
 $globalLoaderStatus = if (!$globalExists) { "UNKNOWN" } elseif ($loaderCandidates.Count -gt 0) { "PASS" } else { "FAIL" }
 $installed = if ($repoExists -and $globalExists -and $loaderCandidates.Count -gt 0) { "YES" } else { "NO" }
 $overall = if ($installed -eq "YES" -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass -and $agentsPass -and $activeStatePass -and $oldHomeAbsent -and $runtimeDriftPass) { "ACTIVE" } else { "INACTIVE" }
+
+$statusResult = [ordered]@{
+  schemaVersion = 1
+  generatedAt = (Get-Date).ToUniversalTime().ToString('o')
+  version = $version
+  installed = $installed
+  repositoryPath = '<runtime-root>'
+  globalPath = '<global-root>'
+  overall = $overall
+  checks = [ordered]@{
+    coreFiles = (PassFail $corePass)
+    masterLoader = (PassFail $masterLoaderPass)
+    masterIndex = (PassFail $masterIndexPass)
+    activationProof = (PassFail $activationProofPass)
+    activationGate = (PassFail $activationGatePass)
+    qualityGates = (PassFail $qualityGatesPass)
+    globalLoader = $globalLoaderStatus
+    agents = (PassFail $agentsPass)
+    agentRouting = (PassFail $agentRoutingPass)
+    activeState = (PassFail $activeStatePass)
+    runtimeDrift = $runtimeDriftStatus
+    validationScript = (PassFail $validationPass)
+  }
+}
+if ($Json) { $statusResult | ConvertTo-Json -Depth 5; exit 0 }
 
 Write-Output "UEEF Status"
 Write-Output "-----------"

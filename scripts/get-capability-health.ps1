@@ -70,7 +70,7 @@ foreach ($entry in $registry.Values) {
   }
 }
 
-if ($Json) { $results | ConvertTo-Json -Depth 4 } else {
+if ($Json) { ConvertTo-Json -InputObject $results.ToArray() -Depth 4 } else {
   $results | Sort-Object type,name | Format-Table type,name,configured,installed,enabled,callable,health -AutoSize
   $counts = $results | Group-Object health | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Count)" }
   Write-Host "Capability health: $($counts -join '; ')"

@@ -10,6 +10,7 @@ done
 [ -f "$ROOT/scripts/new-spec-workflow.ps1" ] || { echo "Missing spec workflow generator" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-spec-workflow.ps1" ] || { echo "Missing spec workflow validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-capability-health.ps1" ] || { echo "Missing capability health doctor" >&2; exit 1; }
+[ -f "$ROOT/scripts/get-ueef-health.ps1" ] || { echo "Missing unified UEEF health report" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-capability-profile.ps1" ] || { echo "Missing capability profile selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/measure-assurance.ps1" ] || { echo "Missing assurance measurement script" >&2; exit 1; }
 [ -f "$ROOT/config/assurance-budgets.json" ] || { echo "Missing assurance budget configuration" >&2; exit 1; }

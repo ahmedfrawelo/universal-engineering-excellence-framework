@@ -22,6 +22,14 @@ function Test-UeefOwnedRelativePath {
   return $script:UeefOwnedDirectories -ccontains $first
 }
 
+function Test-UeefIgnoredReleaseRelativePath {
+  param([Parameter(Mandatory)][string]$RelativePath)
+  $normalized = $RelativePath.Replace('\','/').TrimStart('/')
+  $segments = $normalized.Split('/')
+  return $normalized -like '*.tmp' -or $normalized -like '*.log' -or
+    ($segments | Where-Object { $_ -in @('.ueef-local','node_modules','dist','build') }).Count -gt 0
+}
+
 function Assert-UeefReleasePathHasNoReparsePoint {
   param(
     [Parameter(Mandatory)][string]$RootPath,
@@ -63,6 +71,7 @@ function Get-UeefReleaseRelativeFiles {
   foreach ($relative in $relativeFiles | Sort-Object -Unique) {
     $normalized = ([string]$relative).Replace('\','/').TrimStart('/')
     if (!$normalized -or $normalized -eq 'UEEF-LOADER.md' -or !(Test-UeefOwnedRelativePath $normalized)) { continue }
+    if (Test-UeefIgnoredReleaseRelativePath $normalized) { continue }
     if ($normalized.Split('/') -contains '..') { throw "Unsafe release path: $normalized" }
     if (Test-UeefSensitiveRelativePath $normalized) { throw "Sensitive file cannot enter the runtime: $normalized" }
     Assert-UeefReleasePathHasNoReparsePoint -RootPath $root -RelativePath $normalized
