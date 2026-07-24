@@ -12,8 +12,8 @@ $runtime = Join-Path $resolvedCodexHome "ueef\$Agent"
 $worker = Join-Path $runtime 'scripts\auto-update.ps1'
 if (!(Test-Path -LiteralPath $worker)) { throw "Auto-update worker is missing: $worker" }
 $name = "UEEF-$Agent-AutoUpdate"
-$taskAction = "powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$worker`""
-& schtasks.exe /Create /TN $name /TR $taskAction /SC MINUTE /MO $IntervalMinutes /F | Out-Null
-if ($LASTEXITCODE -ne 0) { throw 'Unable to register the automatic update task.' }
-if (!$SkipImmediateRun) { & schtasks.exe /Run /TN $name | Out-Null }
+$taskAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$worker`""
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes) -RepetitionDuration (New-TimeSpan -Days 9999)
+Register-ScheduledTask -TaskName $name -Action $taskAction -Trigger $trigger -Description 'Keeps the UEEF Codex runtime synchronized with origin/main.' -Force | Out-Null
+if (!$SkipImmediateRun) { Start-ScheduledTask -TaskName $name }
 Write-Host "UEEF automatic updates enabled every $IntervalMinutes minutes: $name"
