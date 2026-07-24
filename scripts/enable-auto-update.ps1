@@ -7,8 +7,8 @@ param(
 $ErrorActionPreference = 'Stop'
 if ($IntervalMinutes -lt 15 -or $IntervalMinutes -gt 1440) { throw 'IntervalMinutes must be between 15 and 1440.' }
 if ($Agent -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$') { throw 'Unsafe agent name.' }
-$home = (Resolve-Path -LiteralPath $CodexHome).Path
-$runtime = Join-Path $home "ueef\$Agent"
+$resolvedCodexHome = (Resolve-Path -LiteralPath $CodexHome).Path
+$runtime = Join-Path $resolvedCodexHome "ueef\$Agent"
 $worker = Join-Path $runtime 'scripts\auto-update.ps1'
 if (!(Test-Path -LiteralPath $worker)) { throw "Auto-update worker is missing: $worker" }
 $name = "UEEF-$Agent-AutoUpdate"
