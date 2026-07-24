@@ -12,22 +12,25 @@ jobs:
   windows:
     name: Windows validation
     runs-on: windows-latest
-    env:
-      CODEX_HOME: ${{ runner.temp }}\codex-home
     steps:
       - uses: actions/checkout@v4
       - name: Framework validation
         shell: pwsh
-        run: ./scripts/validate-framework.ps1
+        run: |
+          $env:CODEX_HOME = Join-Path $env:RUNNER_TEMP 'codex-home'
+          ./scripts/validate-framework.ps1
       - name: Capability and spec workflow tests
         shell: pwsh
         run: |
+          $env:CODEX_HOME = Join-Path $env:RUNNER_TEMP 'codex-home'
           ./scripts/test-spec-workflow.ps1
           ./scripts/test-capability-health.ps1
           ./scripts/test-capability-profile.ps1
       - name: Quick assurance within budget
         shell: pwsh
-        run: ./scripts/measure-assurance.ps1 -Mode Quick -Enforce
+        run: |
+          $env:CODEX_HOME = Join-Path $env:RUNNER_TEMP 'codex-home'
+          ./scripts/measure-assurance.ps1 -Mode Quick -Enforce
 
   unix:
     name: Unix validation
