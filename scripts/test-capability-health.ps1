@@ -31,6 +31,13 @@ url = "https://example.test/mcp"
   '{"schemaVersion":1,"capabilities":[{"type":"skill","id":"callable-skill","required":false,"source":"fixture","versionOrPin":"fixture","installEvidence":"skills/callable-skill/SKILL.md","fallback":"none","consumerPacks":[],"callableEvidence":{"kind":"local-skill-file-and-enabled-plugin","pluginId":"callable-provider"}}]}' | Set-Content -LiteralPath $registryPath -Encoding utf8
   $doctor = Join-Path $root 'scripts\get-capability-health.ps1'
   $items = & $doctor -CodexHome $testCodexHome -RegistryPath $registryPath -Json | ConvertFrom-Json
+  $previousCodexHome = $env:CODEX_HOME
+  try {
+    $env:CODEX_HOME = $testCodexHome
+    $defaultItems = & $doctor -RegistryPath $registryPath -Json | ConvertFrom-Json
+  } finally {
+    $env:CODEX_HOME = $previousCodexHome
+  }
   $local = $items | Where-Object { $_.type -eq 'mcp' -and $_.name -eq 'local' }
   $remote = $items | Where-Object { $_.type -eq 'mcp' -and $_.name -eq 'remote' }
   $disabled = $items | Where-Object { $_.type -eq 'plugin' -and $_.name -eq 'disabled-plugin' }
@@ -41,6 +48,7 @@ url = "https://example.test/mcp"
   if ($disabled.health -ne 'DISABLED') { throw 'Disabled plugin state was misclassified.' }
   if (!$skill.installed -or $skill.callable -ne 'UNVERIFIED') { throw 'Skill state was misclassified.' }
   if ($callable.callable -ne 'PASS' -or $callable.health -ne 'CALLABLE' -or $callable.detail -notmatch 'no process, network, or session probe') { throw 'Static callable contract failed.' }
+  if (($defaultItems | Where-Object { $_.type -eq 'mcp' -and $_.name -eq 'local' }).health -ne 'CONFIGURED_UNVERIFIED') { throw 'Capability health default Codex home did not honor the portable CODEX_HOME environment.' }
   Write-Host 'Capability health tests passed'
 } finally {
   if (Test-Path -LiteralPath $sandbox) { Remove-Item -LiteralPath $sandbox -Recurse -Force }

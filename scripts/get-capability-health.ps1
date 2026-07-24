@@ -1,12 +1,16 @@
 [CmdletBinding()]
 param(
-  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { 'E:\shared folder\codex-home' }),
+  [string]$CodexHome = '',
   [string]$ConfigPath,
-  [string]$RegistryPath = (Join-Path (Split-Path -Parent $PSScriptRoot) 'config\capability-registry.json'),
+  [string]$RegistryPath = '',
   [switch]$Json
 )
 
 $ErrorActionPreference = 'Stop'
+$scriptRoot = Split-Path -Parent $PSCommandPath
+. (Join-Path $scriptRoot 'resolve-codex-home.ps1')
+$CodexHome = Resolve-CodexHome -Override $CodexHome
+if ([string]::IsNullOrWhiteSpace($RegistryPath)) { $RegistryPath = Join-Path (Split-Path -Parent $scriptRoot) 'config\capability-registry.json' }
 if (!$ConfigPath) { $ConfigPath = Join-Path $CodexHome 'config.toml' }
 $results = [Collections.Generic.List[object]]::new()
 $registry = @{}

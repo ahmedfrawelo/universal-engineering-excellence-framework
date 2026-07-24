@@ -1,17 +1,24 @@
 [CmdletBinding()]
 param(
-  [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
+  [string]$RepositoryPath = '',
   [string]$GlobalPath = '',
-  [string]$CodexHome = $(if ($env:CODEX_HOME) { $env:CODEX_HOME } elseif ((Split-Path -Leaf $RepositoryPath) -eq 'codex' -and (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq 'ueef') { Split-Path -Parent (Split-Path -Parent $RepositoryPath) } else { 'E:\shared folder\codex-home' }),
+  [string]$CodexHome = '',
   [string]$ConfigPath,
-  [string]$RegistryPath = (Join-Path (Split-Path -Parent $PSScriptRoot) 'config\capability-registry.json'),
+  [string]$RegistryPath = '',
   [switch]$IncludeRuntimeDrift,
   [switch]$Json
 )
 
 $ErrorActionPreference = 'Stop'
-$statusScript = Join-Path $PSScriptRoot 'ueef-status.ps1'
-$capabilityScript = Join-Path $PSScriptRoot 'get-capability-health.ps1'
+$scriptRoot = Split-Path -Parent $PSCommandPath
+. (Join-Path $scriptRoot 'resolve-codex-home.ps1')
+if ([string]::IsNullOrWhiteSpace($RepositoryPath)) { $RepositoryPath = Split-Path -Parent $scriptRoot }
+if ([string]::IsNullOrWhiteSpace($CodexHome)) {
+  $CodexHome = if ((Split-Path -Leaf $RepositoryPath) -eq 'codex' -and (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq 'ueef') { Split-Path -Parent (Split-Path -Parent $RepositoryPath) } else { Resolve-CodexHome }
+}
+if ([string]::IsNullOrWhiteSpace($RegistryPath)) { $RegistryPath = Join-Path (Split-Path -Parent $scriptRoot) 'config\capability-registry.json' }
+$statusScript = Join-Path $scriptRoot 'ueef-status.ps1'
+$capabilityScript = Join-Path $scriptRoot 'get-capability-health.ps1'
 $statusArgs = @{ RepositoryPath=$RepositoryPath; GlobalPath=$GlobalPath; Json=$true; SkipRuntimeDrift=(-not $IncludeRuntimeDrift) }
 $runtime = (& $statusScript @statusArgs | Out-String) | ConvertFrom-Json
 $capabilityArgs = @{ CodexHome=$CodexHome; RegistryPath=$RegistryPath; Json=$true }

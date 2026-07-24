@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.17.1.
+UEEF Enterprise Edition version: 2.17.2.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -93,4 +93,5 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.16.1: reconciled all Pack 58 routing contracts and generated runtime guidance with the intent-first policy.
 - 2.16.2: removed the final master-loader hard reasoning cap and added release-documentation consistency coverage.
 - 2.17.0: added Unix intent-fidelity CI, a compact precedence-first generated runtime, explicit cross-platform browser fallback boundaries, behavioral route fixtures, and an opt-in runtime doctor.
+- 2.17.2: fixed Windows CI Codex-home portability, PowerShell script-root default evaluation, and Unix preflight executable permissions.
 - 2.17.1: Codex-safety hardening for machine-default CODEX_HOME, opt-in Open Design, inherited models, shallow bootstrap, and Codex-safe browser/AGENTS policy.

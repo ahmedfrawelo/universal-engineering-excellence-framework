@@ -2,7 +2,12 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.17.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.17.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.17.2 - 2026-07-24
+
+- Fixed CI portability: Codex-home resolution no longer assumes a local `E:` drive, and direct PowerShell invocation resolves script-relative defaults safely.
+- Restored the executable Git mode for the Unix preflight script and set an isolated `CODEX_HOME` for the Windows GitHub Actions job.
 
 ## 2.17.1 - 2026-07-23
 

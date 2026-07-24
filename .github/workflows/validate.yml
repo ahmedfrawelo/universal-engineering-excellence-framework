@@ -12,6 +12,8 @@ jobs:
   windows:
     name: Windows validation
     runs-on: windows-latest
+    env:
+      CODEX_HOME: ${{ runner.temp }}\codex-home
     steps:
       - uses: actions/checkout@v4
       - name: Framework validation
