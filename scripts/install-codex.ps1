@@ -2,7 +2,8 @@ param(
   [string]$CodexHome = $env:CODEX_HOME,
   [string]$Agent = "codex",
   [switch]$Force,
-  [switch]$NoBackup
+  [switch]$NoBackup,
+  [switch]$SkipAutoUpdate
 )
 $ErrorActionPreference = "Stop"
 if ([string]::IsNullOrWhiteSpace($CodexHome)) {
@@ -38,6 +39,7 @@ if (Test-Path -LiteralPath $Target) {
   }
 }
 & (Join-Path $SourceRoot "scripts\sync-runtime.ps1") -SourcePath $SourceRoot -CodexHome $resolvedCodexHome -Agent $Agent
+if (!$SkipAutoUpdate) { & (Join-Path $SourceRoot "scripts\enable-auto-update.ps1") -CodexHome $resolvedCodexHome -Agent $Agent }
 Write-Host "UEEF Codex runtime installed exactly from repository source."
 Write-Host "Runtime: $Target"
 Write-Host "Codex AGENTS: $(Join-Path $CodexHome 'AGENTS.md')"

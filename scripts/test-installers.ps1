@@ -29,7 +29,7 @@ for path in paths:
 try {
   $codexHome = Join-Path $sandbox 'codex-home'
   Initialize-FakeSkillInstaller $codexHome
-  & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -Force -NoBackup | Out-Null
+  & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -Force -NoBackup -SkipAutoUpdate | Out-Null
   Assert-Installed (Join-Path $codexHome 'ueef') 'codex-test'
   foreach ($skill in @('design-brief','frontend-design')) {
     if (Test-Path -LiteralPath (Join-Path $codexHome "skills\$skill\SKILL.md")) { throw "Codex installer unexpectedly installed opt-in skill $skill" }

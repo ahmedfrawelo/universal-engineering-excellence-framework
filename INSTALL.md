@@ -16,6 +16,8 @@ The current release is 2.17.3.
 
 The Codex installer installs the Open Design `design-brief` and `frontend-design` skills only when explicitly requested with `-InstallOpenDesignSkills`. They are optional runtime specialists; `ui-ux-pro-max` and `impeccable` remain the required UI/UX baseline.
 
+On Windows, Codex installation also registers a per-user background task that checks `origin/main` every 15 minutes and synchronizes the runtime when a newer release is available. Use `-SkipAutoUpdate` only when this behavior is not wanted.
+
 ## Cursor
 
 ```powershell
