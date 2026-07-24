@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.17.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.17.3`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.17.3 - 2026-07-24
+
+- Fixed diff-impact behavior outside a Git repository and verified the `UNAVAILABLE` result explicitly.
+- Corrected opt-in Open Design installer coverage, empty-AGENTS runtime synchronization, and project context-map test discovery.
+- Added the installer suite to the Windows CI validation workflow.
 
 ## 2.17.2 - 2026-07-24
 
