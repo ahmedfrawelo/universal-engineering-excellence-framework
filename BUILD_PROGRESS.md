@@ -1,6 +1,6 @@
 # Build Progress
 
-Current release: 2.18.0 (2026-07-24)
+Current release: 2.18.1 (2026-07-24)
 
 ## Delivered baseline
 
@@ -12,7 +12,7 @@ Current release: 2.18.0 (2026-07-24)
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.18.0.
+- Source validation and nested deterministic tests pass for 2.18.1.
 - Active Codex runtime is synchronized and reports `Overall: ACTIVE`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 
