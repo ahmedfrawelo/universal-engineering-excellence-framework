@@ -305,7 +305,7 @@ if ($InstallOpenDesignSkills -and !$SkipOpenDesignSkills) {
   & (Join-Path $runtimePath 'scripts\install-open-design-skills.ps1') -CodexHome $CodexHome | Out-Null
 }
 
-& (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -RuntimeRoot $resolvedRuntimeRoot -Agent $Agent -RequireAgents -SourceRepositoryPath $SourcePath -SourceCommit $sourceCommit | Out-Null
+& (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -RuntimeRoot $resolvedRuntimeRoot -Agent $Agent -RequireAgents -SourceRepositoryPath $resolvedSource -SourceCommit $sourceCommit | Out-Null
 if ($TestFailAfterState) { throw 'Injected test failure after active-state write.' }
 if (Test-Path -LiteralPath $rollbackPath) { Remove-Item -LiteralPath $rollbackPath -Recurse -Force }
 $runtimeSwapped = $false
