@@ -32,7 +32,11 @@ try {
   & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -Force -NoBackup | Out-Null
   Assert-Installed (Join-Path $codexHome 'ueef') 'codex-test'
   foreach ($skill in @('design-brief','frontend-design')) {
-    if (!(Test-Path -LiteralPath (Join-Path $codexHome "skills\$skill\SKILL.md"))) { throw "Codex installer did not install $skill" }
+    if (Test-Path -LiteralPath (Join-Path $codexHome "skills\$skill\SKILL.md")) { throw "Codex installer unexpectedly installed opt-in skill $skill" }
+  }
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex-test' -InstallOpenDesignSkills | Out-Null
+  foreach ($skill in @('design-brief','frontend-design')) {
+    if (!(Test-Path -LiteralPath (Join-Path $codexHome "skills\$skill\SKILL.md"))) { throw "Explicit Open Design installation did not install $skill" }
   }
 
   $installRoot = Join-Path $sandbox 'other-runtimes'
@@ -55,8 +59,13 @@ try {
     $unixRoot = (Join-Path $sandbox 'unix-runtimes').Replace('\','/')
     $env:UEEF_INSTALL_ROOT = $unixRoot
     $unixInstaller = (Join-Path $root 'scripts\install-generic.sh').Replace('\','/')
-    $unixOutput = @(& $bashPath $unixInstaller --agent unix-test --force --no-backup 2>&1)
-    if ($LASTEXITCODE -ne 0) { throw "Unix generic installer failed: $($unixOutput -join ' ')" }
+    $previousErrorAction = $ErrorActionPreference
+    try {
+      $ErrorActionPreference = 'Continue'
+      $unixOutput = @(& $bashPath $unixInstaller --agent unix-test --force --no-backup 2>&1)
+      $unixInstallExit = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $previousErrorAction }
+    if ($unixInstallExit -ne 0) { throw "Unix generic installer failed: $($unixOutput -join ' ')" }
     Assert-Installed (Join-Path $sandbox 'unix-runtimes') 'unix-test'
     $unixStatePath = Join-Path $sandbox 'unix-runtimes\UEEF-ACTIVE.json'
     $unixStateBeforeRollback = Get-Content -LiteralPath $unixStatePath -Raw

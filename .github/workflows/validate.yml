@@ -19,10 +19,11 @@ jobs:
         run: |
           $env:CODEX_HOME = Join-Path $env:RUNNER_TEMP 'codex-home'
           ./scripts/validate-framework.ps1
-      - name: Capability and spec workflow tests
+      - name: Capability, installer, and spec workflow tests
         shell: pwsh
         run: |
           $env:CODEX_HOME = Join-Path $env:RUNNER_TEMP 'codex-home'
+          ./scripts/test-installers.ps1
           ./scripts/test-spec-workflow.ps1
           ./scripts/test-capability-health.ps1
           ./scripts/test-capability-profile.ps1

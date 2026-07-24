@@ -292,7 +292,7 @@ if (Test-Path -LiteralPath $agents -PathType Leaf) {
 }
 if ($existingAgents -match '(?s)<!-- UEEF-MANAGED:START -->.*?<!-- UEEF-MANAGED:END -->') {
   $nextAgents = [regex]::Replace($existingAgents, '(?s)<!-- UEEF-MANAGED:START -->.*?<!-- UEEF-MANAGED:END -->', [System.Text.RegularExpressions.MatchEvaluator]{ param($match) $managedBlock }, 1)
-} elseif ($existingAgents.TrimStart().StartsWith('# Codex Global Runtime: UEEF', [StringComparison]::Ordinal)) {
+} elseif (![string]::IsNullOrWhiteSpace($existingAgents) -and $existingAgents.TrimStart().StartsWith('# Codex Global Runtime: UEEF', [StringComparison]::Ordinal)) {
   $nextAgents = $managedBlock
 } elseif ([string]::IsNullOrWhiteSpace($existingAgents)) {
   $nextAgents = $managedBlock
