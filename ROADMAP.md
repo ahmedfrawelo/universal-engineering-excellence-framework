@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.19.0
+## Current: 2.19.1
 
-UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, and selected Unix counterparts. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 

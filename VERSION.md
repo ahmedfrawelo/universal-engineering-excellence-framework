@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.19.0.
+UEEF Enterprise Edition version: 2.19.1.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -78,6 +78,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.10.0: added project modernization, safe refactoring, technology currency, global live refresh, application lazy loading, performance hardening, and false-green assurance prevention.
 - 2.10.1: automatic same-tab browser control-channel failover with no manual acknowledgement requirement.
 - 2.10.2: complete repository audit with generated indexes, exact documentation inventory, safe cleanup, transactional release-only installers, structured active state, and Windows/Unix drift parity.
+- 2.19.1: added the performance forensics audit workflow for evidence-first slow table, grid, API, SQL, cache, frontend render, and end-to-end bottleneck investigations.
 - 2.10.3: tracked-file allowlist parity, full symlink/reparse traversal rejection, transaction-wide state and AGENTS rollback, and one shared runtime-drift policy.
 - 2.11.0: automatic, pinned Open Design skill installation for Codex; compact generated runtime guidance; scoped browser-tool routing; and concise continuous-assurance reporting.
 - 2.12.0: executable optional spec workflows, capability health diagnostics, proportional tool selection, and runtime release-policy coverage for capability contracts.
@@ -95,6 +96,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.17.0: added Unix intent-fidelity CI, a compact precedence-first generated runtime, explicit cross-platform browser fallback boundaries, behavioral route fixtures, and an opt-in runtime doctor.
 - 2.18.1: fixed automatic updates to retain the absolute source repository path.
 - 2.19.0: unified task-text classification across preflight and quality gates, added behavioral routing fixtures, made source/runtime activation state explicit, fixed relative-path health diagnostics, and expanded the architecture contract.
+- 2.19.1: performance forensics workflow for evidence-first slow table, grid, API, SQL, cache, frontend render, and end-to-end bottleneck audits.
 - 2.18.0: added automatic per-user Codex runtime updates on Windows with a fully hidden background launcher.
 - 2.17.3: fixed installer and runtime validation edge cases, including Git-unavailable diff-impact reporting, opt-in Open Design installation coverage, runtime sync with an empty AGENTS file, and context-map test discovery.
 - 2.17.2: fixed Windows CI Codex-home portability, PowerShell script-root default evaluation, and Unix preflight executable permissions.
