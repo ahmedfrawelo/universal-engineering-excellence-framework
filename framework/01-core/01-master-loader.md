@@ -99,6 +99,8 @@ Select pack 47 modules `36` through `40` plus pack 45 application-model and tena
 
 Select pack 47 modules `41` through `46` and the relevant frontend, backend, API, database, React, Angular, .NET, SQL Server, or cloud technology module.
 
+For slow table, slow grid, slow dashboard, slow API, collection-query latency, cache-versus-query, SQL performance investigation, frontend render performance, or explicit performance audit tasks, select `framework/62-performance-forensics/`. Use quick triage for narrow diagnosis and the full forensic report template when the user asks for an audit, evidence-backed plan, or end-to-end bottleneck analysis. Audit mode is report-only until the user explicitly approves implementation.
+
 All applicable UI work includes `framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md` and `framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md`.
 
 ## Design Governance Tasks
@@ -171,6 +173,8 @@ For any UI audit, redesign, new visual system, or recommendation about fonts, co
 For UEEF audits, releases, installer/runtime changes, security hardening, or broad quality work, select `framework/55-continuous-assurance/` and run the repository audit before and after edits.
 
 For any table, data grid, collection list, dashboard data view, backend collection query, aggregate, export, or bulk data feature, select `framework/56-data-grid-platform/` and apply its frontend, backend, performance, security, and data-query contracts.
+
+If that table, grid, collection, dashboard, query, or export is slow or being performance-audited, also select `framework/62-performance-forensics/` and keep the work evidence-first.
 
 For any mutable remote state, live refresh, collaboration, notifications, counters, workflow state, background-job progress, or auto-refresh behavior, select `framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md`. Add `framework/56-data-grid-platform/12-live-refresh-hardening.md` when query, collection, table, list, dashboard, or data-view semantics apply. Full page reload is not a normal synchronization strategy.
 

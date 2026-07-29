@@ -803,3 +803,16 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`61-project-modernization/08-verification-rollout-and-rollback.md`](61-project-modernization/08-verification-rollout-and-rollback.md)
 - [`61-project-modernization/INDEX.md`](61-project-modernization/INDEX.md)
 - [`61-project-modernization/README.md`](61-project-modernization/README.md)
+
+## 62-performance-forensics
+
+- [`62-performance-forensics/00-performance-forensics-system.md`](62-performance-forensics/00-performance-forensics-system.md)
+- [`62-performance-forensics/01-scope-and-flow-tracing.md`](62-performance-forensics/01-scope-and-flow-tracing.md)
+- [`62-performance-forensics/02-measurement-and-benchmarking.md`](62-performance-forensics/02-measurement-and-benchmarking.md)
+- [`62-performance-forensics/03-checklist-domains.md`](62-performance-forensics/03-checklist-domains.md)
+- [`62-performance-forensics/04-version-runtime-and-hidden-work.md`](62-performance-forensics/04-version-runtime-and-hidden-work.md)
+- [`62-performance-forensics/05-correctness-cost-and-approval.md`](62-performance-forensics/05-correctness-cost-and-approval.md)
+- [`62-performance-forensics/06-report-template.md`](62-performance-forensics/06-report-template.md)
+- [`62-performance-forensics/07-approved-implementation-and-regression.md`](62-performance-forensics/07-approved-implementation-and-regression.md)
+- [`62-performance-forensics/INDEX.md`](62-performance-forensics/INDEX.md)
+- [`62-performance-forensics/README.md`](62-performance-forensics/README.md)

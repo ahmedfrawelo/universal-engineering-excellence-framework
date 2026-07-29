@@ -26,6 +26,7 @@ File, folder, and size discipline:
 
 Backend and frontend performance:
 - Backend endpoints that serve UI data must consider server-side pagination, filtering, sorting, aggregation, projection, caching and invalidation, cancellation, concurrency, serialization cost, authorization cost, rate limits, and burst behavior.
+- Slow table, grid, dashboard, API, or collection-query work must start with performance forensics when the user asks for diagnosis, audit, evidence, or a plan. Audit mode is report-only: do not edit code, add indexes, add caches, create migrations, install packages, or change infrastructure until explicit approval.
 - Frontend routes must consider SSR, SSG, streaming, route-level pre-rendering, or server components when SEO, public content, first paint, slow client boot, or first-view data volume makes server rendering useful.
 - Do not force SSR for authenticated operational screens or stacks that intentionally use client rendering; record the reason when SSR is considered and skipped.
 - Prevent over-rendering end to end: frontend state, selectors, subscriptions, effects, memoization, virtualization, and component boundaries; backend over-fetching, over-serialization, repeated queries, noisy realtime broadcasts, broad cache invalidation, and unbounded recomputation.

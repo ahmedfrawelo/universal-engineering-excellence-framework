@@ -215,6 +215,7 @@ $requiredAcceptance = @(
   "scripts/validate-goal-lifecycle.sh",
   "scripts/test-goal-lifecycle.ps1",
   "scripts/test-goal-lifecycle.sh",
+  "scripts/test-performance-forensics.ps1",
   "scripts/test-runtime-hardening.ps1",
   "scripts/test-environment-bootstrap.ps1",
   "scripts/test-installers.ps1",
@@ -456,6 +457,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-intent-fidelity-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-performance-forensics.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
