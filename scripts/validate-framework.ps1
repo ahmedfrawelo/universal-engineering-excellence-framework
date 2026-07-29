@@ -226,6 +226,7 @@ $requiredAcceptance = @(
   "scripts/test-framework-indexes.mjs",
   "scripts/test-release-consistency.ps1",
   "scripts/test-release-consistency.sh",
+  "scripts/publish-github-release.ps1",
   "scripts/test-project-context-map.ps1",
   "scripts/test-project-context-map.sh",
   "scripts/project-technology-inventory.mjs",
@@ -485,6 +486,15 @@ foreach ($asset in $manifest.assets.psobject.Properties) {
   if (!(Test-Path -LiteralPath (Join-Path $Root ([string]$asset.Value)))) { throw "Manifest asset does not exist: $($asset.Name)=$($asset.Value)" }
 }
 foreach ($pack in $manifest.expansionPacks) { if (!(Test-Path -LiteralPath (Join-Path $Root $pack))) { throw "Manifest expansion pack does not exist: $pack" } }
+$publishReleaseText = Get-Content -LiteralPath (Join-Path $Root 'scripts/publish-github-release.ps1') -Raw
+foreach ($term in @('git-credential-manager','gh release create','Release notes file is empty','Never print tokens')) {
+  if ($term -eq 'Never print tokens') { continue }
+  if ($publishReleaseText -notmatch [regex]::Escape($term)) { throw "GitHub release publisher missing required behavior: $term" }
+}
+$releaseIntegrityText = Get-Content -LiteralPath (Join-Path $Root 'framework/55-continuous-assurance/04-release-and-installation-integrity.md') -Raw
+foreach ($term in @('publish-github-release.ps1','Git Credential Manager','do not start a browser device-login flow','Never print tokens')) {
+  if ($releaseIntegrityText -notmatch [regex]::Escape($term)) { throw "Release integrity guidance missing GitHub credential fallback: $term" }
+}
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("Status-loop guard")) { throw "Loader missing status-loop guard" }
 if ((Get-Content (Join-Path $Root "framework/01-core/14-delivery-continuation-policy.md") -Raw) -notmatch [regex]::Escape("Repeated status phrasing is a control-flow failure")) { throw "Delivery continuation policy missing status-loop guard" }
