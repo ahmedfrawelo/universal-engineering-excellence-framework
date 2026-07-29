@@ -6,10 +6,12 @@ param(
   [ValidateSet('T0','T1','T2','T3','T4')][string]$RouteTier,
   [ValidateSet('None','Architecture','Authentication','Authorization','Security','Production','Migration','Destructive','Privacy','Payment','Incident','Release')][string]$RiskFloor = 'None',
   [switch]$CodeChange,
+  [ValidateSet('explicit','inferred','mixed')][string]$ClassificationSource,
   [switch]$Json
 )
 
 $ErrorActionPreference = 'Stop'
+$inputParameters = @{} + $PSBoundParameters
 $text = $Task.ToLowerInvariant()
 $skills = [Collections.Generic.List[string]]::new()
 $mcps = [Collections.Generic.List[string]]::new()
@@ -22,24 +24,31 @@ function Add-WorkflowDecision([string]$Id, [string]$Selection, [string]$Trigger,
   if (!($workflowDecisions | Where-Object { $_.id -eq $Id })) { $workflowDecisions.Add([pscustomobject]@{ id=$Id; selection=$Selection; trigger=$Trigger; evidence=$Evidence }) }
 }
 
-$hasExplicitClassification = $TaskTag.Count -gt 0 -or $RouteTier -or $RiskFloor -ne 'None' -or $CodeChange
-$isReadOnly = !$hasExplicitClassification -and $text -match '\b(explain|answer|summari[sz]e|translate|define|what is|review status)\b' -and $text -notmatch '\b(current|latest|online|browser|file|repository|code)\b'
+$explicitTags = $inputParameters.ContainsKey('TaskTag')
+$explicitRouteTier = $inputParameters.ContainsKey('RouteTier')
+$explicitRiskFloor = $inputParameters.ContainsKey('RiskFloor')
+$explicitCodeChange = $inputParameters.ContainsKey('CodeChange')
+$explicitRisk = $inputParameters.ContainsKey('Risk')
+$hasExplicitClassification = $explicitTags -or $explicitRouteTier -or $explicitRiskFloor -or $explicitCodeChange -or $explicitRisk
+$isReadOnly = $text -match '\b(explain|answer|summari[sz]e|translate|define|what is|review status)\b' -and $text -notmatch '\b(current|latest|online|browser|file|repository|code)\b' -and !$CodeChange
 $needsBrowser = ($text -match '\b(open|navigate|inspect|click|type|upload|download|authenticate|log.?in|browse|screenshot|visual(?:ly)? verify|visual check)\b') -and ($text -match '\b(browser|chrome|tab|website|web page|site|figma)\b')
-$needsCurrentDocs = $text -match '\b(latest|current|up.to.date|documentation|api docs|library version)\b'
-$isUi = $text -match '\b(ui|ux|frontend|react|angular|css|layout|accessibility|design)\b'
+$needsCurrentDocs = ($text -match '\b(latest|current|up.to.date|newest|recent)\b') -and ($text -match '\b(documentation|docs|api|sdk|library|package|model|specification|standard|version)\b')
+$isUi = ($text -match '\b(ui|ux|frontend|react|angular|css|layout|accessibility|screen|component|dashboard|visual design)\b') -and ($text -match '\b(build|implement|create|change|update|fix|polish|design|style|render|audit|review|inspect|verify)\b')
 $isSecurity = $Risk -in @('high','critical') -or $text -match '\b(security|auth|payment|privacy|production|migration|destructive)\b'
 $isAmbiguous = $text -match '\b(ambiguous|unclear|brainstorm|explore|idea|requirements|acceptance criteria)\b'
 $isDebugging = $text -match '\b(bug|debug|regression|failure|broken|error|fix)\b'
-$isCodeChange = $text -match '\b(build|implement|add|change|refactor|fix|migrat\w*|create)\b'
-if ($hasExplicitClassification) {
-  $needsBrowser = $TaskTag -contains 'browser'
-  $needsCurrentDocs = $TaskTag -contains 'current-docs'
-  $isUi = $TaskTag -contains 'ui'
-  $isAmbiguous = $TaskTag -contains 'ambiguous'
-  $isDebugging = $TaskTag -contains 'debugging'
-  $isCodeChange = $CodeChange.IsPresent
-  $isSecurity = $RouteTier -in @('T3','T4') -or $RiskFloor -ne 'None' -or $Risk -in @('high','critical')
-}
+$isCodeChange = $text -match '\b(build|implement|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release)\b'
+
+# Explicit route signals refine their own dimensions; they do not erase
+# unrelated semantics inferred from the task text.
+if ($TaskTag -contains 'browser') { $needsBrowser = $true }
+if ($TaskTag -contains 'current-docs') { $needsCurrentDocs = $true }
+if ($TaskTag -contains 'ui') { $isUi = $true }
+if ($TaskTag -contains 'ambiguous') { $isAmbiguous = $true }
+if ($TaskTag -contains 'debugging') { $isDebugging = $true }
+if ($explicitCodeChange) { $isCodeChange = $CodeChange.IsPresent }
+$CodeChange = [bool]$isCodeChange
+$isSecurity = $isSecurity -or $RouteTier -in @('T3','T4') -or $RiskFloor -ne 'None'
 
 if ($isReadOnly) {
   $profile = 'CORE_ONLY'
@@ -53,8 +62,8 @@ if ($isReadOnly) {
 }
 
 if ($isUi) {
-  Add-Unique $skills 'ui-ux-pro-max'; Add-Unique $skills 'impeccable'
-  Add-Unique $reasons 'UI work requires the installed UI/UX baseline skills.'
+  Add-Unique $skills 'ui-ux-pro-max'; Add-Unique $skills 'impeccable'; Add-Unique $skills 'typeui-fundamentals'
+  Add-Unique $reasons 'UI work requires the installed UI/UX baseline skills plus TypeUI fundamentals for layout, typography, accessibility, and interaction principles.'
 }
 if ($needsCurrentDocs) { Add-Unique $skills '.system/openai-docs'; Add-Unique $reasons 'The task requests current documentation.' }
 if ($needsBrowser) { Add-Unique $mcps 'node_repl'; Add-Unique $reasons 'Existing browser/session work requires the Node REPL browser control channel.' }
@@ -73,7 +82,20 @@ $result = [ordered]@{
   workflows = @($workflows)
   workflowDecisions = @($workflowDecisions)
   capabilityHealthRequired = ($profile -eq 'ASSURED' -or $mcps.Count -gt 0)
-  classificationEvidence = [ordered]@{ source=if($hasExplicitClassification){'explicit'}else{'legacy-inferred'}; taskTags=@($TaskTag); routeTier=$RouteTier; riskFloor=$RiskFloor; codeChange=$CodeChange.IsPresent }
+  classificationEvidence = [ordered]@{
+    source = if ($ClassificationSource) { $ClassificationSource } elseif ($explicitTags -and $explicitRouteTier -and $explicitRiskFloor -and $explicitCodeChange) { 'explicit' } elseif ($hasExplicitClassification) { 'mixed' } else { 'inferred' }
+    taskTags = @($TaskTag)
+    routeTier = $RouteTier
+    riskFloor = $RiskFloor
+    codeChange = $CodeChange.IsPresent
+    explicitInputs = @(
+      if ($explicitTags) { 'TaskTag' }
+      if ($explicitRouteTier) { 'RouteTier' }
+      if ($explicitRiskFloor) { 'RiskFloor' }
+      if ($explicitCodeChange) { 'CodeChange' }
+      if ($explicitRisk) { 'Risk' }
+    )
+  }
   reasons = @($reasons)
 }
 if ($Json) { $result | ConvertTo-Json -Depth 3 } else {

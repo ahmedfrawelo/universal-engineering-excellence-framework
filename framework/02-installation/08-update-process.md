@@ -3,60 +3,41 @@
 Version: 1.0  
 Pack: 02-installation  
 Status: Stable  
-Applies To: installation
+Applies To: tasks where update process materially affects the outcome
 
 ## Purpose
 
-update process defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+This module establishes the enforceable **update process** contract for installation lifecycle, platform integration, and recovery. It exists to turn that concern into explicit decisions, safeguards, and completion evidence.
 
-## When To Use This Module
+## Apply When
 
-Use this module when the task touches installation concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+- The request names update process or changes behavior governed by it.
+- Repository inspection finds an affected boundary, convention, artifact, or risk.
+- A reviewer cannot prove the outcome without making the update process decision explicit.
 
-## Core Principles
+## Required Decisions
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+1. State the observable outcome and owner for update process.
+2. Make every install, update, and removal step idempotent or explicitly reversible.
+3. Record assumptions, rejected alternatives, and the condition that would require revisiting the decision.
 
-## Mandatory Rules
+## Mandatory Safeguards
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
+- Preserve user-owned configuration and report every path that is changed.
+- Reuse the repository's existing owner, pattern, and automation before adding a parallel mechanism.
+- Keep failure behavior explicit, bounded, diagnosable, and recoverable in proportion to risk.
 
-## Decision Guidance
+## Required Evidence
 
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
+- Direct evidence that the update process outcome works in the changed context.
+- a clean-platform or fixture result plus post-operation status evidence.
+- A focused regression check for the nearest behavior that could be broken.
 
-## Anti-Patterns
+## Failure Conditions
 
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
-
-## Review Checklist
-
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
-
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
+- The update process decision is implicit, ownerless, or contradicted by the implementation.
+- Evidence demonstrates only intent, compilation, or a happy path when stronger proof is practical.
+- Residual risk is hidden, unbounded, or handed off without an owner and trigger.
 
 ## Related Modules
 
@@ -64,9 +45,6 @@ This module passes when the final implementation is understandable, maintainable
 - ../03-runtime/00-runtime-sequence.md
 - ../27-quality-gates/00-quality-gate-system.md
 
-## Success Criteria
+## Completion Contract
 
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
+Pass only when the decision, implementation, evidence, and remaining risk agree. Otherwise report the exact failed condition and required next action.

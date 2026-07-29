@@ -24,11 +24,13 @@ function Get-QualityGateSelection {
   $modules = @($lines[($selectedIndex + 1)..($gatesIndex - 1)] | Where-Object { $_ -like '- *' } | ForEach-Object { $_.Substring(2) })
   $gates = @($lines[($gatesIndex + 1)..($lines.Length - 1)] | Where-Object { $_ -like '- *' } | ForEach-Object { $_.Substring(2) })
   $uiux = (($lines | Where-Object { $_ -like 'UIUX:*' }) -replace '^UIUX:\s*', '')
+  $tier = (($lines | Where-Object { $_ -like 'Tier:*' }) -replace '^Tier:\s*', '')
 
   [PSCustomObject]@{
     Modules = $modules
     Gates = $gates
     UIUX = $uiux
+    Tier = $tier
   }
 }
 
@@ -135,8 +137,19 @@ foreach ($case in $cases) {
   }
 
   Assert-Contains -Actual $selection.Modules -Expected @('framework/01-core/00-boot-loader.md', 'framework/01-core/00-core-system.md') -Context $case.Name
-  Assert-Contains -Actual $selection.Modules -Expected @('framework/49-engineering-guardian/00-engineering-guardian.md', 'framework/50-environment-bootstrap/00-environment-bootstrap.md', 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md') -Context $case.Name
-  Assert-Contains -Actual $selection.Gates -Expected @('framework/27-quality-gates/16-ueef-activation-gate.md', 'framework/27-quality-gates/21-engineering-guardian-gate.md', 'framework/27-quality-gates/22-environment-bootstrap-gate.md', 'framework/27-quality-gates/31-agent-model-routing-gate.md') -Context $case.Name
+  Assert-Contains -Actual $selection.Modules -Expected @('framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md') -Context $case.Name
+  Assert-Contains -Actual $selection.Gates -Expected @('framework/27-quality-gates/16-ueef-activation-gate.md', 'framework/27-quality-gates/31-agent-model-routing-gate.md') -Context $case.Name
+  if ($selection.Tier -in @('T2','T3','T4')) {
+    Assert-Contains -Actual $selection.Modules -Expected @('framework/49-engineering-guardian/00-engineering-guardian.md', 'framework/50-environment-bootstrap/00-environment-bootstrap.md') -Context "$($case.Name) elevated"
+    Assert-Contains -Actual $selection.Gates -Expected @('framework/27-quality-gates/21-engineering-guardian-gate.md', 'framework/27-quality-gates/22-environment-bootstrap-gate.md') -Context "$($case.Name) elevated"
+  } else {
+    foreach ($forbidden in @('framework/49-engineering-guardian/00-engineering-guardian.md','framework/50-environment-bootstrap/00-environment-bootstrap.md')) {
+      if ($selection.Modules -contains $forbidden) { throw "$($case.Name) low-tier task selected broad module '$forbidden'." }
+    }
+    if ($case.Task -match '\b(build|implement|add|change|refactor|fix|create|update|remove|delete|harden|polish|upgrade|write|edit|deploy|release)\b') {
+      Assert-Contains -Actual $selection.Gates -Expected @('framework/27-quality-gates/code-quality-gate.md', 'framework/27-quality-gates/testing-gate.md') -Context "$($case.Name) code-change"
+    }
+  }
   Assert-Contains -Actual $selection.Modules -Expected $case.Modules -Context $case.Name
   Assert-Contains -Actual $selection.Gates -Expected $case.Gates -Context $case.Name
   Assert-ExistingPaths -Paths ($selection.Modules + $selection.Gates) -Context $case.Name
@@ -157,6 +170,14 @@ foreach ($case in $negativeCases) {
   }
   if ($case.Task -eq 'Audit framework documentation' -and $selection.UIUX -ne 'NO') {
     throw 'Audit text triggered UIUX through a substring match.'
+  }
+}
+
+$coreOnly = Get-QualityGateSelection -Task 'Explain dependency injection'
+if ($coreOnly.Tier -ne 'T0') { throw "A self-contained explanation must remain T0, got $($coreOnly.Tier)." }
+foreach ($forbidden in @('framework/49-engineering-guardian/00-engineering-guardian.md','framework/50-environment-bootstrap/00-environment-bootstrap.md','framework/27-quality-gates/code-quality-gate.md','framework/27-quality-gates/testing-gate.md')) {
+  if ($coreOnly.Modules -contains $forbidden -or $coreOnly.Gates -contains $forbidden) {
+    throw "T0 core-only selection included '$forbidden'."
   }
 }
 

@@ -3,58 +3,41 @@
 Version: 1.0  
 Pack: 41-reference  
 Status: Stable  
-Applies To: Engineering teams, AI coding assistants, and maintainers
+Applies To: tasks where reference materially affects the outcome
 
 ## Purpose
 
-Reference provides the minimum enforceable operating guidance for this pack so the pack is not only a folder label. It defines how an assistant should reason, what it must protect, and what evidence should exist before completion.
+This module establishes the enforceable **reference** contract for canonical terminology, mappings, and lookup data. It exists to turn that concern into explicit decisions, safeguards, and completion evidence.
 
-## When To Use This Module
+## Apply When
 
-Use this module when project inspection shows that the task touches the pack responsibility, when a user request names this concern, or when risk analysis indicates the concern could affect quality, maintainability, security, performance, user experience, or production readiness.
+- The request names reference or changes behavior governed by it.
+- Repository inspection finds an affected boundary, convention, artifact, or risk.
+- A reviewer cannot prove the outcome without making the reference decision explicit.
 
-## Core Principles
+## Required Decisions
 
-- Load this pack only when relevant to the task.
-- Prefer project evidence over generic assumptions.
-- Respect existing architecture, naming, design system, tests, and delivery workflow.
-- Optimize for long-term clarity and safe change.
-- Keep guidance technology-neutral unless the pack is technology-specific.
+1. State the observable outcome and owner for reference.
+2. Name the authoritative source and update cadence for every reference.
+3. Record assumptions, rejected alternatives, and the condition that would require revisiting the decision.
 
-## Mandatory Rules
+## Mandatory Safeguards
 
-- Inspect related files before proposing changes.
-- Avoid duplicate implementations, duplicate documentation, and duplicate UI.
-- Do not create unowned standalone files.
-- Preserve secrets, credentials, and user data.
-- Make limitations explicit when verification cannot be completed.
+- Do not duplicate volatile facts without a synchronization mechanism.
+- Reuse the repository's existing owner, pattern, and automation before adding a parallel mechanism.
+- Keep failure behavior explicit, bounded, diagnosable, and recoverable in proportion to risk.
 
-## Decision Guidance
+## Required Evidence
 
-1. Identify the user outcome this pack supports.
-2. Identify the existing project pattern for this responsibility.
-3. Compare the simplest safe option with the most scalable option.
-4. Choose the option that satisfies the requested end state without avoidable technical debt.
-5. Validate with the strongest practical evidence.
+- Direct evidence that the reference outcome works in the changed context.
+- link and consistency validation against the named authority.
+- A focused regression check for the nearest behavior that could be broken.
 
-## Anti-Patterns
+## Failure Conditions
 
-- Treating the pack as optional when the task clearly touches it.
-- Applying technology-specific advice to an unrelated stack.
-- Adding abstractions without reducing real complexity.
-- Completing work without checking the relevant quality gate.
-
-## Review Checklist
-
-- The pack was loaded for a real reason.
-- Existing conventions were inspected.
-- The chosen approach has a clear owner and location.
-- Verification matches the risk level.
-- The final response states evidence and residual limitations.
-
-## Quality Gate
-
-The module passes when the assistant can show that the relevant concern was inspected, the resulting work is maintainable, and completion is backed by direct evidence rather than intent.
+- The reference decision is implicit, ownerless, or contradicted by the implementation.
+- Evidence demonstrates only intent, compilation, or a happy path when stronger proof is practical.
+- Residual risk is hidden, unbounded, or handed off without an owner and trigger.
 
 ## Related Modules
 
@@ -62,9 +45,6 @@ The module passes when the assistant can show that the relevant concern was insp
 - ../03-runtime/00-runtime-sequence.md
 - ../27-quality-gates/00-quality-gate-system.md
 
-## Success Criteria
+## Completion Contract
 
-- The pack is actionable during real engineering work.
-- The assistant can select or skip the pack intentionally.
-- No placeholder guidance remains.
-- The outcome improves engineering quality without expanding scope recklessly.
+Pass only when the decision, implementation, evidence, and remaining risk agree. Otherwise report the exact failed condition and required next action.

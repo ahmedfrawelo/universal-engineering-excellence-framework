@@ -1,72 +1,43 @@
-# authorization
+# Authorization
 
-Version: 1.0  
+Version: 2.0
 Pack: 07-security  
 Status: Stable  
-Applies To: security
+Applies To: roles, permissions, policies, tenant boundaries, and protected APIs
 
-## Purpose
+## Decision model
 
-authorization defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+Every protected operation must evaluate the authenticated principal, tenant or
+organization, action, resource, and relevant state on the server. Prefer a
+central policy/service or a clearly owned domain boundary so controllers,
+clients, jobs, exports, and realtime handlers cannot drift apart.
 
-## When To Use This Module
+## Mandatory rules
 
-Use this module when the task touches security concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+- Deny by default; fail closed when policy data is missing or a dependency is
+  unavailable.
+- Check object-level and function-level access separately. A user allowed to
+  call an endpoint is not automatically allowed to access every object.
+- Derive tenant/resource identity from trusted routing and data ownership, not
+  from a mutable client body or hidden field.
+- Apply the same policy to synchronous APIs, background jobs, exports,
+  notifications, caches, webhooks, and realtime broadcasts.
+- Keep role/permission changes auditable, versioned where needed, and
+  protected by least privilege.
+- Return safe errors that do not disclose resource existence across a trust
+  boundary.
 
-## Core Principles
+## Verification
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+For each protected action, test an allowed principal, an unauthenticated
+principal, a different role, a different tenant, a different object owner,
+and a stale/revoked permission. Test direct URL/ID substitution and background
+execution paths; client hiding is not evidence.
 
-## Mandatory Rules
+## Anti-patterns
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
-
-## Decision Guidance
-
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
-
-## Anti-Patterns
-
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
-
-## Review Checklist
-
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
-
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
+- `isAdmin` checks scattered through UI code.
+- Authorization performed only at route entry while nested resources are
+  returned without ownership checks.
+- Wildcard permissions, implicit tenant fallback, or “internal job” bypasses.
+- Logging full authorization context when it contains personal or secret data.

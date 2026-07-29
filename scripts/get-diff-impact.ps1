@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([string]$RepositoryPath=(Get-Location).Path,[string]$Base='HEAD',[switch]$Staged,[switch]$Json)
-$ErrorActionPreference='Stop';if(!(Test-Path -LiteralPath (Join-Path $RepositoryPath '.git'))){throw "Not a Git repository: $RepositoryPath"}
-$args=@('-C',$RepositoryPath,'diff','--name-only');if($Staged){$args+='--cached'}else{$args+=$Base};$files=@(& git @args|Where-Object{$_})
+$ErrorActionPreference='Stop';$RepositoryPath=[IO.Path]::GetFullPath($RepositoryPath);if(!(Test-Path -LiteralPath (Join-Path $RepositoryPath '.git'))){throw "Not a Git repository: $RepositoryPath"}
+$args=@('-c',"safe.directory=$RepositoryPath",'-c','core.safecrlf=false','-C',$RepositoryPath,'diff','--name-only');if($Staged){$args+='--cached'}else{$args+=$Base};$files=@(& git @args 2>$null|Where-Object{$_});if($LASTEXITCODE -ne 0){throw "Git diff failed for repository: $RepositoryPath"}
 $gates=[Collections.Generic.List[string]]::new();$packs=[Collections.Generic.List[string]]::new();$reasons=[Collections.Generic.List[string]]::new();$owners=[Collections.Generic.List[string]]::new();$signals=[Collections.Generic.List[object]]::new()
 function Add-Unique($list,[string]$value){if(!$list.Contains($value)){$list.Add($value)}}
 foreach($file in $files){

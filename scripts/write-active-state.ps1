@@ -26,7 +26,7 @@ $commit = $SourceCommit
 if ([string]::IsNullOrWhiteSpace($commit)) {
   $commit = "UNKNOWN"
   try {
-    $commit = (git -C $SourceRepositoryPath rev-parse HEAD 2>$null)
+    $commit = (git -c "safe.directory=$SourceRepositoryPath" -C $SourceRepositoryPath rev-parse HEAD 2>$null)
     if (!$commit) { $commit = "UNKNOWN" }
   } catch { $commit = "UNKNOWN" }
 }

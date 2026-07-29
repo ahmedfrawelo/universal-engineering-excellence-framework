@@ -1,76 +1,45 @@
-# Frontend
+# Frontend Engineering
 
-Version: 1.0  
+Version: 1.1
 Pack: 10-frontend  
 Status: Stable  
-Applies To: Engineering teams, AI coding assistants, and maintainers
+Applies To: browser-side routes, components, state, assets, and delivery behavior
 
 ## Purpose
 
-Frontend provides the minimum enforceable operating guidance for this pack so the pack is not only a folder label. It defines how an assistant should reason, what it must protect, and what evidence should exist before completion.
+This module governs frontend ownership, rendering, state, accessibility, security, responsiveness, and delivery performance.
 
-## When To Use This Module
+## Architecture Contract
 
-Use this module when project inspection shows that the task touches the pack responsibility, when a user request names this concern, or when risk analysis indicates the concern could affect quality, maintainability, security, performance, user experience, or production readiness.
+- Organize files under the owning route, feature, component library, state or data layer, test folder, or asset pipeline.
+- Split large frontend files before rendering, remote data, local interaction state, transformation, validation, styling, and tests become mixed responsibilities.
+- Search components, tokens, layouts, services, clients, hooks, stores, validators, and registries before creating a local alternative.
+- Keep server state distinct from view state; define cache, freshness, invalidation, optimistic update, and recovery behavior.
 
-## Core Principles
+## Rendering and Delivery
 
-- Load this pack only when relevant to the task.
-- Prefer project evidence over generic assumptions.
-- Respect existing architecture, naming, design system, tests, and delivery workflow.
-- Optimize for long-term clarity and safe change.
-- Keep guidance technology-neutral unless the pack is technology-specific.
+- Prevent over-rendering by checking state ownership, selector scope, subscriptions, effect dependencies, memoization boundaries, expensive computation, virtualization, and route or component splitting.
+- Animations must use transform and opacity by default, avoid layout thrashing, support reduced motion, and prevent animation state from re-rendering unrelated UI.
+- Evaluate SSR, SSG, streaming, pre-rendering, or server components for public, content-heavy, SEO-sensitive, slow-first-paint, or data-heavy entry views.
+- Do not force SSR into authenticated operational screens or unsupported architectures; record the evidence-based decision.
 
-## Mandatory Rules
+## Interaction and Safety
 
-- Inspect related files before proposing changes.
-- Avoid duplicate implementations, duplicate documentation, and duplicate UI.
-- Do not create unowned standalone files.
-- Organize new frontend files under the owning route, feature, component library, state/data layer, test folder, or asset folder. Do not leave mixed UI, state, API, and styling files in one unowned location.
-- Split large frontend files when rendering, data fetching, transformation, validation, state orchestration, styling, and tests become mixed responsibilities.
-- Prevent over-rendering by checking state ownership, selectors, subscriptions, effect dependencies, memoization boundaries, expensive computed values, list virtualization, and route/component code splitting before completion.
-- Animations must use transform and opacity where possible, avoid layout-triggering properties, respect reduced motion, and avoid state loops that re-render unrelated UI.
-- For public, content-heavy, SEO-sensitive, slow-first-paint, or data-heavy first views, evaluate SSR, SSG, streaming, route-level pre-rendering, or server components when the stack supports them.
-- Do not force SSR into authenticated operational screens or stacks that are intentionally client-rendered; record the reason when SSR is considered and skipped.
-- Preserve secrets, credentials, and user data.
-- Make limitations explicit when verification cannot be completed.
+- Define loading, empty, error, disabled, submitted, offline, focus, and recovery states.
+- Support keyboard, pointer, touch, zoom, text scaling, orientation, narrow width, and small height where applicable.
+- Treat rendered content and URLs as untrusted, keep authorization server-side, and prevent duplicate submission.
+- Preserve user context during refresh, reconnect, invalidation, and error recovery.
 
-## Decision Guidance
+## Required Evidence
 
-1. Identify the user outcome this pack supports.
-2. Identify the existing project pattern for this responsibility.
-3. Compare the simplest safe option with the most scalable option.
-4. Choose the option that satisfies the requested end state without avoidable technical debt.
-5. Validate with the strongest practical evidence.
+- Production build and focused component or integration tests.
+- Rendered evidence across supported themes, breakpoints, interaction states, and input modes.
+- Accessibility checks plus relevant performance measurements or budgets.
+- A reuse decision and an explicit explanation for any new shared primitive.
 
-## Anti-Patterns
+## Failure Conditions
 
-- Treating the pack as optional when the task clearly touches it.
-- Applying technology-specific advice to an unrelated stack.
-- Adding abstractions without reducing real complexity.
-- Completing work without checking the relevant quality gate.
-
-## Review Checklist
-
-- The pack was loaded for a real reason.
-- Existing conventions were inspected.
-- The chosen approach has a clear owner and location.
-- Verification matches the risk level.
-- The final response states evidence and residual limitations.
-
-## Quality Gate
-
-The module passes when the assistant can show that the relevant concern was inspected, the resulting work is maintainable, and completion is backed by direct evidence rather than intent.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The pack is actionable during real engineering work.
-- The assistant can select or skip the pack intentionally.
-- No placeholder guidance remains.
-- The outcome improves engineering quality without expanding scope recklessly.
+- Duplicate UI or state mechanisms are introduced without ownership evidence.
+- Only the visual happy path is reviewed.
+- Client enforcement is treated as authorization or sensitive data is unnecessarily exposed.
+- Performance, accessibility, or responsive claims lack direct evidence.

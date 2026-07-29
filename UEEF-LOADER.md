@@ -39,6 +39,7 @@ Response quality:
 - Answer the user's direct question first, then give concise evidence.
 - Do not claim perfection, completion, release, push, browser verification, or active runtime status without current evidence.
 - Keep final responses short and factual, with changed scope and validation when files were modified.
+- Do not repeat the same safety, deletion, cleanup, or progress status line. If the requested bounded work is complete, give one final outcome instead of continuing with repeated status text.
 - In Arabic or other RTL prose, every inline English word, identifier, product name, or short LTR phrase must be isolated for display readability. Do not insert hidden bidirectional control characters into code blocks, terminal commands, copyable file paths, JSON/YAML, source files, configuration, or repository content.
 
 Task scope discipline:
@@ -98,6 +99,7 @@ Delivery continuation:
 - Missing screenshot evidence, pCloud screenshot delay, or task-local Chrome control degradation is not a valid BLOCKED condition when implementation, build, and non-visual tests can continue or have passed. Keep the task ACTIVE for more work, or report PARTIAL/visual-not-verified for status-only answers.
 - Mark a goal BLOCKED only for an external or user-only condition after no meaningful local work remains. Never pause an incomplete code path waiting for the user to resume it.
 - Stop when done: when a bounded requested outcome is complete, answer finally without optional expansion. Continue only explicit in-scope implementation that remains unfinished; read current goal status before finalizing longer goal work.
+- Status-loop guard: repeated "continuing", safety, deletion, cleanup, or no-data-loss phrasing is not progress. If no new evidence or action is being added, stop the loop and deliver the verified final result once.
 
 Local command autonomy:
 - Run and reuse normal project commands and local development services without asking the user. A Codex command prompt is a platform confirmation, not an agent question or task blocker.

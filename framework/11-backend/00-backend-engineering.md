@@ -1,76 +1,45 @@
-# Backend
+# Backend Engineering
 
-Version: 1.0  
+Version: 1.1
 Pack: 11-backend  
 Status: Stable  
-Applies To: Engineering teams, AI coding assistants, and maintainers
+Applies To: server endpoints, domain services, workers, integrations, and data-access paths
 
 ## Purpose
 
-Backend provides the minimum enforceable operating guidance for this pack so the pack is not only a folder label. It defines how an assistant should reason, what it must protect, and what evidence should exist before completion.
+This module governs backend domain boundaries, data integrity, security, reliability, performance, and operational behavior.
 
-## When To Use This Module
+## Architecture Contract
 
-Use this module when project inspection shows that the task touches the pack responsibility, when a user request names this concern, or when risk analysis indicates the concern could affect quality, maintainability, security, performance, user experience, or production readiness.
+- Organize files under the owning endpoint, feature, application service, domain model, data-access layer, worker, integration, test, or migration area.
+- Split large backend files before controllers or transports combine validation, authorization, mapping, business invariants, queries, caching, and integration policy.
+- Reuse established clients, repositories, policies, schemas, telemetry, and error contracts before creating parallel mechanisms.
+- Make transaction boundaries, idempotency, retries, timeouts, cancellation, concurrency, and shutdown explicit.
 
-## Core Principles
+## Data and API Behavior
 
-- Load this pack only when relevant to the task.
-- Prefer project evidence over generic assumptions.
-- Respect existing architecture, naming, design system, tests, and delivery workflow.
-- Optimize for long-term clarity and safe change.
-- Keep guidance technology-neutral unless the pack is technology-specific.
+- Validate at trust boundaries and enforce authorization and tenant isolation on the server for every resource operation.
+- Support bounded pagination, filtering, sorting, aggregation, projection, and export for large or sensitive collections.
+- Prevent backend-driven over-render and over-refresh behavior by avoiding over-fetching, over-serialization, repeated queries, noisy realtime broadcasts, broad invalidation, and unbounded background work.
+- When events drive clients, publish minimal scoped events with authorization context, deduplication, ordering strategy, coalescing, and backpressure.
 
-## Mandatory Rules
+## Reliability and Operations
 
-- Inspect related files before proposing changes.
-- Avoid duplicate implementations, duplicate documentation, and duplicate UI.
-- Do not create unowned standalone files.
-- Organize new backend files under the owning endpoint, feature, application service, domain model, data-access layer, job/worker, integration, test, or migration folder.
-- Split large backend files before controllers, validation, authorization, mapping, business rules, queries, caching, and transport concerns collapse into one mixed file.
-- For UI data and large collections, provide backend support for pagination, filtering, sorting, aggregation, projection, and export boundaries instead of pushing expensive shaping to the client.
-- Review latency budgets, cancellation, concurrency, caching and invalidation, serialization, authorization cost, rate limits, and burst behavior for user-facing endpoints.
-- Prevent backend-driven over-render and over-refresh behavior by avoiding over-fetching, over-serialization, repeated query execution, noisy realtime broadcasts, broad cache invalidation, and unnecessary recomputation.
-- When backend events drive frontend updates, publish minimal scoped events with tenant/security filters, idempotency, coalescing, and backpressure so the frontend does not re-render full screens for small changes.
-- Preserve secrets, credentials, and user data.
-- Make limitations explicit when verification cannot be completed.
+- Define stable error semantics, correlation, structured logs without secrets, health signals, metrics, and actionable alerts.
+- Review latency budgets, cancellation, concurrency, caching, serialization, authorization cost, rate limits, and burst behavior.
+- Bound external dependencies with deadlines, failure classification, retry policy, circuit or degradation behavior, and recovery ownership.
+- Require phased rollout and rollback for schema, contract, dependency, or production-risk changes.
 
-## Decision Guidance
+## Required Evidence
 
-1. Identify the user outcome this pack supports.
-2. Identify the existing project pattern for this responsibility.
-3. Compare the simplest safe option with the most scalable option.
-4. Choose the option that satisfies the requested end state without avoidable technical debt.
-5. Validate with the strongest practical evidence.
+- Unit tests for domain invariants and integration or contract tests for real boundaries.
+- Negative-path authorization, validation, timeout, retry, cancellation, and duplicate-request coverage where applicable.
+- Query plans or representative latency and load evidence for material paths.
+- Deployment, health, migration, and rollback evidence for production-impacting changes.
 
-## Anti-Patterns
+## Failure Conditions
 
-- Treating the pack as optional when the task clearly touches it.
-- Applying technology-specific advice to an unrelated stack.
-- Adding abstractions without reducing real complexity.
-- Completing work without checking the relevant quality gate.
-
-## Review Checklist
-
-- The pack was loaded for a real reason.
-- Existing conventions were inspected.
-- The chosen approach has a clear owner and location.
-- Verification matches the risk level.
-- The final response states evidence and residual limitations.
-
-## Quality Gate
-
-The module passes when the assistant can show that the relevant concern was inspected, the resulting work is maintainable, and completion is backed by direct evidence rather than intent.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The pack is actionable during real engineering work.
-- The assistant can select or skip the pack intentionally.
-- No placeholder guidance remains.
-- The outcome improves engineering quality without expanding scope recklessly.
+- Business rules, transport, persistence, and authorization are collapsed into an untestable owner.
+- Client-side filtering or authorization protects sensitive data.
+- Retries, concurrency, or event delivery can duplicate effects without an idempotency strategy.
+- Operational or performance claims are made without representative evidence.

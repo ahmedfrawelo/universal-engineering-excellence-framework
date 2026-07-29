@@ -52,7 +52,10 @@ function Get-UeefReleaseRelativeFiles {
   $relativeFiles = @()
   $git = Get-Command git -ErrorAction SilentlyContinue
   if ($git -and (Test-Path -LiteralPath (Join-Path $root '.git'))) {
-    $relativeFiles = @(& $git.Source -C $root ls-files --recurse-submodules 2>$null)
+    # Repository ownership can be stricter on Windows CI or shared drives.
+    # Scope the safe-directory exception to this exact source path instead of
+    # asking users to mutate global Git configuration.
+    $relativeFiles = @(& $git.Source -c "safe.directory=$root" -C $root ls-files --recurse-submodules 2>$null)
     if ($LASTEXITCODE -ne 0) { throw 'Unable to enumerate tracked release files.' }
   } else {
     foreach ($name in $script:UeefOwnedRootFiles) {

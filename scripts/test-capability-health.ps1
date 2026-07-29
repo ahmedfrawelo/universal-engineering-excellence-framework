@@ -1,7 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $registry = Get-Content -LiteralPath (Join-Path $root 'config\capability-registry.json') -Raw | ConvertFrom-Json
-foreach ($id in @('ui-ux-pro-max','impeccable','design-brief')) {
+$preferred = Get-Content -LiteralPath (Join-Path $root 'config\preferred-skills.json') -Raw | ConvertFrom-Json
+foreach ($id in @($preferred.preferred.id)) {
   $entry = $registry.capabilities | Where-Object { $_.type -eq 'skill' -and $_.id -eq $id }
   if (!$entry -or !$entry.governance -or !$entry.provenance -or !$entry.installEvidence -or !$entry.fallback) { throw "Registry governance/provenance contract missing for $id." }
 }

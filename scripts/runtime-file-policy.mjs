@@ -44,7 +44,9 @@ function assertNoSymbolicPath(source, relative) {
 export function releaseFiles(source, { includeLoader = false } = {}) {
   let files;
   if (fs.existsSync(path.join(source, '.git'))) {
-    files = execFileSync('git', ['-C', source, 'ls-files', '--recurse-submodules'], { encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
+    // Shared Windows drives and CI checkouts can trigger Git's dubious
+    // ownership guard. Scope the exception to this exact source path.
+    files = execFileSync('git', ['-c', `safe.directory=${source}`, '-C', source, 'ls-files', '--recurse-submodules'], { encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
   } else {
     files = walkFiles(source);
   }

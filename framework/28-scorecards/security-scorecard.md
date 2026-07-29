@@ -1,29 +1,27 @@
 # Security Scorecard
 
-## Purpose
-This scorecard converts review quality into a repeatable evaluation. Use it after implementation and quality gates to decide whether the work is ready, partial, or blocked.
+## Scale
 
-## Scoring Scale
-- 0: Not addressed or contradicted by the implementation.
-- 1: Mentioned but shallow, unverified, or missing important edge cases.
-- 2: Mostly addressed with some evidence and manageable limitations.
-- 3: Fully addressed with clear evidence, tests, and maintainable design.
+- 0 - absent, contradicted, or unsafe.
+- 1 - acknowledged but materially incomplete or unverified.
+- 2 - implemented with adequate evidence and minor bounded gaps.
+- 3 - complete, maintainable, and supported by strong reproducible evidence.
 
-## Evaluation Criteria
-1. Requirement fit: the result solves the actual request and preserves stated constraints.
-2. Local consistency: the work follows existing project architecture, naming, styling, and tooling.
-3. Simplicity: the solution avoids unnecessary abstraction, duplication, and speculative features.
-4. Security: inputs, permissions, secrets, dependencies, and failure paths are safe by default.
-5. Performance: the design avoids wasteful rendering, queries, network calls, memory growth, and blocking work.
-6. Reliability: errors, retries, rollback, migrations, and observability are considered where relevant.
-7. Testability: validation is automated where practical and manual evidence is explicit.
-8. Documentation: user-facing and maintainer-facing changes are documented without noise.
+## Dimensions
 
-## Passing Threshold
-Score at least 18 out of 24 overall, with no zero in security, reliability, or requirement fit. A release or production change should target 21 or higher.
+Score each dimension from 0 to 3:
 
-## Evidence
-Record inspected files, validation commands, screenshots, logs, commits, and known limitations. Evidence must be specific enough for another engineer to reproduce the review.
+1. **Outcome fit** - the security result satisfies the actual requirement.
+2. **Domain completeness** - the work addresses asset, actor, trust boundary, threat, prevention, detection, response, and safe failure.
+3. **Project consistency** - ownership, naming, boundaries, and reuse match the repository.
+4. **Failure safety** - errors, edge cases, rollback, and observability are explicit.
+5. **Evidence quality** - negative-path tests, authorization checks, secret scanning, and exposure review is reproducible.
+6. **Change durability** - future modification is local, understandable, and guarded against regression.
 
-## Review Notes
-If the score is partial, identify the smallest additional work that would move the review to pass. If the score is fail, stop and fix the root issue before reporting completion.
+## Threshold
+
+Pass at 15/18 or higher. Any zero, failed required gate, hidden high risk, or missing critical evidence is an automatic fail regardless of total.
+
+## Record
+
+For every score below 3, cite the gap, impact, owner, and next action. Record the total, automatic-fail status, evidence links, and final PASS or FAIL decision.

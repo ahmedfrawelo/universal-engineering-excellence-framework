@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "installRoot": "${CODEX_HOME}/skills",
+    "installation": "missing-only",
+    "selection": "trigger-based",
+    "systemSkills": "runtime-managed",
+    "installer": "scripts/install-preferred-skills.ps1"
+  },
+  "preferred": [
+    {
+      "id": "ui-ux-pro-max",
+      "level": "required-for-profile",
+      "profiles": ["UIUX"],
+      "triggers": ["UI", "UX", "frontend", "layout", "accessibility", "visual polish"],
+      "installEvidence": "skills/ui-ux-pro-max/SKILL.md",
+      "source": {
+        "repository": "nextlevelbuilder/ui-ux-pro-max-skill",
+        "ref": "4857a2c5ef989794751a0f66b8545a4a49566286",
+        "path": ".claude/skills/ui-ux-pro-max"
+      }
+    },
+    {
+      "id": "impeccable",
+      "level": "required-for-profile",
+      "profiles": ["UIUX"],
+      "triggers": ["frontend critique", "UI polish", "design hardening", "interface audit"],
+      "installEvidence": "skills/impeccable/SKILL.md",
+      "source": {
+        "repository": "pbakaus/impeccable",
+        "ref": "adf7d706fa7cc4155ddceca241748e3de021ec8e",
+        "path": ".agents/skills/impeccable"
+      }
+    },
+    {
+      "id": "design-brief",
+      "level": "conditional",
+      "profiles": ["UIUX"],
+      "triggers": ["ambiguous visual request", "design specification"],
+      "installEvidence": "skills/design-brief/SKILL.md",
+      "source": {
+        "repository": "nexu-io/open-design",
+        "ref": "034c3895d127743038c18c09a38eab9c7d6a7641",
+        "path": "skills/design-brief"
+      }
+    },
+    {
+      "id": "frontend-design",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["production frontend creation", "material frontend polish"],
+      "installEvidence": "skills/frontend-design/SKILL.md",
+      "source": {
+        "repository": "nexu-io/open-design",
+        "ref": "034c3895d127743038c18c09a38eab9c7d6a7641",
+        "path": "skills/frontend-design"
+      }
+    },
+    {
+      "id": "typeui-fundamentals",
+      "level": "recommended",
+      "profiles": ["UIUX", "Frontend"],
+      "triggers": ["UI fundamentals", "UX fundamentals", "spacing", "typography", "accessibility", "design consistency"],
+      "installEvidence": "skills/typeui-fundamentals/SKILL.md",
+      "source": {
+        "repository": "bergside/typeui",
+        "ref": "2a977f1f6616ae8a5ea84a478ca35601c67f4322",
+        "path": "skills/fundamentals",
+        "installName": "typeui-fundamentals"
+      }
+    },
+    {
+      "id": "emil-design-eng",
+      "level": "recommended",
+      "profiles": ["UIUX"],
+      "triggers": ["motion implementation", "interaction polish", "easing", "transition timing"],
+      "installEvidence": "skills/emil-design-eng/SKILL.md",
+      "source": {
+        "repository": "emilkowalski/skills",
+        "ref": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
+        "path": "skills/emil-design-eng"
+      }
+    },
+    {
+      "id": "review-animations",
+      "level": "optional",
+      "profiles": ["UIUX"],
+      "triggers": ["animation diff review", "motion acceptance decision"],
+      "installEvidence": "skills/review-animations/SKILL.md",
+      "source": {
+        "repository": "emilkowalski/skills",
+        "ref": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
+        "path": "skills/review-animations"
+      }
+    },
+    {
+      "id": "improve-animations",
+      "level": "optional",
+      "profiles": ["UIUX"],
+      "triggers": ["read-only motion audit", "animation improvement plan"],
+      "installEvidence": "skills/improve-animations/SKILL.md",
+      "source": {
+        "repository": "emilkowalski/skills",
+        "ref": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
+        "path": "skills/improve-animations"
+      }
+    },
+    {
+      "id": "animation-vocabulary",
+      "level": "optional",
+      "profiles": ["UIUX"],
+      "triggers": ["name a motion effect", "disambiguate animation terminology"],
+      "installEvidence": "skills/animation-vocabulary/SKILL.md",
+      "source": {
+        "repository": "emilkowalski/skills",
+        "ref": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
+        "path": "skills/animation-vocabulary"
+      }
+    },
+    {
+      "id": "apple-design",
+      "level": "optional",
+      "profiles": ["UIUX"],
+      "triggers": ["gesture-driven UI", "springs", "momentum", "Apple-style interaction"],
+      "installEvidence": "skills/apple-design/SKILL.md",
+      "source": {
+        "repository": "emilkowalski/skills",
+        "ref": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
+        "path": "skills/apple-design"
+      }
+    },
+    {
+      "id": "hatch-pet",
+      "level": "optional",
+      "profiles": ["Optional"],
+      "triggers": ["Codex pet", "animated pet", "pet spritesheet"],
+      "installEvidence": "skills/hatch-pet/SKILL.md",
+      "source": {
+        "repository": "openai/skills",
+        "ref": "49f948faa9258a0c61caceaf225e179651397431",
+        "path": "skills/.curated/hatch-pet"
+      }
+    }
+  ],
+  "legacyEntries": [
+    {
+      "id": "codex-home-recovery",
+      "classification": "retired-local-snapshot",
+      "install": false,
+      "replacement": ["scripts/sync-runtime.ps1", "runtime transaction rollback", "Codex home backups"],
+      "reason": "No SKILL.md, authoritative repository, or project provenance was found for the old folder."
+    },
+    {
+      "id": "codex-primary-runtime",
+      "classification": "runtime-component",
+      "install": false,
+      "replacement": ["plugins/cache/openai-primary-runtime", "bundled workspace dependencies"],
+      "reason": "This is a Codex runtime/plugin package, not a user skill."
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 param(
   [Parameter(Mandatory)][string]$Path,
   [ValidateSet('Draft','Ready')][string]$Mode = 'Ready',
+  [switch]$Quiet,
   [switch]$Json
 )
 
@@ -42,6 +43,6 @@ if ($Mode -eq 'Ready' -and $convergence) {
   }
 }
 $result = [ordered]@{ schemaVersion=1; workflowPath=$workflowPath; mode=$Mode; valid=($issues.Count -eq 0); issues=@($issues) }
-if ($Json) { $result | ConvertTo-Json -Depth 4 } elseif ($result.valid) { Write-Host "Spec workflow: PASS ($Mode, $workflowPath)" } else { $issues | ForEach-Object { Write-Host "FAIL: $_" }; Write-Host 'Spec workflow: FAIL' }
+if ($Json) { $result | ConvertTo-Json -Depth 4 } elseif (!$Quiet -and $result.valid) { Write-Host "Spec workflow: PASS ($Mode, $workflowPath)" } elseif (!$Quiet) { $issues | ForEach-Object { Write-Host "FAIL: $_" }; Write-Host 'Spec workflow: FAIL' }
 if (!$result.valid) { exit 1 }
 exit 0

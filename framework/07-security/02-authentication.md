@@ -1,72 +1,46 @@
-# authentication
+# Authentication
 
-Version: 1.0  
+Version: 2.0
 Pack: 07-security  
 Status: Stable  
-Applies To: security
+Applies To: identity, login, session, token, recovery, and account changes
 
-## Purpose
+## Identity lifecycle
 
-authentication defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+Model registration, verification, login, step-up/MFA, session creation,
+rotation, logout/revocation, recovery, disablement, and deletion as explicit
+states. Define what happens to existing sessions and refresh tokens at every
+security-sensitive transition.
 
-## When To Use This Module
+## Mandatory rules
 
-Use this module when the task touches security concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+- Store passwords only with a current adaptive password hash and a repository
+  approved cost policy; never encrypt or log raw passwords.
+- Use a well-reviewed identity/token library and the project’s documented key
+  management path; do not invent cryptography or token formats.
+- Use short-lived access credentials, rotate refresh/session identifiers after
+  login or privilege changes, and revoke them on logout, reset, disablement,
+  or suspected compromise.
+- Rate-limit and monitor login, recovery, verification, and MFA attempts
+  without creating an account-enumeration oracle.
+- Treat reset links, MFA recovery codes, cookies, and authorization headers as
+  secrets. Apply secure, HttpOnly, SameSite, expiry, audience, issuer, and
+  replay controls appropriate to the transport.
+- Require re-authentication or step-up for high-impact actions and make the
+  decision server-side.
 
-## Core Principles
+## Verification
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+Test valid and invalid credentials, expiry, replay, rotation, logout,
+concurrent sessions, reset-token reuse, MFA recovery, rate limits, and
+enumeration-safe responses. Verify that a disabled user cannot use an already
+issued credential where policy requires immediate revocation.
 
-## Mandatory Rules
+## Anti-patterns
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
-
-## Decision Guidance
-
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
-
-## Anti-Patterns
-
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
-
-## Review Checklist
-
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
-
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
+- Passwords, bearer tokens, or reset secrets in logs, URLs, analytics, or
+  screenshots.
+- Trusting a client-provided role or “verified” flag.
+- Permanent sessions, non-expiring reset links, shared admin accounts, or
+  fail-open MFA/recovery.
+- Changing the login flow without testing all existing session states.

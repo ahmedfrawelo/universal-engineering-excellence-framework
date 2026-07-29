@@ -2,7 +2,19 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.18.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.19.0 - 2026-07-29
+
+- Unified inferred and explicit task classification for preflight, capability profiles, and quality-gate selection.
+- Added behavioral classification fixtures and tier-aware gate selection: T0 stays core-only, T1 stays focused, and T2+ carries guardian/environment contracts.
+- Fixed relative repository-path health failures and made source checkout status explicit with `SOURCE_VALIDATED` and `NOT_APPLICABLE` checks.
+- Aligned Unix status and preflight with the source-versus-runtime activation contract and added source-status fixtures.
+- Hardened Windows and Unix diff-impact Git inspection so ownership and line-ending configuration cannot produce false empty success or noisy validation output.
+- Added `config/preferred-skills.json`, pinned cross-platform preferred-skill installers, registry provenance for the full skill set, and legacy-folder classification.
+- Expanded the architecture contract and documented activation authority, runtime drift, state boundaries, and cross-platform limits.
+- Replaced generic selected security-pack boilerplate with actionable trust-boundary, authentication, authorization, input, database, and OWASP review controls.
+- Replaced 166 repeated generic modules, decision graphs, gates, scorecards, and templates with concern-specific contracts and added a duplicate-content regression gate.
 
 ## 2.18.1 - 2026-07-24
 

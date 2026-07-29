@@ -41,7 +41,7 @@ if ($Agent -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$' -or $Agent -in @('.', '
 }
 $sourceCommit = "UNKNOWN"
 try {
-  $sourceCommit = (git -C $SourcePath rev-parse HEAD 2>$null)
+  $sourceCommit = (git -c "safe.directory=$SourcePath" -C $SourcePath rev-parse HEAD 2>$null)
   if (!$sourceCommit) { $sourceCommit = "UNKNOWN" }
 } catch { $sourceCommit = "UNKNOWN" }
 $versionText = Get-Content -LiteralPath (Join-Path $SourcePath "VERSION.md") -Raw
@@ -137,7 +137,7 @@ Write-Utf8File $stagingLoader @(
   "- T1 code changes default to a single agent. Record Agent route: <tier> | Agent: spawned <id> or not spawned - NO_INDEPENDENT_WORK/CRITICAL_PATH_ONLY/TOOL_UNAVAILABLE; spawn only when independent work materially improves the requested outcome.",
   "",
   "Design engineering skill routing:",
-  "- Keep ui-ux-pro-max and impeccable as the general UI/UX baseline.",
+  "- Keep ui-ux-pro-max and impeccable as the mandatory general UI/UX baseline, and add typeui-fundamentals as the recommended fundamentals baseline when available.",
   "- Add design-brief to turn an ambiguous visual request into an explicit design specification before implementation.",
   "- Add frontend-design when building or materially polishing a production frontend interface.",
   "- Add emil-design-eng for motion implementation and interaction polish.",
@@ -182,6 +182,7 @@ Write-Utf8File $stagingLoader @(
   "- Answer the user's direct question first, then give concise evidence.",
   "- Do not claim perfection, completion, release, push, browser verification, or active runtime status without current evidence.",
   "- Keep final responses short and factual, with changed scope and validation when files were modified.",
+  "- Do not repeat the same safety, deletion, cleanup, or progress status line. If the requested bounded work is complete, give one final outcome instead of continuing with repeated status text.",
   "- In Arabic or other RTL prose, every inline English word, identifier, product name, or short LTR phrase must be isolated for display readability. Do not insert hidden bidirectional control characters into code blocks, terminal commands, copyable file paths, JSON/YAML, source files, configuration, or repository content.",
   "",
   "Task scope discipline:",
@@ -208,6 +209,7 @@ Write-Utf8File $stagingLoader @(
   "- Repetition does not convert an internal bug into an external blocker. Mark a goal BLOCKED only for an external or user-only condition after no meaningful local work remains; never wait for the user merely to resume incomplete code.",
   "- Never pause an incomplete code path waiting for the user to resume it.",
   "- Stop when done: when a bounded requested outcome is complete, answer finally without optional expansion. Continue only explicit in-scope implementation that remains unfinished.",
+  "- Status-loop guard: repeated continuing, safety, deletion, cleanup, or no-data-loss phrasing is not progress. If no new evidence or action is being added, stop the loop and deliver the verified final result once.",
   "",
   "Local command autonomy:",
   "- Run and reuse normal project commands and local development services without asking the user. A Codex command prompt is a platform confirmation, not an agent question or task blocker.",
@@ -273,6 +275,7 @@ $managedAgentsLines = @(
   "Precedence: Scope wins; stop when done; T0/T1 stay single-agent; medium is the economical default, not a hard ceiling; read the loader once per task (not every turn) or when runtime/version may have changed; browser control is explicit-task only.",
   "Before non-trivial work, read the loader, verify status, select only relevant modules/tools, and record Intent, Tier, Spawn reason, and Browser reason as the route rationale.",
   "Always load only: Loaded: boot-loader, core-system. Final labels: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status.",
+  "Status-loop guard: do not repeat the same safety, deletion, cleanup, or progress line; when bounded work is complete, give one final verified outcome.",
   "",
   "Browser hard stop: only when the task explicitly needs the browser. Prefer the installed Chrome control plugin against the user's existing Chrome tabs/profile. Never launch Playwright, chrome-devtools, an in-app browser, IDE Simple Browser, a second profile, or a new context as a substitute. If Chrome control is unavailable, stop and ask - do not invent a fallback browser.",
   "",

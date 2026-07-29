@@ -89,6 +89,7 @@ foreach($p in $selectedProfiles){
       Add-Check Frontend Playwright Recommended (Has-Command npx) 'npx can invoke Playwright'
       Add-Check Frontend 'UI UX Pro Max' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path' 'npx skills add github:https://github.com/nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max'
       Add-Check Frontend Impeccable Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'
+      Add-Check Frontend 'TypeUI Fundamentals' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\typeui-fundamentals\SKILL.md'))) 'skill path' 'scripts/install-preferred-skills.ps1 -Skill typeui-fundamentals'
       Add-Check Frontend 'Frontend Design' Optional ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\frontend-design\SKILL.md'))) 'Open Design specialist skill path' 'Install from nexu-io/open-design'
     }
     'Backend' { Add-Check Backend '.NET or Node or Python' Recommended ((Has-Command dotnet) -or (Has-Command node) -or (Has-Command python)) 'at least one detected backend runtime' }
@@ -96,6 +97,7 @@ foreach($p in $selectedProfiles){
     'UIUX' {
       Add-Check UIUX 'UI UX Pro Max' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\ui-ux-pro-max\SKILL.md'))) 'skill path'
       Add-Check UIUX Impeccable Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\impeccable\SKILL.md'))) 'skill path'
+      Add-Check UIUX 'TypeUI Fundamentals' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\typeui-fundamentals\SKILL.md'))) 'skill path' 'scripts/install-preferred-skills.ps1 -Skill typeui-fundamentals'
       Add-Check UIUX 'Emil Design Engineering' Recommended ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\emil-design-eng\SKILL.md'))) 'specialist skill path' 'scripts/install-design-engineering-skills.ps1'
       foreach($skill in @('frontend-design','design-brief')) {
         Add-Check UIUX $skill Optional ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome "skills\$skill\SKILL.md"))) 'Open Design specialist skill path' 'Install from nexu-io/open-design'

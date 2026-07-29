@@ -1,37 +1,24 @@
 # Architecture Gate
 
-## Purpose
-This gate defines the minimum evidence required before work can be reported as complete. It is intended for AI coding assistants, maintainers, reviewers, and release owners.
+## Pass Conditions
 
-## Checks
-- The relevant source, configuration, documentation, and runtime paths were inspected.
-- Requirements and acceptance criteria are explicit and testable.
-- The implementation follows local project patterns and avoids unrelated rewrites.
-- Security, performance, reliability, accessibility, and maintainability impacts are reviewed.
-- Automated validation was run where available, and manual review covered the remaining risky behavior.
-- The final report distinguishes verified facts from assumptions and limitations.
+- The required architecture outcome and acceptance boundary are explicit.
+- The implementation conforms to repository ownership and conventions.
+- Review covers boundary ownership, dependency direction, coupling, deployment, and evolution cost.
+- a dependency view, affected scenarios, and an ADR for the selected boundary is current, reproducible, and successful.
+- Residual risk has a named owner, mitigation, and trigger.
 
-## Failure Conditions
-- Empty files, placeholders, shallow outlines, or TODO-only artifacts.
-- Claims of completion without validation evidence.
-- Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
-- Duplicated implementation paths where a shared local pattern already exists.
-- Missing rollback or mitigation plan for risky production changes.
+## Hard Failures
 
-## Pass Criteria
-- All required files and implementation changes are present.
-- The work satisfies the user request without touching unrelated repositories or secrets.
-- Validation commands pass, or any unavailable checks are documented with a concrete reason.
-- Remaining risks are minor, visible, and paired with practical follow-up steps.
+- A critical architecture invariant, safety control, or acceptance behavior is missing or contradicted.
+- Required validation failed, was skipped without cause, or cannot be reproduced.
+- Compatibility, destructive impact, public behavior, or rollback remains unknown.
+- Completion depends on a placeholder, fabricated result, or undocumented manual assumption.
 
-## Evidence Required
-- Files changed or reviewed.
-- Commands run and pass/fail results.
-- Screenshots or rendered artifacts for UI and document work when visual quality matters.
-- Link or commit reference when the change is pushed.
+## Evidence Record
 
-## Related Scorecard
-Use the matching scorecard in framework/28-scorecards/ to grade depth and consistency after this gate passes.
+Record inspected artifacts, exact commands or review method, results, exceptions, and the reviewer or automation source. A warning remains a warning; it cannot be averaged into a pass.
 
-## Related Checklist
-Use the relevant checklist pack before final response, especially for security, performance, production, testing, and documentation work.
+## Decision
+
+Return PASS, FAIL, or BLOCKED. BLOCKED must name the missing fact or authority and the smallest action that can resolve it.

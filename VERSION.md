@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.18.1.
+UEEF Enterprise Edition version: 2.19.0.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -94,6 +94,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.16.2: removed the final master-loader hard reasoning cap and added release-documentation consistency coverage.
 - 2.17.0: added Unix intent-fidelity CI, a compact precedence-first generated runtime, explicit cross-platform browser fallback boundaries, behavioral route fixtures, and an opt-in runtime doctor.
 - 2.18.1: fixed automatic updates to retain the absolute source repository path.
+- 2.19.0: unified task-text classification across preflight and quality gates, added behavioral routing fixtures, made source/runtime activation state explicit, fixed relative-path health diagnostics, and expanded the architecture contract.
 - 2.18.0: added automatic per-user Codex runtime updates on Windows with a fully hidden background launcher.
 - 2.17.3: fixed installer and runtime validation edge cases, including Git-unavailable diff-impact reporting, opt-in Open Design installation coverage, runtime sync with an empty AGENTS file, and context-map test discovery.
 - 2.17.2: fixed Windows CI Codex-home portability, PowerShell script-root default evaluation, and Unix preflight executable permissions.

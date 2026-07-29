@@ -1,93 +1,47 @@
-# core system
+# Core System
 
-Version: 1.0  
+Version: 1.1
 Pack: 01-core  
 Status: Stable  
-Applies To: core
+Applies To: every non-trivial UEEF-governed task
 
 ## Purpose
 
-core system defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+The Core System is the executable policy boundary for activation, scope, routing, evidence, and completion. It coordinates specialized packs without replacing their domain rules.
 
-## When To Use This Module
+## Required Decisions
 
-Use this module when the task touches core concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+1. Identify the requested outcome, ownership boundary, risk, and explicit exclusions.
+2. Prove whether the current path is a validated source checkout or an active managed runtime.
+3. Load only the modules, skills, tools, and gates justified by inspected evidence.
+4. Select the smallest coherent route and verification strength that can prove the outcome.
+5. Keep implementation active until acceptance evidence is complete or a genuine external blocker remains.
 
-## Core Principles
+## Non-Negotiable Rules
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+- Current repository evidence overrides memory and generic assumptions.
+- Proceed autonomously through ordinary scoped engineering work; ask only when a material user choice or new authority is required.
+- Scope wins over broad audits, upgrades, delegation, or ceremony unless the user explicitly expands it.
+- Activation, capability, browser, validation, and completion claims require direct current evidence.
+- Existing owners, shared mechanisms, design systems, and conventions are reused before new parallel paths are created.
+- Shared-first rule: place behavior used by multiple consumers in the existing shared/common/library owner and import it from each consumer.
+- Before creating custom UI or custom behavior, search the project's components, tokens, services, validators, clients, stores, utilities, and pattern registries.
+- Security, data integrity, accessibility, performance, recovery, and operability are selected in proportion to actual risk.
+- User-owned changes and secrets remain untouched unless the requested task specifically authorizes them.
 
-## Mandatory Rules
+## Required Evidence
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Before non-trivial work, evaluate named user-requested skills, installed skills, project-local skills, and relevant UEEF packs. Build the smallest skill chain that covers discovery, implementation, verification, and review.
-- Treat skill-routing red flags as a stop-and-reroute trigger: missing skill check, unsupported shortcut, untested fix, partial verification, fake completion, or unbounded subagent work.
-- For broad, ambiguous, multi-file, high-impact, or durable product/architecture work, use spec-driven development: define the specification, clarify ambiguity, map plan decisions to requirements, break work into traceable tasks, and converge code/tests/final claims back to the spec.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Shared-first rule: when behavior, UI, validation, data access, formatting, configuration, or design logic will be reused in more than one place, implement it in the existing shared/common/library layer and import it from each consumer. Do not copy it into each feature.
-- A shared directory is not evidence of reuse. Group each related reusable component family under one owner folder, keep one canonical primitive and public entrypoint, place specialized recipes beneath that owner, and reject parallel shared implementations with overlapping semantics.
-- Before creating a shared capability, search every shared root, barrel export, registry, selector, and import path. Reuse the owner when complete, extend it in place when additions are required, and create only when no compatible owner exists.
-- Before creating custom UI or custom behavior, search the project for existing shared components, design tokens, layouts, services, validators, API clients, utilities, hooks, directives, pipes, stores, mappers, and pattern libraries. Reuse first, extend second, create new only when no suitable owner exists.
-- Do not create random standalone files or unowned folders.
-- Place every new file under an existing owned feature, layer, package, documentation, test, script, or generated-artifact folder. If no owner exists, create the smallest named folder that describes ownership and lifecycle before adding the file.
-- Do not dump unrelated files into a project root, generic scratch folder, or single mixed folder. Group files by responsibility, runtime ownership, and deletion/deployment lifecycle.
-- Do not solve a multi-file feature by creating a standalone-file system. Standalone files are allowed only for repository-standard entrypoints, documented configuration, one-off scripts with clear script ownership, or an explicit user-requested artifact.
-- Keep files small enough to review and maintain. When a file starts mixing UI, data access, business rules, validation, transport, tests, or generated content, split by responsibility using existing project conventions.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
-- For behavior changes, use TDD or an equivalent evidence loop: define expected behavior, prove the failing or missing case when practical, make the smallest change, and verify the passing result before claiming completion.
-- Proceed autonomously through ordinary scoped engineering work; do not ask for routine approval when the user's task already authorizes it.
-- Respect platform-level and high-impact confirmations. They cannot be disabled by repository instructions.
-- Separate implementation from release readiness. An explicit scope expansion requires replanning and continued delivery, not a pause because the change is not yet ready to ship.
-- A regression blocks completion or release claims, not work on the requested fix unless continuing would worsen or destroy user data.
-- Stay inside the user's requested task scope. Do not chase unrelated errors, warnings, refactors, redesigns, or neighboring broken tests unless they directly block the requested work, were caused by the current changes, or the user explicitly expands scope.
-- When an unrelated pre-existing error is discovered, record it briefly as unrelated evidence and continue the requested task. Do not modify unrelated files or systems to make the repository look cleaner.
+- Route rationale: intent, tier, spawn decision, and browser decision.
+- Activation or source-validation status from the supported status contract.
+- A requirements-to-change-to-verification trace for the requested outcome.
+- Exact failures, skipped checks, residual risks, and owners; warnings never become implicit passes.
 
-## Decision Guidance
+## Failure Conditions
 
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
-
-## Anti-Patterns
-
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
-
-## Review Checklist
-
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
-
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
+- Work begins from an unvalidated or falsely claimed runtime state.
+- Routing expands beyond the user's outcome without direct necessity or authority.
+- A required gate fails, evidence is fabricated, or incomplete work is reported as complete.
+- A broad rule contradicts a narrower applicable module or repository-local instruction.
 
 ## Runtime Activation Requirement
 
@@ -127,11 +81,14 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 - A known regression must block completion and release claims until fixed or explicitly accepted by an accountable owner with impact, expiry, mitigation, and rollback evidence. Continue implementing the fix unless further work would risk irreversible user or data harm.
 - Run the Environment Bootstrap before project inspection, architecture detection, planning, implementation, and quality gates. Select only profiles required by task and repository evidence.
 - Mandatory environment gaps block work; Recommended gaps warn and continue; Optional gaps never block. Never claim environment READY without current bootstrap evidence.
-- For every UI, UX, frontend, design, layout, accessibility, or visual-polish task, apply both `ui-ux-pro-max` and `impeccable` together when available. `ui-ux-pro-max` supplies design intelligence; `impeccable` supplies product-quality critique and hardening.
+- For every UI, UX, frontend, design, layout, accessibility, or visual-polish task, apply both `ui-ux-pro-max` and `impeccable` together when available, and add `typeui-fundamentals` when available for layout, typography, accessibility, and interaction principles. `ui-ux-pro-max` supplies design intelligence; `impeccable` supplies product-quality critique and hardening; `typeui-fundamentals` supplies universal UI/UX rules.
 - For browser tasks, use the browser the user actually opened, including its active tab and signed-in session. Do not silently create or switch to an isolated browser, profile, or context. If no usable user browser exists, block and ask the user to open it and sign in.
 
 ## File Organization and Size Requirements
 
+- Place every new file under an existing owned feature, layer, package, documentation, test, script, or generated-artifact folder.
+- Do not solve a multi-file feature by creating a standalone-file system.
+- Keep files small enough to review and maintain; split mixed responsibilities using existing project conventions.
 - New source files belong beside the feature, layer, route, module, package, or test owner that will maintain them.
 - Shared or repeated source belongs in the shared/common/library owner that matches its responsibility. Feature folders should import shared capabilities instead of copying or reimplementing them.
 - New generated outputs, screenshots, logs, caches, reports, and build artifacts belong only in governed generated-artifact folders with cleanup policy, not beside source files.
@@ -158,6 +115,7 @@ Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-r
 
 ## Task Scope Discipline
 
+- Stay inside the user's requested task scope.
 - Start every implementation by identifying the requested outcome, affected ownership boundary, and out-of-scope neighboring issues.
 - Fix errors introduced by the current change and blockers that prevent validating the requested work.
 - Do not repair unrelated historical failures, unrelated tests, unrelated UI, unrelated backend endpoints, unrelated dependency warnings, or unrelated generated files unless the user asks for a broader cleanup.

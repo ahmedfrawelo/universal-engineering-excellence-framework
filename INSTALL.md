@@ -2,7 +2,7 @@
 
 UEEF installs globally by copying the framework and writing an assistant loader. Use PowerShell on Windows and shell scripts on macOS/Linux. Installers detect likely global rule locations, ask before overwriting, back up existing files, print verification steps, and fail safely.
 
-The current release is 2.18.1.
+The current release is 2.19.0.
 
 ## Codex
 
@@ -14,7 +14,15 @@ The current release is 2.18.1.
 ./scripts/install-codex.sh
 ```
 
-The Codex installer installs the Open Design `design-brief` and `frontend-design` skills only when explicitly requested with `-InstallOpenDesignSkills`. They are optional runtime specialists; `ui-ux-pro-max` and `impeccable` remain the required UI/UX baseline.
+The authoritative optional-skill set is `config/preferred-skills.json`. Install every missing preferred skill from its pinned commit with:
+
+```powershell
+.\scripts\install-preferred-skills.ps1 -CodexHome "D:\shared folder\codex-home"
+```
+
+On Unix, set `CODEX_HOME` and run `scripts/install-preferred-skills.sh`. Both installers are missing-only: they preserve existing skill directories and refuse to overwrite an incomplete directory. Skills remain trigger-selected; installation does not load the full design suite into every task.
+
+The old `codex-primary-runtime` folder is a runtime/plugin component rather than a user skill. The unprovenanced `codex-home-recovery` snapshot is retired in favor of transactional runtime rollback and Codex-home backups; both classifications are recorded in the preferred-skills manifest.
 
 On Windows, Codex installation also registers a per-user background task that checks `origin/main` every 15 minutes and synchronizes the runtime when a newer release is available. Use `-SkipAutoUpdate` only when this behavior is not wanted.
 
@@ -66,7 +74,7 @@ After installation, run:
 .\scripts\ueef-status.ps1
 ```
 
-UEEF is active only when the result shows Installed: YES, Global loader: PASS, and Overall: ACTIVE. If the global AI rules path cannot be detected, follow docs/verify-ueef-is-active.md and set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md.
+UEEF is active only when the result shows Installed: YES, Global loader: PASS, and Overall: ACTIVE. `SOURCE_VALIDATED` is a source-checkout result, not an installed-runtime claim. If the global AI rules path cannot be detected, follow docs/verify-ueef-is-active.md and set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md.
 ## Exact Codex installation
 
 For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:
@@ -80,4 +88,4 @@ If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-cod
 
 ## Updating UEEF
 
-This repository's current release is 2.18.1. From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the Windows installer with `-Force` or the Unix installer with `--force` so the active runtime receives the current framework and loader; omit `-NoBackup`/`--no-backup` to keep a recovery copy. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.
+This repository's current release is 2.19.0. From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the Windows installer with `-Force` or the Unix installer with `--force` so the active runtime receives the current framework and loader; omit `-NoBackup`/`--no-backup` to keep a recovery copy. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.

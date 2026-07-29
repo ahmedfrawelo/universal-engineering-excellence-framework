@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.18.1; it fixes automatic update source-path handling.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.19.0; it unifies task classification and separates source validation from managed runtime activation.
 
 ## Why UEEF Exists
 
@@ -50,7 +50,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.18.1. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.19.0. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 
@@ -58,7 +58,11 @@ UEEF requires security by default, backend authorization, safe secret handling, 
 
 ## Unix capability scope
 
-Unix preflight reports `UNSUPPORTED_ON_UNIX` for capability health. It does not claim Windows capability-health or callable-probe parity.
+Unix preflight verifies `SOURCE_VALIDATED` or `ACTIVE_RUNTIME` before authorizing execution, while reporting `UNSUPPORTED_ON_UNIX` only for capability health and callable probes. It does not claim Windows capability-health parity.
+
+## Preferred skills
+
+`config/preferred-skills.json` is the source of truth for optional user-installed skills, their task triggers, pinned repositories, and install evidence. Run `scripts/install-preferred-skills.ps1` on Windows or `scripts/install-preferred-skills.sh` on Unix to install only missing entries. Runtime-managed system skills and plugin packages are deliberately excluded from user-skill installation.
 
 ## Quality Philosophy
 
@@ -106,7 +110,7 @@ UEEF can be synchronized into Codex home as a self-contained runtime:
 .\scripts\write-active-state.ps1
 ```
 
-The runtime is active only when `scripts\ueef-status.ps1` reports `Overall: ACTIVE`.
+The managed runtime is active only when `scripts\ueef-status.ps1` reports `Overall: ACTIVE`. A source checkout may report `SOURCE_VALIDATED`; that proves repository integrity but does not claim that Codex is using the installed runtime.
 
 ## Product UI Standard
 

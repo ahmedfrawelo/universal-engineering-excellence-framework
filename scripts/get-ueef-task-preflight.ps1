@@ -14,17 +14,43 @@ param(
   [switch]$Json
 )
 $ErrorActionPreference = 'Stop'
-$route = (& (Join-Path $PSScriptRoot 'select-agent-route.ps1') -Scope $Scope -Ambiguity $Ambiguity -Coupling $Coupling -Risk $Risk -Verification $Verification -RiskFloor $RiskFloor -CodeChange:$CodeChange -Json | Out-String) | ConvertFrom-Json
-$profile = (& (Join-Path $PSScriptRoot 'select-capability-profile.ps1') -Task $Task -TaskTag $TaskTag -RouteTier $route.tier -RiskFloor $RiskFloor -CodeChange:$CodeChange -Json | Out-String) | ConvertFrom-Json
+$inputParameters = @{} + $PSBoundParameters
+$classificationArgs = @{ Task=$Task; Json=$true }
+foreach ($name in @('Scope','Ambiguity','Coupling','Risk','Verification','RiskFloor','TaskTag','CodeChange')) {
+  if ($inputParameters.ContainsKey($name)) { $classificationArgs[$name] = $inputParameters[$name] }
+}
+$classification = (& (Join-Path $PSScriptRoot 'get-ueef-task-classification.ps1') @classificationArgs | Out-String) | ConvertFrom-Json
+$route = $classification.route
+$profile = (& (Join-Path $PSScriptRoot 'select-capability-profile.ps1') -Task $Task -TaskTag $classification.values.taskTags -RouteTier $route.tier -RiskFloor $classification.values.riskFloor -CodeChange:([bool]$classification.values.codeChange) -ClassificationSource $classification.source -Json | Out-String) | ConvertFrom-Json
+
+$repositoryPath = Split-Path -Parent $PSScriptRoot
+$runtimeStatus = (& (Join-Path $PSScriptRoot 'ueef-status.ps1') -RepositoryPath $repositoryPath -SkipRuntimeDrift -Json | Out-String) | ConvertFrom-Json
+$activationMode = if ($runtimeStatus.mode -eq 'managed-runtime' -and $runtimeStatus.overall -eq 'ACTIVE') {
+  'ACTIVE_RUNTIME'
+} elseif ($runtimeStatus.mode -eq 'source-checkout' -and $runtimeStatus.overall -eq 'SOURCE_VALIDATED') {
+  'SOURCE_VALIDATED'
+} else {
+  'INACTIVE'
+}
+$executionAuthorized = $activationMode -in @('ACTIVE_RUNTIME','SOURCE_VALIDATED')
+
 $healthRequired = $IncludeHealth.IsPresent -or $profile.capabilityHealthRequired
 $health = $null
 if ($healthRequired -and !$SkipHealth) {
-  $raw = & (Join-Path $PSScriptRoot 'get-ueef-health.ps1') -Json 2>$null | Out-String
+  $raw = & (Join-Path $PSScriptRoot 'get-ueef-health.ps1') -RepositoryPath $repositoryPath -Json 2>$null | Out-String
   if ($raw) { $health = $raw | ConvertFrom-Json }
 }
-$status = if ($health -and $health.runtime.overall -ne 'ACTIVE') { 'BLOCKED' } elseif ($healthRequired -and !$health) { 'READY_WITH_FALLBACK' } else { 'READY' }
+$status = if (!$executionAuthorized) {
+  'BLOCKED'
+} elseif ($health -and $health.overall.status -eq 'FAIL') {
+  'BLOCKED'
+} elseif ($healthRequired -and !$health) {
+  'READY_WITH_FALLBACK'
+} else {
+  'READY'
+}
 $browserGate = $null
-if ($TaskTag -contains 'browser') {
+if ($classification.values.taskTags -contains 'browser') {
   $browserGate = [ordered]@{
     status = 'REQUIRED'
     enforcement = 'HARD_FAIL_BEFORE_BROWSER_TOOL'
@@ -40,6 +66,28 @@ if ($TaskTag -contains 'browser') {
     failureAction = 'Do not select or call a browser tool and do not open an alternate surface. Stop and ask if Chrome control is unavailable.'
   }
 }
-$result = [ordered]@{ schemaVersion=2; generatedAt=(Get-Date).ToUniversalTime().ToString('o'); status=$status; task=$Task; classification=[ordered]@{source='explicit';tags=@($TaskTag);route=$route}; profile=$profile; health=[ordered]@{required=$healthRequired;checked=[bool]$health;status=if($health){$health.overall.status}else{'SKIPPED'};report=$health}; browserGate=$browserGate; decisions=@($profile.workflowDecisions) }
+$result = [ordered]@{
+  schemaVersion = 3
+  generatedAt = (Get-Date).ToUniversalTime().ToString('o')
+  status = $status
+  task = $Task
+  classification = $classification
+  activation = [ordered]@{
+    mode = $activationMode
+    executionAuthorized = $executionAuthorized
+    runtimeMode = $runtimeStatus.mode
+    runtimeOverall = $runtimeStatus.overall
+    status = $runtimeStatus
+  }
+  profile = $profile
+  health = [ordered]@{
+    required = $healthRequired
+    checked = [bool]$health
+    status = if($health){$health.overall.status}else{'SKIPPED'}
+    report = $health
+  }
+  browserGate = $browserGate
+  decisions = @($profile.workflowDecisions)
+}
 if ($Json) { $result | ConvertTo-Json -Depth 10 } else { Write-Output "UEEF task preflight: $status"; Write-Output "Route: $($route.tier)"; Write-Output "Profile: $($profile.profile)"; Write-Output "Health: $($result.health.status)" }
 if ($status -eq 'BLOCKED') { exit 1 }

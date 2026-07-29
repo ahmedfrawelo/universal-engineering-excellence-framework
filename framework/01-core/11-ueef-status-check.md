@@ -39,8 +39,9 @@ On Unix-like systems:
 
 ## Interpretation
 
-- Overall: ACTIVE means UEEF may be used for engineering work.
-- Overall: INACTIVE means the assistant must not pretend UEEF is active.
+- Overall: ACTIVE means the managed runtime is installed and may be used for engineering work.
+- Overall: SOURCE_VALIDATED means only that a source checkout passes repository validation; it must not be presented as runtime activation.
+- Overall: INACTIVE or SOURCE_INVALID means the assistant must not pretend UEEF is active.
 - Global loader: UNKNOWN means the repository is present but a global AI rules path was not verified.
 
 ## Required Response Behavior

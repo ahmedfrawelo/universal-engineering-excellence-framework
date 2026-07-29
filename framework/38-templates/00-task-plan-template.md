@@ -1,72 +1,58 @@
-# task plan template
+# Task Plan Template
 
-Version: 1.0  
+Version: 1.1
 Pack: 38-templates  
 Status: Stable  
-Applies To: templates
+Applies To: implementation work with multiple dependent steps or material risk
 
-## Purpose
+## Outcome
 
-task plan template defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+- Requested end state:
+- Observable acceptance criteria:
+- Explicit exclusions:
+- Owner or decision-maker:
 
-## When To Use This Module
+## Inspected Context
 
-Use this module when the task touches templates concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+- Repository and affected boundaries:
+- Existing conventions and reusable mechanisms:
+- Constraints, dependencies, and user-owned changes:
+- Unknowns that could change the plan:
 
-## Core Principles
+## Route
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+- Complexity tier and evidence:
+- Required skills, tools, modules, and quality gates:
+- Parallelization decision and reason:
+- Browser or external-system requirement and reason:
 
-## Mandatory Rules
+## Steps
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
+| Order | Step and deliverable | Dependencies | Verification | Status |
+| --- | --- | --- | --- | --- |
+| 1 |  |  |  | Pending |
+| 2 |  |  |  | Pending |
+| 3 |  |  |  | Pending |
 
-## Decision Guidance
+Only one dependent step may be `In progress` at a time. Independent steps may run concurrently when the execution policy permits it.
 
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
+## Risk Controls
 
-## Anti-Patterns
+- Destructive or externally visible actions:
+- Security, privacy, data, compatibility, and production risks:
+- Rollback or recovery path:
+- Approval or authority boundaries:
 
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
+## Evidence Log
 
-## Review Checklist
+| Acceptance criterion | Evidence source | Result | Remaining gap |
+| --- | --- | --- | --- |
+|  |  |  |  |
 
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
+## Completion Audit
 
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
+- Every requested outcome maps to a completed step and evidence row.
+- Required gates passed; failures and skips were not hidden.
+- Runtime or published artifacts were synchronized when in scope.
+- Residual limitations have an owner and next action.
+- Final status is `COMPLETE`, `BLOCKED`, or `PARTIAL` with an evidence-backed reason.

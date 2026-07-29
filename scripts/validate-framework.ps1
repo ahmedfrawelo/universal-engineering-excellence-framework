@@ -33,6 +33,8 @@ $requiredAcceptance = @(
   "scripts/get-ueef-health.ps1",
   "scripts/test-ueef-health.ps1",
   "scripts/select-capability-profile.ps1",
+  "scripts/get-ueef-task-classification.ps1",
+  "scripts/test-task-classification.ps1",
   "scripts/test-capability-profile.ps1",
   "scripts/get-ueef-task-preflight.ps1",
   "scripts/ueef-doctor.ps1",
@@ -65,6 +67,10 @@ $requiredAcceptance = @(
   "scripts/test-assurance-performance.ps1",
   "config/assurance-budgets.json",
   "config/capability-registry.json",
+  "config/preferred-skills.json",
+  "scripts/install-preferred-skills.ps1",
+  "scripts/install-preferred-skills.sh",
+  "scripts/test-preferred-skills.mjs",
   "examples/generic-ai/runtime-check-example.md",
   "framework/27-quality-gates/16-ueef-activation-gate.md",
   "framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md",
@@ -237,6 +243,8 @@ $requiredAcceptance = @(
   "scripts/install-runtime.sh",
   "scripts/test-script-syntax.ps1",
   "scripts/test-script-syntax.sh",
+  "scripts/test-ueef-status.sh",
+  "scripts/test-module-specificity.mjs",
   "docs/releases/v2.6.0.md",
   "docs/releases/v2.7.0.md",
   "docs/releases/v2.7.1.md",
@@ -379,9 +387,9 @@ foreach ($link in $requiredLinks) { if ($masterText -notmatch [regex]::Escape($l
 $environmentModules = @("README.md","INDEX.md","00-environment-bootstrap.md","01-profile-selection.md","02-core-profile.md","03-frontend-profile.md","04-backend-profile.md","05-database-profile.md","06-uiux-profile.md","07-devops-profile.md","08-ai-profile.md","09-optional-profile.md","10-dependency-levels.md","11-detection-and-installation.md","12-mcp-detection.md","13-runtime-bootstrap-sequence.md")
 foreach ($file in $environmentModules) { if (!(Test-Path (Join-Path $Root "framework/50-environment-bootstrap/$file"))) { throw "Environment Bootstrap missing module: $file" } }
 $bootstrapScript = Get-Content (Join-Path $Root "scripts/environment-bootstrap.ps1") -Raw
-foreach ($term in @("Mandatory","Recommended","Optional","ui-ux-pro-max","impeccable","frontend-design","design-brief","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","Overall READY","Overall BLOCKED","package","csproj","schema","Dockerfile")) { if ($bootstrapScript -notmatch [regex]::Escape($term)) { throw "Bootstrap script missing required behavior: $term" } }
+foreach ($term in @("Mandatory","Recommended","Optional","ui-ux-pro-max","impeccable","typeui-fundamentals","frontend-design","design-brief","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","Overall READY","Overall BLOCKED","package","csproj","schema","Dockerfile")) { if ($bootstrapScript -notmatch [regex]::Escape($term)) { throw "Bootstrap script missing required behavior: $term" } }
 $coreText = Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw
-foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens",'apply both `ui-ux-pro-max` and `impeccable` together',"Place every new file under an existing owned feature","Do not solve a multi-file feature by creating a standalone-file system","Keep files small enough to review and maintain","Answer the user's actual question first","server-side filtering, sorting, pagination, aggregation","evaluate SSR, SSG, streaming","Prevent over-rendering on both frontend and backend-driven UI paths","Animations must be smooth","Stay inside the user's requested task scope","Task Scope Discipline","Shared-first rule","Before creating custom UI or custom behavior","Large Project Reuse Requirements","Record the reuse decision","scripts/project-context-map.ps1")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
+foreach ($term in @("existing theme","light, dark, and system","responsive","overlay","Security and performance","component registry","governed design tokens",'apply both `ui-ux-pro-max` and `impeccable` together',"typeui-fundamentals","Place every new file under an existing owned feature","Do not solve a multi-file feature by creating a standalone-file system","Keep files small enough to review and maintain","Answer the user's actual question first","server-side filtering, sorting, pagination, aggregation","evaluate SSR, SSG, streaming","Prevent over-rendering on both frontend and backend-driven UI paths","Animations must be smooth","Stay inside the user's requested task scope","Task Scope Discipline","Shared-first rule","Before creating custom UI or custom behavior","Large Project Reuse Requirements","Record the reuse decision","scripts/project-context-map.ps1")) { if ($coreText -notmatch [regex]::Escape($term)) { throw "Core System missing required rule: $term" } }
 $fileFolderText = Get-Content (Join-Path $Root "framework/26-decision-graphs/file-folder-decision-graph.md") -Raw
 foreach ($term in @("Determine whether the behavior will be reused in multiple places","shared/common/library owner","standalone file becomes a hidden subsystem","oversized mixed files")) { if ($fileFolderText -notmatch [regex]::Escape($term)) { throw "File-folder decision graph missing required rule: $term" } }
 $frontendText = Get-Content (Join-Path $Root "framework/10-frontend/00-frontend-engineering.md") -Raw
@@ -426,6 +434,8 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-spec-workflow.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
+  & node (Join-Path $Root "scripts/test-preferred-skills.mjs") $Root | Out-Null
+  & (Join-Path $Root "scripts/test-task-classification.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-doctor.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-diff-impact.ps1") | Out-Null
@@ -449,6 +459,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
   & node (Join-Path $Root "scripts/test-framework-indexes.mjs") $Root | Out-Null
+  & node (Join-Path $Root "scripts/test-module-specificity.mjs") $Root | Out-Null
   & (Join-Path $Root "scripts/test-release-consistency.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-context-map.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-modernization-contract.ps1") | Out-Null
@@ -475,6 +486,8 @@ foreach ($asset in $manifest.assets.psobject.Properties) {
 }
 foreach ($pack in $manifest.expansionPacks) { if (!(Test-Path -LiteralPath (Join-Path $Root $pack))) { throw "Manifest expansion pack does not exist: $pack" } }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
+if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("Status-loop guard")) { throw "Loader missing status-loop guard" }
+if ((Get-Content (Join-Path $Root "framework/01-core/14-delivery-continuation-policy.md") -Raw) -notmatch [regex]::Escape("Repeated status phrasing is a control-flow failure")) { throw "Delivery continuation policy missing status-loop guard" }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch "58-agent-model-orchestration|pack 58") { throw "Loader missing agent model routing rule" }
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
 foreach ($term in @("Agent and model routing:","Design engineering skill routing:","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","not a reason to suspend execution","Local command autonomy:")) {

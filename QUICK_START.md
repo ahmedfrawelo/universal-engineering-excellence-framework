@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant applies only the evidence and controls proportionate to the task, then verifies the requested outcome.
 
-The current release is 2.18.1. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Codex sync installs Open Design skills only when you pass `-InstallOpenDesignSkills`.
+The current release is 2.19.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Run `scripts/install-preferred-skills.ps1` to reconcile the pinned preferred-skill set in `config/preferred-skills.json`; runtime synchronization and skill installation remain separate operations.
 
 ## Minimal path
 

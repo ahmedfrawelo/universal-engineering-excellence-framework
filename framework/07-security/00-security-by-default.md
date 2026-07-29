@@ -1,72 +1,65 @@
-# security by default
+# Security By Default
 
-Version: 1.0  
+Version: 2.0
 Pack: 07-security  
 Status: Stable  
-Applies To: security
+Applies To: application, API, infrastructure, data, and AI-assisted changes
 
 ## Purpose
 
-security by default defines practical engineering behavior that AI coding assistants and engineering teams can apply during real project work. It converts senior engineering judgment into repeatable operating rules.
+Make security an explicit design constraint rather than a final checklist.
+Load this module whenever a change can expose data, alter trust boundaries,
+create an endpoint, process a file, add a dependency, or change deployment
+configuration.
 
-## When To Use This Module
+## Required threat pass
 
-Use this module when the task touches security concerns, when repository inspection finds related files, or when a design decision could affect maintainability, security, performance, scalability, user experience, or production readiness.
+Before editing, record:
 
-## Core Principles
+1. The protected assets and their confidentiality, integrity, and availability
+   impact.
+2. The actors and trust boundaries involved, including tenant, service,
+   browser, queue, storage, and administrator boundaries.
+3. The untrusted inputs and the sinks they can reach.
+4. The abuse cases that would cause unauthorized access, data loss, denial of
+   service, secret disclosure, or unsafe execution.
+5. The control and the evidence that will prove it works.
 
-- Prefer current repository evidence over assumptions.
-- Preserve established architecture unless the requested outcome requires a safe improvement.
-- Choose simple, explicit designs before clever abstractions.
-- Treat security, performance, accessibility, and operability as default requirements.
-- Make tradeoffs visible when constraints conflict.
+Do not claim “secure by default” from a dependency scan alone. The scan does
+not prove authorization, tenant isolation, safe error handling, or correct
+configuration.
 
-## Mandatory Rules
+## Mandatory controls
 
-- Inspect the project before editing.
-- Detect existing conventions, reusable code, tools, MCPs, skills, and quality gates.
-- Avoid duplicated code, UI, validation, queries, configuration, documentation, and architecture patterns.
-- Do not create random standalone files or unowned folders.
-- Do not expose secrets, tokens, credentials, or private keys.
-- Run or recommend relevant validation before completion.
+- Deny access until identity, tenant, resource, and action are verified.
+- Validate at the boundary, canonicalize once, and encode for the output
+  context; never concatenate untrusted input into commands or queries.
+- Keep secrets out of source, logs, fixtures, URLs, screenshots, and evidence.
+- Minimize data returned, retained, broadcast, and cached.
+- Apply dependency and image updates through the repository's lockfile and
+  reproducible build path.
+- Make security failures observable without logging credentials or personal
+  data.
+- Add rollback or containment for changes that affect authentication,
+  authorization, migrations, payments, production, or incident response.
 
-## Decision Guidance
+## Verification
 
-1. Identify the smallest coherent change that satisfies the full requested end state.
-2. Compare at least two implementation paths when risk is non-trivial.
-3. Prefer the path that improves long-term clarity without expanding scope recklessly.
-4. Document unavoidable technical debt with risk, impact, and follow-up.
-5. Match verification strength to risk.
+Use the closest evidence: focused authorization tests, negative tests for
+cross-tenant/object access, input-fuzz or schema tests, secret scans, dependency
+review, migration dry runs, and a security-gate review. Record commands and
+results; list any unavailable scanner or unverified production assumption.
 
-## Anti-Patterns
+## Anti-patterns
 
-- Editing before inspection.
-- Treating a green build as proof when the requested behavior was not checked.
-- Adding dependencies for convenience alone.
-- Creating duplicate UI or duplicate domain logic.
-- Hiding limitations behind vague final wording.
+- Client-side permission checks treated as enforcement.
+- “Internal” endpoints without authentication because they are not linked in UI.
+- Logging full request bodies, tokens, cookies, or stack traces to users.
+- Broad wildcard CORS, debug mode, default credentials, or fail-open recovery.
+- A green build presented as proof that a trust-boundary change is safe.
 
-## Review Checklist
+## Completion criteria
 
-- The relevant files, scripts, and conventions were inspected.
-- The change belongs in the selected location.
-- Names communicate purpose and business meaning.
-- Security and performance risks were considered.
-- Verification evidence matches the scope of the change.
-
-## Quality Gate
-
-This module passes when the final implementation is understandable, maintainable, secure by default, reasonably performant, consistent with project architecture, and supported by honest verification evidence.
-
-## Related Modules
-
-- ../01-core/01-master-loader.md
-- ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
-
-## Success Criteria
-
-- The assistant can explain why the selected approach fits the project.
-- No unrelated user work is changed.
-- No placeholders, empty guidance, or fake completion claims remain.
-- Residual limitations are explicit and actionable.
+The change identifies its trust boundary, enforces the decision server-side,
+protects sensitive data, has direct negative evidence for the highest-risk
+abuse case, and states residual limitations honestly.

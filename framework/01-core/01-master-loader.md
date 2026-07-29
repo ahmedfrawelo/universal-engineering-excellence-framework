@@ -55,13 +55,13 @@ Load only:
 
 Apply UI UX Pro Max when available. Do not load backend, database, enterprise, or unrelated technology packs unless the task touches them.
 
-For UI/UX work, this means loading and applying both `ui-ux-pro-max` and `impeccable`. Do not report UIUX as PASS when only one is available; report the missing skill according to the environment profile.
+For UI/UX work, this means loading and applying both `ui-ux-pro-max` and `impeccable`, plus `typeui-fundamentals` when available for layout, typography, accessibility, and interaction principles. Do not report UIUX as PASS when either mandatory baseline skill is unavailable; report the missing skill according to the environment profile.
 
 For frontend routes that render public, indexable, slow-to-boot, content-heavy, or data-heavy first views, evaluate SSR, SSG, streaming, route-level pre-rendering, or server components when supported by the stack. If client rendering remains the correct choice, record the project-specific reason.
 
 ### Design Engineering Skills
 
-Keep `ui-ux-pro-max` and `impeccable` as the general UI/UX baseline. Add only the specialized installed skill whose trigger matches:
+Keep `ui-ux-pro-max` and `impeccable` as the mandatory general UI/UX baseline, and add `typeui-fundamentals` as the recommended fundamentals baseline when available. Add only the specialized installed skill whose trigger matches:
 
 - `design-brief` for converting an ambiguous design request into an explicit design specification before implementation.
 - `frontend-design` for building or materially polishing a production frontend interface.

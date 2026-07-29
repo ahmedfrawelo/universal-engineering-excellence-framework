@@ -1,46 +1,30 @@
 # Performance Decision Graph
 
-## Purpose
-Use this decision graph to choose the smallest architecture or implementation move that satisfies the requirement while preserving maintainability, security, performance, and future extension.
+## Decision Question
 
-## Decision Flow
-1. Clarify the user-visible outcome and the non-negotiable constraints.
-2. Inspect the existing implementation and identify established local patterns.
-3. Decide whether the change belongs in existing code, a new module, a shared abstraction, configuration, documentation, or operational tooling.
-4. Evaluate impact on public contracts, data shape, migrations, deployment, and rollback.
-5. Choose the option with the lowest long-term complexity that still meets the acceptance criteria.
-6. Validate with the strongest available automated checks and targeted manual review.
+Which option satisfies the required **performance** outcome while controlling the user or system budget, constrained path, baseline, bottleneck, and regression threshold?
 
-## Alternatives
-- Reuse the existing pattern when it is clear, tested, and still fits the new behavior.
-- Extend a nearby abstraction when duplication would otherwise become meaningful.
-- Create a new module when ownership, lifecycle, or dependency direction differs.
-- Defer a broad redesign when the request is narrow and the current architecture can safely absorb it.
-- Escalate to an ADR when the decision affects multiple teams, deployment topology, data contracts, or security posture.
+## Flow
 
-## Tradeoffs
-- Speed favors local edits; durability favors clearer boundaries and explicit contracts.
-- Shared abstractions reduce duplication only when the behavior is genuinely common.
-- New dependencies can reduce implementation time but add supply-chain, maintenance, and bundle risk.
-- Caching and denormalization improve latency only when invalidation is designed first.
+1. Define the observable outcome, constraints, owner, and evidence threshold.
+2. If the repository already has a conforming performance mechanism, extend it and verify compatibility; otherwise continue.
+3. List the viable options and reject any that cannot make failure, rollback, or ownership explicit.
+4. Compare the remaining options on the user or system budget, constrained path, baseline, bottleneck, and regression threshold.
+5. Select the smallest reversible option that meets current requirements; require an ADR when the choice changes a shared or public boundary.
+6. Stop with BLOCKED when a required fact, authority, recovery path, or validation environment is missing.
 
-## Risks
-- Hidden coupling to existing state or data contracts.
-- Performance regressions caused by extra rendering, queries, network calls, or serialization.
-- Security regressions from broad permissions, unvalidated input, or unsafe defaults.
-- Migration failures or irreversible data changes.
-- UX inconsistency from inventing patterns that already exist in the product.
+## Default
 
-## Recommended Default
-Start by following the nearest established project convention. Add a new abstraction only when it removes real repeated complexity or creates a required ownership boundary.
+Prefer the nearest tested project convention. Introduce a new abstraction only when it creates a real ownership boundary or removes demonstrated repeated complexity.
 
-## Exceptions
-Override the default when security, data integrity, regulatory, accessibility, or production reliability requirements demand a more explicit design.
+## Required Evidence
 
-## Failure Modes
-- The decision is based on memory instead of current code inspection.
-- The chosen approach creates duplicate UI, duplicate business logic, or hidden global state.
-- Validation is limited to compilation while the risky behavior remains untested.
+- The selected and rejected branches, with the evidence used at each branch.
+- repeatable before-after measurements under representative load.
+- A revisit trigger for assumptions likely to change.
 
-## Quality Gate
-Record the chosen branch, rejected alternatives, evidence inspected, and validation performed. A decision without evidence is partial, not complete.
+## Invalid Outcomes
+
+- A choice based only on memory or generic preference.
+- An irreversible path without explicit authority and recovery evidence.
+- A decision recorded without proving the affected behavior.

@@ -5,6 +5,14 @@ param(
   [switch]$Json
 )
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($RepositoryPath)) {
+  throw 'RepositoryPath cannot be empty.'
+}
+try {
+  $RepositoryPath = (Resolve-Path -LiteralPath $RepositoryPath -ErrorAction Stop).Path
+} catch {
+  throw "RepositoryPath does not exist: $RepositoryPath"
+}
 if ([string]::IsNullOrWhiteSpace($GlobalPath)) {
   $repoLeaf = Split-Path -Leaf $RepositoryPath
   $repoParent = Split-Path -Parent $RepositoryPath
@@ -95,7 +103,7 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
       $runtimeDriftStatus = if ($runtimeDriftPass) { "PASS" } else { "FAIL" }
       $recordedSourceCommit = [string]$stateForDrift.sourceCommit
       $currentSourceCommit = ''
-      try { $currentSourceCommit = (git -C $sourceForDrift rev-parse HEAD 2>$null | Select-Object -First 1).Trim() } catch { $currentSourceCommit = '' }
+      try { $currentSourceCommit = (git -c "safe.directory=$sourceForDrift" -C $sourceForDrift rev-parse HEAD 2>$null | Select-Object -First 1).Trim() } catch { $currentSourceCommit = '' }
       if ($recordedSourceCommit -and $recordedSourceCommit -ne 'UNKNOWN' -and $currentSourceCommit) {
         $sourceRevisionStatus = if ($recordedSourceCommit -eq $currentSourceCommit) { 'PASS' } else { 'WARN_OUTDATED' }
       }
@@ -112,14 +120,25 @@ if ($globalExists) {
   $loaderCandidates = Get-ChildItem -LiteralPath $GlobalPath -Recurse -Filter "UEEF-LOADER.md" -File -ErrorAction SilentlyContinue
 }
 $globalLoaderStatus = if (!$globalExists) { "UNKNOWN" } elseif ($loaderCandidates.Count -gt 0) { "PASS" } else { "FAIL" }
-$installed = if ($repoExists -and $globalExists -and $loaderCandidates.Count -gt 0) { "YES" } else { "NO" }
-$overall = if ($installed -eq "YES" -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass -and $agentsPass -and $activeStatePass -and $oldHomeAbsent -and $runtimeDriftPass) { "ACTIVE" } else { "INACTIVE" }
+$installed = if ($isManagedRuntime -and $repoExists -and $globalExists -and $loaderCandidates.Count -gt 0) { "YES" } else { "NO" }
+$sourceValidationPass = $repoExists -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass
+$managedIntegrityPass = $agentsPass -and $activeStatePass -and $oldHomeAbsent -and $runtimeDriftPass
+$overall = if ($isManagedRuntime) {
+  if ($installed -eq "YES" -and $sourceValidationPass -and $managedIntegrityPass) { "ACTIVE" } else { "INACTIVE" }
+} elseif ($sourceValidationPass) {
+  "SOURCE_VALIDATED"
+} else {
+  "SOURCE_INVALID"
+}
 
 $statusResult = [ordered]@{
-  schemaVersion = 1
+  schemaVersion = 2
   generatedAt = (Get-Date).ToUniversalTime().ToString('o')
   version = $version
   installed = $installed
+  mode = if ($isManagedRuntime) { 'managed-runtime' } else { 'source-checkout' }
+  sourceValidation = PassFail $sourceValidationPass
+  activationClaim = if ($isManagedRuntime) { if ($overall -eq 'ACTIVE') { 'ACTIVE_RUNTIME' } else { 'INACTIVE_RUNTIME' } } else { 'SOURCE_ONLY_NOT_INSTALLED' }
   repositoryPath = '<runtime-root>'
   globalPath = '<global-root>'
   overall = $overall
@@ -131,10 +150,10 @@ $statusResult = [ordered]@{
     activationGate = (PassFail $activationGatePass)
     qualityGates = (PassFail $qualityGatesPass)
     globalLoader = $globalLoaderStatus
-    agents = (PassFail $agentsPass)
+    agents = if ($isManagedRuntime) { (PassFail $agentsPass) } else { 'NOT_APPLICABLE' }
     agentRouting = (PassFail $agentRoutingPass)
-    activeState = (PassFail $activeStatePass)
-    runtimeDrift = $runtimeDriftStatus
+    activeState = if ($isManagedRuntime) { (PassFail $activeStatePass) } else { 'NOT_APPLICABLE' }
+    runtimeDrift = if ($isManagedRuntime) { $runtimeDriftStatus } else { 'NOT_APPLICABLE' }
     sourceRevision = $sourceRevisionStatus
     validationScript = (PassFail $validationPass)
   }
@@ -147,6 +166,7 @@ Write-Output "Installed: $installed"
 Write-Output "Repository Path: $RepositoryPath"
 Write-Output "Global Path: $GlobalPath"
 Write-Output "Version: $version"
+Write-Output "Mode: $(if ($isManagedRuntime) { 'managed-runtime' } else { 'source-checkout' })"
 Write-Output "Core files: $(PassFail $corePass)"
 Write-Output "Master loader: $(PassFail $masterLoaderPass)"
 Write-Output "Master index: $(PassFail $masterIndexPass)"
@@ -154,16 +174,19 @@ Write-Output "Runtime activation proof: $(PassFail $activationProofPass)"
 Write-Output "Activation gate: $(PassFail $activationGatePass)"
 Write-Output "Quality gates: $(PassFail $qualityGatesPass)"
 Write-Output "Markdown file count: $markdownCount"
-Write-Output "Global loader: $globalLoaderStatus"
-Write-Output "Codex AGENTS: $(PassFail $agentsPass)"
+Write-Output "Global loader: $(if ($isManagedRuntime) { $globalLoaderStatus } else { 'NOT_APPLICABLE' })"
+Write-Output "Codex AGENTS: $(if ($isManagedRuntime) { PassFail $agentsPass } else { 'NOT_APPLICABLE' })"
 Write-Output "Agent routing contract: $(PassFail $agentRoutingPass)"
-Write-Output "Active state: $(PassFail $activeStatePass)"
-Write-Output "Runtime drift: $runtimeDriftStatus"
+Write-Output "Active state: $(if ($isManagedRuntime) { PassFail $activeStatePass } else { 'NOT_APPLICABLE' })"
+Write-Output "Runtime drift: $(if ($isManagedRuntime) { $runtimeDriftStatus } else { 'NOT_APPLICABLE' })"
 Write-Output "Runtime source revision: $sourceRevisionStatus"
 if ($sourceRevisionStatus -eq 'WARN_OUTDATED') { Write-Output 'Required action: Sync the runtime before relying on updated intent or browser policies.' }
-Write-Output "Old HOME .ueef absent: $(PassFail $oldHomeAbsent)"
-if ($globalLoaderStatus -ne "PASS") {
+Write-Output "Old HOME .ueef absent: $(if ($isManagedRuntime) { PassFail $oldHomeAbsent } else { 'NOT_APPLICABLE' })"
+if ($isManagedRuntime -and $globalLoaderStatus -ne "PASS") {
   Write-Output "Required action: Run scripts/install-codex.ps1, scripts/install-cursor.ps1, or scripts/install-generic.ps1 from Codex with CODEX_HOME set, or set UEEF_GLOBAL_PATH to the Codex runtime path containing UEEF-LOADER.md."
+}
+if (!$isManagedRuntime -and $overall -eq 'SOURCE_VALIDATED') {
+  Write-Output "Source checkout validated. Activation is not claimed until scripts/sync-runtime.ps1 installs this source into the managed Codex runtime."
 }
 Write-Output "Validation script: $(PassFail $validationPass)"
 Write-Output "Overall: $overall"

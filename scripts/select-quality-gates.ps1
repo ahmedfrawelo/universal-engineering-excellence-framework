@@ -1,5 +1,9 @@
 param(
-  [Parameter(Mandatory=$true)][string]$Task
+  [Parameter(Mandatory=$true)][string]$Task,
+  [ValidateSet('T0','T1','T2','T3','T4')][string]$Tier,
+  [switch]$CodeChange,
+  [ValidateSet('ui','browser','current-docs','ambiguous','debugging')][string[]]$TaskTag = @(),
+  [switch]$Json
 )
 $ErrorActionPreference = "Stop"
 $text = $Task.ToLowerInvariant()
@@ -7,6 +11,7 @@ $modules = New-Object System.Collections.Generic.List[string]
 $gates = New-Object System.Collections.Generic.List[string]
 $uiRequired = $false
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
+$inputParameters = @{} + $PSBoundParameters
 
 function Add-Unique($list, [string[]]$items) {
   foreach ($item in $items) {
@@ -23,33 +28,65 @@ function Assert-ExistingFrameworkPaths([string[]]$paths) {
   }
 }
 
+$classificationArgs = @{ Task=$Task; Json=$true }
+foreach ($name in @('CodeChange','TaskTag')) {
+  if ($inputParameters.ContainsKey($name)) { $classificationArgs[$name] = $inputParameters[$name] }
+}
+if (!$inputParameters.ContainsKey('Tier') -or !$inputParameters.ContainsKey('CodeChange')) {
+  $classification = (& (Join-Path $PSScriptRoot 'get-ueef-task-classification.ps1') @classificationArgs | Out-String) | ConvertFrom-Json
+}
+if (!$Tier) { $Tier = [string]$classification.route.tier }
+if (!$inputParameters.ContainsKey('CodeChange')) { $CodeChange = [bool]$classification.values.codeChange }
+$effectiveTags = if ($classification) { @($classification.values.taskTags) } else { @($TaskTag) }
+
+# Every task receives only the non-negotiable core and routing contract.
 Add-Unique $modules @(
   "framework/01-core/00-boot-loader.md",
   "framework/01-core/00-core-system.md",
-  "framework/49-engineering-guardian/00-engineering-guardian.md",
-  "framework/49-engineering-guardian/01-zero-regression-policy.md",
-  "framework/49-engineering-guardian/19-self-criticism-engine.md",
-  "framework/49-engineering-guardian/20-final-guardian-gate.md",
-  "framework/49-engineering-guardian/25-final-checklist.md",
-  "framework/50-environment-bootstrap/00-environment-bootstrap.md",
-  "framework/50-environment-bootstrap/01-profile-selection.md",
-  "framework/50-environment-bootstrap/02-core-profile.md",
-  "framework/50-environment-bootstrap/08-ai-profile.md",
-  "framework/50-environment-bootstrap/10-dependency-levels.md",
-  "framework/50-environment-bootstrap/11-detection-and-installation.md",
-  "framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md",
   "framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md",
   "framework/58-agent-model-orchestration/01-task-complexity-classifier.md"
 )
 Add-Unique $gates @(
   "framework/27-quality-gates/16-ueef-activation-gate.md",
-  "framework/27-quality-gates/21-engineering-guardian-gate.md",
-  "framework/27-quality-gates/22-environment-bootstrap-gate.md",
   "framework/27-quality-gates/31-agent-model-routing-gate.md"
 )
 
+# T2+ work must carry the guardian and environment contracts. T3/T4 also
+# receive the deeper assurance and bootstrap evidence modules.
+if ($Tier -in @('T2','T3','T4')) {
+  Add-Unique $modules @(
+    "framework/49-engineering-guardian/00-engineering-guardian.md",
+    "framework/50-environment-bootstrap/00-environment-bootstrap.md"
+  )
+  Add-Unique $gates @(
+    "framework/27-quality-gates/21-engineering-guardian-gate.md",
+    "framework/27-quality-gates/22-environment-bootstrap-gate.md"
+  )
+}
+if ($Tier -in @('T3','T4')) {
+  Add-Unique $modules @(
+    "framework/49-engineering-guardian/01-zero-regression-policy.md",
+    "framework/49-engineering-guardian/19-self-criticism-engine.md",
+    "framework/49-engineering-guardian/20-final-guardian-gate.md",
+    "framework/49-engineering-guardian/25-final-checklist.md",
+    "framework/50-environment-bootstrap/01-profile-selection.md",
+    "framework/50-environment-bootstrap/02-core-profile.md",
+    "framework/50-environment-bootstrap/08-ai-profile.md",
+    "framework/50-environment-bootstrap/10-dependency-levels.md",
+    "framework/50-environment-bootstrap/11-detection-and-installation.md",
+    "framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md"
+  )
+}
+
+if ($Tier -eq 'T1' -and $CodeChange) {
+  Add-Unique $gates @(
+    "framework/27-quality-gates/code-quality-gate.md",
+    "framework/27-quality-gates/testing-gate.md"
+  )
+}
+
 $motionRequired = $text -match '\b(motion|animation|animate|transition|easing)\b|micro-interaction|interaction polish'
-if ($text -match '\b(ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind)\b' -or $motionRequired) {
+if ($effectiveTags -contains 'ui' -or $text -match '\b(ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind)\b' -or $motionRequired) {
   $uiRequired = $true
   Add-Unique $modules @(
     "framework/08-performance/00-performance-philosophy.md",
@@ -66,7 +103,7 @@ if ($text -match '\b(ui|ux|frontend|react|angular|design|layout|accessibility|sc
   )
 }
 
-if ($text -match '\b(browser|chrome|tab|screenshot|localhost)\b|page inspection|visual verification') {
+if ($effectiveTags -contains 'browser' -or $text -match '\b(browser|chrome|tab|screenshot|localhost)\b|page inspection|visual verification') {
   Add-Unique $modules @("framework/51-browser-session-control/00-browser-session-first.md")
   Add-Unique $gates @("framework/27-quality-gates/23-browser-session-control-gate.md")
 }
@@ -182,9 +219,25 @@ if ($text -match "real.?time|live refresh|auto.?refresh|without reload|no reload
 
 Assert-ExistingFrameworkPaths ($modules.ToArray() + $gates.ToArray())
 
+$result = [ordered]@{
+  schemaVersion = 2
+  task = $Task
+  tier = $Tier
+  codeChange = [bool]$CodeChange
+  uiux = if ($uiRequired) { 'YES' } else { 'NO' }
+  specialistSkillRoute = if ($motionRequired) { 'emil-design-eng' } else { 'none' }
+  modules = @($modules)
+  gates = @($gates)
+}
+if ($Json) {
+  $result | ConvertTo-Json -Depth 5
+  exit 0
+}
+
 Write-Output "UEEF Quality Gate Selection"
 Write-Output "---------------------------"
 Write-Output "Task: $Task"
+Write-Output "Tier: $Tier"
 Write-Output "UIUX: $(if ($uiRequired) { 'YES' } else { 'NO' })"
 Write-Output "Specialist skill route: $(if ($motionRequired) { 'emil-design-eng' } else { 'none' })"
 Write-Output "Selected:"

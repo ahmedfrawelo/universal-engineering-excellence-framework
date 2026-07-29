@@ -26,6 +26,8 @@ Compile failures, test failures, API/facade/schema mismatches, save-contract bug
 
 When the user asks a bounded question, review, or change and that requested outcome is complete, give the final answer immediately. Do not extend the task with optional improvements, audits, upgrades, or adjacent implementation merely because work could continue. Continuation applies only to explicit multi-step implementation work that remains within the requested scope.
 
+Do not repeat the same safety, deletion, cleanup, or progress status message across assistant updates. If a bounded request has no remaining in-scope action, replace "continuing" language with a final answer that states the verified outcome once. Repeated status phrasing is a control-flow failure; stop, summarize the evidence, and close when `FINAL_ALLOWED` is true.
+
 When `GoalStatus` is `ACTIVE`, do not emit a final answer saying the work is incomplete, no result exists, work remains, or execution will continue later. Send a concise commentary progress update and continue execution in the same goal run. Before any final answer on a goal task, read current goal status and reject finalization unless `FINAL_ALLOWED` is true.
 - A known regression blocks claiming completion or release. It does not block working on the fix unless continuing would worsen or destroy user data.
 - Do not substitute a status message such as "not ready to release" for implementation work the user requested.

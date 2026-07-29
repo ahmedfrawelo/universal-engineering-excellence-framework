@@ -9,7 +9,7 @@ try {
   if ($created.schemaVersion -ne 1 -or !(Test-Path -LiteralPath $created.path)) { throw 'Workflow generator did not produce its contract.' }
   & $validate -Path $created.path -Mode Draft | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Validator rejected a newly generated draft.' }
-  & $validate -Path $created.path -Mode Ready | Out-Null
+  & $validate -Path $created.path -Mode Ready -Quiet | Out-Null
   if ($LASTEXITCODE -eq 0) { throw 'Validator accepted unresolved workflow placeholders.' }
   Get-ChildItem -LiteralPath $created.path -File | ForEach-Object {
     $text = Get-Content -LiteralPath $_.FullName -Raw
