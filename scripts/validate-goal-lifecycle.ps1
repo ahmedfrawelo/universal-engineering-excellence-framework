@@ -19,6 +19,12 @@ param(
   [switch]$ChromeExternallyUnavailable,
   [switch]$UserRestartChromeRequested,
   [switch]$PendingScreenshotEvidence,
+  [int]$ProgressPercent = -1,
+  [switch]$ProgressUpdate,
+  [switch]$ProgressHasNewEvidence,
+  [switch]$ProgressHasCurrentAction,
+  [switch]$ProgressHasNextGate,
+  [ValidateSet('discovery','planning','implementation','validation','release','complete','unknown')][string]$ProgressPhase = 'unknown',
   [string]$UserFacingStatus
 )
 $ErrorActionPreference = 'Stop'
@@ -37,7 +43,13 @@ if ($GoalStatus -eq 'BLOCKED' -and $PendingScreenshotEvidence) { throw 'Pending 
 if ($UserRestartChromeRequested -and !$ChromeExternallyUnavailable) { throw 'A Chrome restart request requires independent Chrome unavailability evidence.' }
 if ($ThreadControlChannelDegraded -and !$ChromeExternallyUnavailable -and $UserFacingStatus -and $UserFacingStatus -ne 'Browser verification is being completed on your existing tab; implementation continues.') { throw 'Thread-local browser degradation requires the canonical user-facing recovery status.' }
 if (($BrowserVerificationRequired -or $VisualVerificationRequired) -and $VerifiedBrowserEvidenceHandoff -and !$HandoffMatchesCurrentCodeState) { throw 'Browser evidence handoff does not cover the current code state.' }
+if ($ProgressPercent -gt 100) { throw 'Progress percent cannot exceed 100.' }
+if ($ProgressPercent -eq 100 -and $GoalStatus -ne 'COMPLETE') { throw 'Progress cannot be 100 before the goal is complete.' }
+if ($ProgressPhase -in @('discovery','planning') -and $ProgressPercent -gt 30) { throw 'Discovery or planning progress cannot exceed 30 percent.' }
+if ($ProgressPhase -eq 'implementation' -and $ProgressPercent -gt 75) { throw 'Implementation progress cannot exceed 75 percent before validation.' }
+if ($ProgressPhase -in @('validation','release') -and $ProgressPercent -gt 95 -and $GoalStatus -ne 'COMPLETE') { throw 'Validation or release progress cannot exceed 95 percent before completion.' }
+if ($ProgressUpdate -and (!$ProgressHasNewEvidence -or !$ProgressHasCurrentAction -or !$ProgressHasNextGate)) { throw 'Progress updates require new evidence, current action, and next gate.' }
 if ($GoalStatus -eq 'COMPLETE' -and !$completeAllowed) { throw 'Invalid COMPLETE transition.' }
 if ($TerminalFinal -and !$terminalAllowed) { throw 'Terminal final response is forbidden for this goal state.' }
 
-[pscustomobject]@{ GoalStatus=$GoalStatus; TerminalFinalAllowed=$terminalAllowed; BlockedAllowed=$blockedAllowed; CompleteAllowed=$completeAllowed; BrowserVerificationAllowed=$browserAllowed; VisualVerificationAllowed=$visualAllowed; EvidenceHandoffAllowed=$handoffAllowed }
+[pscustomobject]@{ GoalStatus=$GoalStatus; TerminalFinalAllowed=$terminalAllowed; BlockedAllowed=$blockedAllowed; CompleteAllowed=$completeAllowed; BrowserVerificationAllowed=$browserAllowed; VisualVerificationAllowed=$visualAllowed; EvidenceHandoffAllowed=$handoffAllowed; ProgressPercent=$ProgressPercent; ProgressPhase=$ProgressPhase; ProgressUpdate=$ProgressUpdate.IsPresent }

@@ -100,6 +100,7 @@ Delivery continuation:
 - Mark a goal BLOCKED only for an external or user-only condition after no meaningful local work remains. Never pause an incomplete code path waiting for the user to resume it.
 - Stop when done: when a bounded requested outcome is complete, answer finally without optional expansion. Continue only explicit in-scope implementation that remains unfinished; read current goal status before finalizing longer goal work.
 - Status-loop guard: repeated "continuing", safety, deletion, cleanup, or no-data-loss phrasing is not progress. If no new evidence or action is being added, stop the loop and deliver the verified final result once.
+- Long goal progress: for multi-step goals, send concise milestone updates with conservative percent or phase, completed evidence, current action, and next gate. Do not send heartbeat updates without new evidence, and do not treat a percentage as completion before gates pass.
 
 Local command autonomy:
 - Run and reuse normal project commands and local development services without asking the user. A Codex command prompt is a platform confirmation, not an agent question or task blocker.

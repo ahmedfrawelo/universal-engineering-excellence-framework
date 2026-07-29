@@ -19,9 +19,17 @@ Assert-Rejected @{GoalStatus='ACTIVE';UserRestartChromeRequested=$true}
 Assert-Rejected @{GoalStatus='ACTIVE';ThreadControlChannelDegraded=$true;UserFacingStatus='Browser bridge failed three times.'}
 Assert-Rejected @{GoalStatus='ACTIVE';ThreadControlChannelDegraded=$true;UserFacingStatus='Stopped visual verification.'}
 Assert-Rejected @{GoalStatus='BLOCKED';TerminalFinal=$true;BlockerExternalOrUserOnly=$true;NoMeaningfulLocalWorkRemaining=$true;ExternalStateChangeRequired=$true;PendingScreenshotEvidence=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=40;ProgressPhase='planning';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true;ProgressHasNewEvidence=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=80;ProgressPhase='implementation';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true;ProgressHasNewEvidence=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=100;ProgressPhase='validation';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true;ProgressHasNewEvidence=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=50;ProgressPhase='implementation';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true}
 & $validator -GoalStatus ACTIVE | Out-Null
 & $validator -GoalStatus ACTIVE -TerminalFinal -StatusOnly | Out-Null
+& $validator -GoalStatus ACTIVE -ProgressUpdate -ProgressPercent 25 -ProgressPhase planning -ProgressHasNewEvidence -ProgressHasCurrentAction -ProgressHasNextGate | Out-Null
+& $validator -GoalStatus ACTIVE -ProgressUpdate -ProgressPercent 75 -ProgressPhase implementation -ProgressHasNewEvidence -ProgressHasCurrentAction -ProgressHasNextGate | Out-Null
+& $validator -GoalStatus ACTIVE -ProgressUpdate -ProgressPercent 95 -ProgressPhase validation -ProgressHasNewEvidence -ProgressHasCurrentAction -ProgressHasNextGate | Out-Null
 & $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded | Out-Null
+& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -ProgressPercent 100 -ProgressPhase complete | Out-Null
 & $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -BrowserVerificationRequired -BrowserVerificationPassed -VisualVerificationRequired -VisualVerificationPassed | Out-Null
 & $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -BrowserVerificationRequired -VisualVerificationRequired -VerifiedBrowserEvidenceHandoff -HandoffMatchesCurrentCodeState -ThreadControlChannelDegraded | Out-Null
 & $validator -GoalStatus ACTIVE -ThreadControlChannelDegraded -UserFacingStatus 'Browser verification is being completed on your existing tab; implementation continues.' | Out-Null

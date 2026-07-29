@@ -35,3 +35,24 @@ When `GoalStatus` is `ACTIVE`, do not emit a final answer saying the work is inc
 ## User-Facing Behavior
 
 State progress and evidence, then continue. If a release is not ready, say what remains for release while still completing the requested code path.
+
+## Long Goal Progress Reporting
+
+For a long-running user goal, status updates must be useful progress reports, not heartbeat messages.
+
+- Give a concise progress update after each material milestone, long verification step, scope change, or meaningful blocker analysis.
+- Include an approximate completion percentage when the work can be estimated from the current plan. If a percentage would be fake precision, report the completed phase count instead.
+- A good progress update states: current percent or phase, completed work, current action, next gate, and the latest concrete evidence.
+- Do not send a progress update if no new evidence, completed step, failed check, or changed plan exists since the previous update.
+- Do not imply completion from percentage alone. Final completion still requires the requested outcome, required gates, and recorded verification.
+- Use conservative estimates: discovery and planning should not exceed 30%, implementation should not exceed 75% before relevant validation, and validation/release should not exceed 95% until final gates pass.
+- If the goal changes scope, recalculate progress against the new scope and say that the estimate changed because the scope changed.
+
+Recommended compact format:
+
+```text
+Progress: <percent or phase>
+Done: <new completed evidence>
+Now: <current action>
+Next: <next gate>
+```
