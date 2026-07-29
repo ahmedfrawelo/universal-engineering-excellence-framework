@@ -14,10 +14,14 @@ if ([string]::IsNullOrWhiteSpace($Tag)) { $Tag = 'v' + [string]$manifest.version
 if ([string]::IsNullOrWhiteSpace($Title)) { $Title = "Release $Tag" }
 if ([string]::IsNullOrWhiteSpace($NotesFile)) { $NotesFile = Join-Path $root ([string]$manifest.releaseNotes) }
 if ([string]::IsNullOrWhiteSpace($Repository)) {
-  $remoteUrl = (git -C $root remote get-url origin) -join ''
-  $match = [regex]::Match($remoteUrl, 'github\.com[:/](?<owner>[^/]+)/(?<repo>[^/.]+)(?:\.git)?$')
-  if (!$match.Success) { throw "Could not infer GitHub repository from origin: $remoteUrl" }
-  $Repository = "$($match.Groups['owner'].Value)/$($match.Groups['repo'].Value)"
+  if (![string]::IsNullOrWhiteSpace([string]$manifest.repository)) {
+    $Repository = [string]$manifest.repository
+  } else {
+    $remoteUrl = (git -C $root remote get-url origin) -join ''
+    $match = [regex]::Match($remoteUrl, 'github\.com[:/](?<owner>[^/]+)/(?<repo>[^/.]+)(?:\.git)?$')
+    if (!$match.Success) { throw "Could not infer GitHub repository from origin: $remoteUrl" }
+    $Repository = "$($match.Groups['owner'].Value)/$($match.Groups['repo'].Value)"
+  }
 }
 
 $notesPath = (Resolve-Path -LiteralPath $NotesFile).Path
