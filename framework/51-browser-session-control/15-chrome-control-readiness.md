@@ -21,6 +21,15 @@ Before using Chrome for navigation, inspection, screenshots, clicking, typing, u
 8. Only report `CHROME_EXTERNALLY_UNAVAILABLE` when Chrome, the extension, and every authorized same-window control path are independently proven unavailable outside the task-local control channel.
 9. Finalize claimed tabs with `chrome.tabs.finalize(...)` before the turn ends unless an explicit handoff keeps the tab live for the next task.
 
+## Startup Order Hint
+
+When the control channel fails before any `user.openTabs()` evidence exists, check and communicate the startup-order requirement before deeper recovery:
+
+- Chrome or the required browser must already be open before Codex or the AI host starts a browser-control task.
+- If Chrome was closed when Codex started, ask the user to open Chrome first, then restart Codex so the browser-control channel can bind to the existing browser session.
+- This startup-order hint is allowed when the failure happens before tab discovery. It is not a claim that Chrome is broken, and it must not authorize a second browser, temporary profile, or isolated context.
+- If Chrome was already open before Codex and the bridge still fails, continue the normal readiness, ownership repair, and `VERIFIED_HANDOFF` path.
+
 ## Non-Blocking Conditions
 
 These conditions require readiness recovery or visual-evidence follow-up, not `BLOCKED`:

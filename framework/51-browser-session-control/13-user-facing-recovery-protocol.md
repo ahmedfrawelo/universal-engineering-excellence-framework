@@ -8,6 +8,8 @@
 
 On the first local bridge failure, the task must stop repeating local bootstrap attempts in the same turn, preserve the user-owned Chrome surface, and automatically seek a `VERIFIED_HANDOFF` from a trusted coordinator. It continues all non-browser work while the handoff is obtained. It does not ask the user to acknowledge the transfer, restart Chrome, or open another browser.
 
+If the failure happens before any tab-discovery evidence and Chrome may have been closed when Codex started, give the startup-order hint instead of a retry loop: ask the user to open Chrome first and then restart Codex. This is a host/browser binding prerequisite, not a Chrome-unavailable claim.
+
 ## Required User-Facing Status
 
 Use this single concise status while waiting for evidence:
@@ -19,3 +21,5 @@ Do not expose attempt counts, internal MCP names, bootstrap errors, bridge error
 ## Exceptions
 
 Only independently proven `CHROME_EXTERNALLY_UNAVAILABLE` permits a user-action request. The message must name the externally verified missing condition and required action; it must not rely on a task-local Node REPL failure.
+
+The startup-order hint is the only allowed user-facing exception before independent Chrome-unavailable proof. It must be phrased as: open Chrome first, then restart Codex, then retry the browser task.

@@ -12,22 +12,22 @@ function Assert-TermsInOrder([string]$RelativePath, [string[]]$Terms) {
 }
 
 $required = @{
-  'UEEF-LOADER.md' = @('user.openTabs()', 'claimTab()', 'connector-created Chrome window', 'repair-chrome-tab-ownership.ps1', 'VERIFIED_HANDOFF', 'non-visual tests can continue', 'keep visual verification explicitly pending', 'minimized, background, or non-foreground')
+  'UEEF-LOADER.md' = @('user.openTabs()', 'claimTab()', 'connector-created Chrome window', 'repair-chrome-tab-ownership.ps1', 'VERIFIED_HANDOFF', 'open Chrome first, then restart Codex', 'non-visual tests can continue', 'keep visual verification explicitly pending', 'minimized, background, or non-foreground')
   'framework/01-core/01-master-loader.md' = @('user.openTabs()', 'claimTab()')
   'framework/51-browser-session-control/04-browser-and-tab-selection.md' = @('exact returned object', 'claimTab()')
   'framework/51-browser-session-control/10-window-state-preservation.md' = @('current window size', 'monitor placement', 'zoom', 'tab order', 'active tab', 'Do not call resize', 'Record the initial and final window state', 'minimized, background, or non-foreground', 'do not pause or block the goal')
   'framework/51-browser-session-control/11-control-surface-selection.md' = @('Chrome plugin extension binding', 'mcp__node_repl__js', 'mcp__playwright__*', 'tab.playwright', 'visible Windows control only on Windows', 'macOS/Linux')
   'framework/51-browser-session-control/09-platform-authorized-chrome-control.md' = @('bootstrap-troubleshooting', 'chrome-troubleshooting', 'Do not invent a `file:///` variant', 'keep the task active')
   'framework/51-browser-session-control/12-cross-session-evidence-handoff.md' = @('THREAD_CONTROL_CHANNEL_DEGRADED', 'CHROME_EXTERNALLY_UNAVAILABLE', 'VERIFIED_HANDOFF', 'trusted coordinator', 'existing user-owned tab', 'current code state')
-  'framework/51-browser-session-control/13-user-facing-recovery-protocol.md' = @('first local bridge failure', 'Do not expose attempt counts', 'Browser verification is being completed on your existing tab; implementation continues.')
+  'framework/51-browser-session-control/13-user-facing-recovery-protocol.md' = @('first local bridge failure', 'open Chrome first and then restart Codex', 'Do not expose attempt counts', 'Browser verification is being completed on your existing tab; implementation continues.')
   'framework/51-browser-session-control/14-automatic-tab-ownership-recovery.md' = @('already part of another browser session', 'Do not ask the user to Share, Connect, restart Chrome, open another tab, or wait for another task', 'repair-chrome-tab-ownership.ps1', 'user.openTabs()', 'exact returned target object', 'claimTab()', 'one automated recovery', 'without a coordinator or user action')
-  'framework/51-browser-session-control/15-chrome-control-readiness.md' = @('Chrome readiness flow', 'browser-client.mjs', 'not a connector-created browser', 'user.openTabs()', 'claimTab()', 'repair-chrome-tab-ownership.ps1', 'same extension binding', 'VERIFIED_HANDOFF', 'same tab and current code state', 'continue non-browser work', 'chrome.tabs.finalize(...)', 'not enough to prove that Chrome cannot be used')
+  'framework/51-browser-session-control/15-chrome-control-readiness.md' = @('Chrome readiness flow', 'browser-client.mjs', 'not a connector-created browser', 'user.openTabs()', 'claimTab()', 'repair-chrome-tab-ownership.ps1', 'same extension binding', 'VERIFIED_HANDOFF', 'open Chrome first, then restart Codex', 'same tab and current code state', 'continue non-browser work', 'chrome.tabs.finalize(...)', 'not enough to prove that Chrome cannot be used')
   'framework/51-browser-session-control/16-control-channel-failover.md' = @('same user-owned tab', 'Automatic Failover', 'VERIFIED_HANDOFF', 'visible Windows control', 'macOS/Linux', 'never creates')
   'framework/51-browser-session-control/07-browser-task-verification.md' = @('do not report `COMPLETE`', 'structural equivalence', 'same-tab evidence', 'chrome.tabs.finalize(...)', 'prevents stale cross-task ownership')
   'framework/27-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'Do not fail because')
   'framework/03-runtime/00-runtime-sequence.md' = @('Chrome readiness flow completed:', 'Exact user.openTabs() object claimed:', 'Automatic ownership repair run when needed:', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
   'framework/29-checklists/32-browser-session-control-checklist.md' = @('exact returned object', 'Debugging/CDP authorization')
-  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF', 'Do not expose retry counts', 'repair-chrome-tab-ownership.ps1')
+  'scripts/sync-runtime.ps1' = @('user.openTabs()', 'claimTab()', 'Chrome readiness flow', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'VERIFIED_HANDOFF', 'open Chrome first, then restart Codex', 'Do not expose retry counts', 'repair-chrome-tab-ownership.ps1')
   'scripts/repair-chrome-tab-ownership.ps1' = @('extension-host.exe', 'chrome-extension://hehggadaopoacecdllhhajmbjkdcmajg/', 'Stop-Process', 'DryRun')
 }
 foreach ($relative in $required.Keys) {
