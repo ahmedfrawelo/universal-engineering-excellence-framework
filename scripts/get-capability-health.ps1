@@ -21,6 +21,30 @@ if (Test-Path -LiteralPath $RegistryPath -PathType Leaf) {
   foreach ($entry in @($registryDocument.capabilities)) { $registry["$($entry.type)|$($entry.id)"] = $entry }
 }
 
+# Preferred skills extend the capability registry from their single pinned
+# manifest. This avoids duplicating provenance and trigger policy in two JSON
+# files while still making every routed skill declared and health-checkable.
+$preferredPath = Join-Path (Split-Path -Parent $RegistryPath) 'preferred-skills.json'
+if (Test-Path -LiteralPath $preferredPath -PathType Leaf) {
+  $preferredDocument = Get-Content -LiteralPath $preferredPath -Raw | ConvertFrom-Json
+  if ($preferredDocument.schemaVersion -notin @(1,2)) { throw "Unsupported preferred skills schema: $($preferredDocument.schemaVersion)" }
+  foreach ($entry in @($preferredDocument.preferred)) {
+    $key = "skill|$($entry.id)"
+    if ($registry.ContainsKey($key)) { continue }
+    $kind = if ($entry.source.PSObject.Properties.Name -contains 'kind') { [string]$entry.source.kind } else { 'github' }
+    $sourceName = if ($kind -eq 'bundled') { 'UEEF bundled skill' } else { "Pinned skill from $($entry.source.repository)" }
+    $versionOrPin = if ($kind -eq 'bundled') { 'runtime-versioned' } else { [string]$entry.source.ref }
+    $registry[$key] = [pscustomobject]@{
+      type = 'skill'; id = [string]$entry.id; required = $false; source = $sourceName; versionOrPin = $versionOrPin
+      installEvidence = [string]$entry.installEvidence
+      fallback = "Continue with the matching UEEF pack and report that $($entry.id) is unavailable."
+      consumerPacks = @('10-frontend','59-skill-invocation-protocol')
+      governance = [pscustomobject]@{ selection=[string]$entry.level; trigger=(@($entry.triggers) -join ', '); policyRefs=@('config/preferred-skills.json') }
+      provenance = [pscustomobject]@{ kind=$kind; repository=[string]$entry.source.repository; ref=[string]$entry.source.ref; path=[string]$entry.source.path; installer='scripts/install-preferred-skills.ps1' }
+    }
+  }
+}
+
 function Add-Capability([string]$Type, [string]$Name, [bool]$Configured, [bool]$Installed, [Nullable[bool]]$Enabled, [string]$Callable, [string]$Detail) {
   $declaration = $registry["$Type|$Name"]
   $health = if (!$Configured) { 'NOT_CONFIGURED' } elseif (!$Installed) { 'MISSING_DEPENDENCY' } elseif ($null -eq $Enabled) { 'CONFIGURED_UNVERIFIED' } elseif (!$Enabled) { 'DISABLED' } elseif ($Callable -eq 'PASS') { 'CALLABLE' } else { 'CONFIGURED_UNVERIFIED' }

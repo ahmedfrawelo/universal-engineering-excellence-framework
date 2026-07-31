@@ -23,6 +23,11 @@ $requiredAcceptance = @(
   "docs/runtime-hardening.md",
   "scripts/write-active-state.ps1",
   "scripts/select-quality-gates.ps1",
+  "scripts/select-frontend-route.mjs",
+  "scripts/select-frontend-route.ps1",
+  "scripts/select-frontend-route.sh",
+  "scripts/test-frontend-routing.mjs",
+  "scripts/test-frontend-routing.ps1",
   "scripts/check-runtime-drift.ps1",
   "scripts/sync-runtime.ps1",
   "scripts/new-spec-workflow.ps1",
@@ -438,6 +443,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
   & node (Join-Path $Root "scripts/test-preferred-skills.mjs") $Root | Out-Null
   & (Join-Path $Root "scripts/test-task-classification.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-frontend-routing.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-doctor.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-diff-impact.ps1") | Out-Null
@@ -538,7 +544,7 @@ $projectMapText = Get-Content (Join-Path $Root "scripts/project-context-map.ps1"
 foreach ($term in @("Project Context Map","Shared candidates","Generated/output candidates")) { if ($projectMapText -notmatch [regex]::Escape($term)) { throw "Project context map missing required behavior: $term" } }
 $statusAndTestText = (Get-Content (Join-Path $Root "scripts/ueef-status.ps1") -Raw) + "`n" + (Get-Content (Join-Path $Root "scripts/test-runtime-hardening.ps1") -Raw)
 foreach ($term in @("Runtime drift:","Runtime drift did not invalidate ACTIVE status","sourceRepositoryPath")) { if ($statusAndTestText -notmatch [regex]::Escape($term)) { throw "Runtime status/drift coverage missing: $term" } }
-$selectorText = Get-Content (Join-Path $Root "scripts/select-quality-gates.ps1") -Raw
+$selectorText = (Get-Content (Join-Path $Root "scripts/select-quality-gates.ps1") -Raw) + "`n" + (Get-Content (Join-Path $Root "scripts/select-frontend-route.mjs") -Raw)
 foreach ($term in @("motion","animation","emil-design-eng","Specialist skill route:")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing motion routing: $term" } }
 foreach ($term in @("FrontendMode","frontendMode","skillRoutes","Quick","Build","Audit","01-frontend-task-modes","25-skeleton-loading-gate")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing proportional frontend routing: $term" } }
 foreach ($term in @("superpowers","skill invocation","32-skill-invocation-protocol-gate","59-skill-invocation-protocol")) { if ($selectorText -notmatch [regex]::Escape($term)) { throw "Quality gate selector missing skill protocol routing: $term" } }

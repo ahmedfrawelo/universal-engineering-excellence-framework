@@ -4,7 +4,7 @@ $registry = Get-Content -LiteralPath (Join-Path $root 'config\capability-registr
 $preferred = Get-Content -LiteralPath (Join-Path $root 'config\preferred-skills.json') -Raw | ConvertFrom-Json
 foreach ($id in @($preferred.preferred.id)) {
   $entry = $registry.capabilities | Where-Object { $_.type -eq 'skill' -and $_.id -eq $id }
-  if (!$entry -or !$entry.governance -or !$entry.provenance -or !$entry.installEvidence -or !$entry.fallback) { throw "Registry governance/provenance contract missing for $id." }
+  if ($entry -and (!$entry.governance -or !$entry.provenance -or !$entry.installEvidence -or !$entry.fallback)) { throw "Explicit registry governance/provenance contract incomplete for $id." }
 }
 if (($registry.capabilities | Where-Object { $_.id -in @('ui-ux-pro-max','impeccable') -and $_.required }).Count) { throw 'UI baseline skills must not be global-required.' }
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ('ueef-capability-health-' + [guid]::NewGuid().ToString('N'))
@@ -56,6 +56,11 @@ url = "https://example.test/mcp"
   $registryPath=Join-Path $sandbox 'registry.json'
   '{"schemaVersion":1,"capabilities":[{"type":"skill","id":"callable-skill","required":false,"source":"fixture","versionOrPin":"fixture","installEvidence":"skills/callable-skill/SKILL.md","fallback":"none","consumerPacks":[],"callableEvidence":{"kind":"local-skill-file-and-enabled-plugin","pluginId":"callable-provider@openai-bundled"}}]}' | Set-Content -LiteralPath $registryPath -Encoding utf8
   $doctor = Join-Path $root 'scripts\get-capability-health.ps1'
+  $declaredPreferred = & $doctor -CodexHome $testCodexHome -Json | ConvertFrom-Json
+  foreach ($id in @($preferred.preferred.id)) {
+    $item = $declaredPreferred | Where-Object { $_.type -eq 'skill' -and $_.name -eq $id }
+    if (!$item -or !$item.declared) { throw "Preferred skill was not synthesized into capability health: $id" }
+  }
   $items = & $doctor -CodexHome $testCodexHome -RegistryPath $registryPath -Json | ConvertFrom-Json
   $previousCodexHome = $env:CODEX_HOME
   try {

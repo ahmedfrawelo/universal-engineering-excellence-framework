@@ -1,5 +1,7 @@
 # Frontend Task Modes
 
+Route frontend work through `scripts/select-frontend-route.mjs`. Its orthogonal fields are authoritative: `intent` describes Change, Audit, or Recommend; `scope` describes Quick, Build, or Broad; `mutation` distinguishes Implement from ReadOnly; and `domains` selects only the relevant specialist packs. `frontendMode` remains a compatibility projection, not the source of truth. Every automated route must retain `reasons`, `matchedSignals`, and `confidence` so unexpected selection is diagnosable.
+
 Version: 1.0
 Pack: 10-frontend
 Status: Stable
@@ -52,9 +54,20 @@ Skills are selected by purpose, not stacked as a universal baseline:
 
 - `typeui-fundamentals`: lightweight principles for layout, typography, interaction, or accessibility when those decisions are present.
 - `frontend-design`: building or materially extending a production frontend.
+- `interface-design`: sole primary director for dashboards, admin tools, SaaS, settings, and dense product UI.
+- `frontend-ui-engineering`: framework-neutral production implementation craft after selecting a visual direction; do not stack it onto Angular routes.
+- `angular-developer`: the implementation authority for Angular work, including architecture and framework-specific code.
+- `company-data-table` and `angular-table-harness`: custom data-grid behavior and stable Angular test APIs.
+- `responsive-craft`: responsive transformations and breakpoint-specific design decisions.
+- `design-system-guardian`: tokens, shared primitives, themes, and drift prevention.
+- `frontend-visual-qa`: deterministic visual verification under the active browser policy.
+- `performance-optimization`, `code-review-and-quality`, and `source-driven-development`: evidence-driven specialist routes.
+- `prototype` and `extract-design-system`: explicit-only ideation and reference extraction routes.
 - `impeccable`: critique, audit, redesign, or visual polish.
 - `ui-ux-pro-max`: product/style intelligence such as style direction, palettes, typography pairings, product patterns, or explicit broad UI/UX recommendations.
 - Specialist motion skills: only when their own trigger applies.
+
+`browser-testing-with-devtools` is intentionally never auto-selected: its isolated or alternate Chrome profile conflicts with UEEF browser-session ownership. Installation does not grant tool authority.
 
 No UI skill is mandatory merely because a task mentions `frontend` or `component`. Multiple skills are used together only when their independent triggers are both part of the requested outcome.
 

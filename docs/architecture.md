@@ -13,7 +13,7 @@ loader.
 | Source | Human-reviewed framework packs, policies, scripts, tests, manifests, and release notes | `framework/`, `scripts/`, `config/`, root docs |
 | Runtime | A transactional, tracked-file copy installed under the selected Codex home | `ueef/<agent>/`, `UEEF-ACTIVE.json`, managed `AGENTS.md` block |
 | Activation | Proves that the runtime points at the intended source and loader hash | `scripts/sync-runtime.ps1`, `scripts/ueef-status.ps1`, activation gate |
-| Task control | Classifies scope/risk and chooses capabilities, gates, and evidence | `get-ueef-task-classification.ps1`, `get-ueef-task-preflight.ps1`, selectors |
+| Task control | Classifies scope/risk and chooses capabilities, gates, and evidence. Frontend intent, scope, mutation, domains, stack, reasons, and confidence come from one cross-platform route contract. | `get-ueef-task-classification.ps1`, `select-frontend-route.mjs`, `get-ueef-task-preflight.ps1`, selectors |
 | Assurance | Validates source structure, runtime integrity, release policy, and regressions | `validate-framework.ps1`, `ueef-audit.ps1`, nested contract tests |
 
 The source is the authority. A managed runtime is disposable and must never

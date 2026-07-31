@@ -88,58 +88,24 @@ if ($Tier -eq 'T1' -and $CodeChange) {
   )
 }
 
-$motionRequired = $text -match '\b(motion|animation|animate|transition|easing)\b|micro-interaction|interaction polish'
-$uiSignal = $FrontendMode -ne 'Auto' -or $effectiveTags -contains 'ui' -or $text -match '\b(ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind)\b' -or $motionRequired
-if ($uiSignal) {
+$frontendRouteJson = & node (Join-Path $PSScriptRoot 'select-frontend-route.mjs') --task $Task --mode $FrontendMode
+if ($LASTEXITCODE -ne 0) { throw 'Frontend route engine failed.' }
+$frontendRoute = ($frontendRouteJson | Out-String) | ConvertFrom-Json
+$motionRequired = @($frontendRoute.domains) | Where-Object { $_ -in @('motion', 'animation') } | Select-Object -First 1
+$motionRequired = [bool]$motionRequired
+if ($frontendRoute.applies -or $effectiveTags -contains 'ui') {
   $uiRequired = $true
-  if ($FrontendMode -ne 'Auto') {
-    $resolvedFrontendMode = $FrontendMode
-  } elseif ($text -match '\b(audit|review|critique|assess|evaluate|redesign|polish)\b|visual qa|pixel.?perfect|design-system review') {
-    $resolvedFrontendMode = 'Audit'
-  } elseif ($text -match '\b(build|create|implement|add|develop|scaffold|new)\b') {
-    $resolvedFrontendMode = 'Build'
+  $resolvedFrontendMode = if ($frontendRoute.applies) { [string]$frontendRoute.frontendMode } elseif ($FrontendMode -ne 'Auto') { $FrontendMode } else { 'Quick' }
+  if ($frontendRoute.applies) {
+    Add-Unique $modules @($frontendRoute.modules)
+    Add-Unique $gates @($frontendRoute.gates)
+    Add-Unique $skillRoutes @($frontendRoute.skills)
   } else {
-    $resolvedFrontendMode = 'Quick'
+    Add-Unique $modules @('framework/10-frontend/00-frontend-engineering.md','framework/10-frontend/01-frontend-task-modes.md')
+    Add-Unique $gates @('framework/27-quality-gates/ui-gate.md')
+    Add-Unique $skillRoutes @('typeui-fundamentals')
   }
-
-  Add-Unique $modules @(
-    "framework/10-frontend/00-frontend-engineering.md",
-    "framework/10-frontend/01-frontend-task-modes.md",
-    "framework/14-ui/00-ui-system.md",
-    "framework/16-accessibility/00-accessibility-system.md"
-  )
-  Add-Unique $gates @(
-    "framework/27-quality-gates/ui-gate.md",
-    "framework/27-quality-gates/accessibility-gate.md"
-  )
-  Add-Unique $skillRoutes @('typeui-fundamentals')
-
-  if ($resolvedFrontendMode -in @('Build','Audit')) {
-    Add-Unique $modules @(
-      "framework/08-performance/00-performance-philosophy.md",
-      "framework/15-ux/00-ux-system.md"
-    )
-    Add-Unique $gates @(
-      "framework/27-quality-gates/ux-gate.md",
-      "framework/27-quality-gates/performance-gate.md"
-    )
-  }
-  if ($resolvedFrontendMode -eq 'Build') {
-    Add-Unique $skillRoutes @('frontend-design')
-  }
-  if ($resolvedFrontendMode -eq 'Audit') {
-    Add-Unique $modules @('framework/54-design-intelligence/00-design-intelligence-system.md')
-    Add-Unique $skillRoutes @('impeccable')
-  }
-  if ($text -match 'style direction|color palette|font pairing|typography pairing|product pattern|product type|design intelligence|broad ui.?ux recommendation') {
-    Add-Unique $skillRoutes @('ui-ux-pro-max')
-  }
-  if ($effectiveTags -contains 'ambiguous') {
-    Add-Unique $skillRoutes @('design-brief')
-  }
-  if ($motionRequired) {
-    Add-Unique $skillRoutes @('emil-design-eng')
-  }
+  if ($effectiveTags -contains 'ambiguous') { Add-Unique $skillRoutes @('design-brief') }
 }
 
 if ($effectiveTags -contains 'browser' -or $text -match '\b(browser|chrome|tab|screenshot|localhost)\b|page inspection|visual verification') {
@@ -147,11 +113,11 @@ if ($effectiveTags -contains 'browser' -or $text -match '\b(browser|chrome|tab|s
   Add-Unique $gates @("framework/27-quality-gates/23-browser-session-control-gate.md")
 }
 
-$visualRequired = $uiRequired -and (
+$visualRequired = $uiRequired -and ($frontendRoute.gates -contains 'framework/27-quality-gates/30-visual-composition-gate.md' -or (
   ($resolvedFrontendMode -eq 'Build' -and $text -match '\b(page|layout|visual|design|screen|responsive|form|dashboard|landing)\b') -or
   ($resolvedFrontendMode -eq 'Audit' -and $text -match '\b(visual|design|layout|screen|responsive|page|form|dashboard|landing|redesign|polish)\b|pixel.?perfect') -or
   ($resolvedFrontendMode -eq 'Quick' -and $text -match 'exact visual|visual verification|visually|screenshot|pixel.?perfect')
-)
+))
 if ($visualRequired) {
   Add-Unique $gates @("framework/27-quality-gates/30-visual-composition-gate.md")
 }
@@ -231,14 +197,14 @@ if ($text -match "skill|superpower|superpowers|protocol|workflow|red flag|red-fl
   Add-Unique $gates @("framework/27-quality-gates/32-skill-invocation-protocol-gate.md")
 }
 
-if ($text -match "spec kit|speckit|spec-driven|specification-driven|specification|requirements|acceptance criteria|clarification|ambiguity|technical plan|task breakdown|convergence|constitution|project principles|preset|extension|bundle|third-party attribution") {
+if ($text -match "spec kit|speckit|spec-driven|specification-driven|specification|requirements|acceptance criteria|clarification|ambiguity|technical plan|task breakdown|convergence|constitution|project principles|preset|extension bundle|spec bundle|workflow bundle|third-party attribution") {
   Add-Unique $modules @(
     "framework/60-spec-driven-development/00-spec-driven-development-system.md"
   )
   Add-Unique $gates @("framework/27-quality-gates/33-spec-driven-development-gate.md")
 }
 
-if ($text -match "refactor|refactoring|legacy|dead code|obsolete code|modernize|modernise|modernization|modernisation|dependency upgrade|package upgrade|runtime upgrade|framework upgrade|outdated|end of life|eol|technical debt") {
+if ($text -match "project-wide refactor|repository-wide refactor|system-wide refactor|legacy|dead code|obsolete code|modernize|modernise|modernization|modernisation|dependency upgrade|package upgrade|runtime upgrade|framework upgrade|outdated|end of life|eol|technical debt") {
   Add-Unique $modules @(
     "framework/61-project-modernization/00-project-modernization-system.md",
     "framework/61-project-modernization/01-discovery-and-baseline.md",
@@ -274,12 +240,13 @@ if ($text -match "real.?time|live refresh|auto.?refresh|without reload|no reload
 Assert-ExistingFrameworkPaths ($modules.ToArray() + $gates.ToArray())
 
 $result = [ordered]@{
-  schemaVersion = 3
+  schemaVersion = 4
   task = $Task
   tier = $Tier
   codeChange = [bool]$CodeChange
   uiux = if ($uiRequired) { 'YES' } else { 'NO' }
   frontendMode = $resolvedFrontendMode
+  frontendRoute = $frontendRoute
   skillRoutes = @($skillRoutes)
   specialistSkillRoute = if ($motionRequired) { 'emil-design-eng' } else { 'none' }
   modules = @($modules)

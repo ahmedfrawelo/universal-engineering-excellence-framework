@@ -56,8 +56,8 @@ $cases = @(
     Name = 'frontend'
     Task = 'Build a frontend React dashboard'
     UIUX = 'YES'
-    Modules = @('framework/08-performance/00-performance-philosophy.md', 'framework/10-frontend/00-frontend-engineering.md')
-    Gates = @('framework/27-quality-gates/ui-gate.md', 'framework/27-quality-gates/ux-gate.md', 'framework/27-quality-gates/accessibility-gate.md', 'framework/27-quality-gates/performance-gate.md')
+    Modules = @('framework/10-frontend/00-frontend-engineering.md', 'framework/31-react/00-react-pack.md')
+    Gates = @('framework/27-quality-gates/ui-gate.md')
   },
   @{
     Name = 'backend'
@@ -91,15 +91,15 @@ $cases = @(
     Name = 'ui'
     Task = 'Polish a UI component layout'
     UIUX = 'YES'
-    Modules = @('framework/14-ui/00-ui-system.md', 'framework/15-ux/00-ux-system.md', 'framework/16-accessibility/00-accessibility-system.md')
-    Gates = @('framework/27-quality-gates/ui-gate.md', 'framework/27-quality-gates/ux-gate.md', 'framework/27-quality-gates/accessibility-gate.md')
+    Modules = @('framework/10-frontend/00-frontend-engineering.md')
+    Gates = @('framework/27-quality-gates/ui-gate.md')
   },
   @{
     Name = 'motion'
     Task = 'Implement a motion transition with easing and animation polish'
     UIUX = 'YES'
-    Modules = @('framework/08-performance/00-performance-philosophy.md', 'framework/10-frontend/00-frontend-engineering.md', 'framework/14-ui/00-ui-system.md')
-    Gates = @('framework/27-quality-gates/ui-gate.md', 'framework/27-quality-gates/ux-gate.md', 'framework/27-quality-gates/accessibility-gate.md', 'framework/27-quality-gates/performance-gate.md')
+    Modules = @('framework/10-frontend/00-frontend-engineering.md')
+    Gates = @('framework/27-quality-gates/ui-gate.md')
   },
   @{
     Name = 'chrome-visual'
@@ -193,7 +193,7 @@ foreach ($forbidden in @('framework/49-engineering-guardian/00-engineering-guard
 $quick = Get-QualityGateSelection -Task 'Fix spacing in an existing CSS component'
 if ($quick.FrontendMode -ne 'Quick') { throw "A bounded CSS fix must select Quick, got $($quick.FrontendMode)." }
 Assert-Contains -Actual $quick.Modules -Expected @('framework/10-frontend/01-frontend-task-modes.md') -Context 'frontend quick'
-Assert-Contains -Actual $quick.Gates -Expected @('framework/27-quality-gates/ui-gate.md','framework/27-quality-gates/accessibility-gate.md') -Context 'frontend quick'
+Assert-Contains -Actual $quick.Gates -Expected @('framework/27-quality-gates/ui-gate.md') -Context 'frontend quick'
 Assert-Contains -Actual $quick.Skills -Expected @('typeui-fundamentals') -Context 'frontend quick skills'
 foreach ($forbidden in @('framework/15-ux/00-ux-system.md','framework/08-performance/00-performance-philosophy.md','framework/54-design-intelligence/00-design-intelligence-system.md')) {
   if ($quick.Modules -contains $forbidden) { throw "Frontend Quick selected broad module '$forbidden'." }
@@ -204,14 +204,14 @@ foreach ($forbidden in @('framework/27-quality-gates/ux-gate.md','framework/27-q
 
 $build = Get-QualityGateSelection -Task 'Build a new React dashboard'
 if ($build.FrontendMode -ne 'Build') { throw "A new dashboard must select Build, got $($build.FrontendMode)." }
-Assert-Contains -Actual $build.Modules -Expected @('framework/15-ux/00-ux-system.md','framework/08-performance/00-performance-philosophy.md') -Context 'frontend build'
-Assert-Contains -Actual $build.Gates -Expected @('framework/27-quality-gates/ux-gate.md','framework/27-quality-gates/performance-gate.md','framework/27-quality-gates/30-visual-composition-gate.md') -Context 'frontend build'
-Assert-Contains -Actual $build.Skills -Expected @('typeui-fundamentals','frontend-design') -Context 'frontend build skills'
-if ($build.Skills -contains 'impeccable' -or $build.Skills -contains 'ui-ux-pro-max') { throw 'Frontend Build stacked audit or intelligence skills without their triggers.' }
+Assert-Contains -Actual $build.Modules -Expected @('framework/31-react/00-react-pack.md') -Context 'frontend build'
+Assert-Contains -Actual $build.Gates -Expected @('framework/27-quality-gates/ui-gate.md','framework/27-quality-gates/30-visual-composition-gate.md') -Context 'frontend build'
+Assert-Contains -Actual $build.Skills -Expected @('typeui-fundamentals','interface-design','frontend-ui-engineering') -Context 'frontend build skills'
+if ($build.Skills -contains 'impeccable' -or $build.Skills -contains 'ui-ux-pro-max' -or $build.Skills -contains 'frontend-design') { throw 'Frontend Build stacked competing design directors without their triggers.' }
 
 $audit = Get-QualityGateSelection -Task 'Audit and polish the frontend visual design'
 if ($audit.FrontendMode -ne 'Audit') { throw "A frontend audit must select Audit, got $($audit.FrontendMode)." }
-Assert-Contains -Actual $audit.Modules -Expected @('framework/54-design-intelligence/00-design-intelligence-system.md') -Context 'frontend audit'
+Assert-Contains -Actual $audit.Modules -Expected @('framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md','framework/48-design-governance/00-design-governance.md') -Context 'frontend audit'
 Assert-Contains -Actual $audit.Gates -Expected @('framework/27-quality-gates/30-visual-composition-gate.md') -Context 'frontend audit'
 Assert-Contains -Actual $audit.Skills -Expected @('typeui-fundamentals','impeccable') -Context 'frontend audit skills'
 if ($audit.Skills -contains 'frontend-design' -or $audit.Skills -contains 'ui-ux-pro-max') { throw 'Frontend Audit stacked build or intelligence skills without their triggers.' }

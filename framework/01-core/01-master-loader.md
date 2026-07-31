@@ -48,7 +48,7 @@ Select `framework/10-frontend/01-frontend-task-modes.md` and choose exactly one 
 
 Do not load backend, database, enterprise, design-governance, skeleton, browser, or unrelated technology packs unless the task touches them.
 
-UI skills are purpose-routed rather than universally stacked: use `typeui-fundamentals` for lightweight principles, `frontend-design` for production construction, `impeccable` for critique/redesign/polish, and `ui-ux-pro-max` for explicit product or style intelligence. Missing optional design skills do not block a task that project evidence and focused gates can verify.
+UI skills are purpose-routed rather than universally stacked. Product dashboards and operational interfaces use `interface-design` as the sole primary design director; expressive or marketing surfaces use `frontend-design`. Use `frontend-ui-engineering` for framework-neutral implementation craft, `angular-developer` as the implementation authority on Angular routes, `impeccable` for critique/redesign/polish, and `ui-ux-pro-max` for explicit product or style intelligence. Domain specialists such as `company-data-table`, `responsive-craft`, and `design-system-guardian` supplement the primary direction without becoming competing art directors. Missing optional skills do not block a task that project evidence and focused gates can verify.
 
 For frontend routes that render public, indexable, slow-to-boot, content-heavy, or data-heavy first views, evaluate SSR, SSG, streaming, route-level pre-rendering, or server components when supported by the stack. If client rendering remains the correct choice, record the project-specific reason.
 
@@ -58,6 +58,17 @@ Use the frontend mode first, then add only the installed skill whose trigger mat
 
 - `design-brief` for converting an ambiguous design request into an explicit design specification before implementation.
 - `frontend-design` for building or materially extending a production frontend interface.
+- `interface-design` as the primary design director for dashboards, admin panels, SaaS tools, settings, and dense product interfaces; do not pair it with another primary director.
+- `frontend-ui-engineering` for framework-neutral production implementation quality after the design direction is selected.
+- `angular-developer` for Angular architecture, components, signals, forms, routing, SSR, accessibility, and Angular testing.
+- `company-data-table` for custom Angular table behavior and visual contracts; add `angular-table-harness` when a stable public test API is requested.
+- `responsive-craft` for explicit responsive transformations, breakpoint design, sticky/scroll behavior, or multi-width previews.
+- `design-system-guardian` for tokens, shared components, themes, generated styles, and design-drift protection.
+- `frontend-visual-qa` for deterministic visual, responsive, RTL/LTR, zoom, keyboard, and state verification under the active browser policy.
+- `frontend-design-review` or `web-design-guidelines` only for their explicit review triggers, not as co-directors.
+- `performance-optimization`, `code-review-and-quality`, and `source-driven-development` only when performance evidence, multi-axis review, or current official documentation is explicitly required.
+- `prototype` only on explicit request for divergent variants; `extract-design-system` only for extraction from a public reference site.
+- `browser-testing-with-devtools` may be installed for portability but is policy-blocked in UEEF because it launches or attaches through a disallowed browser surface. Never route it automatically.
 - `emil-design-eng` for animation implementation, motion polish, easing, timing, transitions, and interaction craft.
 - `review-animations` for reviewing a motion diff or deciding whether animation changes pass.
 - `improve-animations` for a read-only, whole-codebase motion audit and self-contained plans; respect its no-source-edits contract.

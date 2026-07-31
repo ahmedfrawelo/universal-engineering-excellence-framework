@@ -278,8 +278,10 @@ grep -q 'standalone-file system' "$ROOT/framework/01-core/00-core-system.md" || 
 grep -q 'Keep files small enough to review and maintain' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing file-size rule" >&2; exit 1; }
 grep -q "Final responses must answer" "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing response-quality rule" >&2; exit 1; }
 grep -q 'Runtime drift:' "$ROOT/scripts/ueef-status.ps1" || { echo "Status script missing runtime drift field" >&2; exit 1; }
-grep -q 'emil-design-eng' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing motion skill route" >&2; exit 1; }
-grep -q 'animation' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing animation route" >&2; exit 1; }
+[ -f "$ROOT/scripts/select-frontend-route.mjs" ] || { echo "Missing canonical frontend route engine" >&2; exit 1; }
+[ -f "$ROOT/scripts/select-frontend-route.sh" ] || { echo "Missing Unix frontend route wrapper" >&2; exit 1; }
+grep -q 'emil-design-eng' "$ROOT/scripts/select-frontend-route.mjs" || { echo "Frontend route engine missing motion skill route" >&2; exit 1; }
+grep -q 'animation' "$ROOT/scripts/select-frontend-route.mjs" || { echo "Frontend route engine missing animation route" >&2; exit 1; }
 grep -q 'FrontendMode' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing frontend modes" >&2; exit 1; }
 grep -q '25-skeleton-loading-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing explicit skeleton route" >&2; exit 1; }
 grep -q 'superpowers' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing Superpowers route" >&2; exit 1; }
@@ -393,6 +395,7 @@ sh "$ROOT/scripts/test-documentation-links.sh" "$ROOT" >/dev/null || { echo "Uni
 node "$ROOT/scripts/test-framework-indexes.mjs" "$ROOT" >/dev/null || { echo "Framework index tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-project-context-map.sh" >/dev/null || { echo "Unix project context map tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-ueef-task-preflight.sh" >/dev/null || { echo "Unix task preflight tests failed" >&2; exit 1; }
+node "$ROOT/scripts/test-frontend-routing.mjs" >/dev/null || { echo "Canonical frontend routing tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-project-memory.sh" >/dev/null || { echo "Unix project memory tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-evidence-export.sh" >/dev/null || { echo "Unix evidence export tests failed" >&2; exit 1; }
 sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }

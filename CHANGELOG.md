@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.20.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.21.0 - 2026-07-31
+
+- Expanded the preferred frontend capability set to 27 pinned or bundled skills with deterministic installation evidence.
+- Added four project-owned skills for Angular tables, table harnesses, design-system protection, and visual QA.
+- Unified frontend task classification, preflight, skill selection, and quality gates behind one cross-platform route engine.
+- Prevented frontend leakage into backend/security tasks, kept visual QA read-only, and made Angular the implementation authority on Angular routes.
+- Kept alternate Chrome DevTools tooling manual-only and outside automatic UEEF browser routing.
 
 ## 2.20.0 - 2026-07-31
 

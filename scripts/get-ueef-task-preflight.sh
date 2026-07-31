@@ -25,11 +25,12 @@ const [root,task,activationMode,executionAuthorized,runtimeMode,runtimeOverall]=
 const t=task.toLowerCase();
 const has=r=>r.test(t);
 const explanatory=has(/\b(explain|answer|summari[sz]e|translate|define|what is|how does)\b/);
-const change=has(/\b(build|implement|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release)\b/)&&!explanatory;
+const frontendRoute=JSON.parse(execFileSync("node",[root+"/scripts/select-frontend-route.mjs","--task",task,"--mode","Auto"],{encoding:"utf8"}));
+const change=has(/\b(build|implement|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release|redesign|optimi[sz]e|improve|develop|scaffold|tune)\b/)&&!explanatory;
 const debug=has(/\b(bug|debug|regression|failure|failing|broken|error|crash|fix|repair)\b/);
 const ambiguous=has(/\b(ambiguous|unclear|unknown requirements?|brainstorm|explore|idea|acceptance criteria|contradictory|not sure)\b/);
 const browser=has(/\b(open|navigate|inspect|click|type|upload|download|authenticate|log.?in|browse|capture|screenshot|visually verify|visual check)\b/)&&has(/\b(browser|chrome|tab|website|web page|site|localhost|figma)\b/);
-const ui=has(/\b(ui|ux|frontend|react|angular|css|scss|tailwind|layout|accessibility|screen|component|dashboard|landing page|visual design)\b/)&&has(/\b(build|implement|create|change|update|fix|polish|design|style|render|audit|review|inspect|verify)\b/);
+const ui=frontendRoute.applies;
 const currentDocs=has(/\b(latest|current|up[- ]to[- ]date|newest|recent)\b/)&&has(/\b(documentation|docs|api|sdk|library|package|model|specification|standard|version)\b/);
 const critical=has(/\b(production|prod|live environment|live system|migration|migrate|payment|billing|destructive|irreversible|incident|outage|breach)\b/);
 const security=has(/\b(authentication|authorization|security|vulnerability|secret|credential|owasp|threat)\b/);
@@ -47,12 +48,8 @@ const route=JSON.parse(execFileSync("sh",[root+"/scripts/select-agent-route.sh",
 const tags=[ui?"ui":null,browser?"browser":null,currentDocs?"current-docs":null,ambiguous?"ambiguous":null,debug?"debugging":null].filter(Boolean);
 let frontendMode="NA"; const skills=[];
 if(ui){
-  frontendMode=has(/\b(audit|review|critique|assess|evaluate|redesign|polish)\b|visual qa|pixel.?perfect|design-system review/)?"Audit":(has(/\b(build|create|implement|add|develop|scaffold|new)\b/)?"Build":"Quick");
-  skills.push("typeui-fundamentals");
-  if(frontendMode==="Build") skills.push("frontend-design");
-  if(frontendMode==="Audit") skills.push("impeccable");
-  if(has(/style direction|color palette|font pairing|typography pairing|product pattern|product type|design intelligence|broad ui.?ux recommendation/)) skills.push("ui-ux-pro-max");
-  if(has(/\b(motion|animation|animate|transition|easing)\b|micro-interaction|interaction polish/)) skills.push("emil-design-eng");
+  frontendMode=frontendRoute.frontendMode;
+  skills.push(...frontendRoute.skills);
   if(ambiguous) skills.push("design-brief");
 }
 if(currentDocs) skills.push(".system/openai-docs");
@@ -63,5 +60,5 @@ if(debug){workflows.push("systematic-debugging","tdd-evidence-loop");decisions.p
 else if(change){workflows.push("evidence-loop");decisions.push({id:"evidence-loop",selection:"required",evidence:"Focused test, build, static check, or visual/API evidence."});}
 if(route.tier==="T3"||route.tier==="T4"){workflows.push("independent-review");decisions.push({id:"independent-review",selection:"required",evidence:"Spec-compliance and quality-review evidence."});}
 const authorized=executionAuthorized==="true";
-console.log(JSON.stringify({schemaVersion:3,status:authorized?"READY_WITH_FALLBACK":"BLOCKED",task,classification:{source:"inferred",tags,route},profile:{profile:(route.tier==="T3"||route.tier==="T4")?"ASSURED":"SELECTIVE",frontendMode,skills,mcps,workflows,workflowDecisions:decisions,limitations:"Unix preflight does not run capability health or callable probes."},activation:{mode:activationMode,executionAuthorized:authorized,runtimeMode,runtimeOverall,limitations:"Unix activation is verified structurally; capability callability remains unprobed."},health:{status:"UNSUPPORTED_ON_UNIX",detail:"No Unix capability-health implementation is available."}},null,2));
+console.log(JSON.stringify({schemaVersion:4,status:authorized?"READY_WITH_FALLBACK":"BLOCKED",task,classification:{source:"inferred",tags,route},profile:{profile:(route.tier==="T3"||route.tier==="T4")?"ASSURED":"SELECTIVE",frontendMode,frontendRoute,skills:[...new Set(skills)],mcps,workflows,workflowDecisions:decisions,limitations:"Unix preflight does not run capability health or callable probes."},activation:{mode:activationMode,executionAuthorized:authorized,runtimeMode,runtimeOverall,limitations:"Unix activation is verified structurally; capability callability remains unprobed."},health:{status:"UNSUPPORTED_ON_UNIX",detail:"No Unix capability-health implementation is available."}},null,2));
 ' "$root" "$task" "$activation_mode" "$execution_authorized" "$runtime_mode" "$runtime_overall"

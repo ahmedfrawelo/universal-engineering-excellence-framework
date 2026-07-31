@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "policy": {
     "installRoot": "${CODEX_HOME}/skills",
     "installation": "missing-only",
@@ -140,6 +140,134 @@
         "ref": "49f948faa9258a0c61caceaf225e179651397431",
         "path": "skills/.curated/hatch-pet"
       }
+    },
+    {
+      "id": "company-data-table",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["custom data table", "data grid", "sorting", "filtering", "pagination", "RTL table"],
+      "installEvidence": "skills/company-data-table/SKILL.md",
+      "source": {"kind":"bundled","path":"tools/frontend-power-skills/company-data-table"}
+    },
+    {
+      "id": "design-system-guardian",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["design tokens", "theme", "shared components", "design drift"],
+      "installEvidence": "skills/design-system-guardian/SKILL.md",
+      "source": {"kind":"bundled","path":"tools/frontend-power-skills/design-system-guardian"}
+    },
+    {
+      "id": "frontend-visual-qa",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["visual QA", "screenshot diff", "responsive verification", "RTL verification"],
+      "installEvidence": "skills/frontend-visual-qa/SKILL.md",
+      "source": {"kind":"bundled","path":"tools/frontend-power-skills/frontend-visual-qa"}
+    },
+    {
+      "id": "angular-table-harness",
+      "level": "conditional",
+      "profiles": ["Frontend"],
+      "triggers": ["Angular ComponentHarness", "table harness", "stable table test API"],
+      "installEvidence": "skills/angular-table-harness/SKILL.md",
+      "source": {"kind":"bundled","path":"tools/frontend-power-skills/angular-table-harness"}
+    },
+    {
+      "id": "interface-design",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["dashboard", "admin panel", "SaaS", "settings", "dense product UI"],
+      "installEvidence": "skills/interface-design/SKILL.md",
+      "source": {"kind":"github","repository":"Dammyjay93/interface-design","ref":"2f9be3206855bcb2d1d0af262c8bae25cba6658d","path":".claude/skills/interface-design"}
+    },
+    {
+      "id": "angular-developer",
+      "level": "recommended",
+      "profiles": ["Frontend"],
+      "triggers": ["Angular component", "Angular signals", "Angular routing", "Angular testing"],
+      "installEvidence": "skills/angular-developer/SKILL.md",
+      "source": {"kind":"github","repository":"angular/skills","ref":"96376c13ca1a11cd4f4dd8012f2b2d793f9a8c43","path":"angular-developer"}
+    },
+    {
+      "id": "source-driven-development",
+      "level": "conditional",
+      "profiles": ["Frontend"],
+      "triggers": ["official documentation", "current framework pattern", "source-cited implementation"],
+      "installEvidence": "skills/source-driven-development/SKILL.md",
+      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/source-driven-development"}
+    },
+    {
+      "id": "frontend-ui-engineering",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["production UI implementation", "responsive UI implementation", "accessible UI implementation"],
+      "installEvidence": "skills/frontend-ui-engineering/SKILL.md",
+      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/frontend-ui-engineering"}
+    },
+    {
+      "id": "browser-testing-with-devtools",
+      "level": "manual-only",
+      "profiles": ["Optional"],
+      "triggers": ["explicit non-UEEF Chrome DevTools MCP workflow"],
+      "installEvidence": "skills/browser-testing-with-devtools/SKILL.md",
+      "source": {"kind":"github-manual-only","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/browser-testing-with-devtools"}
+    },
+    {
+      "id": "performance-optimization",
+      "level": "conditional",
+      "profiles": ["Frontend"],
+      "triggers": ["performance audit", "Core Web Vitals", "render bottleneck", "bundle performance"],
+      "installEvidence": "skills/performance-optimization/SKILL.md",
+      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/performance-optimization"}
+    },
+    {
+      "id": "code-review-and-quality",
+      "level": "conditional",
+      "profiles": ["Frontend"],
+      "triggers": ["code review", "PR review", "multi-axis quality review"],
+      "installEvidence": "skills/code-review-and-quality/SKILL.md",
+      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/code-review-and-quality"}
+    },
+    {
+      "id": "responsive-craft",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["responsive layout", "mobile adaptation", "breakpoint design", "sticky responsive behavior"],
+      "installEvidence": "skills/responsive-craft/SKILL.md",
+      "source": {"kind":"github","repository":"kylezantos/responsive-craft","ref":"4863701762d243d0517b38cb36473b9a70861b72","path":".","installName":"responsive-craft"}
+    },
+    {
+      "id": "frontend-design-review",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["frontend design review", "UI code review", "design-system compliance review"],
+      "installEvidence": "skills/frontend-design-review/SKILL.md",
+      "source": {"kind":"github","repository":"microsoft/skills","ref":"4a2873faffc1b101a33a0b59c24713d4ed78142f","path":".github/skills/frontend-design-review"}
+    },
+    {
+      "id": "web-design-guidelines",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["web interface guidelines", "UI best-practices audit"],
+      "installEvidence": "skills/web-design-guidelines/SKILL.md",
+      "source": {"kind":"github","repository":"vercel-labs/agent-skills","ref":"7c180d9044c9ae2b442b567aad4e42a28dd5ed62","path":"skills/web-design-guidelines"}
+    },
+    {
+      "id": "prototype",
+      "level": "explicit-only",
+      "profiles": ["UIUX"],
+      "triggers": ["explicit divergent UI variants", "visual prototype picker"],
+      "installEvidence": "skills/prototype/SKILL.md",
+      "source": {"kind":"github","repository":"emilkowalski/skills","ref":"70744e3816f1d93eafb697161a8b880a7384c5ff","path":"skills/prototype"}
+    },
+    {
+      "id": "extract-design-system",
+      "level": "explicit-only",
+      "profiles": ["UIUX"],
+      "triggers": ["extract design primitives from a public website"],
+      "installEvidence": "skills/extract-design-system/SKILL.md",
+      "source": {"kind":"github","repository":"arvindrk/extract-design-system","ref":"1873741ba8dea755e35e6e15134f7918cd58e036","path":"skills/extract-design-system"}
     }
   ],
   "legacyEntries": [

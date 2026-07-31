@@ -50,6 +50,10 @@ Run:
 
 ```powershell
 .\scripts\select-quality-gates.ps1 -Task "frontend UI task"
+
+# Explainable cross-platform frontend routing
+.\scripts\select-frontend-route.ps1 -Task "Fix dropdown focus" -Json
+# Unix: ./scripts/select-frontend-route.sh "Fix dropdown focus"
 ```
 
 The selector prints relevant modules, required quality gates, UI UX Pro Max status, and the activation gate.

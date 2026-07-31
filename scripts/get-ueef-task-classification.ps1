@@ -26,7 +26,7 @@ function Get-InputSource([string]$Name) {
 }
 
 $explanatoryOnly = Test-TaskText '\b(explain|answer|summari[sz]e|translate|define|what is|how does|compare concepts?)\b'
-$changeLanguage = Test-TaskText '\b(build|implement|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release)\b'
+$changeLanguage = Test-TaskText '\b(build|implement|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release|redesign|optimi[sz]e|improve|develop|scaffold|tune)\b'
 $reviewLanguage = Test-TaskText '\b(audit|review|inspect|diagnos\w*|investigate|verify|validate|assess|test)\b'
 $wideScopeLanguage = Test-TaskText '\b(project[- ]wide|repository[- ]wide|system[- ]wide|end[- ]to[- ]end|all (?:problems|issues|modules|files)|entire (?:project|repository|system)|complete migration|full migration)\b'
 $architectureLanguage = Test-TaskText '\b(architecture|architectural|cross[- ]cutting|platform|framework core|runtime contract)\b'
@@ -35,8 +35,9 @@ $apiLanguage = Test-TaskText '\b(api|endpoint|backend|server|controller|service|
 $dependencyLanguage = Test-TaskText '\b(dependency|package|runtime upgrade|framework upgrade)\b'
 $unclearLanguage = Test-TaskText '\b(ambiguous|unclear|unknown requirements?|brainstorm|explore|idea|acceptance criteria|contradictory|not sure)\b'
 $debugLanguage = Test-TaskText '\b(bug|debug|regression|failure|failing|broken|error|crash|fix|repair)\b'
-$uiNounLanguage = Test-TaskText '\b(ui|ux|frontend|react|angular|css|scss|tailwind|layout|accessibility|screen|component|dashboard|landing page|visual design)\b'
-$uiActionLanguage = Test-TaskText '\b(build|implement|create|change|update|fix|polish|design|style|render|audit|review|inspect|verify)\b'
+$frontendRoute = (& node (Join-Path $PSScriptRoot 'select-frontend-route.mjs') --task $Task --mode Auto | Out-String) | ConvertFrom-Json
+$uiNounLanguage = [bool]$frontendRoute.applies
+$uiActionLanguage = Test-TaskText '\b(build|implement|create|change|update|fix|polish|design|style|render|audit|review|inspect|verify|redesign|optimi[sz]e|improve|recommend|choose|suggest|compare)\b'
 $browserActionLanguage = Test-TaskText '\b(open|navigate|inspect|click|type|upload|download|authenticate|log.?in|browse|capture|screenshot|visually verify|visual check)\b'
 $browserSurfaceLanguage = Test-TaskText '\b(browser|chrome|tab|website|web page|site|localhost|figma)\b'
 $currentDocsLanguage = (Test-TaskText '\b(latest|current|up[- ]to[- ]date|newest|recent)\b') -and (Test-TaskText '\b(documentation|docs|api|sdk|library|package|model|specification|standard|version)\b')

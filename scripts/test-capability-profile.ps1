@@ -9,7 +9,7 @@ function Assert-Profile([string]$Task, [string]$ExpectedProfile, [string[]]$Skil
   foreach ($workflow in $Selections.Keys) { $decision = $actual.workflowDecisions | Where-Object { $_.id -eq $workflow }; if (!$decision -or $decision.selection -ne $Selections[$workflow] -or !$decision.evidence) { throw "Workflow decision contract failed for $workflow in '$Task'." } }
 }
 Assert-Profile 'Explain dependency injection' 'CORE_ONLY'
-Assert-Profile 'Build a React accessible dashboard' 'SELECTIVE' @('typeui-fundamentals','frontend-design')
+Assert-Profile 'Build a React accessible dashboard' 'SELECTIVE' @('typeui-fundamentals','interface-design','frontend-ui-engineering')
 Assert-Profile 'Check the latest OpenAI API documentation' 'SELECTIVE' @('.system/openai-docs')
 Assert-Profile 'Inspect the existing Chrome tab visually' 'SELECTIVE' @() @('node_repl')
 $casualBrowserMention = & $selector -Task 'Document the browser policy in this repository' -Json | ConvertFrom-Json
