@@ -2,6 +2,7 @@ param(
   [string]$SourcePath = (Split-Path -Parent $PSScriptRoot),
   [string]$CodexHome = '',
   [string]$Agent = "codex",
+  [string]$BackupRoot = '',
   [switch]$TestFailAfterState,
   [switch]$InstallOpenDesignSkills,
   [switch]$SkipOpenDesignSkills
@@ -68,6 +69,7 @@ if (Test-Path -LiteralPath $runtimeRoot) {
 $resolvedRuntimeRoot = [IO.Path]::GetFullPath($runtimeRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePath = [IO.Path]::GetFullPath((Join-Path $resolvedRuntimeRoot $Agent))
 $resolvedCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $CodexHome).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+$resolvedBackupRoot = Resolve-UeefBackupRoot -CodexHome $resolvedCodexHome -BackupRoot $BackupRoot
 $resolvedSource = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePrefix = $resolvedCodexHome + [IO.Path]::DirectorySeparatorChar
 $runtimeRootPrefix = $resolvedRuntimeRoot + [IO.Path]::DirectorySeparatorChar
@@ -305,7 +307,7 @@ $managedBlock = (@($managedStart) + $managedAgentsLines + @($managedEnd)) -join 
 $existingAgents = ''
 if (Test-Path -LiteralPath $agents -PathType Leaf) {
   $existingAgents = Get-Content -LiteralPath $agents -Raw
-  $agentsBackupRoot = Join-Path $resolvedRuntimeRoot 'backups\agents'
+  $agentsBackupRoot = Join-Path $resolvedBackupRoot 'agents'
   New-Item -ItemType Directory -Path $agentsBackupRoot -Force | Out-Null
   $agentsBackup = Join-Path $agentsBackupRoot ('AGENTS-{0}-{1}.md' -f (Get-Date -Format yyyyMMddHHmmssfff), [guid]::NewGuid().ToString('N'))
   Copy-Item -LiteralPath $agents -Destination $agentsBackup -Force

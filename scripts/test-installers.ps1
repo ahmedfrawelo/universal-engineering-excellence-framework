@@ -28,13 +28,27 @@ for path in paths:
 
 try {
   $codexHome = Join-Path $sandbox 'codex-home'
+  $codexBackupRoot = Join-Path $sandbox 'codex-backups'
   Initialize-FakeSkillInstaller $codexHome
-  & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -Force -NoBackup -SkipAutoUpdate | Out-Null
+  & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -BackupRoot $codexBackupRoot -Force -NoBackup -SkipAutoUpdate | Out-Null
   Assert-Installed (Join-Path $codexHome 'ueef') 'codex-test'
   foreach ($skill in @('design-brief','frontend-design')) {
     if (Test-Path -LiteralPath (Join-Path $codexHome "skills\$skill\SKILL.md")) { throw "Codex installer unexpectedly installed opt-in skill $skill" }
   }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex-test' -InstallOpenDesignSkills | Out-Null
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex-test' -BackupRoot $codexBackupRoot -InstallOpenDesignSkills | Out-Null
+  if (!(Get-ChildItem -LiteralPath (Join-Path $codexBackupRoot 'agents') -Filter 'AGENTS-*.md' -File -ErrorAction SilentlyContinue)) {
+    throw 'Codex runtime sync did not write the AGENTS backup to the external backup root.'
+  }
+  if (Test-Path -LiteralPath (Join-Path $codexHome 'ueef\backups')) {
+    throw 'Codex runtime sync recreated backups inside CODEX_HOME.'
+  }
+  $internalBackupRejected = $false
+  try {
+    & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex-test' -BackupRoot (Join-Path $codexHome 'backups') | Out-Null
+  } catch {
+    $internalBackupRejected = $_.Exception.Message -like '*outside CODEX_HOME*'
+  }
+  if (!$internalBackupRejected) { throw 'Codex runtime sync accepted an internal backup root.' }
   foreach ($skill in @('design-brief','frontend-design')) {
     if (!(Test-Path -LiteralPath (Join-Path $codexHome "skills\$skill\SKILL.md"))) { throw "Explicit Open Design installation did not install $skill" }
   }

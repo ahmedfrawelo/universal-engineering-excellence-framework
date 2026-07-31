@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.4`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.5`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.19.5 - 2026-07-31
+
+- Moved Codex runtime and managed `AGENTS.md` backups outside `CODEX_HOME` by default.
+- Added `UEEF_BACKUP_ROOT` and `-BackupRoot` overrides for an explicit external recovery location.
+- Rejected backup roots inside `CODEX_HOME` and existing reparse-point backup roots.
+- Added installer regression coverage proving external backup creation and internal-path rejection.
 
 ## 2.19.4 - 2026-07-31
 

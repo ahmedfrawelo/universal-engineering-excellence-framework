@@ -1,6 +1,7 @@
 param(
   [string]$CodexHome = $env:CODEX_HOME,
   [string]$Agent = "codex",
+  [string]$BackupRoot = '',
   [switch]$Force,
   [switch]$NoBackup,
   [switch]$SkipAutoUpdate
@@ -14,12 +15,13 @@ if ($Agent -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$' -or $Agent -in @('.', '
   throw "Unsafe agent name. Use one leaf name containing letters, numbers, dot, underscore, or hyphen."
 }
 $SourceRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'resolve-codex-home.ps1')
 $resolvedSource = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourceRoot).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
 $resolvedCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $CodexHome).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $RuntimeRoot = [IO.Path]::GetFullPath((Join-Path $resolvedCodexHome "ueef")).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $Target = [IO.Path]::GetFullPath((Join-Path $RuntimeRoot $Agent)).TrimEnd([IO.Path]::DirectorySeparatorChar)
-$BackupRoot = Join-Path $RuntimeRoot "backups"
+$BackupRoot = Resolve-UeefBackupRoot -CodexHome $resolvedCodexHome -BackupRoot $BackupRoot
 if (!(Test-Path -LiteralPath (Join-Path $SourceRoot "framework"))) { throw "framework directory not found" }
 if (!(Test-Path -LiteralPath (Join-Path $SourceRoot "scripts\sync-runtime.ps1"))) { throw "scripts\sync-runtime.ps1 not found" }
 if ((Split-Path -Parent $Target) -ne $RuntimeRoot) { throw "Refusing unsafe runtime target: $Target" }
@@ -38,7 +40,7 @@ if (Test-Path -LiteralPath $Target) {
     Copy-Item -LiteralPath $Target -Destination (Join-Path $BackupRoot "$Agent-$(Get-Date -Format yyyyMMddHHmmssfff)") -Recurse -Force
   }
 }
-& (Join-Path $SourceRoot "scripts\sync-runtime.ps1") -SourcePath $SourceRoot -CodexHome $resolvedCodexHome -Agent $Agent
+& (Join-Path $SourceRoot "scripts\sync-runtime.ps1") -SourcePath $SourceRoot -CodexHome $resolvedCodexHome -Agent $Agent -BackupRoot $BackupRoot
 if (!$SkipAutoUpdate) { & (Join-Path $SourceRoot "scripts\enable-auto-update.ps1") -CodexHome $resolvedCodexHome -Agent $Agent }
 Write-Host "UEEF Codex runtime installed exactly from repository source."
 Write-Host "Runtime: $Target"

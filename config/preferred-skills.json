@@ -147,7 +147,7 @@
       "id": "codex-home-recovery",
       "classification": "retired-local-snapshot",
       "install": false,
-      "replacement": ["scripts/sync-runtime.ps1", "runtime transaction rollback", "Codex home backups"],
+      "replacement": ["scripts/sync-runtime.ps1", "runtime transaction rollback", "external Codex recovery backups"],
       "reason": "No SKILL.md, authoritative repository, or project provenance was found for the old folder."
     },
     {
