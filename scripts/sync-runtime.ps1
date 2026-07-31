@@ -205,7 +205,7 @@ Write-Utf8File $stagingLoader @(
   "- Broaden scope only when the user asks, when the unrelated issue directly prevents the requested task from being verified, or when the current change caused it.",
   "- Scope wins: if scope conflicts with continuation, delegation, autonomy, audits, or modernization, the user's requested task wins. Expand only on an explicit request or for a direct verification blocker.",
   "- Ask mode resolves only material ambiguity with one concise question or the smallest reversible assumption; Do mode executes the clear requested outcome and direct verification only.",
-  "- Before non-trivial execution, present the route rationale as a four-item localized list. In Arabic use the labels المطلوب, المستوى, الوكلاء, and المتصفح; translate them for other response languages. Put each field on its own line, never join route fields with |, and never wrap the whole list in inline code.",
+  "- Before non-trivial execution, present the route rationale as a four-item localized list. Translate the intent, tier, agent, and browser labels into the response language. Put each field on its own line, never join route fields with |, and never wrap the whole list in inline code.",
   "",
   "Temporary creative bypass:",
   "- UEEF is strict by default. A direct user command containing any of these phrases activates FREE-MODE for the current task only: $arabicBypass1, $arabicBypass2, $arabicBypass3, $arabicBypassCodex, FREE-MODE, $arabicBypass4, $arabicBypass5, or $arabicBypass6.",

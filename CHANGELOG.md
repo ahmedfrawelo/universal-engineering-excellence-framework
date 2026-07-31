@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.3`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.21.3 - 2026-07-31
+
+- Removed raw Arabic literals from the Windows PowerShell runtime-generator string table.
+- Preserved localized route labels through language-aware instructions while keeping the generator ASCII-safe.
+- Restored successful source validation and managed runtime synchronization after the `2.21.2` formatting change.
 
 ## 2.21.2 - 2026-07-31
 
