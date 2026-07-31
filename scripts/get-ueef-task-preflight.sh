@@ -45,7 +45,17 @@ const routeArgs=["--scope",String(scope),"--ambiguity",String(ambiguity),"--coup
 if(change) routeArgs.push("--code-change");
 const route=JSON.parse(execFileSync("sh",[root+"/scripts/select-agent-route.sh",...routeArgs],{encoding:"utf8"}));
 const tags=[ui?"ui":null,browser?"browser":null,currentDocs?"current-docs":null,ambiguous?"ambiguous":null,debug?"debugging":null].filter(Boolean);
-const skills=ui?["ui-ux-pro-max","impeccable","typeui-fundamentals"]:[]; if(currentDocs) skills.push(".system/openai-docs");
+let frontendMode="NA"; const skills=[];
+if(ui){
+  frontendMode=has(/\b(audit|review|critique|assess|evaluate|redesign|polish)\b|visual qa|pixel.?perfect|design-system review/)?"Audit":(has(/\b(build|create|implement|add|develop|scaffold|new)\b/)?"Build":"Quick");
+  skills.push("typeui-fundamentals");
+  if(frontendMode==="Build") skills.push("frontend-design");
+  if(frontendMode==="Audit") skills.push("impeccable");
+  if(has(/style direction|color palette|font pairing|typography pairing|product pattern|product type|design intelligence|broad ui.?ux recommendation/)) skills.push("ui-ux-pro-max");
+  if(has(/\b(motion|animation|animate|transition|easing)\b|micro-interaction|interaction polish/)) skills.push("emil-design-eng");
+  if(ambiguous) skills.push("design-brief");
+}
+if(currentDocs) skills.push(".system/openai-docs");
 const mcps=browser?["node_repl"]:[];
 const workflows=[]; const decisions=[];
 if(ambiguous){workflows.push("brainstorming-and-clarification");decisions.push({id:"brainstorming-and-clarification",selection:"recommended",evidence:"Resolved assumptions or clarification record before implementation."});}
@@ -53,5 +63,5 @@ if(debug){workflows.push("systematic-debugging","tdd-evidence-loop");decisions.p
 else if(change){workflows.push("evidence-loop");decisions.push({id:"evidence-loop",selection:"required",evidence:"Focused test, build, static check, or visual/API evidence."});}
 if(route.tier==="T3"||route.tier==="T4"){workflows.push("independent-review");decisions.push({id:"independent-review",selection:"required",evidence:"Spec-compliance and quality-review evidence."});}
 const authorized=executionAuthorized==="true";
-console.log(JSON.stringify({schemaVersion:3,status:authorized?"READY_WITH_FALLBACK":"BLOCKED",task,classification:{source:"inferred",tags,route},profile:{profile:(route.tier==="T3"||route.tier==="T4")?"ASSURED":"SELECTIVE",skills,mcps,workflows,workflowDecisions:decisions,limitations:"Unix preflight does not run capability health or callable probes."},activation:{mode:activationMode,executionAuthorized:authorized,runtimeMode,runtimeOverall,limitations:"Unix activation is verified structurally; capability callability remains unprobed."},health:{status:"UNSUPPORTED_ON_UNIX",detail:"No Unix capability-health implementation is available."}},null,2));
+console.log(JSON.stringify({schemaVersion:3,status:authorized?"READY_WITH_FALLBACK":"BLOCKED",task,classification:{source:"inferred",tags,route},profile:{profile:(route.tier==="T3"||route.tier==="T4")?"ASSURED":"SELECTIVE",frontendMode,skills,mcps,workflows,workflowDecisions:decisions,limitations:"Unix preflight does not run capability health or callable probes."},activation:{mode:activationMode,executionAuthorized:authorized,runtimeMode,runtimeOverall,limitations:"Unix activation is verified structurally; capability callability remains unprobed."},health:{status:"UNSUPPORTED_ON_UNIX",detail:"No Unix capability-health implementation is available."}},null,2));
 ' "$root" "$task" "$activation_mode" "$execution_authorized" "$runtime_mode" "$runtime_overall"

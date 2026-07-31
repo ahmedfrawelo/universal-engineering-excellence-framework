@@ -157,6 +157,7 @@ This index lists every Markdown module in the framework exactly once, grouped by
 ## 10-frontend
 
 - [`10-frontend/00-frontend-engineering.md`](10-frontend/00-frontend-engineering.md)
+- [`10-frontend/01-frontend-task-modes.md`](10-frontend/01-frontend-task-modes.md)
 - [`10-frontend/INDEX.md`](10-frontend/INDEX.md)
 - [`10-frontend/README.md`](10-frontend/README.md)
 

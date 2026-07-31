@@ -65,8 +65,8 @@ if has_profile Database; then
 else echo "Database NOT REQUIRED"; fi
 if has_profile UIUX; then
   echo "UIUX SELECTED"
-  if check_path "$CODEX_HOME/skills/ui-ux-pro-max/SKILL.md"; then echo "ui-ux-pro-max PASS"; else echo "ui-ux-pro-max MISSING (Mandatory)"; status=2; fi
-  if check_path "$CODEX_HOME/skills/impeccable/SKILL.md"; then echo "impeccable PASS"; else echo "impeccable MISSING (Mandatory)"; status=2; fi
+  if check_path "$CODEX_HOME/skills/ui-ux-pro-max/SKILL.md"; then echo "ui-ux-pro-max PASS"; else echo "ui-ux-pro-max MISSING (Optional; select only for product or style intelligence)"; fi
+  if check_path "$CODEX_HOME/skills/impeccable/SKILL.md"; then echo "impeccable PASS"; else echo "impeccable MISSING (Optional; select only for critique, redesign, or polish)"; fi
   if check_path "$CODEX_HOME/skills/typeui-fundamentals/SKILL.md"; then echo "typeui-fundamentals PASS"; else echo "typeui-fundamentals MISSING (Recommended)"; fi
   if check_path "$CODEX_HOME/skills/emil-design-eng/SKILL.md"; then echo "emil-design-eng PASS"; else echo "emil-design-eng MISSING (Recommended)"; fi
   for skill in frontend-design design-brief; do

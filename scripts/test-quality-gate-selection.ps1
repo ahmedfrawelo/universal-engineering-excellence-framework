@@ -12,8 +12,11 @@ function Assert-Contains {
 }
 
 function Get-QualityGateSelection {
-  param([string]$Task)
-  $lines = @(& $selector -Task $Task)
+  param(
+    [string]$Task,
+    [ValidateSet('Auto','Quick','Build','Audit')][string]$FrontendMode = 'Auto'
+  )
+  $lines = @(& $selector -Task $Task -FrontendMode $FrontendMode)
   $selectedIndex = [Array]::IndexOf([string[]]$lines, 'Selected:')
   $gatesIndex = [Array]::IndexOf([string[]]$lines, 'Gates:')
 
@@ -25,12 +28,17 @@ function Get-QualityGateSelection {
   $gates = @($lines[($gatesIndex + 1)..($lines.Length - 1)] | Where-Object { $_ -like '- *' } | ForEach-Object { $_.Substring(2) })
   $uiux = (($lines | Where-Object { $_ -like 'UIUX:*' }) -replace '^UIUX:\s*', '')
   $tier = (($lines | Where-Object { $_ -like 'Tier:*' }) -replace '^Tier:\s*', '')
+  $resolvedFrontendMode = (($lines | Where-Object { $_ -like 'Frontend mode:*' }) -replace '^Frontend mode:\s*', '')
+  $skillLine = (($lines | Where-Object { $_ -like 'Skill routes:*' }) -replace '^Skill routes:\s*', '')
+  $skills = if ($skillLine -and $skillLine -ne 'none') { @($skillLine -split ',\s*') } else { @() }
 
   [PSCustomObject]@{
     Modules = $modules
     Gates = $gates
     UIUX = $uiux
     Tier = $tier
+    FrontendMode = $resolvedFrontendMode
+    Skills = $skills
   }
 }
 
@@ -175,10 +183,49 @@ foreach ($case in $negativeCases) {
 
 $coreOnly = Get-QualityGateSelection -Task 'Explain dependency injection'
 if ($coreOnly.Tier -ne 'T0') { throw "A self-contained explanation must remain T0, got $($coreOnly.Tier)." }
+if ($coreOnly.FrontendMode -ne 'NA') { throw "A non-UI explanation must use frontend mode NA, got $($coreOnly.FrontendMode)." }
 foreach ($forbidden in @('framework/49-engineering-guardian/00-engineering-guardian.md','framework/50-environment-bootstrap/00-environment-bootstrap.md','framework/27-quality-gates/code-quality-gate.md','framework/27-quality-gates/testing-gate.md')) {
   if ($coreOnly.Modules -contains $forbidden -or $coreOnly.Gates -contains $forbidden) {
     throw "T0 core-only selection included '$forbidden'."
   }
+}
+
+$quick = Get-QualityGateSelection -Task 'Fix spacing in an existing CSS component'
+if ($quick.FrontendMode -ne 'Quick') { throw "A bounded CSS fix must select Quick, got $($quick.FrontendMode)." }
+Assert-Contains -Actual $quick.Modules -Expected @('framework/10-frontend/01-frontend-task-modes.md') -Context 'frontend quick'
+Assert-Contains -Actual $quick.Gates -Expected @('framework/27-quality-gates/ui-gate.md','framework/27-quality-gates/accessibility-gate.md') -Context 'frontend quick'
+Assert-Contains -Actual $quick.Skills -Expected @('typeui-fundamentals') -Context 'frontend quick skills'
+foreach ($forbidden in @('framework/15-ux/00-ux-system.md','framework/08-performance/00-performance-philosophy.md','framework/54-design-intelligence/00-design-intelligence-system.md')) {
+  if ($quick.Modules -contains $forbidden) { throw "Frontend Quick selected broad module '$forbidden'." }
+}
+foreach ($forbidden in @('framework/27-quality-gates/ux-gate.md','framework/27-quality-gates/performance-gate.md','framework/27-quality-gates/30-visual-composition-gate.md')) {
+  if ($quick.Gates -contains $forbidden) { throw "Frontend Quick selected broad gate '$forbidden'." }
+}
+
+$build = Get-QualityGateSelection -Task 'Build a new React dashboard'
+if ($build.FrontendMode -ne 'Build') { throw "A new dashboard must select Build, got $($build.FrontendMode)." }
+Assert-Contains -Actual $build.Modules -Expected @('framework/15-ux/00-ux-system.md','framework/08-performance/00-performance-philosophy.md') -Context 'frontend build'
+Assert-Contains -Actual $build.Gates -Expected @('framework/27-quality-gates/ux-gate.md','framework/27-quality-gates/performance-gate.md','framework/27-quality-gates/30-visual-composition-gate.md') -Context 'frontend build'
+Assert-Contains -Actual $build.Skills -Expected @('typeui-fundamentals','frontend-design') -Context 'frontend build skills'
+if ($build.Skills -contains 'impeccable' -or $build.Skills -contains 'ui-ux-pro-max') { throw 'Frontend Build stacked audit or intelligence skills without their triggers.' }
+
+$audit = Get-QualityGateSelection -Task 'Audit and polish the frontend visual design'
+if ($audit.FrontendMode -ne 'Audit') { throw "A frontend audit must select Audit, got $($audit.FrontendMode)." }
+Assert-Contains -Actual $audit.Modules -Expected @('framework/54-design-intelligence/00-design-intelligence-system.md') -Context 'frontend audit'
+Assert-Contains -Actual $audit.Gates -Expected @('framework/27-quality-gates/30-visual-composition-gate.md') -Context 'frontend audit'
+Assert-Contains -Actual $audit.Skills -Expected @('typeui-fundamentals','impeccable') -Context 'frontend audit skills'
+if ($audit.Skills -contains 'frontend-design' -or $audit.Skills -contains 'ui-ux-pro-max') { throw 'Frontend Audit stacked build or intelligence skills without their triggers.' }
+
+$explicitQuick = Get-QualityGateSelection -Task 'Build a UI component using the existing owner' -FrontendMode Quick
+if ($explicitQuick.FrontendMode -ne 'Quick') { throw 'An explicit frontend mode must override automatic inference.' }
+
+$loading = Get-QualityGateSelection -Task 'Add a skeleton loading state to a React card'
+Assert-Contains -Actual $loading.Modules -Expected @('framework/53-skeleton-loading/00-skeleton-loading-system.md','framework/53-skeleton-loading/01-structure-and-content-parity.md','framework/53-skeleton-loading/02-state-contract.md') -Context 'explicit skeleton route'
+Assert-Contains -Actual $loading.Gates -Expected @('framework/27-quality-gates/25-skeleton-loading-gate.md') -Context 'explicit skeleton route'
+
+$dataOnly = Get-QualityGateSelection -Task 'Fix spacing in a data-backed React card'
+if ($dataOnly.Modules -contains 'framework/53-skeleton-loading/00-skeleton-loading-system.md' -or $dataOnly.Gates -contains 'framework/27-quality-gates/25-skeleton-loading-gate.md') {
+  throw 'A data-backed component selected skeleton workflow without a loading-behavior trigger.'
 }
 
 Write-Host 'Quality gate selection tests passed'

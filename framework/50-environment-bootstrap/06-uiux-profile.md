@@ -5,19 +5,17 @@ Status: Enforced
 
 ## Purpose
 
-Requires both UI UX Pro Max and Impeccable for UI work, recommends TypeUI Fundamentals, plus relevant browser tools.
+Discovers optional UI design skills without turning their installation into a universal frontend blocker.
 
 ## Required Practice
 
-- Verify both skills together. Figma MCP may be added when scope requires it. For Chrome interaction, select the Chrome plugin and Node REPL path; directly exposed Playwright and Chrome DevTools MCPs are not valid substitutes.
-- A UI task must not report UIUX PASS when either core design skill is missing.
+- Verify only skills selected by the frontend mode and task trigger. Figma MCP may be added when scope requires it. For Chrome interaction, select the Chrome plugin and Node REPL path; directly exposed Playwright and Chrome DevTools MCPs are not valid substitutes.
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.
-- For UI/UX work, both `ui-ux-pro-max` and `impeccable` are Mandatory and must be selected together. `typeui-fundamentals` is Recommended and should be selected when available.
-- The bootstrap result must list both skill names under Mandatory Dependencies and mark UIUX PASS only after both paths are verified.
-- Treat `typeui-fundamentals` and `emil-design-eng` as Recommended for UIUX work. Detect `review-animations`, `improve-animations`, `animation-vocabulary`, and `apple-design` as Optional specialist capabilities.
+- Treat `typeui-fundamentals` as Recommended for UI fundamentals. Treat `ui-ux-pro-max`, `impeccable`, `frontend-design`, `design-brief`, `emil-design-eng`, `review-animations`, `improve-animations`, `animation-vocabulary`, and `apple-design` as conditional or Optional capabilities selected only by their triggers.
+- A missing optional design skill warns only when its trigger applies and never blocks unrelated UI work.
 - Detect `frontend-design` and `design-brief` as Optional Open Design specialists; use them only when their frontend implementation or design-planning triggers match.
-- Missing specialist motion skills must not block unrelated UI work; select them only for matching tasks.
+- Missing specialist skills must not block unrelated UI work; select them only for matching tasks.
 - When browser interaction is required, add Browser Session Control and require the user's existing browser and tab; browser session access is not satisfied by an isolated browser.
 
 ## Evidence

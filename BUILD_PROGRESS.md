@@ -1,6 +1,6 @@
 # Build Progress
 
-Current release: 2.19.5 (2026-07-31)
+Current release: 2.20.0 (2026-07-31)
 
 ## Delivered baseline
 
@@ -9,6 +9,7 @@ Current release: 2.19.5 (2026-07-31)
 - 2.12.x added capability diagnostics, proportional selection, timed assurance, and structured health output.
 - 2.13.x added task preflight, governed UI capability provenance, spec clarification/convergence artifacts, diff impact, and optional workflow utilities.
 - 2.16.x reconciles intent-first routing across the source loader, master loader, Pack 58, quality gates, and generated runtime; it keeps narrow `T1` work single-agent by default and allows recorded higher reasoning only where justified.
+- 2.20.0 adds proportional `Quick`, `Build`, and `Audit` frontend routes, trigger-based design skills, and explicit skeleton and visual-composition selection.
 - 2.19.5 moves Codex runtime backups outside `CODEX_HOME`, makes the external location configurable, and rejects unsafe internal backup roots.
 - 2.19.4 hardens Codex activation and status integrity, truthful bootstrap/capability evidence, PowerShell 5.1 text handling, and full CI assurance.
 - 2.19.3 fixes release-consistency documentation parity so clean GitHub Actions checkouts pass the framework validation gate.
@@ -18,7 +19,7 @@ Current release: 2.19.5 (2026-07-31)
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.19.5.
+- Source validation and nested deterministic tests pass for 2.20.0.
 - The source checkout passes validation and reports `SOURCE_VALIDATED`; the managed runtime must be synchronized before it can claim `ACTIVE_RUNTIME`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 

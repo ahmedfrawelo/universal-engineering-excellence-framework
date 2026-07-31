@@ -40,31 +40,24 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 
 ## Frontend UI Tasks
 
-Load only:
+Select `framework/10-frontend/01-frontend-task-modes.md` and choose exactly one mode: `Quick`, `Build`, or `Audit`. The mode controls the module, skill, and gate budget; a generic frontend keyword never justifies the full UI suite.
 
-- `framework/08-performance/00-performance-philosophy.md`
-- `framework/10-frontend/00-frontend-engineering.md`
-- `framework/14-ui/00-ui-system.md`
-- `framework/15-ux/00-ux-system.md`
-- `framework/16-accessibility/00-accessibility-system.md`
-- `framework/27-quality-gates/ui-gate.md`
-- `framework/27-quality-gates/ux-gate.md`
-- `framework/27-quality-gates/accessibility-gate.md`
-- `framework/27-quality-gates/performance-gate.md`
-- `framework/27-quality-gates/16-ueef-activation-gate.md`
+- `Quick`: load the frontend foundation plus only the focused UI, accessibility, code, and test checks touched by a bounded existing-owner change.
+- `Build`: load the frontend, UI, UX, accessibility, and performance foundations relevant to a new or materially extended production surface.
+- `Audit`: load the affected frontend foundations plus design-intelligence or design-governance modules needed to support the audit claims. Keep report-only audits read-only.
 
-Apply UI UX Pro Max when available. Do not load backend, database, enterprise, or unrelated technology packs unless the task touches them.
+Do not load backend, database, enterprise, design-governance, skeleton, browser, or unrelated technology packs unless the task touches them.
 
-For UI/UX work, this means loading and applying both `ui-ux-pro-max` and `impeccable`, plus `typeui-fundamentals` when available for layout, typography, accessibility, and interaction principles. Do not report UIUX as PASS when either mandatory baseline skill is unavailable; report the missing skill according to the environment profile.
+UI skills are purpose-routed rather than universally stacked: use `typeui-fundamentals` for lightweight principles, `frontend-design` for production construction, `impeccable` for critique/redesign/polish, and `ui-ux-pro-max` for explicit product or style intelligence. Missing optional design skills do not block a task that project evidence and focused gates can verify.
 
 For frontend routes that render public, indexable, slow-to-boot, content-heavy, or data-heavy first views, evaluate SSR, SSG, streaming, route-level pre-rendering, or server components when supported by the stack. If client rendering remains the correct choice, record the project-specific reason.
 
 ### Design Engineering Skills
 
-Keep `ui-ux-pro-max` and `impeccable` as the mandatory general UI/UX baseline, and add `typeui-fundamentals` as the recommended fundamentals baseline when available. Add only the specialized installed skill whose trigger matches:
+Use the frontend mode first, then add only the installed skill whose trigger matches:
 
 - `design-brief` for converting an ambiguous design request into an explicit design specification before implementation.
-- `frontend-design` for building or materially polishing a production frontend interface.
+- `frontend-design` for building or materially extending a production frontend interface.
 - `emil-design-eng` for animation implementation, motion polish, easing, timing, transitions, and interaction craft.
 - `review-animations` for reviewing a motion diff or deciding whether animation changes pass.
 - `improve-animations` for a read-only, whole-codebase motion audit and self-contained plans; respect its no-source-edits contract.
@@ -73,7 +66,7 @@ Keep `ui-ux-pro-max` and `impeccable` as the mandatory general UI/UX baseline, a
 
 Do not load all specialist skills by default. Multiple skills are selected together only when their triggers independently apply.
 
-For every UI, frontend, page, component, form, dropdown, menu, modal, panel, table, dashboard, responsive, theme, or interaction task, first inspect `framework/46-design-system-consistency-reuse/` and select the relevant modules from `framework/47-theme-responsive-interaction-security-performance/`.
+Inspect `framework/46-design-system-consistency-reuse/` and select relevant pack 47 modules when a `Build` or `Audit` task creates, extends, compares, or governs a reusable UI capability. For `Quick`, inspect only the current component family and direct shared owner unless the change introduces reuse, theme, responsive, overlay, security, or performance behavior.
 
 For large repositories, shared components, reusable services, validators, API clients, state utilities, tokens, and pattern libraries must be inspected before creating a custom implementation. If the behavior can be reused across more than one place, implement or extend it in the shared owner and import it into the target feature.
 Related primitives, recipes, stories, tests, styles, documentation, and exports belong under one component-family owner folder. Do not create another shared folder for an existing semantic capability; extend the existing family and preserve one canonical public import.
@@ -164,7 +157,7 @@ Select `framework/51-browser-session-control/` only when the user explicitly ask
 
 ## Skeleton Loading
 
-For any data-backed UI, page, component, table, card, dashboard, form, or async interaction, select `framework/53-skeleton-loading/`. Load the system, structure-parity, state-contract, theme-responsive-accessibility, performance, reuse, verification, timing, SSR/hydration, and shared-API modules as applicable. Update an existing skeleton whenever the final content structure changes; never add a duplicate loader for the same region. Reusable skeleton primitives and proven recipes belong in the existing shared design-system owner, public API, and component registry. Require shared reveal/minimum-duration policy and deterministic server/client structure where applicable.
+Select `framework/53-skeleton-loading/` only when the task creates or materially changes a skeleton, loading placeholder, async reveal policy, or the final structure paired with an existing skeleton. Receiving data alone is not a trigger. Load only the applicable structure, state, theme/accessibility, performance, reuse, verification, timing, SSR/hydration, or shared-API modules. Never add a duplicate loader for the same region. Reusable skeleton primitives and proven recipes belong in the existing shared design-system owner, public API, and component registry.
 
 ## Design Intelligence
 
@@ -182,7 +175,7 @@ For any non-trivial route, feature, component, asset, locale, integration, worke
 
 For any sidebar, header, navigation, application shell, route transition, page chrome, global animation, or shared loading-state work, select `framework/57-application-shell-design/` and apply its extraction, interaction, motion, responsive, accessibility, performance, and visual-QA contracts.
 
-For any page, form, dashboard, landing view, or responsive layout, select `framework/27-quality-gates/30-visual-composition-gate.md` and require first-viewport composition, density, hierarchy, responsive, state, and visual-evidence review in addition to build/tests.
+For `Build`, select `framework/27-quality-gates/30-visual-composition-gate.md` when creating or materially changing a page, form, dashboard, landing view, or responsive layout. For `Audit`, select it when making visual-composition claims. A `Quick` task does not receive this gate unless the exact visual result is the requested acceptance criterion.
 
 ## Skill Invocation Protocol
 

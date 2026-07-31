@@ -9,7 +9,7 @@ function Assert-Profile([string]$Task, [string]$ExpectedProfile, [string[]]$Skil
   foreach ($workflow in $Selections.Keys) { $decision = $actual.workflowDecisions | Where-Object { $_.id -eq $workflow }; if (!$decision -or $decision.selection -ne $Selections[$workflow] -or !$decision.evidence) { throw "Workflow decision contract failed for $workflow in '$Task'." } }
 }
 Assert-Profile 'Explain dependency injection' 'CORE_ONLY'
-Assert-Profile 'Build a React accessible dashboard' 'SELECTIVE' @('ui-ux-pro-max','impeccable','typeui-fundamentals')
+Assert-Profile 'Build a React accessible dashboard' 'SELECTIVE' @('typeui-fundamentals','frontend-design')
 Assert-Profile 'Check the latest OpenAI API documentation' 'SELECTIVE' @('.system/openai-docs')
 Assert-Profile 'Inspect the existing Chrome tab visually' 'SELECTIVE' @() @('node_repl')
 $casualBrowserMention = & $selector -Task 'Document the browser policy in this repository' -Json | ConvertFrom-Json
@@ -19,4 +19,8 @@ Assert-Profile 'Clarify ambiguous requirements for a new feature' 'SELECTIVE' @(
 Assert-Profile 'Perform a production payment migration' 'ASSURED' @() @() @('independent-review','evidence-loop') @{ 'independent-review'='required'; 'evidence-loop'='required' }
 $explicit = & $selector -Task 'Plain implementation request' -TaskTag browser -RouteTier T3 -RiskFloor Security -CodeChange -Json | ConvertFrom-Json
 if ($explicit.profile -ne 'ASSURED' -or $explicit.mcps -notcontains 'node_repl' -or $explicit.classificationEvidence.source -ne 'explicit' -or $explicit.classificationEvidence.routeTier -ne 'T3' -or $explicit.classificationEvidence.riskFloor -ne 'Security') { throw 'Explicit route signals must override keyword inference and remain explainable.' }
+$quickUi = & $selector -Task 'Fix spacing in an existing CSS component' -Json | ConvertFrom-Json
+if ($quickUi.frontendMode -ne 'Quick' -or $quickUi.skills -notcontains 'typeui-fundamentals' -or $quickUi.skills -contains 'impeccable' -or $quickUi.skills -contains 'ui-ux-pro-max') { throw 'Capability profile did not preserve the minimal Quick frontend route.' }
+$auditUi = & $selector -Task 'Audit and polish the frontend visual design' -Json | ConvertFrom-Json
+if ($auditUi.frontendMode -ne 'Audit' -or $auditUi.skills -notcontains 'impeccable' -or $auditUi.skills -contains 'frontend-design' -or $auditUi.skills -contains 'ui-ux-pro-max') { throw 'Capability profile did not preserve the focused Audit frontend route.' }
 Write-Host 'Capability profile tests passed'

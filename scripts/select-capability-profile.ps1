@@ -18,6 +18,7 @@ $mcps = [Collections.Generic.List[string]]::new()
 $workflows = [Collections.Generic.List[string]]::new()
 $workflowDecisions = [Collections.Generic.List[object]]::new()
 $reasons = [Collections.Generic.List[string]]::new()
+$frontendMode = 'NA'
 function Add-Unique([Collections.Generic.List[string]]$List, [string]$Value) { if (!$List.Contains($Value)) { $List.Add($Value) } }
 function Add-WorkflowDecision([string]$Id, [string]$Selection, [string]$Trigger, [string]$Evidence) {
   Add-Unique $workflows $Id
@@ -62,8 +63,13 @@ if ($isReadOnly) {
 }
 
 if ($isUi) {
-  Add-Unique $skills 'ui-ux-pro-max'; Add-Unique $skills 'impeccable'; Add-Unique $skills 'typeui-fundamentals'
-  Add-Unique $reasons 'UI work requires the installed UI/UX baseline skills plus TypeUI fundamentals for layout, typography, accessibility, and interaction principles.'
+  $selectorArgs = @{ Task=$Task; CodeChange=[bool]$CodeChange; Json=$true }
+  if ($RouteTier) { $selectorArgs.Tier = $RouteTier }
+  if ($TaskTag.Count) { $selectorArgs.TaskTag = $TaskTag }
+  $uiRoute = (& (Join-Path $PSScriptRoot 'select-quality-gates.ps1') @selectorArgs | Out-String) | ConvertFrom-Json
+  $frontendMode = [string]$uiRoute.frontendMode
+  foreach ($skill in @($uiRoute.skillRoutes)) { Add-Unique $skills ([string]$skill) }
+  Add-Unique $reasons "UI work uses the $frontendMode frontend mode and only independently triggered design skills."
 }
 if ($needsCurrentDocs) { Add-Unique $skills '.system/openai-docs'; Add-Unique $reasons 'The task requests current documentation.' }
 if ($needsBrowser) { Add-Unique $mcps 'node_repl'; Add-Unique $reasons 'Existing browser/session work requires the Node REPL browser control channel.' }
@@ -74,9 +80,10 @@ elseif ($isCodeChange) { Add-WorkflowDecision 'evidence-loop' 'required' 'The re
 if ($isSecurity) { Add-WorkflowDecision 'independent-review' 'required' 'The task is high-impact or has a high/critical risk trigger.' 'Spec-compliance and quality-review evidence.'; Add-Unique $reasons 'High-impact work requires a spec and quality review chain.' }
 
 $result = [ordered]@{
-  schemaVersion = 1
+  schemaVersion = 2
   profile = $profile
   task = $Task
+  frontendMode = $frontendMode
   skills = @($skills)
   mcps = @($mcps)
   workflows = @($workflows)

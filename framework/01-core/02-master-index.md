@@ -85,4 +85,4 @@ Before every non-trivial engineering task, UEEF requires a preflight check. The 
 
 ## Runtime Selection Rule
 
-Use the canonical index to select exact modules for the task before implementation. UI, UX, frontend, design, accessibility, and visual-polish tasks must include both `ui-ux-pro-max` and `impeccable` status, include `typeui-fundamentals` when available, plus the UI, UX, accessibility, frontend, performance, and activation gates.
+Use the canonical index to select exact modules for the task before implementation. UI and frontend tasks must select `Quick`, `Build`, or `Audit` through `framework/10-frontend/01-frontend-task-modes.md`, then include only the skills, foundations, and gates independently triggered by the requested outcome.

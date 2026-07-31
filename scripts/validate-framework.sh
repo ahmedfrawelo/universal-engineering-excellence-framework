@@ -271,7 +271,8 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/assets/ueef-skill-icon.svg" ] || { echo "Missing UEEF skill icon asset" >&2; exit 1; }
 [ -f "$ROOT/scripts/project-context-map.ps1" ] || { echo "Missing project context map script" >&2; exit 1; }
 [ -f "$ROOT/scripts/project-context-map.sh" ] || { echo "Missing Unix project context map script" >&2; exit 1; }
-grep -q 'apply both `ui-ux-pro-max` and `impeccable` together' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing UIUX skill-pair rule" >&2; exit 1; }
+grep -q 'select exactly one frontend mode' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing proportional frontend-mode rule" >&2; exit 1; }
+grep -q 'Do not stack skills solely' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing trigger-based UI skill rule" >&2; exit 1; }
 grep -q 'Place every new file under an existing owned feature' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing owned-file rule" >&2; exit 1; }
 grep -q 'standalone-file system' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing standalone-file rule" >&2; exit 1; }
 grep -q 'Keep files small enough to review and maintain' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing file-size rule" >&2; exit 1; }
@@ -279,6 +280,8 @@ grep -q "Final responses must answer" "$ROOT/framework/01-core/00-core-system.md
 grep -q 'Runtime drift:' "$ROOT/scripts/ueef-status.ps1" || { echo "Status script missing runtime drift field" >&2; exit 1; }
 grep -q 'emil-design-eng' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing motion skill route" >&2; exit 1; }
 grep -q 'animation' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing animation route" >&2; exit 1; }
+grep -q 'FrontendMode' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing frontend modes" >&2; exit 1; }
+grep -q '25-skeleton-loading-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing explicit skeleton route" >&2; exit 1; }
 grep -q 'superpowers' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing Superpowers route" >&2; exit 1; }
 grep -q '32-skill-invocation-protocol-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing skill protocol gate" >&2; exit 1; }
 grep -q 'Skill invocation protocol:' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing skill protocol section" >&2; exit 1; }

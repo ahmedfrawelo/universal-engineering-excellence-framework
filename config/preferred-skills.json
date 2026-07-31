@@ -10,7 +10,7 @@
   "preferred": [
     {
       "id": "ui-ux-pro-max",
-      "level": "required-for-profile",
+      "level": "conditional",
       "profiles": ["UIUX"],
       "triggers": ["UI", "UX", "frontend", "layout", "accessibility", "visual polish"],
       "installEvidence": "skills/ui-ux-pro-max/SKILL.md",
@@ -22,7 +22,7 @@
     },
     {
       "id": "impeccable",
-      "level": "required-for-profile",
+      "level": "conditional",
       "profiles": ["UIUX"],
       "triggers": ["frontend critique", "UI polish", "design hardening", "interface audit"],
       "installEvidence": "skills/impeccable/SKILL.md",
@@ -48,7 +48,7 @@
       "id": "frontend-design",
       "level": "conditional",
       "profiles": ["Frontend", "UIUX"],
-      "triggers": ["production frontend creation", "material frontend polish"],
+      "triggers": ["production frontend creation", "material frontend extension"],
       "installEvidence": "skills/frontend-design/SKILL.md",
       "source": {
         "repository": "nexu-io/open-design",

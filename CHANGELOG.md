@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.5`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.20.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.20.0 - 2026-07-31
+
+- Added proportional `Quick`, `Build`, and `Audit` frontend routes with machine-readable mode and skill output.
+- Replaced the universal `ui-ux-pro-max` plus `impeccable` requirement with independent, task-triggered skill selection.
+- Limited skeleton and visual-composition gates to explicit loading or visual acceptance scope instead of every data-backed frontend task.
+- Added Windows and Unix regression coverage for frontend modes, minimal skill chains, and explicit skeleton routing.
 
 ## 2.19.5 - 2026-07-31
 

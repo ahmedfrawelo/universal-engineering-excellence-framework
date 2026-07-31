@@ -3,13 +3,16 @@ param(
   [ValidateSet('T0','T1','T2','T3','T4')][string]$Tier,
   [switch]$CodeChange,
   [ValidateSet('ui','browser','current-docs','ambiguous','debugging')][string[]]$TaskTag = @(),
+  [ValidateSet('Auto','Quick','Build','Audit')][string]$FrontendMode = 'Auto',
   [switch]$Json
 )
 $ErrorActionPreference = "Stop"
 $text = $Task.ToLowerInvariant()
 $modules = New-Object System.Collections.Generic.List[string]
 $gates = New-Object System.Collections.Generic.List[string]
+$skillRoutes = New-Object System.Collections.Generic.List[string]
 $uiRequired = $false
+$resolvedFrontendMode = 'NA'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $inputParameters = @{} + $PSBoundParameters
 
@@ -86,21 +89,57 @@ if ($Tier -eq 'T1' -and $CodeChange) {
 }
 
 $motionRequired = $text -match '\b(motion|animation|animate|transition|easing)\b|micro-interaction|interaction polish'
-if ($effectiveTags -contains 'ui' -or $text -match '\b(ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind)\b' -or $motionRequired) {
+$uiSignal = $FrontendMode -ne 'Auto' -or $effectiveTags -contains 'ui' -or $text -match '\b(ui|ux|frontend|react|angular|design|layout|accessibility|screen|component|css|scss|tailwind)\b' -or $motionRequired
+if ($uiSignal) {
   $uiRequired = $true
+  if ($FrontendMode -ne 'Auto') {
+    $resolvedFrontendMode = $FrontendMode
+  } elseif ($text -match '\b(audit|review|critique|assess|evaluate|redesign|polish)\b|visual qa|pixel.?perfect|design-system review') {
+    $resolvedFrontendMode = 'Audit'
+  } elseif ($text -match '\b(build|create|implement|add|develop|scaffold|new)\b') {
+    $resolvedFrontendMode = 'Build'
+  } else {
+    $resolvedFrontendMode = 'Quick'
+  }
+
   Add-Unique $modules @(
-    "framework/08-performance/00-performance-philosophy.md",
     "framework/10-frontend/00-frontend-engineering.md",
+    "framework/10-frontend/01-frontend-task-modes.md",
     "framework/14-ui/00-ui-system.md",
-    "framework/15-ux/00-ux-system.md",
     "framework/16-accessibility/00-accessibility-system.md"
   )
   Add-Unique $gates @(
     "framework/27-quality-gates/ui-gate.md",
-    "framework/27-quality-gates/ux-gate.md",
-    "framework/27-quality-gates/accessibility-gate.md",
-    "framework/27-quality-gates/performance-gate.md"
+    "framework/27-quality-gates/accessibility-gate.md"
   )
+  Add-Unique $skillRoutes @('typeui-fundamentals')
+
+  if ($resolvedFrontendMode -in @('Build','Audit')) {
+    Add-Unique $modules @(
+      "framework/08-performance/00-performance-philosophy.md",
+      "framework/15-ux/00-ux-system.md"
+    )
+    Add-Unique $gates @(
+      "framework/27-quality-gates/ux-gate.md",
+      "framework/27-quality-gates/performance-gate.md"
+    )
+  }
+  if ($resolvedFrontendMode -eq 'Build') {
+    Add-Unique $skillRoutes @('frontend-design')
+  }
+  if ($resolvedFrontendMode -eq 'Audit') {
+    Add-Unique $modules @('framework/54-design-intelligence/00-design-intelligence-system.md')
+    Add-Unique $skillRoutes @('impeccable')
+  }
+  if ($text -match 'style direction|color palette|font pairing|typography pairing|product pattern|product type|design intelligence|broad ui.?ux recommendation') {
+    Add-Unique $skillRoutes @('ui-ux-pro-max')
+  }
+  if ($effectiveTags -contains 'ambiguous') {
+    Add-Unique $skillRoutes @('design-brief')
+  }
+  if ($motionRequired) {
+    Add-Unique $skillRoutes @('emil-design-eng')
+  }
 }
 
 if ($effectiveTags -contains 'browser' -or $text -match '\b(browser|chrome|tab|screenshot|localhost)\b|page inspection|visual verification') {
@@ -108,8 +147,23 @@ if ($effectiveTags -contains 'browser' -or $text -match '\b(browser|chrome|tab|s
   Add-Unique $gates @("framework/27-quality-gates/23-browser-session-control-gate.md")
 }
 
-if ($text -match '\b(page|layout|visual|design|frontend|screen|responsive|form|dashboard|landing|screenshot)\b') {
+$visualRequired = $uiRequired -and (
+  ($resolvedFrontendMode -eq 'Build' -and $text -match '\b(page|layout|visual|design|screen|responsive|form|dashboard|landing)\b') -or
+  ($resolvedFrontendMode -eq 'Audit' -and $text -match '\b(visual|design|layout|screen|responsive|page|form|dashboard|landing|redesign|polish)\b|pixel.?perfect') -or
+  ($resolvedFrontendMode -eq 'Quick' -and $text -match 'exact visual|visual verification|visually|screenshot|pixel.?perfect')
+)
+if ($visualRequired) {
   Add-Unique $gates @("framework/27-quality-gates/30-visual-composition-gate.md")
+}
+
+$skeletonRequired = $text -match '\bskeleton\b|loading placeholder|loading state|async state|shimmer|content loader|reveal timing|hydration placeholder'
+if ($skeletonRequired) {
+  Add-Unique $modules @(
+    "framework/53-skeleton-loading/00-skeleton-loading-system.md",
+    "framework/53-skeleton-loading/01-structure-and-content-parity.md",
+    "framework/53-skeleton-loading/02-state-contract.md"
+  )
+  Add-Unique $gates @("framework/27-quality-gates/25-skeleton-loading-gate.md")
 }
 
 if ($text -match '\b(api|endpoint|backend|server|controller|route|service)\b') {
@@ -220,11 +274,13 @@ if ($text -match "real.?time|live refresh|auto.?refresh|without reload|no reload
 Assert-ExistingFrameworkPaths ($modules.ToArray() + $gates.ToArray())
 
 $result = [ordered]@{
-  schemaVersion = 2
+  schemaVersion = 3
   task = $Task
   tier = $Tier
   codeChange = [bool]$CodeChange
   uiux = if ($uiRequired) { 'YES' } else { 'NO' }
+  frontendMode = $resolvedFrontendMode
+  skillRoutes = @($skillRoutes)
   specialistSkillRoute = if ($motionRequired) { 'emil-design-eng' } else { 'none' }
   modules = @($modules)
   gates = @($gates)
@@ -239,6 +295,8 @@ Write-Output "---------------------------"
 Write-Output "Task: $Task"
 Write-Output "Tier: $Tier"
 Write-Output "UIUX: $(if ($uiRequired) { 'YES' } else { 'NO' })"
+Write-Output "Frontend mode: $resolvedFrontendMode"
+Write-Output "Skill routes: $(if ($skillRoutes.Count) { $skillRoutes -join ', ' } else { 'none' })"
 Write-Output "Specialist skill route: $(if ($motionRequired) { 'emil-design-eng' } else { 'none' })"
 Write-Output "Selected:"
 foreach ($m in $modules) { Write-Output "- $m" }

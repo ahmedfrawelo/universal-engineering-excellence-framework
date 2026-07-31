@@ -58,7 +58,7 @@ Required core load order:
 - framework/03-runtime/00-runtime-sequence.md
 - framework/27-quality-gates/16-ueef-activation-gate.md
 
-The assistant must select relevant modules, check MCPs/tools/skills, apply UI UX Pro Max for UI work, plan quality gates, and include UEEF verification in the final response.
+The assistant must select relevant modules, check MCPs/tools/skills, choose the proportionate frontend mode for UI work, plan quality gates, and include UEEF verification in the final response.
 
 ## Product System Requirements
 
@@ -69,19 +69,19 @@ The assistant must select relevant modules, check MCPs/tools/skills, apply UI UX
 - Product UI must use semantic design tokens, controlled soft radius tokens, and solid visual borders. Dashed or dotted UI lines are prohibited except when the represented content itself requires them.
 - Security and performance are release-blocking requirements. Authorization, tenant isolation, duplicate submission protection, measured rendering, API, query, network, and bundle behavior must be verified where applicable.
 
-Select `framework/46-design-system-consistency-reuse/` and `framework/47-theme-responsive-interaction-security-performance/` for UI, frontend, theme, responsive, interaction, security-sensitive, or performance-sensitive work.
+Select `framework/10-frontend/01-frontend-task-modes.md` for UI and frontend work. Add relevant modules from `framework/46-design-system-consistency-reuse/` and `framework/47-theme-responsive-interaction-security-performance/` only when reuse, theme, responsive, interaction, security, or performance contracts are touched.
 
 - Before creating any UI, search the project, design system, component registry, shared components, shared services, and pattern library in that order.
 - Reuse existing capabilities before extending, generalizing, or creating new ones. Record the rejected alternatives when creation is necessary.
 - If a UI capability will be used in multiple places, place it in the appropriate shared component, primitive, composite, layout, token, service, or pattern-library owner and consume it from features. Feature-local UI is only for genuinely single-use behavior.
 - All visual values must come from governed design tokens or an approved documented exception. Design governance covers color, typography, icons, spacing, sizing, radius, borders, shadows, elevation, motion, and z-index.
-- Every UI change must be reviewed for token compliance, component reuse, theme compatibility, responsive behavior, accessibility, interaction consistency, performance, and design drift.
+- Review each UI change only against the contracts it touches. New or broad surfaces require wider token, reuse, theme, responsive, accessibility, interaction, performance, and drift review; bounded existing-owner changes use focused checks.
 - Select `framework/48-design-governance/` for design governance, tokens, visual language, component registry, pattern library, or reuse enforcement work.
 - For T2+ or elevated-risk work, select the applicable `framework/49-engineering-guardian/` modules. T0/T1 work uses a focused relevant check unless risk, scope, or the user request requires more; when selected, establish the affected baseline, run applicable regression monitors, and leave the project equal or better across the affected quality dimensions.
 - A known regression must block completion and release claims until fixed or explicitly accepted by an accountable owner with impact, expiry, mitigation, and rollback evidence. Continue implementing the fix unless further work would risk irreversible user or data harm.
 - Run the Environment Bootstrap before project inspection, architecture detection, planning, implementation, and quality gates. Select only profiles required by task and repository evidence.
 - Mandatory environment gaps block work; Recommended gaps warn and continue; Optional gaps never block. Never claim environment READY without current bootstrap evidence.
-- For every UI, UX, frontend, design, layout, accessibility, or visual-polish task, apply both `ui-ux-pro-max` and `impeccable` together when available, and add `typeui-fundamentals` when available for layout, typography, accessibility, and interaction principles. `ui-ux-pro-max` supplies design intelligence; `impeccable` supplies product-quality critique and hardening; `typeui-fundamentals` supplies universal UI/UX rules.
+- For UI work, select exactly one frontend mode: `Quick`, `Build`, or `Audit`. Use `typeui-fundamentals` for relevant fundamentals, `frontend-design` for production construction, `impeccable` for critique/redesign/polish, and `ui-ux-pro-max` for explicit product or style intelligence. Do not stack skills solely because the task mentions frontend or design, and do not block focused work on a missing optional skill.
 - For browser tasks, use the browser the user actually opened, including its active tab and signed-in session. Do not silently create or switch to an isolated browser, profile, or context. If no usable user browser exists, block and ask the user to open it and sign in.
 
 ## File Organization and Size Requirements

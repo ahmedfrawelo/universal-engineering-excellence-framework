@@ -10,9 +10,9 @@ Skill discovery prevents the assistant from reinventing existing workflow knowle
 - Check project-local skill folders such as `.codex/skills`, `.agents/skills`, `.claude/skills`, `.cursor/skills`, and documented project workflow folders.
 - Check UEEF packs for the same task category.
 - Prefer installed supported skills over external web instructions unless the user explicitly asks to install or study an external skill.
-- For UI work, always include `ui-ux-pro-max` and `impeccable` when available.
+- For UI work, select `Quick`, `Build`, or `Audit`, then include only skills whose specific trigger is part of the requested outcome.
 - For an ambiguous visual request, add `design-brief` before implementation.
-- For production frontend creation or material UI polish, add `frontend-design`.
+- For production frontend creation or material extension, add `frontend-design`.
 - For motion, animation, transition, easing, or interaction polish, add `emil-design-eng`.
 - For browser work, use the installed Chrome control skill and the UEEF browser session pack.
 

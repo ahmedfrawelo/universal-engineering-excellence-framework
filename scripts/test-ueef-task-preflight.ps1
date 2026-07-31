@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $preflight = Join-Path $PSScriptRoot 'get-ueef-task-preflight.ps1'
 $ui = (& $preflight -Task 'Contradictory prose: do not design' -TaskTag ui -Scope 1 -CodeChange -Json | Out-String) | ConvertFrom-Json
-if ($ui.status -ne 'READY' -or $ui.classification.route.tier -ne 'T1' -or $ui.profile.skills -notcontains 'ui-ux-pro-max' -or $ui.profile.skills -notcontains 'typeui-fundamentals' -or $ui.profile.workflows -notcontains 'evidence-loop') { throw 'Explicit UI preflight contract failed.' }
+if ($ui.status -ne 'READY' -or $ui.classification.route.tier -ne 'T1' -or $ui.profile.frontendMode -ne 'Quick' -or $ui.profile.skills -notcontains 'typeui-fundamentals' -or $ui.profile.skills -contains 'ui-ux-pro-max' -or $ui.profile.skills -contains 'impeccable' -or $ui.profile.workflows -notcontains 'evidence-loop') { throw 'Explicit UI preflight contract failed.' }
 if ($ui.activation.mode -ne 'SOURCE_VALIDATED' -or !$ui.activation.executionAuthorized -or $ui.activation.runtimeOverall -ne 'SOURCE_VALIDATED') { throw 'Source preflight must distinguish validated source from active runtime.' }
 $browser = (& $preflight -Task 'Inspect browser' -TaskTag browser -SkipHealth -Json | Out-String) | ConvertFrom-Json
 if (!$browser.health.required -or $browser.health.checked) { throw 'Browser preflight must require but not probe health when explicitly skipped.' }

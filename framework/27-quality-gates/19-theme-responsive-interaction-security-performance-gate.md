@@ -7,7 +7,7 @@ Status: Release blocking
 
 - Existing theme, token, component, layout, responsive, motion, and overlay systems inspected.
 - Relevant pack 45, 46, and 47 modules selected.
-- Both `ui-ux-pro-max` and `impeccable` applied for applicable UI work when installed; unavailability is explicit.
+- The selected frontend mode and independently triggered design skills match the requested UI outcome.
 - Security boundaries and performance budgets identified.
 
 ## Pass Conditions

@@ -10,7 +10,7 @@ Before every non-trivial engineering task:
 2. Load only `boot-loader` and `core-system` as always-loaded modules.
 3. For a self-contained T0/T1 answer or narrow change, start core-only and use tools only when they directly help the requested outcome. Run `scripts/environment-bootstrap.ps1` or `scripts/environment-bootstrap.sh` for non-trivial repository work or capability uncertainty. The optional read-only `scripts/get-ueef-task-preflight.ps1 -Task '<task summary>'` selects route/profile/workflow evidence but never proves an MCP callable. For multi-file changes, optional `scripts/get-diff-impact.ps1` suggests affected packs and gates with heuristic confidence only. Use optional project memory only for explicit local decisions; resolve a team profile only when one is declared; export evidence before closing a high-risk task or preparing a PR.
 4. Select task-specific modules through `framework/01-core/01-master-loader.md`.
-5. For UI/UX work, apply both `ui-ux-pro-max` and `impeccable` together.
+5. For UI/UX work, select `Quick`, `Build`, or `Audit` through `framework/10-frontend/01-frontend-task-modes.md`; route design skills by their independent triggers instead of stacking a mandatory pair.
 6. For T2+ or elevated-risk work, apply the relevant Engineering Guardian modules and quality gates. For T0/T1, use only a focused relevant check unless risk, scope, or the user request requires more.
 
 File, folder, and size discipline:
@@ -70,7 +70,7 @@ Large-project reuse:
 
 Design engineering skill routing:
 - Add `design-brief` to turn an ambiguous visual request into an explicit design specification before implementation.
-- Add `frontend-design` when building or materially polishing a production frontend interface.
+- Add `frontend-design` when building or materially extending a production frontend interface.
 - Add `emil-design-eng` for motion implementation and polish.
 - Add `review-animations` for motion review, `improve-animations` for read-only motion audits, `animation-vocabulary` for naming effects, and `apple-design` for gesture, spring, momentum, and Apple-style interaction work.
 - Select only matching skills; never load the full suite by default.
