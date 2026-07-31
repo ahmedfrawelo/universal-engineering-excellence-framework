@@ -55,6 +55,13 @@ Ask/Do mode:
 - **Do mode:** when the outcome is clear, execute only the requested work and its direct verification; do not manufacture adjacent work.
 - Before non-trivial execution, show one route line: `Intent: <requested outcome> | Tier: <T0-T4> | Spawn: <no/yes and reason> | Browser: <no/yes and reason>`.
 
+Temporary creative bypass:
+- UEEF is strict by default. A direct user command containing any of these phrases activates `FREE-MODE` for the current task only: `تجاوز التعليمات`, `انسى التعليمات`, `تجاوز اليو اي اي اف`, `تجاوز UEEF`, `FREE-MODE`, `اشتغل بحرية`, `ابتكر خارج الإطار`, or `اعمل بدون UEEF`.
+- Treat clear equivalents as aliases only when the user is directly instructing the agent; mentioning, quoting, asking about, or analyzing a phrase does not activate the mode.
+- In `FREE-MODE`, suspend UEEF workflow and style constraints that are specific to this repository (routing ceremony, module-selection ceremony, progress format, and other process preferences) so the agent can brainstorm or execute the user's requested work freely. Keep the user's actual scope, truthfulness, reversibility, and direct verification intact.
+- `FREE-MODE` never overrides system, developer, platform, security, privacy, authorization, destructive-action, or browser hard-stop rules. It cannot authorize secrets exposure, unsafe deletion, a second browser/profile, fabricated evidence, or a false completion claim.
+- The mode expires automatically when the current task ends. Use `STRICT-MODE`, `ارجع للوضع الصارم`, or `رجّع UEEF` to end it earlier. If the user says only “ignore instructions” without a clear current-task command, ask for the intended scope instead of guessing.
+
 Large-project reuse:
 - For broad or unfamiliar repositories, run `scripts/project-context-map.ps1`, `scripts/project-context-map.sh`, or an equivalent repository map before implementation.
 - Discover module boundaries, aliases, barrel exports, public APIs, registries, package boundaries, shared folders, state stores, validators, service clients, and test utilities before implementation.

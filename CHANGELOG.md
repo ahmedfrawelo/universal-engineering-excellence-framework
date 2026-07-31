@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.19.2 - 2026-07-31
+
+- Added an explicit, temporary `FREE-MODE` contract with Arabic and English activation phrases.
+- Kept system, developer, security, privacy, authorization, destructive-action, and browser hard-stop rules outside the bypass scope.
+- Added automatic expiry and explicit `STRICT-MODE` return commands.
+- Hardened runtime synchronization so the active Codex loader receives the same contract as the source repository.
 
 ## 2.19.1 - 2026-07-29
 
