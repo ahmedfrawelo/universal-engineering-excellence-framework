@@ -2,7 +2,7 @@
 
 UEEF installs globally by copying the framework and writing an assistant loader. Use PowerShell on Windows and shell scripts on macOS/Linux. Installers detect likely global rule locations, ask before overwriting, back up existing files, print verification steps, and fail safely.
 
-The current release is 2.21.3.
+The current release is 2.21.4.
 
 ## Codex
 
@@ -17,10 +17,10 @@ The current release is 2.21.3.
 The authoritative optional-skill set is `config/preferred-skills.json`. Install every missing preferred skill from its pinned commit with:
 
 ```powershell
-.\scripts\install-preferred-skills.ps1 -CodexHome "D:\shared folder\codex-home"
+.\scripts\install-preferred-skills.ps1
 ```
 
-On Unix, set `CODEX_HOME` and run `scripts/install-preferred-skills.sh`. Both installers are missing-only: they preserve existing skill directories and refuse to overwrite an incomplete directory. Skills remain trigger-selected; installation does not load the full design suite into every task.
+Set `CODEX_HOME` when Codex uses a non-default location. On Unix, run `scripts/install-preferred-skills.sh`. Both installers are missing-only: they preserve existing skill directories and refuse to overwrite an incomplete directory. Skills remain trigger-selected; installation does not load the full design suite into every task.
 
 The old `codex-primary-runtime` folder is a runtime/plugin component rather than a user skill. The unprovenanced `codex-home-recovery` snapshot is retired in favor of transactional runtime rollback and external Codex recovery backups; both classifications are recorded in the preferred-skills manifest.
 
@@ -90,4 +90,4 @@ If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-cod
 
 ## Updating UEEF
 
-This repository's current release is 2.21.3. From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the Windows installer with `-Force` or the Unix installer with `--force` so the active runtime receives the current framework and loader; omit `-NoBackup`/`--no-backup` to keep a recovery copy. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.
+This repository's current release is 2.21.4. From the repository root, run `git pull`, then `powershell -ExecutionPolicy Bypass -File .\scripts\validate-framework.ps1`. Re-run the Windows installer with `-Force` or the Unix installer with `--force` so the active runtime receives the current framework and loader; omit `-NoBackup`/`--no-backup` to keep a recovery copy. Codex installation remains self-contained under `CODEX_HOME/ueef/codex`; it does not install a fallback runtime under the user profile.

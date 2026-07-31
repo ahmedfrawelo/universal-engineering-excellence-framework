@@ -32,8 +32,8 @@ function Check($name, [scriptblock]$action) {
   }
 }
 Check 'framework-validation' {
-  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $resolvedRoot 'scripts/validate-framework.ps1') -SkipNestedTests | Out-Null
-  if ($LASTEXITCODE -ne 0) { throw "Framework validator exited with code $LASTEXITCODE" }
+  $output = @(& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $resolvedRoot 'scripts/validate-framework.ps1') -SkipNestedTests 2>&1)
+  if ($LASTEXITCODE -ne 0) { throw "Framework validator exited with code $LASTEXITCODE`: $($output -join ' ')" }
 }
 Check 'git-clean-diff' { if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) { throw 'Source Git repository unavailable' }; git -c "safe.directory=$gitRoot" -c core.safecrlf=false -C $gitRoot diff --check 2>$null | Out-Null; if ($LASTEXITCODE -ne 0) { throw 'git diff --check failed' } }
 Check 'source-hygiene' {
@@ -51,10 +51,12 @@ Check 'tracked-generated-artifacts' {
   if ($tracked.Count) { throw "Generated artifacts tracked: $($tracked -join ', ')" }
 }
 Check 'script-syntax' {
-  & (Join-Path $resolvedRoot 'scripts/test-script-syntax.ps1') | Out-Null
+  $output = @(& (Join-Path $resolvedRoot 'scripts/test-script-syntax.ps1') *>&1)
+  if ($LASTEXITCODE -ne 0) { throw "Script syntax tests exited with code $LASTEXITCODE`: $($output -join ' ')" }
 }
 Check 'release-parity' {
-  & (Join-Path $resolvedRoot 'scripts/test-release-consistency.ps1') -Root $resolvedRoot | Out-Null
+  $output = @(& (Join-Path $resolvedRoot 'scripts/test-release-consistency.ps1') -Root $resolvedRoot *>&1)
+  if ($LASTEXITCODE -ne 0) { throw "Release parity tests exited with code $LASTEXITCODE`: $($output -join ' ')" }
 }
 Check 'project-context-map' {
   & (Join-Path $resolvedRoot 'scripts/test-project-context-map.ps1') | Out-Null
@@ -77,8 +79,8 @@ Check 'runtime-path-safety' {
 }
 if (!$Quick) {
   Check 'runtime-hardening' {
-    & (Join-Path $resolvedRoot 'scripts/test-runtime-hardening.ps1') | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "Runtime hardening tests exited with code $LASTEXITCODE" }
+    $output = @(& (Join-Path $resolvedRoot 'scripts/test-runtime-hardening.ps1') *>&1)
+    if ($LASTEXITCODE -ne 0) { throw "Runtime hardening tests exited with code $LASTEXITCODE`: $($output -join ' ')" }
   }
 }
 $summary = [pscustomobject]@{ schemaVersion = 1; generatedAt = (Get-Date).ToUniversalTime().ToString('o'); root = '<project-root>'; mode = if ($Quick) { 'quick' } else { 'full' }; checks = $results; status = if (($results.status -contains 'FAIL')) { 'FAIL' } else { 'PASS' } }

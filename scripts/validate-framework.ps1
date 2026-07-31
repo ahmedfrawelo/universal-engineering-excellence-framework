@@ -495,12 +495,12 @@ foreach ($asset in $manifest.assets.psobject.Properties) {
 }
 foreach ($pack in $manifest.expansionPacks) { if (!(Test-Path -LiteralPath (Join-Path $Root $pack))) { throw "Manifest expansion pack does not exist: $pack" } }
 $publishReleaseText = Get-Content -LiteralPath (Join-Path $Root 'scripts/publish-github-release.ps1') -Raw
-foreach ($term in @('git-credential-manager','gh release create','Release notes file is empty','Never print tokens')) {
+foreach ($term in @('git-credential-manager','gh release create','Release notes file is empty','Wait-ForSuccessfulValidation','Validate UEEF','Never print tokens')) {
   if ($term -eq 'Never print tokens') { continue }
   if ($publishReleaseText -notmatch [regex]::Escape($term)) { throw "GitHub release publisher missing required behavior: $term" }
 }
 $releaseIntegrityText = Get-Content -LiteralPath (Join-Path $Root 'framework/55-continuous-assurance/04-release-and-installation-integrity.md') -Raw
-foreach ($term in @('publish-github-release.ps1','Git Credential Manager','do not start a browser device-login flow','Never print tokens')) {
+foreach ($term in @('publish-github-release.ps1','Validate UEEF','exact release commit','Git Credential Manager','do not start a browser device-login flow','Never print tokens')) {
   if ($releaseIntegrityText -notmatch [regex]::Escape($term)) { throw "Release integrity guidance missing GitHub credential fallback: $term" }
 }
 if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }

@@ -1,6 +1,16 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ("ueef-install-test-" + [guid]::NewGuid().ToString('N'))
+. (Join-Path $root 'scripts\resolve-codex-home.ps1')
+
+$savedCodexHome = $env:CODEX_HOME
+try {
+  Remove-Item Env:CODEX_HOME -ErrorAction SilentlyContinue
+  $portableDefault = Join-Path ([Environment]::GetFolderPath('UserProfile')) '.codex'
+  if ((Resolve-CodexHome) -ne $portableDefault) { throw 'Codex home resolver used a machine-specific fallback.' }
+} finally {
+  if ($null -ne $savedCodexHome) { $env:CODEX_HOME = $savedCodexHome }
+}
 
 function Assert-Installed([string]$RuntimeRoot, [string]$Agent) {
   $target = Join-Path $RuntimeRoot $Agent
@@ -30,6 +40,18 @@ try {
   $codexHome = Join-Path $sandbox 'codex-home'
   $codexBackupRoot = Join-Path $sandbox 'codex-backups'
   Initialize-FakeSkillInstaller $codexHome
+  $python = (Get-Command python -ErrorAction Stop).Source
+  $preferredSkillIds = @('frontend-ui-engineering','performance-optimization','code-review-and-quality')
+  & (Join-Path $root 'scripts\install-preferred-skills.ps1') -CodexHome $codexHome -PythonPath $python -Skill $preferredSkillIds | Out-Null
+  $preferredSupportFiles = @(
+    'skills\frontend-ui-engineering\references\accessibility-checklist.md',
+    'skills\performance-optimization\references\performance-checklist.md',
+    'skills\code-review-and-quality\references\security-checklist.md',
+    'skills\code-review-and-quality\references\performance-checklist.md'
+  )
+  foreach ($relativePath in $preferredSupportFiles) {
+    if (!(Test-Path -LiteralPath (Join-Path $codexHome $relativePath) -PathType Leaf)) { throw "Windows preferred-skill overlay missing: $relativePath" }
+  }
   & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -BackupRoot $codexBackupRoot -Force -NoBackup -SkipAutoUpdate | Out-Null
   Assert-Installed (Join-Path $codexHome 'ueef') 'codex-test'
   foreach ($skill in @('design-brief','frontend-design')) {
@@ -75,6 +97,14 @@ try {
   $bashCommand = Get-Command bash -ErrorAction SilentlyContinue
   $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } elseif ($bashCommand -and $bashCommand.Source -notmatch '[\\/]System32[\\/]bash\.exe$') { $bashCommand.Source } else { '' }
   if ($bashPath) {
+    foreach ($relativePath in $preferredSupportFiles) { Remove-Item -LiteralPath (Join-Path $codexHome $relativePath) -Force }
+    $env:CODEX_HOME = $codexHome
+    $unixPreferredInstaller = (Join-Path $root 'scripts\install-preferred-skills.sh').Replace('\','/')
+    & $bashPath $unixPreferredInstaller @preferredSkillIds 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Unix preferred-skill overlay installation failed.' }
+    foreach ($relativePath in $preferredSupportFiles) {
+      if (!(Test-Path -LiteralPath (Join-Path $codexHome $relativePath) -PathType Leaf)) { throw "Unix preferred-skill overlay missing: $relativePath" }
+    }
     $unixRoot = (Join-Path $sandbox 'unix-runtimes').Replace('\','/')
     $unixRuntimeInstaller = (Join-Path $root 'scripts\install-runtime.sh').Replace('\','/')
     $unixSource = $root.Replace('\','/')
@@ -128,5 +158,6 @@ try {
   Write-Host 'Installer tests passed'
 } finally {
   Remove-Item Env:UEEF_INSTALL_ROOT -ErrorAction SilentlyContinue
+  if ($null -ne $savedCodexHome) { $env:CODEX_HOME = $savedCodexHome } else { Remove-Item Env:CODEX_HOME -ErrorAction SilentlyContinue }
   if (Test-Path -LiteralPath $sandbox) { Remove-Item -LiteralPath $sandbox -Recurse -Force }
 }

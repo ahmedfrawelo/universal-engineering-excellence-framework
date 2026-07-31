@@ -22,7 +22,7 @@ case "$TARGET/" in "$SOURCE_ROOT/"*) echo "Refusing target inside source: $TARGE
 case "$SOURCE_ROOT/" in "$TARGET/"*) echo "Refusing source inside target: $SOURCE_ROOT" >&2; exit 1;; esac
 [ ! -L "$TARGET" ] || { echo "Refusing symbolic-link target: $TARGET" >&2; exit 1; }
 
-sh "$SOURCE_ROOT/scripts/validate-framework.sh" "$SOURCE_ROOT" >/dev/null
+sh "$SOURCE_ROOT/scripts/validate-framework.sh" --skip-nested-tests >/dev/null
 STAGE=$(mktemp -d "$INSTALL_ROOT/.sXXXXXX")
 ROLLBACK="$INSTALL_ROOT/.r$$"
 swapped=0
@@ -49,7 +49,7 @@ restore_on_failure() {
 }
 trap restore_on_failure EXIT HUP INT TERM
 node "$SOURCE_ROOT/scripts/copy-release-files.mjs" "$SOURCE_ROOT" "$STAGE" --include-loader >/dev/null
-sh "$STAGE/scripts/validate-framework.sh" "$STAGE" >/dev/null
+sh "$STAGE/scripts/validate-framework.sh" --skip-nested-tests >/dev/null
 if [ -e "$TARGET" ]; then
   [ "$FORCE" = 1 ] || { echo "Existing install found. Re-run with --force." >&2; exit 1; }
   if [ "$NO_BACKUP" = 0 ]; then

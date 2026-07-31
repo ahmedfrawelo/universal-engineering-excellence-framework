@@ -1,11 +1,9 @@
-# Resolves the Codex home directory for this machine.
-# Preference: explicit Override -> CODEX_HOME env -> available machine default -> standard user home.
+# Resolves the Codex home directory without a machine-specific fallback.
+# Preference: explicit Override -> CODEX_HOME env -> standard user home.
 function Resolve-CodexHome {
   param([string]$Override = '')
   if (![string]::IsNullOrWhiteSpace($Override)) { return $Override.TrimEnd('\', '/') }
   if (![string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { return $env:CODEX_HOME.TrimEnd('\', '/') }
-  $machineDefault = 'E:\shared folder\codex-home'
-  if (Test-Path -LiteralPath $machineDefault -PathType Container) { return $machineDefault }
   return (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.codex')
 }
 

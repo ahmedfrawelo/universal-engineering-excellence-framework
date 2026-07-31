@@ -203,7 +203,10 @@
       "profiles": ["Frontend", "UIUX"],
       "triggers": ["production UI implementation", "responsive UI implementation", "accessible UI implementation"],
       "installEvidence": "skills/frontend-ui-engineering/SKILL.md",
-      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/frontend-ui-engineering"}
+      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/frontend-ui-engineering"},
+      "supportFiles": [
+        {"source":"framework/27-quality-gates/accessibility-gate.md","destination":"references/accessibility-checklist.md"}
+      ]
     },
     {
       "id": "browser-testing-with-devtools",
@@ -219,7 +222,10 @@
       "profiles": ["Frontend"],
       "triggers": ["performance audit", "Core Web Vitals", "render bottleneck", "bundle performance"],
       "installEvidence": "skills/performance-optimization/SKILL.md",
-      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/performance-optimization"}
+      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/performance-optimization"},
+      "supportFiles": [
+        {"source":"framework/29-checklists/28-extreme-performance-checklist.md","destination":"references/performance-checklist.md"}
+      ]
     },
     {
       "id": "code-review-and-quality",
@@ -227,7 +233,11 @@
       "profiles": ["Frontend"],
       "triggers": ["code review", "PR review", "multi-axis quality review"],
       "installEvidence": "skills/code-review-and-quality/SKILL.md",
-      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/code-review-and-quality"}
+      "source": {"kind":"github","repository":"addyosmani/agent-skills","ref":"7829ffd90d973b6325f5f12f1b1226dcace74443","path":"skills/code-review-and-quality"},
+      "supportFiles": [
+        {"source":"framework/29-checklists/27-security-hardening-checklist.md","destination":"references/security-checklist.md"},
+        {"source":"framework/29-checklists/28-extreme-performance-checklist.md","destination":"references/performance-checklist.md"}
+      ]
     },
     {
       "id": "responsive-craft",

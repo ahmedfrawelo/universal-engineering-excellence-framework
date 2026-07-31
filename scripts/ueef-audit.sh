@@ -58,7 +58,11 @@ check_runtime_policy() {
   return "$outcome"
 }
 
-run_check framework-validation sh "$ROOT/scripts/validate-framework.sh"
+if [ "$MODE" = quick ]; then
+  run_check framework-validation sh "$ROOT/scripts/validate-framework.sh" --skip-nested-tests
+else
+  run_check framework-validation sh "$ROOT/scripts/validate-framework.sh"
+fi
 run_check git-clean-diff check_git_diff
 run_check source-hygiene check_source_hygiene
 run_check tracked-generated-artifacts check_generated

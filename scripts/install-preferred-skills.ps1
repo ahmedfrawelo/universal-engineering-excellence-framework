@@ -78,6 +78,16 @@ foreach ($entry in $all) {
   }
   if (!(Test-Path -LiteralPath $skillFile -PathType Leaf)) { throw "Installer completed without creating $skillFile" }
   if ($sourceKind -eq 'github-manual-only') { Set-ManualOnlyPolicy $skillFile }
+  foreach ($supportFile in @($entry.supportFiles)) {
+    $supportSource = [IO.Path]::GetFullPath((Join-Path $root ([string]$supportFile.source)))
+    $supportDestination = [IO.Path]::GetFullPath((Join-Path $skillRoot ([string]$supportFile.destination)))
+    $rootPrefix = [IO.Path]::GetFullPath($root).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+    $skillPrefix = [IO.Path]::GetFullPath($skillRoot).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+    if (!$supportSource.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase) -or !(Test-Path -LiteralPath $supportSource -PathType Leaf)) { throw "Invalid preferred-skill support source: $($supportFile.source)" }
+    if (!$supportDestination.StartsWith($skillPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw "Unsafe preferred-skill support destination: $($supportFile.destination)" }
+    New-Item -ItemType Directory -Path (Split-Path -Parent $supportDestination) -Force | Out-Null
+    Copy-Item -LiteralPath $supportSource -Destination $supportDestination -Force
+  }
   $sourceName = if ($sourceKind -eq 'bundled') { 'UEEF bundled source' } else { [string]$entry.source.repository }
   $sourceRef = if ($sourceKind -eq 'bundled') { 'runtime-versioned' } else { [string]$entry.source.ref }
   $results.Add([pscustomobject]@{ skill=$entry.id; status=$status; source=$sourceName; ref=$sourceRef })

@@ -12,11 +12,13 @@ The active runtime must live under Codex home:
 CODEX_HOME/ueef/codex
 ```
 
-On this machine the active path is:
+The active path is:
 
 ```text
-`$CODEX_HOME/ueef/codex` (defaults to `E:\shared folder\codex-home` when `CODEX_HOME` is unset)
+$CODEX_HOME/ueef/codex
 ```
+
+When `CODEX_HOME` is unset, it defaults to the platform's standard `.codex` directory.
 
 UEEF must not depend on `$HOME/.ueef` for Codex runtime activation.
 
@@ -72,6 +74,17 @@ Task routing is measured in one warm PowerShell process with seven samples per c
 | Runtime status without drift scan | 72.4 ms | 71.2 ms | Control; unchanged |
 
 The preflight regression test also replaces `node` with a counting pass-through shim and requires exactly one real route-engine invocation. Correctness tests must pass before timing evidence is accepted.
+
+## Unix validation performance ledger
+
+Measured on 2026-07-31 with Git Bash on Windows against the same checkout. The structural path keeps repository and release validation but skips nested behavior tests; the full validator remains the release boundary.
+
+| Case | Full baseline | Focused result | Decision |
+| --- | ---: | ---: | --- |
+| Unix framework validation used inside an installer | 41,163 ms | 9,575 ms | Kept; 76.7% lower for each validation pass |
+| Unix assurance after the workflow already ran full validation | 48,449 ms | 21,018 ms | Kept; 56.6% lower wall time |
+
+The GitHub workflow still runs the full Unix validator once. Installer source/stage checks and the subsequent assurance step use structural validation so the same behavior suite is not repeated four or more times.
 ## Exact Codex installation
 
 For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:

@@ -1,6 +1,17 @@
 #!/usr/bin/env sh
 set -eu
-ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+SKIP_NESTED_TESTS=0
+ROOT_ARG=''
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --skip-nested-tests) SKIP_NESTED_TESTS=1 ;;
+    *) [ -z "$ROOT_ARG" ] || { echo 'usage: validate-framework.sh [root] [--skip-nested-tests]' >&2; exit 2; }; ROOT_ARG=$1 ;;
+  esac
+  shift
+done
+if [ -n "$ROOT_ARG" ]; then ROOT="$(CDPATH= cd -- "$ROOT_ARG" && pwd -P)"
+else ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)"
+fi
 for f in README.md INSTALL.md QUICK_START.md VERSION.md CHANGELOG.md LICENSE CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md ROADMAP.md BUILD_PROGRESS.md UEEF-LOADER.md; do
   [ -e "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
@@ -104,7 +115,6 @@ grep -q "Prevent over-rendering end to end" "$ROOT/scripts/sync-runtime.ps1" || 
 grep -q "Animations must be smooth" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing animation policy" >&2; exit 1; }
 grep -q "SSR, SSG, streaming" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing SSR policy" >&2; exit 1; }
 
-sh "$ROOT/scripts/test-intent-fidelity-contract.sh"
 grep -q "Reusable behavior, UI, validation" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing shared-first policy" >&2; exit 1; }
 grep -q "Before creating custom UI or behavior" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing design-system-first policy" >&2; exit 1; }
 grep -q "Large-project reuse:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing large-project reuse section" >&2; exit 1; }
@@ -346,10 +356,8 @@ grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-f
 [ -f "$ROOT/scripts/test-agent-route.sh" ] || { echo "Missing Unix agent route tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-browser-control-contract.ps1" ] || { echo "Missing browser control contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-browser-control-contract.sh" ] || { echo "Missing Unix browser control contract tests" >&2; exit 1; }
-sh "$ROOT/scripts/test-browser-control-contract.sh"
 [ -f "$ROOT/scripts/test-skeleton-loading-contract.ps1" ] || { echo "Missing skeleton loading contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-skeleton-loading-contract.sh" ] || { echo "Missing Unix skeleton loading contract tests" >&2; exit 1; }
-sh "$ROOT/scripts/test-skeleton-loading-contract.sh"
 [ -f "$ROOT/scripts/test-delivery-continuation-contract.ps1" ] || { echo "Missing delivery continuation contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle validator" >&2; exit 1; }
@@ -385,20 +393,25 @@ grep -q 'BLOCKED_ALLOWED' "$ROOT/framework/01-core/14-delivery-continuation-poli
 [ -f "$ROOT/scripts/test-script-syntax.sh" ] || { echo "Missing Unix script syntax tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/write-active-state.sh" ] || { echo "Missing Unix active-state writer" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-ueef-status.sh" ] || { echo "Missing Unix source-status tests" >&2; exit 1; }
-sh "$ROOT/scripts/test-ueef-status.sh" >/dev/null || { echo "Unix source-status tests failed" >&2; exit 1; }
-node "$ROOT/scripts/test-module-specificity.mjs" "$ROOT" >/dev/null || { echo "Module specificity tests failed" >&2; exit 1; }
-node "$ROOT/scripts/test-preferred-skills.mjs" "$ROOT" >/dev/null || { echo "Preferred skills tests failed" >&2; exit 1; }
-"$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
-"$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
-sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null || { echo "Unix release consistency tests failed" >&2; exit 1; }
-sh "$ROOT/scripts/test-documentation-links.sh" "$ROOT" >/dev/null || { echo "Unix documentation link tests failed" >&2; exit 1; }
-node "$ROOT/scripts/test-framework-indexes.mjs" "$ROOT" >/dev/null || { echo "Framework index tests failed" >&2; exit 1; }
-sh "$ROOT/scripts/test-project-context-map.sh" >/dev/null || { echo "Unix project context map tests failed" >&2; exit 1; }
-sh "$ROOT/scripts/test-ueef-task-preflight.sh" >/dev/null || { echo "Unix task preflight tests failed" >&2; exit 1; }
-node "$ROOT/scripts/test-frontend-routing.mjs" >/dev/null || { echo "Canonical frontend routing tests failed" >&2; exit 1; }
-sh "$ROOT/scripts/test-project-memory.sh" >/dev/null || { echo "Unix project memory tests failed" >&2; exit 1; }
-sh "$ROOT/scripts/test-evidence-export.sh" >/dev/null || { echo "Unix evidence export tests failed" >&2; exit 1; }
-sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }
+if [ "$SKIP_NESTED_TESTS" = 0 ]; then
+  sh "$ROOT/scripts/test-intent-fidelity-contract.sh" >/dev/null || { echo "Unix intent-fidelity contract tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-browser-control-contract.sh" >/dev/null || { echo "Unix browser control contract tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-skeleton-loading-contract.sh" >/dev/null || { echo "Unix skeleton loading contract tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-ueef-status.sh" >/dev/null || { echo "Unix source-status tests failed" >&2; exit 1; }
+  node "$ROOT/scripts/test-module-specificity.mjs" "$ROOT" >/dev/null || { echo "Module specificity tests failed" >&2; exit 1; }
+  node "$ROOT/scripts/test-preferred-skills.mjs" "$ROOT" >/dev/null || { echo "Preferred skills tests failed" >&2; exit 1; }
+  "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
+  "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null || { echo "Unix release consistency tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-documentation-links.sh" "$ROOT" >/dev/null || { echo "Unix documentation link tests failed" >&2; exit 1; }
+  node "$ROOT/scripts/test-framework-indexes.mjs" "$ROOT" >/dev/null || { echo "Framework index tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-project-context-map.sh" >/dev/null || { echo "Unix project context map tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-ueef-task-preflight.sh" >/dev/null || { echo "Unix task preflight tests failed" >&2; exit 1; }
+  node "$ROOT/scripts/test-frontend-routing.mjs" >/dev/null || { echo "Canonical frontend routing tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-project-memory.sh" >/dev/null || { echo "Unix project memory tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-evidence-export.sh" >/dev/null || { echo "Unix evidence export tests failed" >&2; exit 1; }
+  sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }
+fi
 route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"spawnAgents":true' || { echo "Unix agent route T4 verifier guard failed" >&2; exit 1; }

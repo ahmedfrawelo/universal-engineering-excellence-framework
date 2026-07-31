@@ -26,7 +26,11 @@ fi
 
 build_ui_out=$("$root/scripts/get-ueef-task-preflight.sh" 'Build a new React dashboard')
 printf '%s' "$build_ui_out" | grep -q '"frontendMode": "Build"'
-printf '%s' "$build_ui_out" | grep -q '"frontend-design"'
+printf '%s' "$build_ui_out" | grep -q '"interface-design"'
+if printf '%s' "$build_ui_out" | grep -q '"frontend-design"'; then
+  echo 'Unix preflight stacked competing design directors for a dashboard.' >&2
+  exit 1
+fi
 
 audit_ui_out=$("$root/scripts/get-ueef-task-preflight.sh" 'Audit and polish the frontend visual design')
 printf '%s' "$audit_ui_out" | grep -q '"frontendMode": "Audit"'

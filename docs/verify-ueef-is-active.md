@@ -31,13 +31,15 @@ runtime.
 UEEF must run from Codex home:
 
 ```text
-`$CODEX_HOME/ueef/codex` (defaults to `E:\shared folder\codex-home` when `CODEX_HOME` is unset)
+$CODEX_HOME/ueef/codex
 ```
+
+When `CODEX_HOME` is unset, it defaults to the platform's standard `.codex` directory.
 
 The old home runtime must be absent:
 
 ```text
-C:\Users\ahmed\.ueef = absent
+$HOME/.ueef = absent
 ```
 
 ## Valid Compact Runtime Check

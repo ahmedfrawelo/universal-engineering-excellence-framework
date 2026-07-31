@@ -16,6 +16,7 @@ known=$(node -e 'const m=require(process.argv[1]);process.stdout.write(m.preferr
 for wanted in "$@"; do
   case " $known " in *" $wanted "*) : ;; *) echo "Unknown preferred skill: $wanted" >&2; exit 2 ;; esac
 done
+
 needs_github=$(node -e 'const m=require(process.argv[1]);const wanted=process.argv.slice(2);const xs=wanted.length?m.preferred.filter(x=>wanted.includes(x.id)):m.preferred;process.stdout.write(xs.some(x=>(x.source.kind||"github")!=="bundled")?"yes":"no");' "$MANIFEST" "$@")
 if [ "$needs_github" = "yes" ]; then
   [ -f "$INSTALLER" ] || { echo "Skill installer not found: $INSTALLER" >&2; exit 2; }
@@ -49,3 +50,18 @@ while IFS="$(printf '\t')" read -r id source_kind repository ref skill_path inst
     node -e 'const fs=require("fs");const p=process.argv[1];let s=fs.readFileSync(p,"utf8");if(!/^disable-model-invocation:\s*true\s*$/m.test(s)){const n=s.replace(/^(description:.*)$/m,"$1\ndisable-model-invocation: true");if(n===s)throw new Error(`Cannot apply manual-only policy to ${p}`);fs.writeFileSync(p,n);}' "$skill_root/SKILL.md"
   fi
 done
+
+node -e '
+const fs=require("fs"),path=require("path");
+const [root,manifestPath,destination,...wanted]=process.argv.slice(1);
+const manifest=JSON.parse(fs.readFileSync(manifestPath,"utf8"));
+for(const entry of manifest.preferred){
+  if(wanted.length&&!wanted.includes(entry.id))continue;
+  const skillRoot=path.resolve(destination,entry.id);
+  for(const item of entry.supportFiles||[]){
+    const source=path.resolve(root,item.source),target=path.resolve(skillRoot,item.destination);
+    if(!source.startsWith(path.resolve(root)+path.sep)||!fs.statSync(source).isFile())throw new Error(`Invalid preferred-skill support source: ${item.source}`);
+    if(!target.startsWith(skillRoot+path.sep))throw new Error(`Unsafe preferred-skill support destination: ${item.destination}`);
+    fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(source,target);
+  }
+}' "$ROOT" "$MANIFEST" "$DESTINATION" "$@"

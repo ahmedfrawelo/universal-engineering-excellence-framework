@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.3`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.4`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.21.4 - 2026-07-31
+
+- Fixed the stale Unix dashboard-skill assertion that made both current GitHub Actions jobs fail.
+- Made GitHub release publishing wait for successful `Validate UEEF` results on the exact commit.
+- Added a structural Unix validation mode for installers and quick assurance, removing repeated behavior-test execution.
+- Added reproducible support-file overlays for preferred skills whose pinned upstream packages reference absent checklists.
+- Removed the stale machine-specific Codex-home fallback and suppressed repeated nested-audit output.
 
 ## 2.21.3 - 2026-07-31
 

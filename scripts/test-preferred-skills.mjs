@@ -59,6 +59,13 @@ for (const entry of manifest.preferred) {
     throw new Error(`Preferred skill is not commit-pinned: ${entry.id}`);
   }
   if (kind === "github-manual-only" && entry.level !== "manual-only") throw new Error(`Manual-only source must have manual-only level: ${entry.id}`);
+  for (const supportFile of entry.supportFiles || []) {
+    const source = path.resolve(root, supportFile.source);
+    const destination = path.resolve(root, "skills", entry.id, supportFile.destination);
+    if (!source.startsWith(`${root}${path.sep}`) || !fs.existsSync(source)) throw new Error(`Invalid support source: ${entry.id}/${supportFile.source}`);
+    if (!destination.startsWith(`${path.resolve(root, "skills", entry.id)}${path.sep}`)) throw new Error(`Unsafe support destination: ${entry.id}/${supportFile.destination}`);
+    if (installedRoot && !fs.existsSync(path.join(installedRoot, entry.id, supportFile.destination))) throw new Error(`Installed support file missing: ${entry.id}/${supportFile.destination}`);
+  }
   if (installedRoot) validateSkillFile(path.join(installedRoot, entry.id, "SKILL.md"), entry.id, { manualOnly: kind === "github-manual-only" });
   const declared = registry.capabilities.find((item) => item.type === "skill" && item.id === entry.id);
   if (declared) {

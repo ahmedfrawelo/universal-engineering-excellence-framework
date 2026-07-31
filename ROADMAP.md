@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.21.3
+## Current: 2.21.4
 
-UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.21.3 renders route rationale as a localized four-item list instead of a mixed-direction inline-code sentence and keeps the generated policy safe for Windows PowerShell 5.1, while retaining single-pass routing, the reproducible 27-skill capability set, and policy-safe browser boundaries. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.21.4 repairs cross-platform validation, blocks releases until the exact commit passes GitHub Actions, completes missing preferred-skill checklist references, and removes repeated Unix validation work while retaining localized route output, single-pass routing, the reproducible 27-skill capability set, and policy-safe browser boundaries. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 
