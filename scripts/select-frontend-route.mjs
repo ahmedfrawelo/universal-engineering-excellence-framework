@@ -7,8 +7,14 @@ const value = (name, fallback = '') => {
 };
 const task = value('--task', args.find((arg) => !arg.startsWith('--')) ?? '');
 const override = value('--mode', 'Auto');
+const mutationOverride = value('--mutation', 'Auto');
+const forceFrontend = args.includes('--force-frontend');
 if (!task) {
   console.error('usage: select-frontend-route.mjs --task "task summary" [--mode Auto|Quick|Build|Audit]');
+  process.exit(2);
+}
+if (!['Auto', 'Quick', 'Build', 'Audit'].includes(override) || !['Auto', 'Implement', 'ReadOnly'].includes(mutationOverride)) {
+  console.error('invalid frontend mode or mutation override');
   process.exit(2);
 }
 
@@ -47,9 +53,9 @@ const domains = Object.entries(signals)
   .map(([key]) => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`));
 const frontendNativeDomain = signals.overlay || signals.theme || signals.responsive || signals.dataGrid || signals.appShell || signals.accessibility || signals.loading || signals.motion || signals.design || signals.visualQa;
 const frontendPerformanceNative = has(/\b(lcp|inp|cls|bundle size|re-render|frame rate)\b/);
-const applies = override !== 'Auto' || signals.frontend || frontendNativeDomain || frontendPerformanceNative || signals.react || signals.angular;
+const applies = forceFrontend || override !== 'Auto' || signals.frontend || frontendNativeDomain || frontendPerformanceNative || signals.react || signals.angular;
 const auditReviewPhrase = has(/\b(audit|review|critique|assess|evaluate|inspect)\b.*\b(polish|visual design|design system)\b/);
-let intent = signals.actionRecommend && !signals.actionChange ? 'Recommend' : ((signals.actionAudit || signals.visualQa) && !signals.actionChange) || auditReviewPhrase ? 'Audit' : 'Change';
+let intent = signals.actionRecommend && !signals.actionChange ? 'Recommend' : ((signals.actionAudit || signals.visualQa) && !signals.actionChange) || auditReviewPhrase ? 'Audit' : signals.actionChange ? 'Change' : 'Audit';
 let mutation = intent === 'Change' ? 'Implement' : 'ReadOnly';
 let scope = signals.broad ? 'Broad' : has(/\b(build|create|add|implement|redesign|develop|scaffold|new)\b/) || signals.performance ? 'Build' : 'Quick';
 let frontendMode = mutation === 'ReadOnly' ? 'Audit' : scope === 'Quick' ? 'Quick' : 'Build';
@@ -58,6 +64,9 @@ if (override !== 'Auto') {
   if (override === 'Audit') { intent = 'Audit'; mutation = 'ReadOnly'; }
   scope = override === 'Quick' ? 'Quick' : override === 'Build' ? 'Build' : scope;
 }
+if (mutationOverride === 'Implement') { intent = 'Change'; mutation = 'Implement'; }
+if (mutationOverride === 'ReadOnly') { if (intent === 'Change') intent = 'Audit'; mutation = 'ReadOnly'; }
+if (override === 'Auto') frontendMode = mutation === 'ReadOnly' ? 'Audit' : scope === 'Quick' ? 'Quick' : 'Build';
 
 const modules = [];
 const gates = [];
@@ -69,6 +78,7 @@ if (applies) {
   add(gates, 'framework/27-quality-gates/ui-gate.md');
   add(skills, 'typeui-fundamentals');
   reasons.push(`frontend ${intent.toLowerCase()} with ${scope.toLowerCase()} scope`);
+  if (forceFrontend) reasons.push('explicit frontend tag');
 }
 if (applies && signals.accessibility) {
   add(modules, 'framework/16-accessibility/00-accessibility-system.md');
@@ -146,7 +156,7 @@ if (applies && intent === 'Audit' && signals.design) add(gates, 'framework/27-qu
 const matchedSignals = Object.entries(signals).filter(([, matched]) => matched).map(([name]) => name);
 const confidence = !applies ? 0 : Math.min(0.99, Number((0.62 + Math.min(0.32, matchedSignals.length * 0.04)).toFixed(2)));
 console.log(JSON.stringify({
-  schemaVersion: 1, task, applies, frontendMode: applies ? frontendMode : 'NA', intent: applies ? intent : 'NA',
+  schemaVersion: 1, task, applies, forcedFrontend: forceFrontend, frontendMode: applies ? frontendMode : 'NA', intent: applies ? intent : 'NA',
   scope: applies ? scope : 'NA', mutation: applies ? mutation : 'NA', domains, stack: [signals.react ? 'React' : null, signals.angular ? 'Angular' : null].filter(Boolean),
   skills: unique(skills), modules: unique(modules), gates: unique(gates), reasons, confidence, matchedSignals,
 }, null, 2));

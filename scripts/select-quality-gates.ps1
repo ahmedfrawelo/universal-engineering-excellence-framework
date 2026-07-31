@@ -4,6 +4,7 @@ param(
   [switch]$CodeChange,
   [ValidateSet('ui','browser','current-docs','ambiguous','debugging')][string[]]$TaskTag = @(),
   [ValidateSet('Auto','Quick','Build','Audit')][string]$FrontendMode = 'Auto',
+  [object]$FrontendRoute,
   [switch]$Json
 )
 $ErrorActionPreference = "Stop"
@@ -15,6 +16,8 @@ $uiRequired = $false
 $resolvedFrontendMode = 'NA'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $inputParameters = @{} + $PSBoundParameters
+if ($FrontendRoute -and ([string]$FrontendRoute.task -ne $Task -or [int]$FrontendRoute.schemaVersion -lt 1)) { throw 'Supplied frontend route does not belong to this task or has an invalid schema.' }
+if ($FrontendRoute -and $FrontendMode -ne 'Auto' -and [string]$FrontendRoute.frontendMode -ne $FrontendMode) { throw 'Supplied frontend route does not match the explicit frontend mode.' }
 
 function Add-Unique($list, [string[]]$items) {
   foreach ($item in $items) {
@@ -41,6 +44,7 @@ if (!$inputParameters.ContainsKey('Tier') -or !$inputParameters.ContainsKey('Cod
 if (!$Tier) { $Tier = [string]$classification.route.tier }
 if (!$inputParameters.ContainsKey('CodeChange')) { $CodeChange = [bool]$classification.values.codeChange }
 $effectiveTags = if ($classification) { @($classification.values.taskTags) } else { @($TaskTag) }
+if (!$FrontendRoute -and $FrontendMode -eq 'Auto' -and $classification.frontendRoute) { $FrontendRoute = $classification.frontendRoute }
 
 # Every task receives only the non-negotiable core and routing contract.
 Add-Unique $modules @(
@@ -88,9 +92,13 @@ if ($Tier -eq 'T1' -and $CodeChange) {
   )
 }
 
-$frontendRouteJson = & node (Join-Path $PSScriptRoot 'select-frontend-route.mjs') --task $Task --mode $FrontendMode
-if ($LASTEXITCODE -ne 0) { throw 'Frontend route engine failed.' }
-$frontendRoute = ($frontendRouteJson | Out-String) | ConvertFrom-Json
+if ($FrontendRoute) {
+  $frontendRoute = $FrontendRoute
+} else {
+  $frontendRouteJson = & node (Join-Path $PSScriptRoot 'select-frontend-route.mjs') --task $Task --mode $FrontendMode
+  if ($LASTEXITCODE -ne 0) { throw 'Frontend route engine failed.' }
+  $frontendRoute = ($frontendRouteJson | Out-String) | ConvertFrom-Json
+}
 $motionRequired = @($frontendRoute.domains) | Where-Object { $_ -in @('motion', 'animation') } | Select-Object -First 1
 $motionRequired = [bool]$motionRequired
 if ($frontendRoute.applies -or $effectiveTags -contains 'ui') {

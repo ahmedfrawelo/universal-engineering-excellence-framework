@@ -228,4 +228,16 @@ if ($dataOnly.Modules -contains 'framework/53-skeleton-loading/00-skeleton-loadi
   throw 'A data-backed component selected skeleton workflow without a loading-behavior trigger.'
 }
 
+$providedRoute = (& node (Join-Path $PSScriptRoot 'select-frontend-route.mjs') --task 'Build an Angular data grid dashboard' | Out-String) | ConvertFrom-Json
+$reusedRoute = & $selector -Task 'Build an Angular data grid dashboard' -Tier T1 -CodeChange -FrontendRoute $providedRoute -Json | ConvertFrom-Json
+if ($reusedRoute.skillRoutes -notcontains 'angular-developer' -or $reusedRoute.frontendRoute.task -ne $providedRoute.task) {
+  throw 'Quality-gate selection did not reuse the supplied canonical frontend route.'
+}
+try {
+  & $selector -Task 'Different task' -Tier T1 -CodeChange -FrontendRoute $providedRoute -Json | Out-Null
+  throw 'Quality-gate selection accepted a frontend route from another task.'
+} catch {
+  if ($_.Exception.Message -notmatch 'does not belong to this task') { throw }
+}
+
 Write-Host 'Quality gate selection tests passed'

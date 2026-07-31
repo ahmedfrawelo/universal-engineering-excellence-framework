@@ -35,17 +35,19 @@ $apiLanguage = Test-TaskText '\b(api|endpoint|backend|server|controller|service|
 $dependencyLanguage = Test-TaskText '\b(dependency|package|runtime upgrade|framework upgrade)\b'
 $unclearLanguage = Test-TaskText '\b(ambiguous|unclear|unknown requirements?|brainstorm|explore|idea|acceptance criteria|contradictory|not sure)\b'
 $debugLanguage = Test-TaskText '\b(bug|debug|regression|failure|failing|broken|error|crash|fix|repair)\b'
-$frontendRoute = (& node (Join-Path $PSScriptRoot 'select-frontend-route.mjs') --task $Task --mode Auto | Out-String) | ConvertFrom-Json
+$inferredCodeChange = $changeLanguage -and !$explanatoryOnly
+if (!$inputParameters.ContainsKey('CodeChange')) {
+  $CodeChange = $inferredCodeChange
+}
+$frontendRouteArgs = @((Join-Path $PSScriptRoot 'select-frontend-route.mjs'), '--task', $Task, '--mode', 'Auto')
+if ($TaskTag -contains 'ui') { $frontendRouteArgs += '--force-frontend' }
+if ($inputParameters.ContainsKey('CodeChange')) { $frontendRouteArgs += @('--mutation', $(if ($CodeChange) { 'Implement' } else { 'ReadOnly' })) }
+$frontendRoute = (& node @frontendRouteArgs | Out-String) | ConvertFrom-Json
 $uiNounLanguage = [bool]$frontendRoute.applies
 $uiActionLanguage = Test-TaskText '\b(build|implement|create|change|update|fix|polish|design|style|render|audit|review|inspect|verify|redesign|optimi[sz]e|improve|recommend|choose|suggest|compare)\b'
 $browserActionLanguage = Test-TaskText '\b(open|navigate|inspect|click|type|upload|download|authenticate|log.?in|browse|capture|screenshot|visually verify|visual check)\b'
 $browserSurfaceLanguage = Test-TaskText '\b(browser|chrome|tab|website|web page|site|localhost|figma)\b'
 $currentDocsLanguage = (Test-TaskText '\b(latest|current|up[- ]to[- ]date|newest|recent)\b') -and (Test-TaskText '\b(documentation|docs|api|sdk|library|package|model|specification|standard|version)\b')
-
-$inferredCodeChange = $changeLanguage -and !$explanatoryOnly
-if (!$inputParameters.ContainsKey('CodeChange')) {
-  $CodeChange = $inferredCodeChange
-}
 
 $inferredTags = [Collections.Generic.List[string]]::new()
 if ($uiNounLanguage -and $uiActionLanguage) { $inferredTags.Add('ui') }
@@ -172,6 +174,7 @@ $result = [ordered]@{
   schemaVersion = 1
   task = $Task
   source = $classificationSource
+  frontendRoute = $frontendRoute
   values = [ordered]@{
     scope = $Scope
     ambiguity = $Ambiguity

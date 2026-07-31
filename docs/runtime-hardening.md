@@ -57,6 +57,21 @@ Run:
 ```
 
 The selector prints relevant modules, required quality gates, UI UX Pro Max status, and the activation gate.
+
+## Task-routing performance ledger
+
+Task routing is measured in one warm PowerShell process with seven samples per case. Medians are the decision metric; direct route and status timings act as controls. The 2026-07-31 optimization preserved the canonical route object from classification through capability-profile and quality-gate selection instead of launching the Node route engine twice.
+
+| Case | Before median | After median | Result |
+| --- | ---: | ---: | --- |
+| Direct frontend route | 60.7 ms | 54.5 ms | Control; no attributed optimization claim |
+| Task classification | 67.4 ms | 62.1 ms | Control; within normal process-start variance |
+| Quality-gate selection | 162.5 ms | 63.9 ms | Kept; 60.7% lower median |
+| Capability profile | 132.9 ms | 137.1 ms | Neutral control; within process-start variance |
+| Task preflight without health probe | 228.3 ms | 155.7 ms | Kept; 31.8% lower median |
+| Runtime status without drift scan | 72.4 ms | 71.2 ms | Control; unchanged |
+
+The preflight regression test also replaces `node` with a counting pass-through shim and requires exactly one real route-engine invocation. Correctness tests must pass before timing evidence is accepted.
 ## Exact Codex installation
 
 For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is required. The installer must create:

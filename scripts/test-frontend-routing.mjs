@@ -71,4 +71,8 @@ const visualQa = route('Run visual QA and screenshot diff on the responsive page
 if (visualQa.intent !== 'Audit' || visualQa.mutation !== 'ReadOnly' || visualQa.skills.includes('frontend-ui-engineering')) throw new Error('Visual QA must remain a read-only audit route.');
 const terseVisualQa = route('Run visual QA');
 if (!terseVisualQa.applies || terseVisualQa.intent !== 'Audit' || !terseVisualQa.skills.includes('frontend-visual-qa')) throw new Error('A terse visual-QA request must still route as a frontend audit.');
-console.log(`Frontend routing tests passed (${cases.length + skillCases.length + 8} assertion groups)`);
+const forced = JSON.parse(execFileSync(process.execPath, [path.join(root, 'scripts/select-frontend-route.mjs'), '--task', 'Contradictory prose: do not design', '--force-frontend'], { encoding: 'utf8' }));
+if (!forced.applies || !forced.forcedFrontend || !forced.skills.includes('typeui-fundamentals')) throw new Error('An explicit frontend tag must force a valid canonical frontend route.');
+const explanatory = route('Explain this UI component');
+if (explanatory.mutation !== 'ReadOnly' || explanatory.skills.includes('frontend-ui-engineering')) throw new Error('A frontend explanation must not invent implementation work.');
+console.log(`Frontend routing tests passed (${cases.length + skillCases.length + 10} assertion groups)`);

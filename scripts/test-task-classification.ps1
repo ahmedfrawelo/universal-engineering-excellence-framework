@@ -14,11 +14,21 @@ $readOnly = Get-Classification 'Explain dependency injection'
 if ($readOnly.route.tier -ne 'T0' -or $readOnly.values.codeChange) {
   throw 'A self-contained explanation must be inferred as T0 and read-only.'
 }
+if ($null -eq $readOnly.frontendRoute -or $readOnly.frontendRoute.applies) {
+  throw 'Classification must expose the canonical frontend route without inventing UI scope.'
+}
 
 $backend = Get-Classification 'Implement a backend API endpoint'
 if (!$backend.values.codeChange -or $backend.route.tier -notin @('T1','T2','T3','T4') -or $backend.source -ne 'inferred') {
   throw 'Backend implementation did not receive inferred change and route signals.'
 }
+
+$frontend = Get-Classification 'Build an Angular data grid dashboard'
+if (!$frontend.frontendRoute.applies -or $frontend.frontendRoute.mutation -ne 'Implement' -or $frontend.frontendRoute.skills -notcontains 'angular-developer') {
+  throw 'Classification did not retain canonical frontend-route evidence.'
+}
+$frontendExplanation = Get-Classification 'Explain this UI component'
+if ($frontendExplanation.values.codeChange -or $frontendExplanation.frontendRoute.mutation -ne 'ReadOnly') { throw 'A frontend explanation must remain read-only across classification and routing.' }
 
 $browser = Get-Classification 'Inspect the existing Chrome tab visually'
 if ($browser.values.taskTags -notcontains 'browser' -or $browser.values.codeChange) {

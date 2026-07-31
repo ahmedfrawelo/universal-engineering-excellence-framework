@@ -23,4 +23,13 @@ $quickUi = & $selector -Task 'Fix spacing in an existing CSS component' -Json | 
 if ($quickUi.frontendMode -ne 'Quick' -or $quickUi.skills -notcontains 'typeui-fundamentals' -or $quickUi.skills -contains 'impeccable' -or $quickUi.skills -contains 'ui-ux-pro-max') { throw 'Capability profile did not preserve the minimal Quick frontend route.' }
 $auditUi = & $selector -Task 'Audit and polish the frontend visual design' -Json | ConvertFrom-Json
 if ($auditUi.frontendMode -ne 'Audit' -or $auditUi.skills -notcontains 'impeccable' -or $auditUi.skills -contains 'frontend-design' -or $auditUi.skills -contains 'ui-ux-pro-max') { throw 'Capability profile did not preserve the focused Audit frontend route.' }
+$terseVisualQa = & $selector -Task 'Run visual QA' -Json | ConvertFrom-Json
+if ($terseVisualQa.frontendMode -ne 'Audit' -or $terseVisualQa.skills -notcontains 'frontend-visual-qa') { throw 'Capability profile did not consume the canonical route for terse visual QA.' }
+$previousPath = $env:PATH
+try {
+  $env:PATH = ''
+  $fastCore = & $selector -Task 'Explain dependency injection' -Json | ConvertFrom-Json
+  $fastBackend = & $selector -Task 'Implement a backend API endpoint' -Json | ConvertFrom-Json
+  if ($fastCore.profile -ne 'CORE_ONLY' -or $fastBackend.profile -ne 'SELECTIVE') { throw 'Non-frontend profiles changed while testing the no-Node fast path.' }
+} finally { $env:PATH = $previousPath }
 Write-Host 'Capability profile tests passed'

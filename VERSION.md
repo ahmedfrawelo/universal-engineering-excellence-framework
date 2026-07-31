@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.21.0.
+UEEF Enterprise Edition version: 2.21.1.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -105,3 +105,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.19.5: moved Codex runtime backups outside `CODEX_HOME`, added configurable external backup roots, and rejected internal or reparse-point backup targets.
 - 2.20.0: added proportional `Quick`, `Build`, and `Audit` frontend routing, independent design-skill triggers, and scoped skeleton and visual-composition gates.
 - 2.21.0: added a reproducible 27-skill frontend capability set, canonical cross-platform routing, bundled project skills, and policy-safe browser-skill governance.
+- 2.21.1: eliminated duplicate frontend-route evaluation, added single-pass regression guards, and corrected read-only frontend explanations.

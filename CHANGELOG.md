@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.21.1 - 2026-07-31
+
+- Reused one canonical frontend-route result across classification, capability profiles, quality gates, and preflight.
+- Reduced measured median quality-gate latency by 60.7% and preflight latency by 31.8% in the recorded seven-sample benchmark.
+- Added a process-count regression test requiring one route-engine invocation per preflight.
+- Preserved the no-Node fast path for direct core and backend capability profiles.
+- Corrected frontend explanations and other noun-only requests to remain read-only unless change intent is explicit.
 
 ## 2.21.0 - 2026-07-31
 

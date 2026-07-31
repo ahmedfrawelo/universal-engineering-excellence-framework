@@ -7,12 +7,14 @@ param(
   [ValidateSet('None','Architecture','Authentication','Authorization','Security','Production','Migration','Destructive','Privacy','Payment','Incident','Release')][string]$RiskFloor = 'None',
   [switch]$CodeChange,
   [ValidateSet('explicit','inferred','mixed')][string]$ClassificationSource,
+  [object]$FrontendRoute,
   [switch]$Json
 )
 
 $ErrorActionPreference = 'Stop'
 $inputParameters = @{} + $PSBoundParameters
 $text = $Task.ToLowerInvariant()
+if ($FrontendRoute -and ([string]$FrontendRoute.task -ne $Task -or [int]$FrontendRoute.schemaVersion -lt 1)) { throw 'Supplied frontend route does not belong to this task or has an invalid schema.' }
 $skills = [Collections.Generic.List[string]]::new()
 $mcps = [Collections.Generic.List[string]]::new()
 $workflows = [Collections.Generic.List[string]]::new()
@@ -34,7 +36,17 @@ $hasExplicitClassification = $explicitTags -or $explicitRouteTier -or $explicitR
 $isReadOnly = $text -match '\b(explain|answer|summari[sz]e|translate|define|what is|review status)\b' -and $text -notmatch '\b(current|latest|online|browser|file|repository|code)\b' -and !$CodeChange
 $needsBrowser = ($text -match '\b(open|navigate|inspect|click|type|upload|download|authenticate|log.?in|browse|screenshot|visual(?:ly)? verify|visual check)\b') -and ($text -match '\b(browser|chrome|tab|website|web page|site|figma)\b')
 $needsCurrentDocs = ($text -match '\b(latest|current|up.to.date|newest|recent)\b') -and ($text -match '\b(documentation|docs|api|sdk|library|package|model|specification|standard|version)\b')
-$isUi = ($text -match '\b(ui|ux|frontend|react|angular|css|layout|accessibility|screen|component|dashboard|visual design)\b') -and ($text -match '\b(build|implement|create|change|update|fix|polish|design|style|render|audit|review|inspect|verify)\b')
+# This is only a cheap process-start guard. It never selects a frontend mode,
+# module, skill, or gate; the canonical route engine owns every decision once a
+# plausible frontend signal exists. Normal preflight callers provide the route
+# directly from classification and skip this hint entirely.
+$frontendHint = $TaskTag -contains 'ui' -or $text -match '\b(ui|ux|frontend|front-end|react|angular|vue|svelte|css|scss|tailwind|page|screen|component|dashboard|landing page|modal|dialog|dropdown|menu|popover|drawer|panel|tooltip|overlay|sidebar|navbar|navigation|header|theme|dark mode|light mode|responsive|mobile|breakpoint|typography|palette|font|skeleton|shimmer|loading state|data grid|datatable|data table|layout|accessibility|a11y|motion|animation|transition|design system|design token|visual qa|visual regression|screenshot diff|browser verification|lcp|inp|cls|bundle size|re-render|frame rate)\b'
+if (!$FrontendRoute -and $frontendHint) {
+  $frontendRouteJson = & node (Join-Path $PSScriptRoot 'select-frontend-route.mjs') --task $Task --mode Auto
+  if ($LASTEXITCODE -ne 0) { throw 'Frontend route engine failed.' }
+  $FrontendRoute = ($frontendRouteJson | Out-String) | ConvertFrom-Json
+}
+$isUi = [bool]($FrontendRoute -and $FrontendRoute.applies)
 $isSecurity = $Risk -in @('high','critical') -or $text -match '\b(security|auth|payment|privacy|production|migration|destructive)\b'
 $isAmbiguous = $text -match '\b(ambiguous|unclear|brainstorm|explore|idea|requirements|acceptance criteria)\b'
 $isDebugging = $text -match '\b(bug|debug|regression|failure|broken|error|fix)\b'
@@ -66,6 +78,7 @@ if ($isUi) {
   $selectorArgs = @{ Task=$Task; CodeChange=[bool]$CodeChange; Json=$true }
   if ($RouteTier) { $selectorArgs.Tier = $RouteTier }
   if ($TaskTag.Count) { $selectorArgs.TaskTag = $TaskTag }
+  $selectorArgs.FrontendRoute = $FrontendRoute
   $uiRoute = (& (Join-Path $PSScriptRoot 'select-quality-gates.ps1') @selectorArgs | Out-String) | ConvertFrom-Json
   $frontendMode = [string]$uiRoute.frontendMode
   foreach ($skill in @($uiRoute.skillRoutes)) { Add-Unique $skills ([string]$skill) }
