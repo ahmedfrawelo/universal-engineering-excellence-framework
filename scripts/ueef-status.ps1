@@ -67,7 +67,8 @@ $codexHome = if ($isManagedRuntime) { Split-Path -Parent $GlobalPath } elseif ($
 $agentsPath = Join-Path $codexHome "AGENTS.md"
 if ($isManagedRuntime) {
   $agentsText = if (Test-Item $agentsPath) { Get-Content -LiteralPath $agentsPath -Raw } else { "" }
-  $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath))) -and $agentsText -match 'T0/T1 stay single-agent|T1 defaults to single-agent' -and $agentsText -match 'route rationale'
+  $agentsVersionPattern = '\(version\s+' + [regex]::Escape($version) + '\)'
+  $agentsPass = (Test-Item $agentsPath) -and (($agentsText -match [regex]::Escape($GlobalPath)) -or ($agentsText -match [regex]::Escape($RepositoryPath))) -and $agentsText -match 'T0/T1 stay single-agent|T1 defaults to single-agent' -and $agentsText -match 'route rationale' -and $agentsText -match $agentsVersionPattern
   $activeStatePath = Join-Path $GlobalPath "UEEF-ACTIVE.json"
   $activeStatePass = $false
   if (Test-Item $activeStatePath) {
@@ -77,10 +78,17 @@ if ($isManagedRuntime) {
       $stateRuntime = [IO.Path]::GetFullPath([string]$state.runtimePath).TrimEnd([IO.Path]::DirectorySeparatorChar)
       $stateLoader = [IO.Path]::GetFullPath([string]$state.loaderPath)
       $expectedLoader = [IO.Path]::GetFullPath((Join-Path $RepositoryPath 'UEEF-LOADER.md'))
-      $checksPass = $state.requiredChecks -and !(@($state.requiredChecks.psobject.Properties | Where-Object { $_.Value -ne $true }).Count)
-      if ($state.requireAgents -ne $true) { $agentsPass = $true }
+      $expectedAgent = Split-Path -Leaf $RepositoryPath
+      $stateAgent = [string]$state.agent
+      $codexRuntime = $expectedAgent -ieq 'codex'
+      $requiredCheckNames = @('loader','agents','coreSystem','masterLoader','masterIndex','activationGate','statusScript')
+      $checksPass = $state.requiredChecks -and !(@($requiredCheckNames | Where-Object {
+        $property = $state.requiredChecks.psobject.Properties[$_]
+        !$property -or $property.Value -ne $true
+      }).Count) -and !(@($state.requiredChecks.psobject.Properties | Where-Object { $_.Value -ne $true }).Count)
+      if ($state.requireAgents -ne $true -and !$codexRuntime) { $agentsPass = $true }
       $loaderHashPass = ![string]::IsNullOrWhiteSpace([string]$state.runtimeLoaderSha256) -and (Get-FileHash -LiteralPath $expectedLoader -Algorithm SHA256).Hash -ceq ([string]$state.runtimeLoaderSha256).ToUpperInvariant()
-      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $state.agentRoutingContractVersion -eq 4 -and $state.reasoningCeiling -eq 'proportional' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $loaderHashPass -and $checksPass
+      $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $stateAgent -eq $expectedAgent -and (!$codexRuntime -or $state.requireAgents -eq $true) -and $state.agentRoutingContractVersion -eq 4 -and $state.reasoningCeiling -eq 'proportional' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $loaderHashPass -and $checksPass
     } catch { $activeStatePass = $false }
   }
 } else {

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [string]$Root = (Split-Path -Parent $PSScriptRoot),
+  [string]$Root = '',
   [ValidateSet('Quick','Full')][string]$Mode = 'Quick',
   [string]$SummaryPath,
   [string]$ReportPath,
@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($Root)) { $Root = Split-Path -Parent $PSScriptRoot }
 $resolvedRoot = (Resolve-Path -LiteralPath $Root).Path
 $budgetPath = Join-Path $resolvedRoot 'config\assurance-budgets.json'
 if (!(Test-Path -LiteralPath $budgetPath -PathType Leaf)) { throw "Missing assurance budget file: $budgetPath" }

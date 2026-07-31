@@ -10,6 +10,7 @@ FAIL_AFTER_STATE=${6:-0}
 
 first=$(printf '%.1s' "$AGENT"); case "$first" in [A-Za-z0-9]) ;; *) echo "Unsafe agent name: $AGENT" >&2; exit 1;; esac
 case "$AGENT" in *[!A-Za-z0-9._-]*|.|..) echo "Unsafe agent name: $AGENT" >&2; exit 1;; esac
+case "$AGENT" in [Cc][Oo][Dd][Ee][Xx]) echo 'The generic runtime installer cannot install Agent=codex. Use scripts/install-codex.sh so the generated loader and Codex AGENTS contract are installed together.' >&2; exit 1;; esac
 [ "${#AGENT}" -le 64 ] || { echo "Agent name is too long" >&2; exit 1; }
 [ "$NO_BACKUP" = 0 ] || [ "$FORCE" = 1 ] || { echo "--no-backup requires --force" >&2; exit 1; }
 SOURCE_ROOT=$(CDPATH= cd -- "$SOURCE_ROOT" && pwd -P)

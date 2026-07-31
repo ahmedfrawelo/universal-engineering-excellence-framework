@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.19.3.
+UEEF Enterprise Edition version: 2.19.4.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -101,3 +101,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.17.3: fixed installer and runtime validation edge cases, including Git-unavailable diff-impact reporting, opt-in Open Design installation coverage, runtime sync with an empty AGENTS file, and context-map test discovery.
 - 2.17.2: fixed Windows CI Codex-home portability, PowerShell script-root default evaluation, and Unix preflight executable permissions.
 - 2.17.1: Codex-safety hardening for machine-default CODEX_HOME, opt-in Open Design, inherited models, shallow bootstrap, and Codex-safe browser/AGENTS policy.
+- 2.19.4: hardened Codex runtime installation and activation integrity, made bootstrap and capability health evidence truthful, restored Windows PowerShell 5.1-safe generated text, and expanded full CI assurance.

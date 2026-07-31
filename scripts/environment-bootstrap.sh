@@ -26,11 +26,24 @@ status=0
 check_cmd(){ command -v "$1" >/dev/null 2>&1; }
 check_path(){ [ -n "$1" ] && [ -f "$1" ]; }
 has_profile(){ case ",$PROFILES," in *",$1,"*) return 0;; *) return 1;; esac; }
+runtime_status='MISSING'
+if check_path "$RUNTIME_PATH/UEEF-LOADER.md"; then
+  if check_path "$RUNTIME_PATH/scripts/ueef-status.sh"; then
+    runtime_output=$(UEEF_GLOBAL_PATH=$(dirname "$RUNTIME_PATH") sh "$RUNTIME_PATH/scripts/ueef-status.sh" "$RUNTIME_PATH" 2>&1 || true)
+    if printf '%s\n' "$runtime_output" | grep -q '^Overall: ACTIVE$'; then runtime_status='ACTIVE'
+    else runtime_status='INACTIVE'
+    fi
+  else
+    runtime_status='UNVERIFIED'
+  fi
+fi
 echo "Environment Profile"
 echo "Profiles Loaded: $PROFILES"
 echo "Core"
 for cmd in git gh; do if check_cmd "$cmd"; then echo "$cmd PASS"; else echo "$cmd MISSING (Mandatory)"; status=2; fi; done
-if check_path "$RUNTIME_PATH/UEEF-LOADER.md"; then echo "UEEF Runtime PASS"; else echo "UEEF Runtime MISSING (Mandatory)"; status=2; fi
+if [ "$runtime_status" = "ACTIVE" ]; then echo "UEEF Runtime PASS (ueef-status Overall: ACTIVE)"
+else echo "UEEF Runtime $runtime_status (Mandatory)"; status=2
+fi
 if [ -f "$ROOT/scripts/validate-framework.ps1" ]; then echo "Validation Scripts PASS"; else echo "Validation Scripts MISSING (Mandatory)"; status=2; fi
 for skill in skill-installer openai-docs skill-creator; do if check_path "$CODEX_HOME/skills/.system/$skill/SKILL.md"; then echo "$skill PASS"; else echo "$skill MISSING (Mandatory)"; status=2; fi; done
 echo "AI"

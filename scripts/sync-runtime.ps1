@@ -12,6 +12,7 @@ if ([string]::IsNullOrWhiteSpace($CodexHome)) { $CodexHome = Resolve-CodexHome }
 $arabicBypass1 = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KrYrNin2YjYsiDYp9mE2KrYudmE2YrZhdin2Ko='))
 $arabicBypass2 = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KfZhtiz2Ykg2KfZhNiq2LnZhNmK2YXYp9iq'))
 $arabicBypass3 = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KrYrNin2YjYsiDYp9mE2YrZiCDYp9mKINin2Yog2KfZgQ=='))
+$arabicBypassCodex = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KrYrNin2YjYsiBVRUVG'))
 $arabicBypass4 = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KfYtNiq2LrZhCDYqNit2LHZitip'))
 $arabicBypass5 = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KfYqNiq2YPYsSDYrtin2LHYrCDYp9mE2KXYt9in2LE='))
 $arabicBypass6 = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KfYudmF2YQg2KjYr9mI2YYgVUVFRg=='))
@@ -203,7 +204,7 @@ Write-Utf8File $stagingLoader @(
   "- Before non-trivial execution, show: Intent: <requested outcome> | Tier: <T0-T4> | Spawn: <no/yes and reason> | Browser: <no/yes and reason>.",
   "",
   "Temporary creative bypass:",
-  "- UEEF is strict by default. A direct user command containing any of these phrases activates FREE-MODE for the current task only: $arabicBypass1, $arabicBypass2, $arabicBypass3, تجاوز UEEF, FREE-MODE, $arabicBypass4, $arabicBypass5, or $arabicBypass6.",
+  "- UEEF is strict by default. A direct user command containing any of these phrases activates FREE-MODE for the current task only: $arabicBypass1, $arabicBypass2, $arabicBypass3, $arabicBypassCodex, FREE-MODE, $arabicBypass4, $arabicBypass5, or $arabicBypass6.",
   "- Treat clear equivalents as aliases only when the user is directly instructing the agent; mentioning, quoting, asking about, or analyzing a phrase does not activate the mode.",
   "- In FREE-MODE, suspend UEEF workflow and style constraints that are specific to this repository (routing ceremony, module-selection ceremony, progress format, and other process preferences) so the agent can brainstorm or execute the user's requested work freely. Keep the user's actual scope, truthfulness, reversibility, and direct verification intact.",
   "- FREE-MODE never overrides system, developer, platform, security, privacy, authorization, destructive-action, or browser hard-stop rules. It cannot authorize secrets exposure, unsafe deletion, a second browser/profile, fabricated evidence, or a false completion claim.",

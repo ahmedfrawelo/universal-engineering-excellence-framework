@@ -99,27 +99,27 @@ try {
   New-Item -ItemType Directory -Path $codexHome -Force | Out-Null
   Initialize-FakeSkillInstaller $codexHome
   Set-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Value "# User rules`n`nKeep this custom rule." -Encoding utf8
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
-  $runtime = Join-Path $codexHome 'ueef\test-agent'
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' | Out-Null
+  $runtime = Join-Path $codexHome 'ueef\codex'
   $runtimeRoot = Join-Path $codexHome 'ueef'
   $staleTransaction = Join-Path $runtimeRoot '.sdeadbeef'
   $nonTransaction = Join-Path $runtimeRoot '.snot-a-transaction'
   New-Item -ItemType Directory -Path $staleTransaction,$nonTransaction | Out-Null
   (Get-Item -LiteralPath $staleTransaction).LastWriteTime = (Get-Date).AddMinutes(-11)
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' | Out-Null
   if (Test-Path -LiteralPath $staleTransaction) { throw 'Runtime sync retained a stale transaction directory.' }
   if (!(Test-Path -LiteralPath $nonTransaction)) { throw 'Runtime sync removed a non-transaction directory.' }
   Remove-Item -LiteralPath $nonTransaction -Recurse -Force
   $sentinel = Join-Path $runtime 'active-task-sentinel.txt'
   Set-Content -LiteralPath $sentinel -Value 'must be removed because it is not part of the release' -Encoding utf8
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' | Out-Null
   if (Test-Path -LiteralPath $sentinel) { throw 'Runtime sync retained an unowned root file.' }
   $staleRuntimeFile = Join-Path $runtime 'framework\stale-runtime-file.md'
   Set-Content -LiteralPath $staleRuntimeFile -Value 'must be pruned from owned runtime folders' -Encoding utf8
   & (Join-Path $root 'scripts\check-runtime-drift.ps1') -SourcePath $root -RuntimePath $runtime | Out-Null
   $staleDetected = $LASTEXITCODE -ne 0
   if (!$staleDetected) { throw 'Runtime drift check accepted a stale file inside an owned runtime folder.' }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' | Out-Null
   if (Test-Path -LiteralPath $staleRuntimeFile) { throw 'Runtime sync left a stale file inside an owned runtime folder.' }
   $runtimeLinkTarget = Join-Path $sandbox 'runtime-link-target'
   $runtimeLink = Join-Path $runtime 'framework\runtime-link'
@@ -136,12 +136,21 @@ try {
   }
   $statePath = Join-Path $codexHome 'ueef\UEEF-ACTIVE.json'
   $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
-  if ($state.agent -ne 'test-agent') { throw 'Active state did not preserve the agent name.' }
+  if ($state.agent -ne 'codex' -or $state.requireAgents -ne $true) { throw 'Active state did not preserve the Codex agent and RequireAgents contract.' }
   if ([IO.Path]::GetFullPath([string]$state.runtimePath) -ne [IO.Path]::GetFullPath($runtime)) { throw 'Active state runtime path is wrong.' }
-  $loader = Get-Content -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md') -Raw
+  $stateBeforeWriterGuard = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
+  $writerGuardRejected = $false
+  try {
+    & (Join-Path $runtime 'scripts\write-active-state.ps1') -RepositoryPath $runtime -CodexHome $codexHome -RuntimeRoot $runtimeRoot -Agent 'codex' -SourceRepositoryPath $root | Out-Null
+  } catch { $writerGuardRejected = $_.Exception.Message -like '*without -RequireAgents*' }
+  if (!$writerGuardRejected) { throw 'Codex active-state writer accepted a state without RequireAgents.' }
+  if ([IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8) -cne $stateBeforeWriterGuard) { throw 'Rejected Codex active-state write changed the existing state.' }
+  $loader = [IO.File]::ReadAllText((Join-Path $runtime 'UEEF-LOADER.md'), [Text.Encoding]::UTF8)
   foreach ($term in @('environment-bootstrap','get-diff-impact.ps1','Agent and model routing:','Loaded: boot-loader, core-system')) {
     if ($loader -notmatch [regex]::Escape($term)) { throw "Generated loader missing: $term" }
   }
+  $arabicBypassCodex = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KrYrNin2YjYsiBVRUVG'))
+  if (!$loader.Contains($arabicBypassCodex)) { throw 'Generated loader lost the Arabic Codex FREE-MODE phrase.' }
   $agents = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
   if ($agents.Length -gt 2200) { throw "Generated AGENTS is too large for a precedence-only runtime block: $($agents.Length) characters." }
   foreach ($term in @('Precedence: Scope wins','stop when done','T0/T1 stay single-agent','economical default, not a hard ceiling','read the loader once per task','browser control is explicit-task only','Prefer the installed Chrome control plugin','Never launch Playwright, chrome-devtools','IDE Simple Browser','a second profile, or a new context','stop and ask')) {
@@ -153,7 +162,7 @@ try {
   $stateBeforeRollback = Get-Content -LiteralPath $statePath -Raw
   $agentsBeforeRollback = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
   $rollbackTriggered = $false
-  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' -TestFailAfterState | Out-Null }
+  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -TestFailAfterState | Out-Null }
   catch { $rollbackTriggered = $_.Exception.Message -like '*Injected test failure*' }
   if (!$rollbackTriggered) { throw 'Runtime sync rollback injection did not fail.' }
   if ((Get-Content -LiteralPath $statePath -Raw) -cne $stateBeforeRollback) { throw 'Runtime sync did not restore the previous active state.' }
@@ -169,23 +178,100 @@ try {
   if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'ueef\fresh-agent')) { throw 'Failed first sync left a runtime.' }
   $status = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
   if ($status -notcontains 'Overall: ACTIVE') { throw "Valid generated runtime did not become ACTIVE: $($status -join ' | ')" }
+  $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
+  $integrityStateText = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
+  $agentsPath = Join-Path $codexHome 'AGENTS.md'
+  $integrityAgentsText = [IO.File]::ReadAllText($agentsPath, [Text.Encoding]::UTF8)
+  try {
+    $invalidCodexState = $integrityStateText | ConvertFrom-Json
+    $invalidCodexState.requireAgents = $false
+    [IO.File]::WriteAllText($statePath, ($invalidCodexState | ConvertTo-Json -Depth 8) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    $staleAgentsText = [regex]::Replace($integrityAgentsText, '\(version\s+\d+\.\d+\.\d+\)', '(version 0.0.0)')
+    [IO.File]::WriteAllText($agentsPath, $staleAgentsText, [Text.UTF8Encoding]::new($false))
+    $invalidCodexStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
+    if ($invalidCodexStatus -notcontains 'Codex AGENTS: FAIL' -or $invalidCodexStatus -notcontains 'Active state: FAIL' -or $invalidCodexStatus -notcontains 'Overall: INACTIVE') {
+      throw 'Windows status accepted requireAgents=false with stale Codex AGENTS.'
+    }
+    if ($bashPath) {
+      $invalidShellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)
+      if ($invalidShellStatus -notcontains 'Codex AGENTS: FAIL' -or $invalidShellStatus -notcontains 'Active state: FAIL' -or $invalidShellStatus -notcontains 'Overall: INACTIVE') {
+        throw 'Unix status accepted requireAgents=false with stale Codex AGENTS.'
+      }
+    }
+  } finally {
+    [IO.File]::WriteAllText($statePath, $integrityStateText, [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText($agentsPath, $integrityAgentsText, [Text.UTF8Encoding]::new($false))
+  }
+  if ($bashPath) {
+    $decoyLoader = Join-Path $sandbox 'decoy-loader.md'
+    Copy-Item -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md') -Destination $decoyLoader
+    try {
+      $invalidPathState = $integrityStateText | ConvertFrom-Json
+      $invalidPathState.runtimePath = Join-Path $runtimeRoot 'wrong-runtime'
+      $invalidPathState.loaderPath = $decoyLoader
+      $invalidPathState.runtimeLoaderSha256 = (Get-FileHash -LiteralPath $decoyLoader -Algorithm SHA256).Hash
+      [IO.File]::WriteAllText($statePath, ($invalidPathState | ConvertTo-Json -Depth 8) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+      $invalidPathShellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)
+      if ($invalidPathShellStatus -notcontains 'Active state: FAIL' -or $invalidPathShellStatus -notcontains 'Overall: INACTIVE') {
+        throw 'Unix status accepted active state bound to a different runtime and loader path.'
+      }
+    } finally {
+      [IO.File]::WriteAllText($statePath, $integrityStateText, [Text.UTF8Encoding]::new($false))
+      Remove-Item -LiteralPath $decoyLoader -Force -ErrorAction SilentlyContinue
+    }
+  }
+  try {
+    $missingChecksState = $integrityStateText | ConvertFrom-Json
+    $missingChecksState.requiredChecks = [pscustomobject]@{}
+    [IO.File]::WriteAllText($statePath, ($missingChecksState | ConvertTo-Json -Depth 8) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    $missingChecksStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
+    if ($missingChecksStatus -notcontains 'Active state: FAIL' -or $missingChecksStatus -notcontains 'Overall: INACTIVE') {
+      throw 'Windows status accepted active state with an empty requiredChecks object.'
+    }
+    if ($bashPath) {
+      $missingChecksShellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)
+      if ($missingChecksShellStatus -notcontains 'Active state: FAIL' -or $missingChecksShellStatus -notcontains 'Overall: INACTIVE') {
+        throw 'Unix status accepted active state with an empty requiredChecks object.'
+      }
+    }
+  } finally {
+    [IO.File]::WriteAllText($statePath, $integrityStateText, [Text.UTF8Encoding]::new($false))
+  }
+  try {
+    $failedAdditionalCheckState = $integrityStateText | ConvertFrom-Json
+    $failedAdditionalCheckState.requiredChecks | Add-Member -NotePropertyName futureCritical -NotePropertyValue $false
+    [IO.File]::WriteAllText($statePath, ($failedAdditionalCheckState | ConvertTo-Json -Depth 8) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    $failedAdditionalCheckStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
+    if ($failedAdditionalCheckStatus -notcontains 'Active state: FAIL' -or $failedAdditionalCheckStatus -notcontains 'Overall: INACTIVE') {
+      throw 'Windows status accepted an additional failed required check.'
+    }
+    if ($bashPath) {
+      $failedAdditionalCheckShellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)
+      if ($failedAdditionalCheckShellStatus -notcontains 'Active state: FAIL' -or $failedAdditionalCheckShellStatus -notcontains 'Overall: INACTIVE') {
+        throw 'Unix status accepted an additional failed required check.'
+      }
+    }
+  } finally {
+    [IO.File]::WriteAllText($statePath, $integrityStateText, [Text.UTF8Encoding]::new($false))
+  }
+  $restoredIntegrityStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
+  if ($restoredIntegrityStatus -notcontains 'Overall: ACTIVE') { throw 'Runtime did not recover after restoring valid Codex state and AGENTS.' }
   Set-Content -LiteralPath (Join-Path $runtime 'README.md') -Value 'intentional runtime drift' -Encoding utf8
   $driftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($driftStatus -notcontains 'Runtime drift: FAIL' -or $driftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime drift did not invalidate ACTIVE status.' }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' | Out-Null
   $statusAfterRepair = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw 'Runtime resync did not repair drift status.' }
   Add-Content -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md') -Value "`nUnauthorized loader mutation." -Encoding utf8
   $loaderDriftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($loaderDriftStatus -notcontains 'Runtime drift: FAIL' -or $loaderDriftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime status accepted a tampered loader.' }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'test-agent' | Out-Null
+  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' | Out-Null
   $untrackedStatusFixture = Join-Path $root 'docs\.ueef-untracked-runtime-test.tmp'
   try {
     Set-Content -LiteralPath $untrackedStatusFixture -Value 'untracked files are outside the release policy'
     $statusWithUntrackedSource = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
     if ($statusWithUntrackedSource -notcontains 'Runtime drift: PASS' -or $statusWithUntrackedSource -notcontains 'Overall: ACTIVE') { throw 'Runtime status disagrees with the tracked-file release policy.' }
   } finally { Remove-Item -LiteralPath $untrackedStatusFixture -Force -ErrorAction SilentlyContinue }
-  $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
   if ($bashPath) {
     $shellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)
     if ($LASTEXITCODE -ne 0 -or $shellStatus -notcontains 'Overall: ACTIVE') { throw "Unix status rejected valid runtime: $($shellStatus -join ' ')" }

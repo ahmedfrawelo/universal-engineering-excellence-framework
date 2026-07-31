@@ -2,7 +2,17 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.3`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.19.4`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.19.4 - 2026-07-31
+
+- Prevented the generic installer and state writer from producing a falsely active Codex runtime without its generated `AGENTS.md` contract.
+- Hardened Windows and Unix status checks for runtime-agent identity, current `AGENTS.md` version, loader integrity, and `requireAgents`.
+- Made environment bootstrap validate `Overall: ACTIVE` instead of treating loader presence as readiness.
+- Expanded capability health to inventory plugin manifests, remote-install markers, and plugin-owned skills without claiming live callability.
+- Restored Windows PowerShell 5.1-safe generated Arabic text and added an encoding regression gate.
+- Fixed direct Windows PowerShell 5.1 assurance invocation so its repository root resolves before budget evaluation.
+- Promoted Windows CI to full assurance, pinned `actions/checkout` to verified `v7.0.1`, and restored the Unix status-test executable bit.
 
 ## 2.19.3 - 2026-07-31
 

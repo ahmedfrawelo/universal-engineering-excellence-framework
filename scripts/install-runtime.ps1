@@ -8,6 +8,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 if ($Agent -in @('.','..')) { throw 'Unsafe agent name.' }
+if ($Agent -ieq 'codex') { throw 'The generic runtime installer cannot install Agent=codex. Use scripts/install-codex.ps1 so the generated loader and Codex AGENTS contract are installed together.' }
 if ($NoBackup -and !$Force) { throw '-NoBackup requires -Force.' }
 $source = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourceRoot).Path).TrimEnd('\','/')
 New-Item -ItemType Directory -Path $InstallRoot -Force | Out-Null

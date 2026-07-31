@@ -21,9 +21,9 @@ if (Test-Path -LiteralPath $RegistryPath -PathType Leaf) {
   foreach ($entry in @($registryDocument.capabilities)) { $registry["$($entry.type)|$($entry.id)"] = $entry }
 }
 
-function Add-Capability([string]$Type, [string]$Name, [bool]$Configured, [bool]$Installed, [bool]$Enabled, [string]$Callable, [string]$Detail) {
+function Add-Capability([string]$Type, [string]$Name, [bool]$Configured, [bool]$Installed, [Nullable[bool]]$Enabled, [string]$Callable, [string]$Detail) {
   $declaration = $registry["$Type|$Name"]
-  $health = if (!$Configured) { 'NOT_CONFIGURED' } elseif (!$Installed) { 'MISSING_DEPENDENCY' } elseif (!$Enabled) { 'DISABLED' } elseif ($Callable -eq 'PASS') { 'CALLABLE' } else { 'CONFIGURED_UNVERIFIED' }
+  $health = if (!$Configured) { 'NOT_CONFIGURED' } elseif (!$Installed) { 'MISSING_DEPENDENCY' } elseif ($null -eq $Enabled) { 'CONFIGURED_UNVERIFIED' } elseif (!$Enabled) { 'DISABLED' } elseif ($Callable -eq 'PASS') { 'CALLABLE' } else { 'CONFIGURED_UNVERIFIED' }
   $results.Add([pscustomobject]@{ type=$Type; name=$Name; declared=[bool]$declaration; required=if($declaration){[bool]$declaration.required}else{$false}; configured=$Configured; installed=$Installed; enabled=$Enabled; callable=$Callable; health=$health; source=if($declaration){[string]$declaration.source}else{'observed configuration'}; versionOrPin=if($declaration){[string]$declaration.versionOrPin}else{''}; fallback=if($declaration){[string]$declaration.fallback}else{'No declared fallback.'}; consumerPacks=if($declaration){@($declaration.consumerPacks)}else{@()}; detail=$Detail })
 }
 
@@ -59,9 +59,66 @@ if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
     $detail = if ($command) { 'Local command configured; no process was started by this diagnostic.' } elseif ($url) { 'Remote endpoint configured; no network request was made by this diagnostic.' } else { 'Configuration has neither command nor URL.' }
     Add-Capability 'mcp' $name $true $installed $true 'UNVERIFIED' $detail
   }
-  foreach ($plugin in $pluginStates.Keys | Sort-Object) { Add-Capability 'plugin' $plugin $true $true ([bool]$pluginStates[$plugin]) 'UNVERIFIED' 'Plugin state read from config; capability probing is task-dependent.' }
 } else {
   Add-Capability 'runtime' 'config.toml' $false $false $false 'NOT_RUN' "Configuration file not found: $ConfigPath"
+}
+
+# Plugin cache manifests prove installation only. Explicit config entries prove
+# bundled/runtime plugin enablement, while a remote-install marker proves that a
+# remote plugin is installed and registered for this Codex home. A remote marker
+# alone does not prove enablement, session selection, connection health, OAuth
+# state, MCP startup, or live callability.
+$observedPluginIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+$pluginCacheRoot = Join-Path $CodexHome 'plugins\cache'
+if (Test-Path -LiteralPath $pluginCacheRoot -PathType Container) {
+  $pluginManifests = @(Get-ChildItem -LiteralPath $pluginCacheRoot -Force -Recurse -Filter 'plugin.json' -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Directory.Name -eq '.codex-plugin' } |
+    Sort-Object LastWriteTime -Descending)
+  foreach ($manifestFile in $pluginManifests) {
+    try { $manifest = Get-Content -LiteralPath $manifestFile.FullName -Raw | ConvertFrom-Json -ErrorAction Stop } catch { continue }
+    if ([string]::IsNullOrWhiteSpace([string]$manifest.name)) { continue }
+    $relative = $manifestFile.FullName.Substring($pluginCacheRoot.Length).TrimStart('\','/')
+    $marketplace = ($relative -split '[\\/]')[0]
+    if ([string]::IsNullOrWhiteSpace($marketplace)) { continue }
+    $pluginId = "$($manifest.name)@$marketplace"
+    if (!$observedPluginIds.Add($pluginId)) { continue }
+
+    $versionRoot = Split-Path -Parent (Split-Path -Parent $manifestFile.FullName)
+    $pluginOwner = Split-Path -Parent $versionRoot
+    $remoteMarker = $false
+    $remoteMarkerPath = Join-Path $pluginOwner '.codex-remote-plugin-install.json'
+    if (Test-Path -LiteralPath $remoteMarkerPath -PathType Leaf) {
+      try {
+        $remoteRecord = Get-Content -LiteralPath $remoteMarkerPath -Raw | ConvertFrom-Json -ErrorAction Stop
+        $remoteMarker = $remoteRecord.schema_version -eq 1 -and ![string]::IsNullOrWhiteSpace([string]$remoteRecord.remote_plugin_id)
+      } catch { $remoteMarker = $false }
+    }
+    $explicitState = $pluginStates.ContainsKey($pluginId)
+    $configured = $explicitState -or $remoteMarker
+    $enabled = if ($explicitState) { [Nullable[bool]]([bool]$pluginStates[$pluginId]) } else { $null }
+    $evidence = if ($explicitState) { 'explicit config entry' } elseif ($remoteMarker) { 'remote installation marker' } else { 'cache manifest only' }
+    Add-Capability 'plugin' $pluginId $configured $true $enabled 'UNVERIFIED' "Plugin manifest version $($manifest.version) found with $evidence; enablement, session selection, connection state, and live tools were not inferred from a remote marker."
+
+    if ($manifest.skills) {
+      $skillsPath = [IO.Path]::GetFullPath((Join-Path $versionRoot ([string]$manifest.skills)))
+      if (Test-Path -LiteralPath $skillsPath -PathType Container) {
+        foreach ($skillDirectory in Get-ChildItem -LiteralPath $skillsPath -Force -Directory -ErrorAction SilentlyContinue) {
+          $entrypoint = Join-Path $skillDirectory.FullName 'SKILL.md'
+          if (!(Test-Path -LiteralPath $entrypoint -PathType Leaf)) { continue }
+          $skillName = "$($manifest.name):$($skillDirectory.Name)"
+          Add-Capability 'skill' $skillName $configured $true $enabled 'UNVERIFIED' "Plugin SKILL.md found in $pluginId; provider readiness follows $evidence, while task selection remains unverified."
+        }
+      }
+    }
+  }
+}
+
+# Config can refer to a plugin whose cache payload is absent. Emit that state as
+# a missing dependency instead of assuming every configured plugin is installed.
+foreach ($plugin in $pluginStates.Keys | Sort-Object) {
+  if (!$observedPluginIds.Contains($plugin)) {
+    Add-Capability 'plugin' $plugin $true $false ([bool]$pluginStates[$plugin]) 'NOT_RUN' 'Plugin is configured, but no matching cache manifest was found.'
+  }
 }
 
 # CALLABLE is deliberately a narrow static-local claim. It is allowed only for

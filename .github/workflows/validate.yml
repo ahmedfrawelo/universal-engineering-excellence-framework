@@ -13,7 +13,7 @@ jobs:
     name: Windows validation
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Framework validation
         shell: pwsh
         run: |
@@ -27,17 +27,17 @@ jobs:
           ./scripts/test-spec-workflow.ps1
           ./scripts/test-capability-health.ps1
           ./scripts/test-capability-profile.ps1
-      - name: Quick assurance within budget
+      - name: Full assurance including runtime hardening
         shell: pwsh
         run: |
           $env:CODEX_HOME = Join-Path $env:RUNNER_TEMP 'codex-home'
-          ./scripts/measure-assurance.ps1 -Mode Quick -Enforce
+          ./scripts/measure-assurance.ps1 -Mode Full -Enforce
 
   unix:
     name: Unix validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Framework validation
         shell: bash
         run: ./scripts/validate-framework.sh

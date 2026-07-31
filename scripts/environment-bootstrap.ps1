@@ -10,6 +10,29 @@ if($env:UEEF_GLOBAL_PATH){
   elseif(Test-Path -LiteralPath (Join-Path $env:UEEF_GLOBAL_PATH 'codex\UEEF-LOADER.md')){$RuntimePath=Join-Path $env:UEEF_GLOBAL_PATH 'codex'}
 }elseif($env:CODEX_HOME){$RuntimePath=Join-Path $env:CODEX_HOME 'ueef\codex'}
 $CodexHome=if($env:CODEX_HOME){$env:CODEX_HOME}elseif($RuntimePath){Split-Path -Parent (Split-Path -Parent $RuntimePath)}else{''}
+$RuntimeOverall='MISSING'
+$RuntimeDetail='runtime loader not found'
+$RuntimeFailureStatus='MISSING'
+if($RuntimePath -and (Test-Path -LiteralPath (Join-Path $RuntimePath 'UEEF-LOADER.md') -PathType Leaf)){
+  $statusScript=Join-Path $RuntimePath 'scripts\ueef-status.ps1'
+  if(Test-Path -LiteralPath $statusScript -PathType Leaf){
+    try{
+      $runtimeStatus=(& $statusScript -RepositoryPath $RuntimePath -GlobalPath (Split-Path -Parent $RuntimePath) -Json 2>&1 | Out-String) | ConvertFrom-Json
+      $RuntimeOverall=[string]$runtimeStatus.overall
+      $RuntimeDetail="ueef-status Overall: $RuntimeOverall"
+      $RuntimeFailureStatus=if($RuntimeOverall -eq 'ACTIVE'){'PASS'}else{'INACTIVE'}
+    }catch{
+      $RuntimeOverall='UNVERIFIED'
+      $RuntimeDetail="ueef-status could not be evaluated: $($_.Exception.Message)"
+      $RuntimeFailureStatus='UNVERIFIED'
+    }
+  }else{
+    $RuntimeOverall='UNVERIFIED'
+    $RuntimeDetail='runtime status script not found'
+    $RuntimeFailureStatus='UNVERIFIED'
+  }
+}
+$RuntimeReady=$RuntimeOverall -eq 'ACTIVE'
 $selectedProfiles=@($Profile | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 if(!$selectedProfiles.Count){
   # Shallow, fast scan: never walks node_modules/.git/dist/.next/.venv/target/build/coverage/.turbo/vendor.
@@ -57,7 +80,7 @@ if(!$selectedProfiles.Count){
 $allowed=@('Core','Frontend','Backend','Database','UIUX','DevOps','AI','Optional')
 foreach($name in $selectedProfiles){if($allowed -notcontains $name){throw "Unknown environment profile: $name"}}
 $results=[System.Collections.Generic.List[object]]::new()
-function Add-Check($profile,$name,$level,$ok,$detail,$install=''){ $results.Add([pscustomobject]@{Profile=$profile;Name=$name;Level=$level;Status=if($ok){'PASS'}else{'MISSING'};Detail=$detail;Install=$install}) }
+function Add-Check($profile,$name,$level,$ok,$detail,$install='',$failureStatus='MISSING'){ $results.Add([pscustomobject]@{Profile=$profile;Name=$name;Level=$level;Status=if($ok){'PASS'}else{$failureStatus};Detail=$detail;Install=$install}) }
 function Has-Command($name){[bool](Get-Command $name -ErrorAction SilentlyContinue)}
 function Has-Path($path){Test-Path -LiteralPath $path}
 function Ensure-Command($name,$packageId){
@@ -77,10 +100,10 @@ foreach($p in $selectedProfiles){
       Add-Check Core 'OpenAI Docs' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\openai-docs\SKILL.md'))) 'OpenAI docs skill' 'Install the openai-docs skill'
       Add-Check Core 'Skill Creator' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\skill-creator\SKILL.md'))) 'Skill creator skill' 'Install the skill-creator skill'
       Add-Check Core 'Validation Scripts' Mandatory (Has-Path (Join-Path $Root 'scripts\validate-framework.ps1')) 'repository validator'
-      Add-Check Core 'UEEF Runtime' Mandatory ([bool]$RuntimePath -and (Has-Path (Join-Path $RuntimePath 'UEEF-LOADER.md'))) 'active runtime loader'
+      Add-Check Core 'UEEF Runtime' Mandatory $RuntimeReady $RuntimeDetail 'Run scripts/ueef-status.ps1 and repair the failing runtime check' $RuntimeFailureStatus
     }
     'AI' {
-      Add-Check AI UEEF Mandatory ([bool]$RuntimePath -and (Has-Path (Join-Path $RuntimePath 'UEEF-LOADER.md'))) 'runtime loader'
+      Add-Check AI UEEF Mandatory $RuntimeReady $RuntimeDetail 'Run scripts/ueef-status.ps1 and repair the failing runtime check' $RuntimeFailureStatus
       Add-Check AI 'Runtime Loader' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'AGENTS.md'))) 'global agent rules'
     }
     'Frontend' {
@@ -112,10 +135,10 @@ foreach($p in $selectedProfiles){
   }
 }
 $results | Format-Table Profile,Name,Level,Status,Detail -AutoSize
-$missingMandatory=@($results|Where-Object {$_.Level -eq 'Mandatory' -and $_.Status -eq 'MISSING'})
-$missingRecommended=@($results|Where-Object {$_.Level -eq 'Recommended' -and $_.Status -eq 'MISSING'})
+$missingMandatory=@($results|Where-Object {$_.Level -eq 'Mandatory' -and $_.Status -ne 'PASS'})
+$missingRecommended=@($results|Where-Object {$_.Level -eq 'Recommended' -and $_.Status -ne 'PASS'})
 Write-Output "Environment Profile"
-foreach($p in $selectedProfiles){$state=if(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -eq 'MISSING' -and $_.Level -eq 'Mandatory'}).Count){'BLOCKED'}elseif(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -eq 'MISSING'}).Count){'WARN'}else{'PASS'};Write-Output "$p $state"}
+foreach($p in $selectedProfiles){$state=if(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -ne 'PASS' -and $_.Level -eq 'Mandatory'}).Count){'BLOCKED'}elseif(@($results|Where-Object {$_.Profile -eq $p -and $_.Status -ne 'PASS'}).Count){'WARN'}else{'PASS'};Write-Output "$p $state"}
 Write-Output "Mandatory Dependencies: $(@($results|Where-Object Level -eq Mandatory).Count) checked; Missing: $($missingMandatory.Count)"
 Write-Output "Recommended Dependencies: $(@($results|Where-Object Level -eq Recommended).Count) checked; Missing: $($missingRecommended.Count)"
 Write-Output "Optional Dependencies: $(@($results|Where-Object Level -eq Optional).Count) checked"

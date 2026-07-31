@@ -11,6 +11,7 @@ Inspects and repairs the engineering environment before any task phase.
 
 - Run before inspection, architecture detection, planning, implementation, and gates.
 - Core and AI profiles are mandatory; task-relevant profiles are evidence-selected; readiness is never assumed.
+- A runtime loader file is presence evidence only. Bootstrap must evaluate the runtime status command and may report UEEF `PASS` only when its current `Overall` value is `ACTIVE`.
 - Auto-detect profiles from repository signals when no explicit profile list is supplied.
 - Classify every dependency as Mandatory, Recommended, or Optional.
 - Emit Environment Ready, Profiles Loaded, Mandatory Dependencies, Recommended Dependencies, Optional Dependencies, Missing Items, Installation Performed, and Validation Result.
@@ -25,6 +26,7 @@ Inspects and repairs the engineering environment before any task phase.
 
 - Mandatory gaps are ignored or hidden.
 - The checker claims readiness without current evidence.
+- The checker treats an existing loader as active while the runtime status is `INACTIVE` or cannot be evaluated.
 - A fixed universal tool list blocks unrelated work.
 
 ## Related Modules

@@ -73,11 +73,21 @@ if [ "$managed_runtime" = "1" ]; then
   agents_pass=0
   repository_native="$REPOSITORY_PATH"
   command -v cygpath >/dev/null 2>&1 && repository_native=$(cygpath -w "$REPOSITORY_PATH")
-  if [ -f "$agents_path" ] && { grep -Fq "$REPOSITORY_PATH" "$agents_path" || grep -Fq "$repository_native" "$agents_path"; } && grep -Eq 'T0/T1 stay single-agent|T1 defaults to single-agent' "$agents_path" && grep -q 'route rationale' "$agents_path"; then agents_pass=1; fi
+  if [ -f "$agents_path" ] && { grep -Fq "$REPOSITORY_PATH" "$agents_path" || grep -Fq "$repository_native" "$agents_path"; } && grep -Eq 'T0/T1 stay single-agent|T1 defaults to single-agent' "$agents_path" && grep -q 'route rationale' "$agents_path" && grep -Fq "(version $version)" "$agents_path"; then agents_pass=1; fi
 
   active_state_pass=0
-  if [ -f "$state_path" ] && node "$REPOSITORY_PATH/scripts/active-state.mjs" validate "$state_path" "$version" "$(basename "$REPOSITORY_PATH")" >/dev/null; then active_state_pass=1; fi
-  if [ -f "$state_path" ] && [ "$(node "$REPOSITORY_PATH/scripts/active-state.mjs" require-agents "$state_path" 2>/dev/null || printf true)" = false ]; then agents_pass=1; fi
+  runtime_agent=$(basename "$REPOSITORY_PATH")
+  expected_runtime_path="$REPOSITORY_PATH"
+  expected_loader_path="$REPOSITORY_PATH/UEEF-LOADER.md"
+  if command -v cygpath >/dev/null 2>&1; then
+    expected_runtime_path=$(cygpath -w "$expected_runtime_path")
+    expected_loader_path=$(cygpath -w "$expected_loader_path")
+  fi
+  if [ -f "$state_path" ] && node "$REPOSITORY_PATH/scripts/active-state.mjs" validate "$state_path" "$version" "$runtime_agent" "$expected_runtime_path" "$expected_loader_path" >/dev/null; then active_state_pass=1; fi
+  require_agents=$(node "$REPOSITORY_PATH/scripts/active-state.mjs" require-agents "$state_path" 2>/dev/null || printf true)
+  if [ "$require_agents" = false ]; then
+    case "$runtime_agent" in [Cc][Oo][Dd][Ee][Xx]) : ;; *) agents_pass=1 ;; esac
+  fi
 
   runtime_drift_pass=0
   runtime_drift_status="FAIL"

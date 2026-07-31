@@ -1,5 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
+$arabicDone = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KrZhQ=='))
 
 function Assert-TermsInOrder([string]$RelativePath, [string[]]$Terms) {
   $text = Get-Content -LiteralPath (Join-Path $root $RelativePath) -Raw
@@ -59,7 +60,7 @@ if ($checklistText -match 'Explicit consent recorded if an isolated fallback was
 $handoffText = Get-Content -LiteralPath (Join-Path $root 'framework/51-browser-session-control/12-cross-session-evidence-handoff.md') -Raw
 if ($handoffText -notmatch 'Do not mark the task `BLOCKED`') { throw 'Cross-session evidence handoff does not prohibit false blocking.' }
 $browserContractText = Get-ChildItem -LiteralPath (Join-Path $root 'framework/51-browser-session-control') -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }
-foreach ($term in @('wait for the user to say', 'ask the user to say', 'say `تم`', 'say ''تم''', 'say "تم"')) {
+foreach ($term in @('wait for the user to say', 'ask the user to say', "say ``$arabicDone``", "say '$arabicDone'", "say `"$arabicDone`"")) {
   if ($browserContractText -match [regex]::Escape($term)) { throw "Manual user-confirmation browser handoff remains: $term" }
 }
 Assert-TermsInOrder 'framework/51-browser-session-control/15-chrome-control-readiness.md' @(

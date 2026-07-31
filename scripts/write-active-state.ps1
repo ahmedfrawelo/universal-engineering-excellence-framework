@@ -10,6 +10,9 @@ param(
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot 'resolve-codex-home.ps1')
 if ([string]::IsNullOrWhiteSpace($CodexHome)) { $CodexHome = Resolve-CodexHome }
+if ($Agent -ieq 'codex' -and !$RequireAgents) {
+  throw 'Refusing to write an ACTIVE Codex state without -RequireAgents. Use scripts/install-codex.ps1 or scripts/sync-runtime.ps1.'
+}
 
 $runtimeRoot = if ([string]::IsNullOrWhiteSpace($RuntimeRoot)) { Join-Path $CodexHome "ueef" } else { $RuntimeRoot }
 $runtimePath = Join-Path $runtimeRoot $Agent

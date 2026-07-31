@@ -8,11 +8,11 @@
     }
   },
   "full": {
-    "totalMaxMs": 180000,
+    "totalMaxMs": 360000,
     "checks": {
       "framework-validation": 15000,
       "script-syntax": 15000,
-      "runtime-hardening": 150000
+      "runtime-hardening": 300000
     }
   }
 }

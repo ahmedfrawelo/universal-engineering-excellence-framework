@@ -8,6 +8,12 @@ SOURCE_REPOSITORY_PATH=${4:-$REPOSITORY_PATH}
 CODEX_HOME=${5:-$(dirname "$RUNTIME_ROOT")}
 REQUIRE_AGENTS=${6:-0}
 
+case "$AGENT" in
+  [Cc][Oo][Dd][Ee][Xx])
+    [ "$REQUIRE_AGENTS" = 1 ] || { echo 'Refusing to write an ACTIVE Codex state without RequireAgents. Use scripts/install-codex.sh or scripts/sync-runtime.ps1.' >&2; exit 1; }
+    ;;
+esac
+
 version=$(sed -n 's/.*[Vv]ersion:[[:space:]]*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "$REPOSITORY_PATH/VERSION.md" | sed -n '1p')
 [ -n "$version" ] || { echo 'Could not read VERSION.md' >&2; exit 1; }
 runtime_path="$RUNTIME_ROOT/$AGENT"

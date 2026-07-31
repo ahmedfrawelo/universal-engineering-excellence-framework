@@ -8,6 +8,9 @@ try {
   @{ status='PASS'; checks=@(@{name='framework-validation';durationMs=100},@{name='script-syntax';durationMs=100}) } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $passing -Encoding utf8
   $result = & $measure -Root $root -Mode Quick -SummaryPath $passing | ConvertFrom-Json
   if (!$result.withinBudget -or $result.totalDurationMs -ne 200) { throw 'Budget evaluator rejected valid fixture.' }
+  $windowsPowerShell = (Get-Command powershell -ErrorAction Stop).Source
+  $directResult = & $windowsPowerShell -NoProfile -ExecutionPolicy Bypass -File $measure -Mode Quick -SummaryPath $passing | ConvertFrom-Json
+  if ($LASTEXITCODE -ne 0 -or !$directResult.withinBudget -or $directResult.totalDurationMs -ne 200) { throw 'Windows PowerShell direct-file assurance invocation failed to resolve the repository root.' }
   $slow = Join-Path $sandbox 'slow.json'
   @{ status='PASS'; checks=@(@{name='framework-validation';durationMs=30001}) } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $slow -Encoding utf8
   $slowResult = & $measure -Root $root -Mode Quick -SummaryPath $slow | ConvertFrom-Json

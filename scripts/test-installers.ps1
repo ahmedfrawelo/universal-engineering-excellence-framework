@@ -40,6 +40,11 @@ try {
   }
 
   $installRoot = Join-Path $sandbox 'other-runtimes'
+  $genericCodexRejected = $false
+  try { & (Join-Path $root 'scripts\install-runtime.ps1') -SourceRoot $root -InstallRoot $installRoot -Agent 'CoDeX' -Force -NoBackup | Out-Null }
+  catch { $genericCodexRejected = $_.Exception.Message -like '*install-codex.ps1*' }
+  if (!$genericCodexRejected) { throw 'Generic Windows runtime installer accepted Agent=codex.' }
+  if (Test-Path -LiteralPath (Join-Path $installRoot 'CoDeX')) { throw 'Rejected generic Codex install created a runtime.' }
   & (Join-Path $root 'scripts\install-cursor.ps1') -InstallRoot $installRoot -Agent 'cursor-test' -Force -NoBackup | Out-Null
   Assert-Installed $installRoot 'cursor-test'
   & (Join-Path $root 'scripts\install-generic.ps1') -InstallRoot $installRoot -Agent 'generic-test' -Force -NoBackup | Out-Null
@@ -57,6 +62,15 @@ try {
   $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } elseif ($bashCommand -and $bashCommand.Source -notmatch '[\\/]System32[\\/]bash\.exe$') { $bashCommand.Source } else { '' }
   if ($bashPath) {
     $unixRoot = (Join-Path $sandbox 'unix-runtimes').Replace('\','/')
+    $unixRuntimeInstaller = (Join-Path $root 'scripts\install-runtime.sh').Replace('\','/')
+    $unixSource = $root.Replace('\','/')
+    $previousErrorAction = $ErrorActionPreference
+    try {
+      $ErrorActionPreference = 'Continue'
+      $unixCodexOutput = @(& $bashPath $unixRuntimeInstaller $unixSource $unixRoot CoDeX 1 1 0 2>&1)
+      $unixCodexExit = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $previousErrorAction }
+    if ($unixCodexExit -eq 0 -or $unixCodexOutput -notlike '*install-codex.sh*') { throw 'Generic Unix runtime installer accepted Agent=codex.' }
     $env:UEEF_INSTALL_ROOT = $unixRoot
     $unixInstaller = (Join-Path $root 'scripts\install-generic.sh').Replace('\','/')
     $previousErrorAction = $ErrorActionPreference
@@ -69,8 +83,6 @@ try {
     Assert-Installed (Join-Path $sandbox 'unix-runtimes') 'unix-test'
     $unixStatePath = Join-Path $sandbox 'unix-runtimes\UEEF-ACTIVE.json'
     $unixStateBeforeRollback = Get-Content -LiteralPath $unixStatePath -Raw
-    $unixRuntimeInstaller = (Join-Path $root 'scripts\install-runtime.sh').Replace('\','/')
-    $unixSource = $root.Replace('\','/')
     $previousErrorAction = $ErrorActionPreference
     try {
       $ErrorActionPreference = 'Continue'

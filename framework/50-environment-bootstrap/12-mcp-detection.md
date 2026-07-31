@@ -10,6 +10,7 @@ Detects available MCP servers and requires only task-relevant servers.
 ## Required Practice
 
 - Recognize Chrome DevTools, Context7, Playwright, Figma, and Node REPL when exposed.
+- Inventory personal/system skills, plugin manifests, plugin-owned `SKILL.md` entrypoints, explicit plugin config, and remote-install markers separately. A cache manifest proves cached installation only. A valid remote-install marker proves installation and registration for that Codex home, but it does not prove enablement, connection health, session selection, or callability.
 - For Chrome tasks, require the installed Chrome plugin plus Node REPL browser-client path. Do not route to directly exposed Playwright, Chrome DevTools, or in-app-browser MCPs as substitutes.
 - Do not require every MCP for every task.
 - Classify every dependency as Mandatory, Recommended, or Optional.
@@ -25,6 +26,7 @@ Detects available MCP servers and requires only task-relevant servers.
 
 - Mandatory gaps are ignored or hidden.
 - The checker claims readiness without current evidence.
+- Installed remote plugins or plugin-owned skills are omitted while the report appears complete.
 - A fixed universal tool list blocks unrelated work.
 
 ## Related Modules
