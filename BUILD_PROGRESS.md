@@ -1,6 +1,6 @@
 # Build Progress
 
-Current release: 2.21.1 (2026-07-31)
+Current release: 2.21.2 (2026-07-31)
 
 ## Delivered baseline
 
@@ -12,6 +12,7 @@ Current release: 2.21.1 (2026-07-31)
 - 2.20.0 adds proportional `Quick`, `Build`, and `Audit` frontend routes, trigger-based design skills, and explicit skeleton and visual-composition selection.
 - 2.21.0 adds a reproducible 27-skill manifest, four bundled project-owned skills, canonical cross-platform route selection, Angular implementation ownership, and manual-only alternate-browser governance.
 - 2.21.1 reuses one canonical route through the full task pipeline, adds process-count regression guards, and records measured routing latency reductions.
+- 2.21.2 replaces the broken pipe-separated mixed-direction route line with localized one-field-per-line output and removes obsolete forced isolation of ordinary English words.
 - 2.19.5 moves Codex runtime backups outside `CODEX_HOME`, makes the external location configurable, and rejects unsafe internal backup roots.
 - 2.19.4 hardens Codex activation and status integrity, truthful bootstrap/capability evidence, PowerShell 5.1 text handling, and full CI assurance.
 - 2.19.3 fixes release-consistency documentation parity so clean GitHub Actions checkouts pass the framework validation gate.
@@ -21,7 +22,7 @@ Current release: 2.21.1 (2026-07-31)
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.21.1.
+- Source validation and nested deterministic tests pass for 2.21.2.
 - The source checkout passes validation and reports `SOURCE_VALIDATED`; the managed runtime must be synchronized before it can claim `ACTIVE_RUNTIME`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 

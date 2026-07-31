@@ -18,7 +18,11 @@ Require-Term 'UEEF-LOADER.md' 'Never turn a T0/T1 request into an autonomous inv
 Require-Term 'framework/01-core/00-core-system.md' 'Do not turn T0/T1 work into an autonomous upgrade or inventory.'
 Require-Term 'framework/01-core/01-master-loader.md' 'mere mention of a browser'
 Require-Term 'UEEF-LOADER.md' 'Ask/Do mode'
-Require-Term 'UEEF-LOADER.md' 'Intent: <requested outcome> | Tier: <T0-T4>'
+Require-Term 'UEEF-LOADER.md' 'four-item localized list'
+Require-Term 'UEEF-LOADER.md' 'never join route fields with `|`'
+Require-Term 'UEEF-LOADER.md' 'never wrap the whole list in inline code'
+$loaderText = Get-Content -LiteralPath (Join-Path $root 'UEEF-LOADER.md') -Raw
+if ($loaderText -match 'Intent: <requested outcome> \| Tier: <T0-T4>') { throw 'The broken single-line mixed-direction route format is still active.' }
 Require-Term 'framework/01-core/01-master-loader.md' 'T0/T1 work uses only a focused relevant check'
 Require-Term 'examples/intent-fidelity-fixtures.md' 'Change this one validation message.'
 Require-Term 'examples/intent-fidelity-fixtures.md' 'Agent route: T1 | Agent: not spawned - NO_INDEPENDENT_WORK'

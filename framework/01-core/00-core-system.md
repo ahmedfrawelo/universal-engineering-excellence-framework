@@ -111,7 +111,7 @@ Select `framework/10-frontend/01-frontend-task-modes.md` for UI and frontend wor
 - Do not claim perfection, completion, passing gates, browser verification, release readiness, or runtime activation without direct current evidence.
 - If a task changes files, report the real changed scope and validation. If a requested item was not applicable, say why in concrete terms.
 - Keep user-facing status clear and short; do not expose internal retry noise, irrelevant logs, or speculative explanations as facts.
-- In Arabic or other RTL prose, every inline English word, identifier, product name, or short LTR phrase must be isolated for display readability. Never add hidden bidirectional control characters to code, commands, copyable paths, JSON/YAML, source files, configuration, or saved repository content.
+- In Arabic or other RTL prose, trust the renderer for ordinary mixed-language text. Use inline code only for real identifiers or commands; never wrap a full sentence or status block in inline code. Never add hidden bidirectional control characters to code, commands, copyable paths, JSON/YAML, source files, configuration, or saved repository content.
 
 ## Task Scope Discipline
 
@@ -127,7 +127,7 @@ Select `framework/10-frontend/01-frontend-task-modes.md` for UI and frontend wor
 
 - In Ask mode, resolve only material ambiguity: ask one concise question or disclose the smallest reversible assumption.
 - In Do mode, execute the clear requested outcome and direct verification only.
-- Before non-trivial execution, emit: `Intent: <requested outcome> | Tier: <T0-T4> | Spawn: <no/yes and reason> | Browser: <no/yes and reason>`.
+- Before non-trivial execution, emit a four-item localized route list. For Arabic responses use `المطلوب`, `المستوى`, `الوكلاء`, and `المتصفح`; translate them for other response languages. Keep one field per line, do not join fields with `|`, and do not wrap the entire list in inline code.
 
 ## Backend and SSR Performance Requirements
 

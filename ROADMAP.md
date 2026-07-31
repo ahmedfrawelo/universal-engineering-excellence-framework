@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.21.1
+## Current: 2.21.2
 
-UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.21.1 carries one canonical frontend-route result through classification, capability profiles, and quality gates instead of re-evaluating it, while retaining the reproducible 27-skill capability set and policy-safe browser boundaries. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.21.2 renders route rationale as a localized four-item list instead of a mixed-direction inline-code sentence, while retaining single-pass routing, the reproducible 27-skill capability set, and policy-safe browser boundaries. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 

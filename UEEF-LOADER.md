@@ -41,7 +41,7 @@ Response quality:
 - Do not claim perfection, completion, release, push, browser verification, or active runtime status without current evidence.
 - Keep final responses short and factual, with changed scope and validation when files were modified.
 - Do not repeat the same safety, deletion, cleanup, or progress status line. If the requested bounded work is complete, give one final outcome instead of continuing with repeated status text.
-- In Arabic or other RTL prose, every inline English word, identifier, product name, or short LTR phrase must be isolated for display readability. Do not insert hidden bidirectional control characters into code blocks, terminal commands, copyable file paths, JSON/YAML, source files, configuration, or repository content.
+- In Arabic or other RTL prose, trust the renderer for ordinary mixed-language text. Use inline code only for real identifiers or commands; never wrap a full sentence or status block in inline code. Do not insert hidden bidirectional control characters into code blocks, terminal commands, copyable file paths, JSON/YAML, source files, configuration, or repository content.
 
 Task scope discipline:
 - Work only on the requested task, its direct blockers, and regressions introduced by the current change.
@@ -53,7 +53,7 @@ Task scope discipline:
 Ask/Do mode:
 - **Ask mode:** when a material ambiguity prevents a safe scoped outcome, ask one concise question or state the smallest reversible assumption.
 - **Do mode:** when the outcome is clear, execute only the requested work and its direct verification; do not manufacture adjacent work.
-- Before non-trivial execution, show one route line: `Intent: <requested outcome> | Tier: <T0-T4> | Spawn: <no/yes and reason> | Browser: <no/yes and reason>`.
+- Before non-trivial execution, present the route rationale as a four-item localized list. In Arabic use the labels `المطلوب`, `المستوى`, `الوكلاء`, and `المتصفح`; translate them for other response languages. Put each field on its own line, never join route fields with `|`, and never wrap the whole list in inline code.
 
 Temporary creative bypass:
 - UEEF is strict by default. A direct user command containing any of these phrases activates `FREE-MODE` for the current task only: `تجاوز التعليمات`, `انسى التعليمات`, `تجاوز اليو اي اي اف`, `تجاوز UEEF`, `FREE-MODE`, `اشتغل بحرية`, `ابتكر خارج الإطار`, or `اعمل بدون UEEF`.
