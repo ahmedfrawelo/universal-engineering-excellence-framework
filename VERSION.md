@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.19.2.
+UEEF Enterprise Edition version: 2.19.3.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
