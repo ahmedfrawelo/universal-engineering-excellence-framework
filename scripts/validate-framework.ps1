@@ -73,8 +73,11 @@ $requiredAcceptance = @(
   "config/assurance-budgets.json",
   "config/capability-registry.json",
   "config/preferred-skills.json",
+  "config/preferred-capabilities.json",
   "scripts/install-preferred-skills.ps1",
   "scripts/install-preferred-skills.sh",
+  "scripts/reconcile-preferred-capabilities.ps1",
+  "scripts/test-preferred-capabilities.ps1",
   "scripts/test-preferred-skills.mjs",
   "examples/generic-ai/runtime-check-example.md",
   "framework/27-quality-gates/16-ueef-activation-gate.md",
@@ -442,6 +445,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
   & node (Join-Path $Root "scripts/test-preferred-skills.mjs") $Root | Out-Null
+  & (Join-Path $Root "scripts/test-preferred-capabilities.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-task-classification.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-frontend-routing.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null

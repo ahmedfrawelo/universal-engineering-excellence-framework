@@ -11,6 +11,8 @@ Detects available MCP servers and requires only task-relevant servers.
 
 - Recognize Chrome DevTools, Context7, Playwright, Figma, and Node REPL when exposed.
 - Inventory personal/system skills, plugin manifests, plugin-owned `SKILL.md` entrypoints, explicit plugin config, and remote-install markers separately. A cache manifest proves cached installation only. A valid remote-install marker proves installation and registration for that Codex home, but it does not prove enablement, connection health, session selection, or callability.
+- Treat `config/preferred-capabilities.json` as the unified preference contract. Its skills manifest is installable missing-only; runtime-managed MCPs and bundled plugins are repaired through the Codex runtime; remote plugins require explicit platform installation. Never route plugin or MCP payloads through the user-skill installer.
+- Run `scripts/reconcile-preferred-capabilities.ps1` for current state, or add `-Install` to install missing user skills while reporting non-skill actions without silently changing platform registration.
 - For Chrome tasks, require the installed Chrome plugin plus Node REPL browser-client path. Do not route to directly exposed Playwright, Chrome DevTools, or in-app-browser MCPs as substitutes.
 - Do not require every MCP for every task.
 - Classify every dependency as Mandatory, Recommended, or Optional.

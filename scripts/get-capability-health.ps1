@@ -45,6 +45,34 @@ if (Test-Path -LiteralPath $preferredPath -PathType Leaf) {
   }
 }
 
+# Preferred non-skill capabilities are declared separately because their
+# lifecycle belongs to the Codex runtime or plugin platform, not the user-skill
+# installer. Declaring them here makes missing favorites visible even when no
+# cache manifest or config entry exists yet.
+$preferredCapabilitiesPath = Join-Path (Split-Path -Parent $RegistryPath) 'preferred-capabilities.json'
+if (Test-Path -LiteralPath $preferredCapabilitiesPath -PathType Leaf) {
+  $preferredCapabilities = Get-Content -LiteralPath $preferredCapabilitiesPath -Raw | ConvertFrom-Json
+  if ($preferredCapabilities.schemaVersion -ne 1) { throw "Unsupported preferred capabilities schema: $($preferredCapabilities.schemaVersion)" }
+  foreach ($entry in @($preferredCapabilities.capabilities)) {
+    $key = "$($entry.type)|$($entry.id)"
+    if ($registry.ContainsKey($key)) { continue }
+    $registry[$key] = [pscustomobject]@{
+      type = [string]$entry.type
+      id = [string]$entry.id
+      required = $false
+      source = "Preferred capability managed by $($entry.management)"
+      versionOrPin = [string]$entry.management
+      fallback = [string]$entry.fallback
+      consumerPacks = @('50-environment-bootstrap','59-skill-invocation-protocol')
+      governance = [pscustomobject]@{
+        selection = [string]$entry.level
+        trigger = (@($entry.triggers) -join ', ')
+        policyRefs = @('config/preferred-capabilities.json')
+      }
+    }
+  }
+}
+
 function Add-Capability([string]$Type, [string]$Name, [bool]$Configured, [bool]$Installed, [Nullable[bool]]$Enabled, [string]$Callable, [string]$Detail) {
   $declaration = $registry["$Type|$Name"]
   $health = if (!$Configured) { 'NOT_CONFIGURED' } elseif (!$Installed) { 'MISSING_DEPENDENCY' } elseif ($null -eq $Enabled) { 'CONFIGURED_UNVERIFIED' } elseif (!$Enabled) { 'DISABLED' } elseif ($Callable -eq 'PASS') { 'CALLABLE' } else { 'CONFIGURED_UNVERIFIED' }

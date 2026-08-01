@@ -2,6 +2,8 @@
 
 Current release: 2.21.5 (2026-08-01)
 
+Unreleased work adds a unified preferred-capability manifest and reconciler for user skills, Codex plugins, and runtime-managed MCPs. It is validated locally but does not change the current release number until publication.
+
 ## Delivered baseline
 
 - 63 framework packs, transactional runtime installation, activation/drift checks, and Windows/Unix validation surfaces.

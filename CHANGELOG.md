@@ -4,6 +4,13 @@
 
 This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.5`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
 
+## Unreleased
+
+- Added a unified preferred-capability contract covering 27 user skills, 15 Codex plugins, and the runtime-managed Node REPL MCP.
+- Added missing-only reconciliation that installs user skills when requested while preserving platform-owned plugin and runtime-owned MCP lifecycles.
+- Made capability health declare missing preferred plugins and MCPs even when no cache or configuration evidence exists.
+- Wired explicit preferred-capability reconciliation into the Windows and Unix Codex installers and added regression coverage.
+
 ## 2.21.5 - 2026-08-01
 
 - Added Arabic intent signals to task classification, capability profiles, quality gates, and frontend routing without introducing Windows PowerShell 5.1 encoding hazards.

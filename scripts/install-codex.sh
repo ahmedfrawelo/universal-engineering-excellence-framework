@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -eu
-AGENT="codex"; FORCE=0; NO_BACKUP=0
+AGENT="codex"; FORCE=0; NO_BACKUP=0; INSTALL_PREFERRED=0
 while [ "$#" -gt 0 ]; do
-  case "$1" in --agent) AGENT="$2"; shift 2;; --force) FORCE=1; shift;; --no-backup) NO_BACKUP=1; shift;; *) AGENT="$1"; shift;; esac
+  case "$1" in --agent) AGENT="$2"; shift 2;; --force) FORCE=1; shift;; --no-backup) NO_BACKUP=1; shift;; --install-preferred-capabilities) INSTALL_PREFERRED=1; shift;; *) AGENT="$1"; shift;; esac
 done
 [ "$NO_BACKUP" = 0 ] || [ "$FORCE" = 1 ] || { echo "--no-backup requires --force" >&2; exit 1; }
 first=$(printf '%.1s' "$AGENT"); case "$first" in [A-Za-z0-9]) ;; *) echo "Unsafe agent name: $AGENT" >&2; exit 1;; esac
@@ -37,6 +37,13 @@ elif command -v powershell.exe >/dev/null 2>&1; then
 else
   echo "PowerShell is required for exact Codex installation because sync-runtime.ps1 writes AGENTS.md and UEEF-ACTIVE.json." >&2
   exit 1
+fi
+if [ "$INSTALL_PREFERRED" = 1 ]; then
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoProfile -File "$SOURCE_ROOT/scripts/reconcile-preferred-capabilities.ps1" -CodexHome "$CODEX_HOME" -Install
+  else
+    powershell.exe -NoProfile -File "$SOURCE_ROOT/scripts/reconcile-preferred-capabilities.ps1" -CodexHome "$CODEX_HOME" -Install
+  fi
 fi
 echo "UEEF Codex runtime installed exactly from repository source."
 echo "Runtime: $TARGET"

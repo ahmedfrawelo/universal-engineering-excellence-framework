@@ -22,6 +22,14 @@ The authoritative optional-skill set is `config/preferred-skills.json`. Install 
 
 Set `CODEX_HOME` when Codex uses a non-default location. On Unix, run `scripts/install-preferred-skills.sh`. Both installers are missing-only: they preserve existing skill directories and refuse to overwrite an incomplete directory. Skills remain trigger-selected; installation does not load the full design suite into every task.
 
+To reconcile skills, plugins, and MCPs as one preferred capability set, run:
+
+```powershell
+.\scripts\reconcile-preferred-capabilities.ps1 -Install
+```
+
+The reconciler installs only missing user skills. Bundled plugins and MCPs stay runtime-managed; remote plugins stay platform-managed and produce an explicit action when missing. For a new Codex installation, pass `-InstallPreferredCapabilities` to `scripts/install-codex.ps1`, or `--install-preferred-capabilities` to `scripts/install-codex.sh`.
+
 The old `codex-primary-runtime` folder is a runtime/plugin component rather than a user skill. The unprovenanced `codex-home-recovery` snapshot is retired in favor of transactional runtime rollback and external Codex recovery backups; both classifications are recorded in the preferred-skills manifest.
 
 On Windows, UEEF backups for the active Codex installation default to `%LOCALAPPDATA%\Codex-Recovery\UEEF-backups`, outside `CODEX_HOME`. Set `UEEF_BACKUP_ROOT` or pass `-BackupRoot` to use another external location. An internal path is rejected.

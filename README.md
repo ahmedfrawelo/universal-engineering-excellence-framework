@@ -62,7 +62,7 @@ Unix preflight verifies `SOURCE_VALIDATED` or `ACTIVE_RUNTIME` before authorizin
 
 ## Preferred skills
 
-`config/preferred-skills.json` is the source of truth for optional user-installed skills, their task triggers, pinned repositories, and install evidence. Run `scripts/install-preferred-skills.ps1` on Windows or `scripts/install-preferred-skills.sh` on Unix to install only missing entries. Runtime-managed system skills and plugin packages are deliberately excluded from user-skill installation.
+`config/preferred-skills.json` is the source of truth for optional user-installed skills, their task triggers, pinned repositories, and install evidence. `config/preferred-capabilities.json` adds the preferred Codex plugins and MCPs without pretending that they share the skill install lifecycle. Run `scripts/reconcile-preferred-capabilities.ps1 -Install` to install missing skills and report any platform-managed plugin or runtime-managed MCP action. Runtime-managed system skills and plugin packages are never downloaded through the user-skill installer.
 
 ## Quality Philosophy
 

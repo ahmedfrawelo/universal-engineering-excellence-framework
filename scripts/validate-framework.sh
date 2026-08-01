@@ -28,8 +28,11 @@ done
 [ -f "$ROOT/config/assurance-budgets.json" ] || { echo "Missing assurance budget configuration" >&2; exit 1; }
 [ -f "$ROOT/config/capability-registry.json" ] || { echo "Missing capability registry" >&2; exit 1; }
 [ -f "$ROOT/config/preferred-skills.json" ] || { echo "Missing preferred skills manifest" >&2; exit 1; }
+[ -f "$ROOT/config/preferred-capabilities.json" ] || { echo "Missing preferred capabilities manifest" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-preferred-skills.ps1" ] || { echo "Missing Windows preferred skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-preferred-skills.sh" ] || { echo "Missing Unix preferred skills installer" >&2; exit 1; }
+[ -f "$ROOT/scripts/reconcile-preferred-capabilities.ps1" ] || { echo "Missing preferred capabilities reconciler" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-preferred-capabilities.ps1" ] || { echo "Missing preferred capabilities tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-module-specificity.mjs" ] || { echo "Missing module specificity tests" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/13-autonomy-and-confirmation-policy.md" ] || { echo "Missing autonomy policy" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/14-delivery-continuation-policy.md" ] || { echo "Missing delivery continuation policy" >&2; exit 1; }
@@ -400,6 +403,9 @@ if [ "$SKIP_NESTED_TESTS" = 0 ]; then
   sh "$ROOT/scripts/test-ueef-status.sh" >/dev/null || { echo "Unix source-status tests failed" >&2; exit 1; }
   node "$ROOT/scripts/test-module-specificity.mjs" "$ROOT" >/dev/null || { echo "Module specificity tests failed" >&2; exit 1; }
   node "$ROOT/scripts/test-preferred-skills.mjs" "$ROOT" >/dev/null || { echo "Preferred skills tests failed" >&2; exit 1; }
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoProfile -File "$ROOT/scripts/test-preferred-capabilities.ps1" >/dev/null || { echo "Preferred capabilities tests failed" >&2; exit 1; }
+  fi
   "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
   "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
   sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null || { echo "Unix release consistency tests failed" >&2; exit 1; }

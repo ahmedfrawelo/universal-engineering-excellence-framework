@@ -4,7 +4,8 @@ param(
   [string]$BackupRoot = '',
   [switch]$Force,
   [switch]$NoBackup,
-  [switch]$SkipAutoUpdate
+  [switch]$SkipAutoUpdate,
+  [switch]$InstallPreferredCapabilities
 )
 $ErrorActionPreference = "Stop"
 if ([string]::IsNullOrWhiteSpace($CodexHome)) {
@@ -41,6 +42,9 @@ if (Test-Path -LiteralPath $Target) {
   }
 }
 & (Join-Path $SourceRoot "scripts\sync-runtime.ps1") -SourcePath $SourceRoot -CodexHome $resolvedCodexHome -Agent $Agent -BackupRoot $BackupRoot
+if ($InstallPreferredCapabilities) {
+  & (Join-Path $SourceRoot 'scripts\reconcile-preferred-capabilities.ps1') -CodexHome $resolvedCodexHome -Install
+}
 if (!$SkipAutoUpdate) { & (Join-Path $SourceRoot "scripts\enable-auto-update.ps1") -CodexHome $resolvedCodexHome -Agent $Agent }
 Write-Host "UEEF Codex runtime installed exactly from repository source."
 Write-Host "Runtime: $Target"

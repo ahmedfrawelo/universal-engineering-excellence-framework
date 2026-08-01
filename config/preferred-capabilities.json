@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "skillsManifest": "config/preferred-skills.json",
+    "reconciliation": "missing-only",
+    "skillsInstallation": "automatic-when-requested",
+    "pluginInstallation": "platform-managed-explicit",
+    "mcpInstallation": "runtime-managed",
+    "reconciler": "scripts/reconcile-preferred-capabilities.ps1"
+  },
+  "capabilities": [
+    {
+      "type": "mcp",
+      "id": "node_repl",
+      "level": "conditional",
+      "profiles": ["AI", "Optional"],
+      "triggers": ["JavaScript runtime bridge", "explicit browser control"],
+      "management": "runtime-managed",
+      "configKey": "mcp_servers.node_repl",
+      "fallback": "Use task-appropriate non-MCP tools and repair or update the Codex runtime before an MCP-dependent task."
+    },
+    {
+      "type": "plugin",
+      "id": "chrome@openai-bundled",
+      "level": "conditional",
+      "profiles": ["Frontend", "Optional"],
+      "triggers": ["explicit user-owned Chrome control"],
+      "management": "runtime-managed",
+      "fallback": "Stop browser work when the required user-owned Chrome control surface is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "browser@openai-bundled",
+      "level": "conditional",
+      "profiles": ["Frontend", "Optional"],
+      "triggers": ["explicit in-app browser task"],
+      "management": "runtime-managed",
+      "fallback": "Continue with non-browser verification unless the task explicitly requires this browser surface."
+    },
+    {
+      "type": "plugin",
+      "id": "computer-use@openai-bundled",
+      "level": "conditional",
+      "profiles": ["Optional"],
+      "triggers": ["explicit Windows application control"],
+      "management": "runtime-managed",
+      "fallback": "Use direct application or filesystem tooling when visible computer control is not required."
+    },
+    {
+      "type": "plugin",
+      "id": "visualize@openai-bundled",
+      "level": "recommended",
+      "profiles": ["Core", "UIUX"],
+      "triggers": ["interactive visualization", "complex relationship diagram"],
+      "management": "runtime-managed",
+      "fallback": "Use concise Markdown, Mermaid, or a static artifact when interactive visualization is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "sites@openai-bundled",
+      "level": "conditional",
+      "profiles": ["Frontend"],
+      "triggers": ["build or host a website through Sites"],
+      "management": "runtime-managed",
+      "fallback": "Build locally and report that Sites publishing is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "documents@openai-primary-runtime",
+      "level": "conditional",
+      "profiles": ["Optional"],
+      "triggers": ["Word document", "DOCX"],
+      "management": "runtime-managed",
+      "fallback": "Use plain Markdown or source text when document artifact tooling is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "pdf@openai-primary-runtime",
+      "level": "conditional",
+      "profiles": ["Optional"],
+      "triggers": ["read, create, or verify PDF"],
+      "management": "runtime-managed",
+      "fallback": "Use extracted text and report that visual PDF verification is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "spreadsheets@openai-primary-runtime",
+      "level": "conditional",
+      "profiles": ["Optional", "Database"],
+      "triggers": ["spreadsheet", "Excel", "CSV workbook"],
+      "management": "runtime-managed",
+      "fallback": "Use validated CSV or tabular text when workbook tooling is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "presentations@openai-primary-runtime",
+      "level": "conditional",
+      "profiles": ["Optional", "UIUX"],
+      "triggers": ["presentation", "PowerPoint", "slide deck"],
+      "management": "runtime-managed",
+      "fallback": "Provide a structured slide outline when presentation artifact tooling is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "template-creator@openai-primary-runtime",
+      "level": "conditional",
+      "profiles": ["Optional"],
+      "triggers": ["reusable Codex artifact template"],
+      "management": "runtime-managed",
+      "fallback": "Create the requested artifact directly without registering a reusable template."
+    },
+    {
+      "type": "plugin",
+      "id": "github@openai-curated-remote",
+      "level": "recommended",
+      "profiles": ["Core", "DevOps"],
+      "triggers": ["GitHub repository", "pull request", "issue", "CI"],
+      "management": "platform-managed-explicit",
+      "pluginId": "github",
+      "fallback": "Use local Git and GitHub CLI when the connected GitHub plugin is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "figma@openai-curated-remote",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["Figma file", "design-to-code", "Figma library"],
+      "management": "platform-managed-explicit",
+      "pluginId": "figma",
+      "fallback": "Use supplied screenshots and repository design evidence when Figma is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "google-drive@openai-curated-remote",
+      "level": "conditional",
+      "profiles": ["Optional"],
+      "triggers": ["Google Drive", "Google Docs", "Google Sheets", "Google Slides"],
+      "management": "platform-managed-explicit",
+      "pluginId": "google-drive",
+      "fallback": "Use local attached files when connected Google Drive access is unavailable."
+    },
+    {
+      "type": "plugin",
+      "id": "data-analytics@openai-curated-remote",
+      "level": "conditional",
+      "profiles": ["Database", "Optional"],
+      "triggers": ["data analysis", "KPI", "dashboard", "analytical report"],
+      "management": "platform-managed-explicit",
+      "pluginId": "data-analytics",
+      "fallback": "Use local reproducible scripts and clearly report unavailable publishing integrations."
+    },
+    {
+      "type": "plugin",
+      "id": "openai-templates@openai-curated-remote",
+      "level": "optional",
+      "profiles": ["Optional"],
+      "triggers": ["OpenAI managed template"],
+      "management": "platform-managed-explicit",
+      "pluginId": "openai-templates",
+      "fallback": "Use the local template creator or a task-specific artifact."
+    }
+  ]
+}
