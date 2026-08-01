@@ -12,6 +12,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - The final report distinguishes verified facts from assumptions and limitations.
 - The final report answers the user's direct question first and does not bury the outcome behind internal process detail.
 - Completion, perfection, release, browser verification, push, and runtime activation claims are backed by current evidence.
+- `scripts/validate-completion-audit.ps1` passes an artifact covering every explicit requirement; `remainingWork` and `knownProblems` are empty.
 
 ## Failure Conditions
 - A terminal final response while `GoalStatus` is `ACTIVE`, unless the user explicitly requested status-only reporting.
@@ -19,6 +20,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - `GoalStatus: BLOCKED` for an internal implementation failure or while meaningful local work remains.
 - Empty files, placeholders, shallow outlines, or TODO-only artifacts.
 - Claims of completion without validation evidence.
+- A `COMPLETE` transition without a passing completion-audit artifact, or with any known problem or required work still recorded.
 - Overstated final wording such as "perfect", "100%", "fully verified", or "released" without evidence for every explicit requirement.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
 - Duplicated implementation paths where a shared local pattern already exists.

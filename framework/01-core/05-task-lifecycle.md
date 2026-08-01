@@ -24,7 +24,7 @@ This module defines when a task starts, continues, completes, or becomes blocked
 2. Inspect the affected owner, constraints, and validation surfaces.
 3. Plan dependent work in order; keep only one dependent step in progress.
 4. Implement and verify each slice, updating the plan from actual evidence.
-5. Run a completion audit that maps every acceptance criterion to a result.
+5. Generate a completion-audit artifact from `framework/38-templates/completion-audit-template.json`, map every explicit requirement to acceptance criteria and current evidence, and validate it with `scripts/validate-completion-audit.ps1`.
 
 ## Continuation Rules
 
@@ -38,6 +38,7 @@ This module defines when a task starts, continues, completes, or becomes blocked
 - Current plan states and the acceptance criterion owned by each step.
 - Focused test or inspection evidence for every changed behavior.
 - Final gate results, skipped-check reasons, residual risks, and owners.
+- A passing completion audit with no remaining work or known problems. Build success, test success, code presence, or a summary-only claim cannot substitute for requirement-level evidence.
 
 ## Invalid Completion
 

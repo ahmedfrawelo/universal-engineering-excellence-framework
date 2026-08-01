@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 set -eu
-status=ACTIVE; terminal=false; status_only=false; external=false; no_work=false; state_change=false; outcome=false; remaining=false; gates=false; verified=false; browser_required=false; browser_passed=false; visual_required=false; visual_passed=false; thread_degraded=false; handoff=false; handoff_current=false; chrome_unavailable=false; restart_requested=false; pending_screenshot=false; user_facing_status=''
+status=ACTIVE; terminal=false; status_only=false; external=false; no_work=false; state_change=false; outcome=false; remaining=false; gates=false; verified=false; browser_required=false; browser_passed=false; visual_required=false; visual_passed=false; thread_degraded=false; handoff=false; handoff_current=false; chrome_unavailable=false; restart_requested=false; pending_screenshot=false; user_facing_status=''; completion_audit=''
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --goal-status) status=$2; shift 2 ;;
@@ -24,15 +24,17 @@ while [ "$#" -gt 0 ]; do
     --user-restart-chrome-requested) restart_requested=true; shift ;;
     --pending-screenshot-evidence) pending_screenshot=true; shift ;;
     --user-facing-status) user_facing_status=$2; shift 2 ;;
+    --completion-audit) completion_audit=$2; shift 2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
 done
-blocked=false; complete=false; allowed=false; browser_allowed=false; visual_allowed=false; handoff_allowed=false
+blocked=false; complete=false; allowed=false; browser_allowed=false; visual_allowed=false; handoff_allowed=false; completion_audit_passed=false
+if [ -n "$completion_audit" ] && [ -f "$completion_audit" ] && grep -Eq '"conclusion"[[:space:]]*:[[:space:]]*"COMPLETE"' "$completion_audit" && grep -Eq '"remainingWork"[[:space:]]*:[[:space:]]*\[\]' "$completion_audit" && grep -Eq '"knownProblems"[[:space:]]*:[[:space:]]*\[\]' "$completion_audit"; then completion_audit_passed=true; fi
 [ "$handoff" = true ] && [ "$handoff_current" = true ] && handoff_allowed=true
 { [ "$browser_required" = false ] || [ "$browser_passed" = true ] || [ "$handoff_allowed" = true ]; } && browser_allowed=true
 { [ "$visual_required" = false ] || [ "$visual_passed" = true ] || [ "$handoff_allowed" = true ]; } && visual_allowed=true
 [ "$status" = BLOCKED ] && [ "$external" = true ] && [ "$no_work" = true ] && [ "$state_change" = true ] && blocked=true
-[ "$status" = COMPLETE ] && [ "$outcome" = true ] && [ "$remaining" = false ] && [ "$gates" = true ] && [ "$verified" = true ] && [ "$browser_allowed" = true ] && [ "$visual_allowed" = true ] && complete=true
+[ "$status" = COMPLETE ] && [ "$outcome" = true ] && [ "$remaining" = false ] && [ "$gates" = true ] && [ "$verified" = true ] && [ "$completion_audit_passed" = true ] && [ "$browser_allowed" = true ] && [ "$visual_allowed" = true ] && complete=true
 if [ "$status_only" = true ] || [ "$blocked" = true ] || [ "$complete" = true ]; then allowed=true; fi
 [ "$status" != BLOCKED ] || [ "$blocked" = true ] || { echo 'Invalid BLOCKED transition.' >&2; exit 1; }
 [ "$status" != BLOCKED ] || [ "$browser_required" = false ] || [ "$chrome_unavailable" = true ] || { echo 'Browser verification requirement is not a valid BLOCKED transition without independent Chrome unavailability evidence.' >&2; exit 1; }

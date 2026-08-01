@@ -20,7 +20,11 @@ An expanded request is not a reason to pause implementation. When the user expli
 
 Compile failures, test failures, API/facade/schema mismatches, save-contract bugs, incomplete wiring, regressions, unsuccessful patches, pending screenshots, pCloud screenshot delays, and task-local Chrome control degradation never satisfy `repeated_external_condition`.
 
-`FINAL_ALLOWED = requested_outcome_complete OR user_requested_status_only OR GoalStatus_COMPLETE OR BLOCKED_ALLOWED`
+`COMPLETE_ALLOWED = requested_outcome_complete AND no_required_work_remaining AND gates_pass AND verification_recorded AND completion_audit_passed`
+
+`FINAL_ALLOWED = user_requested_status_only OR COMPLETE_ALLOWED OR BLOCKED_ALLOWED`
+
+`completion_audit_passed` requires every explicit request item to link to one or more passing acceptance criteria with current evidence, while `remainingWork` and `knownProblems` are empty. Self-declared completion, a green build, or a broad test suite alone cannot satisfy it.
 
 ## Stop When Done
 

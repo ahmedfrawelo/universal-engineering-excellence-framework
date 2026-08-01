@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "taskId": "replace-me",
+  "auditedAt": "replace-me",
+  "requestedOutcome": "replace-me",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "replace-me",
+      "status": "PENDING",
+      "acceptanceCriteria": ["AC-1"]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1",
+      "text": "replace-me",
+      "status": "PENDING",
+      "evidence": [
+        {
+          "kind": "replace-me",
+          "source": "replace-me",
+          "result": "PENDING",
+          "observedAt": "replace-me"
+        }
+      ]
+    }
+  ],
+  "remainingWork": [],
+  "knownProblems": [],
+  "limitations": [],
+  "conclusion": "INCOMPLETE"
+}

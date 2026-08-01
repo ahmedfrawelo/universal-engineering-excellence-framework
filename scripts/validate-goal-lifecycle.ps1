@@ -24,16 +24,23 @@ param(
   [switch]$ProgressHasNewEvidence,
   [switch]$ProgressHasCurrentAction,
   [switch]$ProgressHasNextGate,
+  [string]$CompletionAuditPath = '',
   [ValidateSet('discovery','planning','implementation','validation','release','complete','unknown')][string]$ProgressPhase = 'unknown',
   [string]$UserFacingStatus
 )
 $ErrorActionPreference = 'Stop'
 
+$completionAuditPassed = $false
+if ($GoalStatus -eq 'COMPLETE' -and ![string]::IsNullOrWhiteSpace($CompletionAuditPath)) {
+  & (Join-Path $PSScriptRoot 'validate-completion-audit.ps1') -Path $CompletionAuditPath | Out-Null
+  $completionAuditPassed = $true
+}
+
 $blockedAllowed = $GoalStatus -eq 'BLOCKED' -and $BlockerExternalOrUserOnly -and $NoMeaningfulLocalWorkRemaining -and $ExternalStateChangeRequired
 $handoffAllowed = $VerifiedBrowserEvidenceHandoff -and $HandoffMatchesCurrentCodeState
 $browserAllowed = !$BrowserVerificationRequired -or $BrowserVerificationPassed -or $handoffAllowed
 $visualAllowed = !$VisualVerificationRequired -or $VisualVerificationPassed -or $handoffAllowed
-$completeAllowed = $GoalStatus -eq 'COMPLETE' -and $RequestedOutcomeSatisfied -and !$RequiredWorkRemaining -and $GatesPassOrAccepted -and $VerificationRecorded -and $browserAllowed -and $visualAllowed
+$completeAllowed = $GoalStatus -eq 'COMPLETE' -and $RequestedOutcomeSatisfied -and !$RequiredWorkRemaining -and $GatesPassOrAccepted -and $VerificationRecorded -and $completionAuditPassed -and $browserAllowed -and $visualAllowed
 $terminalAllowed = $StatusOnly -or $completeAllowed -or $blockedAllowed
 
 if ($GoalStatus -eq 'BLOCKED' -and !$blockedAllowed) { throw 'Invalid BLOCKED transition.' }
@@ -54,4 +61,4 @@ if ($ProgressUpdate -and (!$ProgressHasNewEvidence -or !$ProgressHasCurrentActio
 if ($GoalStatus -eq 'COMPLETE' -and !$completeAllowed) { throw 'Invalid COMPLETE transition.' }
 if ($TerminalFinal -and !$terminalAllowed) { throw 'Terminal final response is forbidden for this goal state.' }
 
-[pscustomobject]@{ GoalStatus=$GoalStatus; TerminalFinalAllowed=$terminalAllowed; BlockedAllowed=$blockedAllowed; CompleteAllowed=$completeAllowed; BrowserVerificationAllowed=$browserAllowed; VisualVerificationAllowed=$visualAllowed; EvidenceHandoffAllowed=$handoffAllowed; ProgressPercent=$ProgressPercent; ProgressPhase=$ProgressPhase; ProgressUpdate=$ProgressUpdate.IsPresent }
+[pscustomobject]@{ GoalStatus=$GoalStatus; TerminalFinalAllowed=$terminalAllowed; BlockedAllowed=$blockedAllowed; CompleteAllowed=$completeAllowed; CompletionAuditPassed=$completionAuditPassed; BrowserVerificationAllowed=$browserAllowed; VisualVerificationAllowed=$visualAllowed; EvidenceHandoffAllowed=$handoffAllowed; ProgressPercent=$ProgressPercent; ProgressPhase=$ProgressPhase; ProgressUpdate=$ProgressUpdate.IsPresent }

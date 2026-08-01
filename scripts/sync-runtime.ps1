@@ -195,6 +195,7 @@ Write-Utf8File $stagingLoader @(
   "Response quality:",
   "- Answer the user's direct question first, then give concise evidence.",
   "- Do not claim perfection, completion, release, push, browser verification, or active runtime status without current evidence.",
+  "- Before COMPLETE or 100 percent, validate a completion-audit artifact with scripts/validate-completion-audit.ps1; every explicit requirement needs passing acceptance evidence, with no remaining work or known problems. Build/test success alone is insufficient.",
   "- Keep final responses short and factual, with changed scope and validation when files were modified.",
   "- Do not repeat the same safety, deletion, cleanup, or progress status line. If the requested bounded work is complete, give one final outcome instead of continuing with repeated status text.",
   "- In Arabic or other RTL prose, trust the renderer for ordinary mixed-language text. Use inline code only for real identifiers or commands; never wrap a full sentence or status block in inline code. Do not insert hidden bidirectional control characters into code blocks, terminal commands, copyable file paths, JSON/YAML, source files, configuration, or repository content.",

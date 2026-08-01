@@ -378,6 +378,8 @@ grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-f
 [ -f "$ROOT/scripts/test-skeleton-loading-contract.sh" ] || { echo "Missing Unix skeleton loading contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-delivery-continuation-contract.ps1" ] || { echo "Missing delivery continuation contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle validator" >&2; exit 1; }
+[ -f "$ROOT/scripts/validate-completion-audit.ps1" ] || { echo "Missing completion audit validator" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-completion-audit.ps1" ] || { echo "Missing completion audit tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle tests" >&2; exit 1; }

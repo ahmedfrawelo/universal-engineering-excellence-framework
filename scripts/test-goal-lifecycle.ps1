@@ -1,5 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $validator = Join-Path $PSScriptRoot 'validate-goal-lifecycle.ps1'
+$auditPath=Join-Path ([IO.Path]::GetTempPath()) ('ueef-goal-audit-'+[guid]::NewGuid().ToString('N')+'.json')
+$now=[datetimeoffset]::Now.ToString('o')
+[ordered]@{schemaVersion=1;taskId='goal-fixture';auditedAt=$now;requestedOutcome='Fixture outcome';requirements=@([ordered]@{id='REQ-1';text='Fixture requirement';status='PASS';acceptanceCriteria=@('AC-1')});acceptanceCriteria=@([ordered]@{id='AC-1';text='Fixture behavior verified';status='PASS';evidence=@([ordered]@{kind='test';source='test-goal-lifecycle';result='PASS';observedAt=$now})});remainingWork=@();knownProblems=@();limitations=@();conclusion='COMPLETE'}|ConvertTo-Json -Depth 8|Set-Content $auditPath -Encoding utf8
 function Assert-Rejected([hashtable]$Arguments) {
   $rejected = $false
   try { & $validator @Arguments | Out-Null } catch { $rejected = $true }
@@ -30,10 +33,10 @@ Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=50;Pr
 & $validator -GoalStatus ACTIVE -ProgressUpdate -ProgressPercent 25 -ProgressPhase planning -ProgressHasNewEvidence -ProgressHasCurrentAction -ProgressHasNextGate | Out-Null
 & $validator -GoalStatus ACTIVE -ProgressUpdate -ProgressPercent 75 -ProgressPhase implementation -ProgressHasNewEvidence -ProgressHasCurrentAction -ProgressHasNextGate | Out-Null
 & $validator -GoalStatus ACTIVE -ProgressUpdate -ProgressPercent 95 -ProgressPhase validation -ProgressHasNewEvidence -ProgressHasCurrentAction -ProgressHasNextGate | Out-Null
-& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded | Out-Null
-& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -ProgressPercent 100 -ProgressPhase complete | Out-Null
-& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -BrowserVerificationRequired -BrowserVerificationPassed -VisualVerificationRequired -VisualVerificationPassed | Out-Null
-& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -BrowserVerificationRequired -VisualVerificationRequired -VerifiedBrowserEvidenceHandoff -HandoffMatchesCurrentCodeState -ThreadControlChannelDegraded | Out-Null
+& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -CompletionAuditPath $auditPath | Out-Null
+& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -CompletionAuditPath $auditPath -ProgressPercent 100 -ProgressPhase complete | Out-Null
+& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -CompletionAuditPath $auditPath -BrowserVerificationRequired -BrowserVerificationPassed -VisualVerificationRequired -VisualVerificationPassed | Out-Null
+& $validator -GoalStatus COMPLETE -TerminalFinal -RequestedOutcomeSatisfied -GatesPassOrAccepted -VerificationRecorded -CompletionAuditPath $auditPath -BrowserVerificationRequired -VisualVerificationRequired -VerifiedBrowserEvidenceHandoff -HandoffMatchesCurrentCodeState -ThreadControlChannelDegraded | Out-Null
 & $validator -GoalStatus ACTIVE -ThreadControlChannelDegraded -UserFacingStatus 'Browser verification is being completed on your existing tab; implementation continues.' | Out-Null
 $pendingVisual = & $validator -GoalStatus ACTIVE -PendingScreenshotEvidence
 if ($pendingVisual.GoalStatus -ne 'ACTIVE' -or $pendingVisual.BlockedAllowed) {
@@ -42,3 +45,4 @@ if ($pendingVisual.GoalStatus -ne 'ACTIVE' -or $pendingVisual.BlockedAllowed) {
 & $validator -GoalStatus BLOCKED -TerminalFinal -BlockerExternalOrUserOnly -NoMeaningfulLocalWorkRemaining -ExternalStateChangeRequired | Out-Null
 & $validator -GoalStatus BLOCKED -TerminalFinal -BlockerExternalOrUserOnly -NoMeaningfulLocalWorkRemaining -ExternalStateChangeRequired -BrowserVerificationRequired -ChromeExternallyUnavailable | Out-Null
 Write-Host 'Goal lifecycle tests passed'
+Remove-Item -LiteralPath $auditPath -Force
