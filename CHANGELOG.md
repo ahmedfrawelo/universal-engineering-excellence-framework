@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.4`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.5`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.21.5 - 2026-08-01
+
+- Added Arabic intent signals to task classification, capability profiles, quality gates, and frontend routing without introducing Windows PowerShell 5.1 encoding hazards.
+- Prevented broad Arabic repair requests from falling through to read-only `T0` routes and added Arabic frontend and explanation regression coverage.
+- Added capability diagnostics for plugin prompt limits and skill icon paths that Codex partially rejects.
+- Added a non-interactive GitHub release-credential readiness check that accepts `gh`, environment tokens, or Git Credential Manager without printing secrets.
 
 ## 2.21.4 - 2026-07-31
 

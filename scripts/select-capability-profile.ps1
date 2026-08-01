@@ -13,7 +13,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $inputParameters = @{} + $PSBoundParameters
-$text = $Task.ToLowerInvariant()
+. (Join-Path $PSScriptRoot 'task-language-signals.ps1')
+$text = ConvertTo-UeefTaskSignalText $Task
 if ($FrontendRoute -and ([string]$FrontendRoute.task -ne $Task -or [int]$FrontendRoute.schemaVersion -lt 1)) { throw 'Supplied frontend route does not belong to this task or has an invalid schema.' }
 $skills = [Collections.Generic.List[string]]::new()
 $mcps = [Collections.Generic.List[string]]::new()
@@ -50,7 +51,7 @@ $isUi = [bool]($FrontendRoute -and $FrontendRoute.applies)
 $isSecurity = $Risk -in @('high','critical') -or $text -match '\b(security|auth|payment|privacy|production|migration|destructive)\b'
 $isAmbiguous = $text -match '\b(ambiguous|unclear|brainstorm|explore|idea|requirements|acceptance criteria)\b'
 $isDebugging = $text -match '\b(bug|debug|regression|failure|broken|error|fix)\b'
-$isCodeChange = $text -match '\b(build|implement|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release)\b'
+$isCodeChange = $text -match '\b(build|implement|install|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release)\b'
 
 # Explicit route signals refine their own dimensions; they do not erase
 # unrelated semantics inferred from the task text.

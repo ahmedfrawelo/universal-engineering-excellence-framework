@@ -8,7 +8,8 @@ param(
   [switch]$Json
 )
 $ErrorActionPreference = "Stop"
-$text = $Task.ToLowerInvariant()
+. (Join-Path $PSScriptRoot 'task-language-signals.ps1')
+$text = ConvertTo-UeefTaskSignalText $Task
 $modules = New-Object System.Collections.Generic.List[string]
 $gates = New-Object System.Collections.Generic.List[string]
 $skillRoutes = New-Object System.Collections.Generic.List[string]

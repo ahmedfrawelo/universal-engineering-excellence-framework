@@ -18,7 +18,28 @@ if (!['Auto', 'Quick', 'Build', 'Audit'].includes(override) || !['Auto', 'Implem
   process.exit(2);
 }
 
-const text = task.toLowerCase();
+const augmentArabicSignals = (input) => {
+  const signals = [];
+  const add = (pattern, value) => { if (pattern.test(input)) signals.push(value); };
+  add(/[اأ]صلح|عدل|غير|حدث|حسن|طور/, 'fix update change improve');
+  add(/نفذ|طبق/, 'implement');
+  add(/[اأ]ضف|ضيف/, 'add');
+  add(/[اأ]حذف|[اأ]مسح/, 'remove delete');
+  add(/ثبت/, 'install');
+  add(/[اأ]عمل|[اأ]بني|[اأ]نشئ/, 'build create new');
+  add(/[اأ]فحص|راجع|دقق|حلل|[اأ]ختبر|ت[اأ]كد|ات[اأ]كد|شوف|شخص/, 'audit review inspect verify diagnose test');
+  add(/كل حاج[ةه]|كل شي[ءئ]|بالكامل|شامل|حرفي[اً]|من ال[اأ]ول لل[اآ]خر/, 'system-wide entire project all issues');
+  add(/واجهة المستخدم|الواجه[ةه]|فرونت|فورنت|صفح[ةه]|شاش[ةه]|مكون/, 'ui frontend page screen component');
+  add(/(?:ال)?قائم[ةه] (?:ال)?منسدل[ةه]/, 'dropdown');
+  add(/جدول/, 'table');
+  add(/تصميم/, 'design');
+  add(/[اأ]لوان/, 'palette');
+  add(/متصفح|كروم|تبويب|موقع|لقط[ةه] شاش[ةه]/, 'browser chrome tab website screenshot');
+  add(/مشكل[ةه]|خط[أا]|عطل|مكسور|مختل|بط[ءي]|كفا[ءئ][ةه]|فشل|بيكرر/, 'bug broken error slow performance failure debugging');
+  add(/سريع|[اأ]داء|تحسين/, 'performance optimize');
+  return signals.length ? `${input} ${signals.join(' ')}` : input;
+};
+const text = augmentArabicSignals(task.toLowerCase());
 const has = (pattern) => pattern.test(text);
 const unique = (items) => [...new Set(items)];
 const signals = {

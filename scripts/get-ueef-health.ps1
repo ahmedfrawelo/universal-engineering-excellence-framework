@@ -38,6 +38,7 @@ if ($runtime.mode -eq 'source-checkout' -and $runtime.overall -eq 'SOURCE_VALIDA
 foreach ($capability in $capabilities) {
   if ($capability.required -and $capability.health -in @('MISSING_DEPENDENCY','DISABLED','NOT_CONFIGURED')) { $diagnostics.Add([pscustomobject]@{id="required-$($capability.type)-$($capability.name)";severity='ERROR';status=$capability.health;source='capability-doctor';detail=$capability.detail;action=$capability.fallback}) }
   elseif (!$capability.required -and $capability.health -in @('MISSING_DEPENDENCY','DISABLED','NOT_CONFIGURED')) { $diagnostics.Add([pscustomobject]@{id="optional-$($capability.type)-$($capability.name)";severity='WARN';status=$capability.health;source='capability-doctor';detail=$capability.detail;action=$capability.fallback}) }
+  elseif ($capability.health -eq 'DEGRADED') { $diagnostics.Add([pscustomobject]@{id="degraded-$($capability.type)-$($capability.name)";severity=if($capability.required){'ERROR'}else{'WARN'};status=$capability.health;source='capability-doctor';detail=$capability.detail;action='Repair or update the installed capability manifest, then rerun capability health.'}) }
 }
 $overall = if ($diagnostics.severity -contains 'ERROR') { 'FAIL' } elseif ($diagnostics.severity -contains 'WARN') { 'DEGRADED' } else { 'PASS' }
 $counts = @{}

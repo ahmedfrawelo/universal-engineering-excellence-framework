@@ -45,4 +45,21 @@ if ($critical.route.tier -ne 'T4' -or $critical.values.riskFloor -notin @('Produ
   throw 'Critical production migration was not elevated to T4 with a risk floor.'
 }
 
+$arabicBroadRepair = Get-Classification ([regex]::Unescape('\u0627\u0641\u062d\u0635 \u0643\u0644 \u062d\u0627\u062c\u0629 \u062d\u0631\u0641\u064a\u0627 \u0648\u0627\u0635\u0644\u062d \u0623\u064a \u062c\u0632\u0621 \u0645\u062e\u062a\u0644 \u064a\u062c\u0639\u0644 \u0643\u0648\u062f\u0643\u0633 \u064a\u0639\u0645\u0644 \u0628\u062f\u0648\u0646 \u0643\u0641\u0627\u0621\u0629'))
+if (!$arabicBroadRepair.values.codeChange -or $arabicBroadRepair.route.tier -notin @('T3','T4') -or $arabicBroadRepair.values.taskTags -notcontains 'debugging') {
+  throw 'Arabic broad repair intent was not elevated to a deep change-oriented route.'
+}
+$arabicFrontend = Get-Classification ([regex]::Unescape('\u0631\u0627\u062c\u0639 \u0648\u0627\u062c\u0647\u0629 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u0648\u0623\u0635\u0644\u062d \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0645\u0646\u0633\u062f\u0644\u0629'))
+if (!$arabicFrontend.values.codeChange -or $arabicFrontend.values.taskTags -notcontains 'ui' -or !$arabicFrontend.frontendRoute.applies -or $arabicFrontend.frontendRoute.skills -notcontains 'frontend-ui-engineering') {
+  throw 'Arabic frontend repair intent did not select the canonical frontend route.'
+}
+$arabicExplanation = Get-Classification ([regex]::Unescape('\u0627\u0634\u0631\u062d \u0644\u064a \u0627\u0644\u0646\u0638\u0627\u0645 \u0641\u0642\u0637'))
+if ($arabicExplanation.route.tier -ne 'T0' -or $arabicExplanation.values.codeChange) {
+  throw 'Arabic explanation must remain T0 and read-only.'
+}
+$arabicInstall = Get-Classification ([regex]::Unescape('\u062b\u0628\u062a \u0627\u0644\u0623\u062f\u0627\u0629 \u0627\u0644\u0645\u0637\u0644\u0648\u0628\u0629'))
+if (!$arabicInstall.values.codeChange -or $arabicInstall.route.tier -eq 'T0') { throw 'Arabic install intent must be classified as a change.' }
+$arabicDestructive = Get-Classification ([regex]::Unescape('\u0627\u062d\u0630\u0641 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0646\u0647\u0627\u0626\u064a\u0627 \u0628\u062f\u0648\u0646 \u0631\u062c\u0639\u0629'))
+if ($arabicDestructive.values.riskFloor -ne 'Destructive' -or $arabicDestructive.route.tier -ne 'T4') { throw 'Irreversible Arabic deletion intent must receive the destructive T4 floor.' }
+
 Write-Host 'Task classification tests passed'

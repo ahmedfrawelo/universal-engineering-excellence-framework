@@ -83,6 +83,34 @@ $results=[System.Collections.Generic.List[object]]::new()
 function Add-Check($profile,$name,$level,$ok,$detail,$install='',$failureStatus='MISSING'){ $results.Add([pscustomobject]@{Profile=$profile;Name=$name;Level=$level;Status=if($ok){'PASS'}else{$failureStatus};Detail=$detail;Install=$install}) }
 function Has-Command($name){[bool](Get-Command $name -ErrorAction SilentlyContinue)}
 function Has-Path($path){Test-Path -LiteralPath $path}
+function Test-GitHubReleaseCredential {
+  if ($env:GH_TOKEN -or $env:GITHUB_TOKEN) { return $true }
+  if (Has-Command gh) {
+    $ghCommand = (Get-Command gh -ErrorAction SilentlyContinue).Source
+    $ghProcessInfo = [Diagnostics.ProcessStartInfo]::new($ghCommand, 'auth status --hostname github.com')
+    $ghProcessInfo.RedirectStandardOutput = $true; $ghProcessInfo.RedirectStandardError = $true; $ghProcessInfo.UseShellExecute = $false
+    $ghProcess = [Diagnostics.Process]::Start($ghProcessInfo)
+    $ghProcess.StandardOutput.ReadToEnd() | Out-Null; $ghProcess.StandardError.ReadToEnd() | Out-Null; $ghProcess.WaitForExit()
+    $ghAuthenticated = $ghProcess.ExitCode -eq 0
+    $ghProcess.Dispose()
+    if ($ghAuthenticated) { return $true }
+  }
+  $manager = (Get-Command git-credential-manager -ErrorAction SilentlyContinue).Source
+  if ([string]::IsNullOrWhiteSpace($manager)) {
+    $candidate = Join-Path $env:ProgramFiles 'Git\mingw64\bin\git-credential-manager.exe'
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) { $manager = $candidate }
+  }
+  if ([string]::IsNullOrWhiteSpace($manager) -or !(Test-Path -LiteralPath $manager -PathType Leaf)) { return $false }
+  $psi = [Diagnostics.ProcessStartInfo]::new($manager, 'get --no-ui')
+  $psi.RedirectStandardInput = $true; $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true; $psi.UseShellExecute = $false
+  $process = [Diagnostics.Process]::Start($psi)
+  $process.StandardInput.Write("protocol=https`nhost=github.com`n`n"); $process.StandardInput.Close()
+  $output = $process.StandardOutput.ReadToEnd(); $process.StandardError.ReadToEnd() | Out-Null; $process.WaitForExit()
+  $credentialAvailable = $process.ExitCode -eq 0 -and $output -match '(?m)^password=.+'
+  $output = $null
+  $process.Dispose()
+  return $credentialAvailable
+}
 function Ensure-Command($name,$packageId){
   if(Has-Command $name){return $true}
   if($Install -and (Has-Command winget)){
@@ -96,6 +124,7 @@ foreach($p in $selectedProfiles){
     'Core' {
       Add-Check Core Git Mandatory (Ensure-Command git 'Git.Git') 'git command' 'winget install --id Git.Git -e'
       Add-Check Core 'GitHub CLI' Mandatory (Ensure-Command gh 'GitHub.cli') 'gh command; authentication is checked separately' 'winget install --id GitHub.cli -e'
+      Add-Check Core 'GitHub Release Credential' Recommended (Test-GitHubReleaseCredential) 'gh authentication, environment token, or non-interactive Git Credential Manager credential'
       Add-Check Core 'Skill Installer' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\skill-installer\SKILL.md'))) 'Codex skill installer' 'Install from the Codex skill marketplace'
       Add-Check Core 'OpenAI Docs' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\openai-docs\SKILL.md'))) 'OpenAI docs skill' 'Install the openai-docs skill'
       Add-Check Core 'Skill Creator' Mandatory ([bool]$CodexHome -and (Has-Path (Join-Path $CodexHome 'skills\.system\skill-creator\SKILL.md'))) 'Skill creator skill' 'Install the skill-creator skill'

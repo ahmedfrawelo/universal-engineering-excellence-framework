@@ -10,12 +10,13 @@ if (($registry.capabilities | Where-Object { $_.id -in @('ui-ux-pro-max','impecc
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ('ueef-capability-health-' + [guid]::NewGuid().ToString('N'))
 try {
   $testCodexHome = Join-Path $sandbox 'codex-home'
-  function New-TestPlugin([string]$Marketplace,[string]$Name,[string]$SkillName='',[switch]$RemoteInstalled) {
+  function New-TestPlugin([string]$Marketplace,[string]$Name,[string]$SkillName='',[switch]$RemoteInstalled,[switch]$InvalidPrompt) {
     $pluginOwner = Join-Path $testCodexHome "plugins\cache\$Marketplace\$Name"
     $versionRoot = Join-Path $pluginOwner '1.0.0'
     $manifestDirectory = Join-Path $versionRoot '.codex-plugin'
     New-Item -ItemType Directory -Path $manifestDirectory -Force | Out-Null
     $manifest = [ordered]@{name=$Name;version='1.0.0'}
+    if ($InvalidPrompt) { $manifest.interface = @{ defaultPrompt=@('one','two','three','four') } }
     if ($SkillName) {
       $manifest.skills = './skills/'
       $skillDirectory = Join-Path $versionRoot "skills\$SkillName"
@@ -37,6 +38,11 @@ try {
   New-TestPlugin openai-bundled disabled-plugin
   New-TestPlugin openai-bundled callable-provider
   New-TestPlugin openai-bundled cached-only cached-skill
+  New-TestPlugin openai-bundled degraded-plugin degraded-skill -InvalidPrompt
+  New-TestPlugin openai-bundled degraded-skill-provider icon-skill
+  $invalidAgentDirectory = Join-Path $testCodexHome 'plugins\cache\openai-bundled\degraded-skill-provider\1.0.0\skills\icon-skill\agents'
+  New-Item -ItemType Directory -Path $invalidAgentDirectory -Force | Out-Null
+  "interface:`n  icon_small: ../shared/icon.png" | Set-Content -LiteralPath (Join-Path $invalidAgentDirectory 'openai.yaml') -Encoding utf8
   New-TestPlugin openai-curated-remote remote-plugin remote-skill -RemoteInstalled
   $command = (Get-Command powershell -ErrorAction Stop).Source.Replace('\','\\')
   @"
@@ -45,6 +51,10 @@ enabled = true
 [plugins."disabled-plugin@openai-bundled"]
 enabled = false
 [plugins."callable-provider@openai-bundled"]
+enabled = true
+[plugins."degraded-plugin@openai-bundled"]
+enabled = true
+[plugins."degraded-skill-provider@openai-bundled"]
 enabled = true
 [plugins."missing-plugin@openai-bundled"]
 enabled = true
@@ -76,6 +86,8 @@ url = "https://example.test/mcp"
   $remotePlugin = $items | Where-Object { $_.type -eq 'plugin' -and $_.name -eq 'remote-plugin@openai-curated-remote' }
   $remoteSkill = $items | Where-Object { $_.type -eq 'skill' -and $_.name -eq 'remote-plugin:remote-skill' }
   $cachedOnly = $items | Where-Object { $_.type -eq 'plugin' -and $_.name -eq 'cached-only@openai-bundled' }
+  $degradedPlugin = $items | Where-Object { $_.type -eq 'plugin' -and $_.name -eq 'degraded-plugin@openai-bundled' }
+  $degradedSkill = $items | Where-Object { $_.type -eq 'skill' -and $_.name -eq 'degraded-skill-provider:icon-skill' }
   $missingPlugin = $items | Where-Object { $_.type -eq 'plugin' -and $_.name -eq 'missing-plugin@openai-bundled' }
   $skill = $items | Where-Object { $_.type -eq 'skill' -and $_.name -eq 'example-skill' }
   $callable = $items | Where-Object { $_.type -eq 'skill' -and $_.name -eq 'callable-skill' }
@@ -86,6 +98,8 @@ url = "https://example.test/mcp"
   if (!$remotePlugin.configured -or !$remotePlugin.installed -or $null -ne $remotePlugin.enabled -or $remotePlugin.health -ne 'CONFIGURED_UNVERIFIED') { throw 'Remote installed plugin was omitted, falsely enabled, or misclassified.' }
   if (!$remoteSkill.configured -or !$remoteSkill.installed -or $null -ne $remoteSkill.enabled -or $remoteSkill.callable -ne 'UNVERIFIED') { throw 'Remote plugin-owned skill was omitted, falsely enabled, or misclassified.' }
   if (!$cachedOnly.installed -or $cachedOnly.configured -or $cachedOnly.health -ne 'NOT_CONFIGURED') { throw 'Cache-only plugin must not be reported as configured.' }
+  if ($degradedPlugin.health -ne 'DEGRADED' -or $degradedPlugin.callable -ne 'WARN') { throw 'Invalid configured plugin manifest must be reported as degraded.' }
+  if ($degradedSkill.health -ne 'DEGRADED' -or $degradedSkill.callable -ne 'WARN') { throw 'Escaping plugin skill icon path must be reported as degraded.' }
   if ($missingPlugin.installed -or $missingPlugin.health -ne 'MISSING_DEPENDENCY') { throw 'Configured plugin without a cache manifest must be reported missing.' }
   if (!$skill.installed -or $skill.callable -ne 'UNVERIFIED') { throw 'Skill state was misclassified.' }
   if ($callable.callable -ne 'PASS' -or $callable.health -ne 'CALLABLE' -or $callable.detail -notmatch 'no process, network, or session probe') { throw 'Static callable contract failed.' }

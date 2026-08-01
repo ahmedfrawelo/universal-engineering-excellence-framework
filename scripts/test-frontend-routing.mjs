@@ -30,6 +30,7 @@ const cases = [
   ['Build mobile dashboard', 'Build', 'responsive', '/47-theme-responsive-interaction-security-performance/10-'],
   ['Fix navbar', 'Quick', 'app-shell', '/57-application-shell-design/00-'],
   ['Audit aria focus management', 'Audit', 'accessibility', '/16-accessibility/00-'],
+  ['راجع واجهة المستخدم وأصلح القائمة المنسدلة', 'Quick', 'overlay', '/47-theme-responsive-interaction-security-performance/22-'],
 ];
 for (const [task, mode, domain, modulePart] of cases) {
   const result = route(task);

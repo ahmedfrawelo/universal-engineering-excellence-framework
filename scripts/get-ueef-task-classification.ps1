@@ -14,7 +14,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $inputParameters = @{} + $PSBoundParameters
-$text = $Task.ToLowerInvariant()
+. (Join-Path $PSScriptRoot 'task-language-signals.ps1')
+$text = ConvertTo-UeefTaskSignalText $Task
 
 function Test-TaskText([string]$Pattern) {
   return $text -match $Pattern
@@ -26,7 +27,7 @@ function Get-InputSource([string]$Name) {
 }
 
 $explanatoryOnly = Test-TaskText '\b(explain|answer|summari[sz]e|translate|define|what is|how does|compare concepts?)\b'
-$changeLanguage = Test-TaskText '\b(build|implement|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release|redesign|optimi[sz]e|improve|develop|scaffold|tune)\b'
+$changeLanguage = Test-TaskText '\b(build|implement|install|add|change|refactor|fix|repair|migrat\w*|create|update|remove|delete|harden|polish|upgrade|replace|write|edit|integrate|deploy|release|redesign|optimi[sz]e|improve|develop|scaffold|tune)\b'
 $reviewLanguage = Test-TaskText '\b(audit|review|inspect|diagnos\w*|investigate|verify|validate|assess|test)\b'
 $wideScopeLanguage = Test-TaskText '\b(project[- ]wide|repository[- ]wide|system[- ]wide|end[- ]to[- ]end|all (?:problems|issues|modules|files)|entire (?:project|repository|system)|complete migration|full migration)\b'
 $architectureLanguage = Test-TaskText '\b(architecture|architectural|cross[- ]cutting|platform|framework core|runtime contract)\b'

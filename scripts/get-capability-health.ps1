@@ -121,7 +121,21 @@ if (Test-Path -LiteralPath $pluginCacheRoot -PathType Container) {
     $configured = $explicitState -or $remoteMarker
     $enabled = if ($explicitState) { [Nullable[bool]]([bool]$pluginStates[$pluginId]) } else { $null }
     $evidence = if ($explicitState) { 'explicit config entry' } elseif ($remoteMarker) { 'remote installation marker' } else { 'cache manifest only' }
+    $manifestWarnings = [Collections.Generic.List[string]]::new()
+    $defaultPrompts = @($manifest.interface.defaultPrompt)
+    if ($defaultPrompts.Count -gt 3) { $manifestWarnings.Add("interface.defaultPrompt has $($defaultPrompts.Count) entries; Codex supports at most 3.") }
+    for ($promptIndex = 0; $promptIndex -lt $defaultPrompts.Count; $promptIndex++) {
+      if ([string]$defaultPrompts[$promptIndex] -and ([string]$defaultPrompts[$promptIndex]).Length -gt 128) {
+        $manifestWarnings.Add("interface.defaultPrompt[$promptIndex] exceeds 128 characters.")
+      }
+    }
     Add-Capability 'plugin' $pluginId $configured $true $enabled 'UNVERIFIED' "Plugin manifest version $($manifest.version) found with $evidence; enablement, session selection, connection state, and live tools were not inferred from a remote marker."
+    if ($configured -and $enabled -ne $false -and $manifestWarnings.Count) {
+      $pluginResult = $results[$results.Count - 1]
+      $pluginResult.callable = 'WARN'
+      $pluginResult.health = 'DEGRADED'
+      $pluginResult.detail = "Plugin manifest is installed but partially rejected by Codex: $($manifestWarnings -join ' ')"
+    }
 
     if ($manifest.skills) {
       $skillsPath = [IO.Path]::GetFullPath((Join-Path $versionRoot ([string]$manifest.skills)))
@@ -131,6 +145,26 @@ if (Test-Path -LiteralPath $pluginCacheRoot -PathType Container) {
           if (!(Test-Path -LiteralPath $entrypoint -PathType Leaf)) { continue }
           $skillName = "$($manifest.name):$($skillDirectory.Name)"
           Add-Capability 'skill' $skillName $configured $true $enabled 'UNVERIFIED' "Plugin SKILL.md found in $pluginId; provider readiness follows $evidence, while task selection remains unverified."
+          $agentConfig = Join-Path $skillDirectory.FullName 'agents\openai.yaml'
+          if ($configured -and $enabled -ne $false -and (Test-Path -LiteralPath $agentConfig -PathType Leaf)) {
+            $pluginAssetsPrefix = [IO.Path]::GetFullPath((Join-Path $versionRoot 'assets')).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+            $iconWarnings = [Collections.Generic.List[string]]::new()
+            foreach ($line in Get-Content -LiteralPath $agentConfig) {
+              if ($line -notmatch '^\s*icon_(small|large):\s*["'']?([^"'']+?)["'']?\s*$') { continue }
+              $iconPath = [string]$matches[2]
+              $resolvedIcon = [IO.Path]::GetFullPath((Join-Path $skillDirectory.FullName $iconPath))
+              $escapesSkill = $iconPath -match '(^|[\\/])\.\.([\\/]|$)'
+              if (!(Test-Path -LiteralPath $resolvedIcon -PathType Leaf) -or ($escapesSkill -and !$resolvedIcon.StartsWith($pluginAssetsPrefix, [StringComparison]::OrdinalIgnoreCase))) {
+                $iconWarnings.Add($iconPath)
+              }
+            }
+            if ($iconWarnings.Count) {
+              $skillResult = $results[$results.Count - 1]
+              $skillResult.callable = 'WARN'
+              $skillResult.health = 'DEGRADED'
+              $skillResult.detail = 'Skill icon metadata points to a missing file or escapes outside the plugin assets directory and may be rejected by Codex.'
+            }
+          }
         }
       }
     }
