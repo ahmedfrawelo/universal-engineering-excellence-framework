@@ -1,8 +1,6 @@
 # Build Progress
 
-Current release: 2.21.5 (2026-08-01)
-
-Unreleased work adds a unified preferred-capability manifest and reconciler for user skills, Codex plugins, and runtime-managed MCPs. It is validated locally but does not change the current release number until publication.
+Current release: 2.22.0 (2026-08-01)
 
 ## Delivered baseline
 
@@ -18,6 +16,7 @@ Unreleased work adds a unified preferred-capability manifest and reconciler for 
 - 2.21.3 keeps the localized route policy ASCII-safe inside the Windows PowerShell runtime generator while Markdown retains the translated labels.
 - 2.21.4 restores green cross-platform CI, gates releases on the exact successful commit, completes missing preferred-skill references, removes a stale machine path, and separates structural Unix validation from nested behavior tests.
 - 2.21.5 routes common Arabic task intent through the canonical classifier, reports plugin metadata Codex rejects, and verifies a usable release credential without leaking it.
+- 2.22.0 adds a unified preferred-capability manifest and reconciler for 27 user skills, 15 Codex plugins, and the runtime-managed Node REPL MCP.
 - 2.19.5 moves Codex runtime backups outside `CODEX_HOME`, makes the external location configurable, and rejects unsafe internal backup roots.
 - 2.19.4 hardens Codex activation and status integrity, truthful bootstrap/capability evidence, PowerShell 5.1 text handling, and full CI assurance.
 - 2.19.3 fixes release-consistency documentation parity so clean GitHub Actions checkouts pass the framework validation gate.
@@ -27,7 +26,7 @@ Unreleased work adds a unified preferred-capability manifest and reconciler for 
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.21.5.
+- Source validation and nested deterministic tests pass for 2.22.0.
 - The source checkout passes validation and reports `SOURCE_VALIDATED`; the managed runtime must be synchronized before it can claim `ACTIVE_RUNTIME`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 

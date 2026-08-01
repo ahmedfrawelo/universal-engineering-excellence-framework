@@ -2,9 +2,9 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.21.5`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.22.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
 
-## Unreleased
+## 2.22.0 - 2026-08-01
 
 - Added a unified preferred-capability contract covering 27 user skills, 15 Codex plugins, and the runtime-managed Node REPL MCP.
 - Added missing-only reconciliation that installs user skills when requested while preserving platform-owned plugin and runtime-owned MCP lifecycles.

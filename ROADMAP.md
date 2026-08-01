@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.21.5
+## Current: 2.22.0
 
-UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.21.5 extends that routing contract to common Arabic change, audit, breadth, UI, browser, performance, security, and release signals; it also detects plugin metadata Codex partially rejects and exposes GitHub release-credential readiness safely. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.22.0 unifies preferred user skills, Codex plugins, and MCPs under one reconciliation contract while preserving their distinct installation lifecycles. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 
