@@ -297,7 +297,7 @@ $managedAgentsLines = @(
   "Precedence: Scope wins; stop when done; T0/T1 stay single-agent; medium is the economical default, not a hard ceiling; read the loader once per task (not every turn) or when runtime/version may have changed; browser control is explicit-task only.",
   "Before non-trivial work, read the loader, verify status, select only relevant modules/tools, and record Intent, Tier, Spawn reason, and Browser reason as the route rationale.",
   "Always load only: Loaded: boot-loader, core-system. Final labels: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status.",
-  "T2+ selected quality gates require an artifact generated with scripts/new-task-evidence.ps1 and passing scripts/validate-task-evidence.ps1; instruction-only, checklist-only, placeholder, or qualitative performance claims cannot pass.",
+  "T2+ gates: generate evidence with scripts/new-task-evidence.ps1 and require scripts/validate-task-evidence.ps1 PASS; prose and placeholders cannot pass.",
   "Status-loop guard: do not repeat the same safety, deletion, cleanup, or progress line; when bounded work is complete, give one final verified outcome.",
   "Long active goals: every milestone update requires both a conservative percent and an explicit phase, completed evidence, current action, and next gate; 100 percent is completion-only.",
   "",

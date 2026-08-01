@@ -14,6 +14,7 @@ if ([string]::IsNullOrWhiteSpace($RegistryPath)) { $RegistryPath = Join-Path $ro
 if (!(Test-Path -LiteralPath $RegistryPath -PathType Leaf)) { throw "Enforcement registry not found: $RegistryPath" }
 $registry = Get-Content -LiteralPath $RegistryPath -Raw | ConvertFrom-Json
 if ($registry.schemaVersion -ne 1) { throw "Unsupported enforcement registry schema: $($registry.schemaVersion)" }
+function Get-GateLeaf([string]$Path) { return @($Path -split '[\\/]' | Where-Object { $_ })[-1] }
 
 $gateMap = @{}
 foreach ($domain in @($registry.domains)) {
@@ -26,7 +27,7 @@ foreach ($domain in @($registry.domains)) {
 $domainIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach ($domain in @($SelectedDomain | ForEach-Object { $_ -split ',' } | Where-Object { $_ })) { [void]$domainIds.Add([string]$domain) }
 foreach ($gateInput in @($SelectedGate | ForEach-Object { $_ -split ',' } | Where-Object { $_ })) {
-  $gateName = [IO.Path]::GetFileName(([string]$gateInput).Replace('/','\'))
+  $gateName = Get-GateLeaf ([string]$gateInput)
   if (!$gateMap.ContainsKey($gateName)) { throw "Selected quality gate has no enforcement mapping: $gateName" }
   [void]$domainIds.Add([string]$gateMap[$gateName])
 }
@@ -50,13 +51,13 @@ if ([string]::IsNullOrWhiteSpace([string]$evidence.repositoryRoot)) { throw 'Tas
 if ([string]$evidence.tier -ne $Tier) { throw "Task evidence tier '$($evidence.tier)' does not match requested tier '$Tier'." }
 $declaredDomains = @($evidence.selectedDomains | ForEach-Object { [string]$_ })
 foreach ($domainId in $domainIds) { if ($domainId -notin $declaredDomains) { throw "Task evidence selectedDomains does not declare requested domain: $domainId" } }
-$declaredGates = @($evidence.selectedGates | ForEach-Object { [IO.Path]::GetFileName(([string]$_).Replace('/','\')) })
+$declaredGates = @($evidence.selectedGates | ForEach-Object { Get-GateLeaf ([string]$_) })
 foreach ($gate in $declaredGates) {
   if (!$gateMap.ContainsKey($gate)) { throw "Task evidence declares unmapped quality gate: $gate" }
   if ([string]$gateMap[$gate] -notin $declaredDomains) { throw "Task evidence gate '$gate' is missing its declared domain '$($gateMap[$gate])'." }
 }
 foreach ($gateInput in @($SelectedGate | ForEach-Object { $_ -split ',' } | Where-Object { $_ })) {
-  $gateName=[IO.Path]::GetFileName(([string]$gateInput).Replace('/','\'))
+  $gateName=Get-GateLeaf ([string]$gateInput)
   if ($gateName -notin $declaredGates) { throw "Task evidence selectedGates does not declare requested gate: $gateName" }
 }
 if ('architecture' -in $declaredDomains -and 'file-organization' -notin $declaredDomains) { throw 'Architecture evidence must also declare file-organization.' }

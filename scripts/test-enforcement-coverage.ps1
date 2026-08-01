@@ -21,6 +21,9 @@ $extra = @($mapped | Where-Object { $_ -notin $expected })
 if ($missing.Count -or $extra.Count) { throw "Enforcement gate coverage mismatch. Missing: $($missing -join ', '); Extra: $($extra -join ', ')" }
 
 $validator = Join-Path $root 'scripts\validate-task-evidence.ps1'
+$validatorText = Get-Content -LiteralPath $validator -Raw
+$generatorText = Get-Content -LiteralPath (Join-Path $root 'scripts\new-task-evidence.ps1') -Raw
+if (($validatorText + $generatorText) -match "GetFileName\(.*Replace\('/','\\\\'\)") { throw 'Quality-gate leaf extraction is platform-specific.' }
 function Assert-Rejected([hashtable]$Arguments) {
   $rejected = $false
   try { & $validator @Arguments | Out-Null } catch { $rejected = $true }

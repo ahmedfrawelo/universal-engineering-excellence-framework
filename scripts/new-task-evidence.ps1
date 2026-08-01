@@ -15,6 +15,7 @@ $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
 if ([string]::IsNullOrWhiteSpace($RegistryPath)) { $RegistryPath = Join-Path $root 'config\enforcement-registry.json' }
 $registry = Get-Content -LiteralPath $RegistryPath -Raw | ConvertFrom-Json
 if ($registry.schemaVersion -ne 1) { throw 'Unsupported enforcement registry schema.' }
+function Get-GateLeaf([string]$Path) { return @($Path -split '[\\/]' | Where-Object { $_ })[-1] }
 
 $gateMap=@{}
 foreach ($domain in @($registry.domains)) { foreach ($gate in @($domain.gates)) { $gateMap[[string]$gate]=[string]$domain.id } }
@@ -25,7 +26,7 @@ foreach ($domain in @($SelectedDomain | ForEach-Object { $_ -split ',' } | Where
 }
 $normalizedGates=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach ($gateInput in @($SelectedGate | ForEach-Object { $_ -split ',' } | Where-Object { $_ })) {
-  $gate=[IO.Path]::GetFileName(([string]$gateInput).Replace('/','\'))
+  $gate=Get-GateLeaf ([string]$gateInput)
   if (!$gateMap.ContainsKey($gate)) { throw "Selected quality gate has no enforcement mapping: $gate" }
   [void]$normalizedGates.Add($gate)
   [void]$domains.Add([string]$gateMap[$gate])
