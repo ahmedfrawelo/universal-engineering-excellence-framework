@@ -10,7 +10,7 @@ This file is a high-level changelog. Individual release notes are available in [
 - Added configurable architecture and file-organization reporters with forbidden-dependency, ownership, root-placement, generic-folder, oversized-file, and ADR checks.
 - Added a registry-backed evidence generator and validator covering all 19 enforcement domains and all 32 selectable quality gates.
 - Rejected placeholders, qualitative-only performance claims, unverifiable evidence provenance, omitted domains, and summary-only final passes.
-- Kept quality-gate selection cross-platform and the generated AGENTS contract within its enforced size budget.
+- Kept quality-gate selection cross-platform, left newline margin inside the generated AGENTS size budget, and surfaced failed Full Assurance diagnostics.
 
 ## 2.22.0 - 2026-08-01
 

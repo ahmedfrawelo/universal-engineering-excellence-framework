@@ -24,7 +24,15 @@ if ($SummaryPath) {
   $auditOutput = if ($Mode -eq 'Quick') { & $audit -Root $resolvedRoot -Quick -Json } else { & $audit -Root $resolvedRoot -Json }
   $auditExit = $LASTEXITCODE
   $watch.Stop()
-  if ($auditExit -ne 0) { throw "UEEF audit failed with exit code $auditExit; performance measurement is not a substitute for correctness." }
+  if ($auditExit -ne 0) {
+    $failureDetail='audit output was not structured JSON'
+    try {
+      $failedSummary=($auditOutput -join [Environment]::NewLine) | ConvertFrom-Json
+      $failedChecks=@($failedSummary.checks | Where-Object status -eq 'FAIL' | ForEach-Object { "$($_.name): $($_.detail)" })
+      if($failedChecks.Count){$failureDetail=$failedChecks -join '; '}
+    } catch { }
+    throw "UEEF audit failed with exit code $auditExit; $failureDetail. Performance measurement is not a substitute for correctness."
+  }
   $summary = $auditOutput | ConvertFrom-Json
   $summary | Add-Member -NotePropertyName wallClockMs -NotePropertyValue ([int]$watch.ElapsedMilliseconds) -Force
 }
