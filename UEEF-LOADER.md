@@ -12,6 +12,7 @@ Before every non-trivial engineering task:
 4. Select task-specific modules through `framework/01-core/01-master-loader.md`.
 5. For UI/UX work, select `Quick`, `Build`, or `Audit` through `framework/10-frontend/01-frontend-task-modes.md`; route design skills by their independent triggers instead of stacking a mandatory pair.
 6. For T2+ or elevated-risk work, apply the relevant Engineering Guardian modules and quality gates. For T0/T1, use only a focused relevant check unless risk, scope, or the user request requires more.
+7. For T2+ work, map every selected quality gate through `config/enforcement-registry.json`, generate the complete domain skeleton with `scripts/new-task-evidence.ps1`, and validate the completed artifact with `scripts/validate-task-evidence.ps1`. Selecting Architecture also selects the `file-organization` domain. A checklist, instruction, placeholder, qualitative performance claim, or confident narrative without required evidence cannot claim PASS.
 
 File, folder, and size discipline:
 - Every new file must live under an owned feature, layer, package, route, docs, tests, scripts, generated-artifact, deployment, or configuration folder.
@@ -108,7 +109,7 @@ Delivery continuation:
 - Mark a goal BLOCKED only for an external or user-only condition after no meaningful local work remains. Never pause an incomplete code path waiting for the user to resume it.
 - Stop when done: when a bounded requested outcome is complete, answer finally without optional expansion. Continue only explicit in-scope implementation that remains unfinished; read current goal status before finalizing longer goal work.
 - Status-loop guard: repeated "continuing", safety, deletion, cleanup, or no-data-loss phrasing is not progress. If no new evidence or action is being added, stop the loop and deliver the verified final result once.
-- Long goal progress: for multi-step goals, send concise milestone updates with conservative percent or phase, completed evidence, current action, and next gate. Do not send heartbeat updates without new evidence, and do not treat a percentage as completion before gates pass.
+- Long goal progress: for every multi-step active goal milestone, send a concise update with both a conservative percent and an explicit phase, completed evidence, current action, and next gate. Validate the update with `scripts/validate-goal-lifecycle.ps1 -ProgressUpdate`; missing percent or phase is invalid. Do not send heartbeat updates without new evidence, and do not treat a percentage as completion before gates pass.
 
 Local command autonomy:
 - Run and reuse normal project commands and local development services without asking the user. A Codex command prompt is a platform confirmation, not an agent question or task blocker.

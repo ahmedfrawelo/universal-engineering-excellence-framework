@@ -37,6 +37,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - Commands run and pass/fail results.
 - Screenshots or rendered artifacts for UI and document work when visual quality matters.
 - Link or commit reference when the change is pushed.
+- For T2+ work, the task evidence artifact declares every applicable gate and domain; validation of the final domain also validates every other declared domain rather than accepting a summary-only PASS.
 
 ## Related Scorecard
 Use the matching scorecard in framework/28-scorecards/ to grade depth and consistency after this gate passes.

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "largeFileLines": 1000,
+  "sourceExtensions": [".cs", ".fs", ".vb", ".java", ".kt", ".ts", ".tsx", ".js", ".jsx", ".py", ".go", ".rs", ".cpp", ".c", ".h", ".swift", ".vue", ".svelte"],
+  "allowedRootFiles": ["Program.cs", "Startup.cs", "manage.py", "main.py", "main.go", "build.gradle", "settings.gradle"],
+  "bannedDirectoryNames": ["misc", "stuff", "dump", "random", "temporary"],
+  "ignoredSegments": [".git", ".ueef", "node_modules", "dist", "build", "coverage", "bin", "obj", ".next", ".cache", "vendor"]
+}

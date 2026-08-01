@@ -23,6 +23,8 @@ Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=40;Pr
 Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=80;ProgressPhase='implementation';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true;ProgressHasNewEvidence=$true}
 Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=100;ProgressPhase='validation';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true;ProgressHasNewEvidence=$true}
 Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=50;ProgressPhase='implementation';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPhase='implementation';ProgressHasCurrentAction=$true;ProgressHasNextGate=$true;ProgressHasNewEvidence=$true}
+Assert-Rejected @{GoalStatus='ACTIVE';ProgressUpdate=$true;ProgressPercent=50;ProgressHasCurrentAction=$true;ProgressHasNextGate=$true;ProgressHasNewEvidence=$true}
 & $validator -GoalStatus ACTIVE | Out-Null
 & $validator -GoalStatus ACTIVE -TerminalFinal -StatusOnly | Out-Null
 & $validator -GoalStatus ACTIVE -ProgressUpdate -ProgressPercent 25 -ProgressPhase planning -ProgressHasNewEvidence -ProgressHasCurrentAction -ProgressHasNextGate | Out-Null

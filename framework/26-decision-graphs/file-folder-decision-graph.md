@@ -42,6 +42,8 @@ Use this decision graph to choose the smallest architecture or implementation mo
 ## Recommended Default
 Start by following the nearest established project convention. Add a new abstraction only when it removes real repeated complexity or creates a required ownership boundary.
 
+For T2+ code changes, run `scripts/get-file-organization-report.ps1`, record its PASS result plus the `file-organization` domain in the task evidence artifact, and then run `scripts/validate-task-evidence.ps1`. Map every new file to its owner and review repository-root placement, generic dump folders, mixed responsibilities, and oversized changed files before completion.
+
 ## Exceptions
 Override the default when security, data integrity, regulatory, accessibility, or production reliability requirements demand a more explicit design.
 

@@ -44,6 +44,8 @@ if ($UserRestartChromeRequested -and !$ChromeExternallyUnavailable) { throw 'A C
 if ($ThreadControlChannelDegraded -and !$ChromeExternallyUnavailable -and $UserFacingStatus -and $UserFacingStatus -ne 'Browser verification is being completed on your existing tab; implementation continues.') { throw 'Thread-local browser degradation requires the canonical user-facing recovery status.' }
 if (($BrowserVerificationRequired -or $VisualVerificationRequired) -and $VerifiedBrowserEvidenceHandoff -and !$HandoffMatchesCurrentCodeState) { throw 'Browser evidence handoff does not cover the current code state.' }
 if ($ProgressPercent -gt 100) { throw 'Progress percent cannot exceed 100.' }
+if ($ProgressUpdate -and $ProgressPercent -lt 0) { throw 'Progress updates require an explicit conservative percentage.' }
+if ($ProgressUpdate -and $ProgressPhase -eq 'unknown') { throw 'Progress updates require an explicit phase.' }
 if ($ProgressPercent -eq 100 -and $GoalStatus -ne 'COMPLETE') { throw 'Progress cannot be 100 before the goal is complete.' }
 if ($ProgressPhase -in @('discovery','planning') -and $ProgressPercent -gt 30) { throw 'Discovery or planning progress cannot exceed 30 percent.' }
 if ($ProgressPhase -eq 'implementation' -and $ProgressPercent -gt 75) { throw 'Implementation progress cannot exceed 75 percent before validation.' }

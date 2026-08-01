@@ -1,6 +1,6 @@
 # Build Progress
 
-Current release: 2.22.0 (2026-08-01)
+Current release: 2.23.0 (2026-08-01)
 
 ## Delivered baseline
 
@@ -17,6 +17,7 @@ Current release: 2.22.0 (2026-08-01)
 - 2.21.4 restores green cross-platform CI, gates releases on the exact successful commit, completes missing preferred-skill references, removes a stale machine path, and separates structural Unix validation from nested behavior tests.
 - 2.21.5 routes common Arabic task intent through the canonical classifier, reports plugin metadata Codex rejects, and verifies a usable release credential without leaking it.
 - 2.22.0 adds a unified preferred-capability manifest and reconciler for 27 user skills, 15 Codex plugins, and the runtime-managed Node REPL MCP.
+- 2.23.0 adds executable progress, architecture, file-organization, semantic evidence, and provenance validation across all registered quality gates.
 - 2.19.5 moves Codex runtime backups outside `CODEX_HOME`, makes the external location configurable, and rejects unsafe internal backup roots.
 - 2.19.4 hardens Codex activation and status integrity, truthful bootstrap/capability evidence, PowerShell 5.1 text handling, and full CI assurance.
 - 2.19.3 fixes release-consistency documentation parity so clean GitHub Actions checkouts pass the framework validation gate.
@@ -26,7 +27,8 @@ Current release: 2.22.0 (2026-08-01)
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.22.0.
+- Source validation and nested deterministic tests pass for 2.23.0.
+- Codex, Cursor, generic, rollback, and staged-runtime installer tests include and validate the complete 2.23.0 payload.
 - The source checkout passes validation and reports `SOURCE_VALIDATED`; the managed runtime must be synchronized before it can claim `ACTIVE_RUNTIME`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 

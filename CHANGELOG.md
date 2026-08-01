@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.22.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.23.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.23.0 - 2026-08-01
+
+- Required long-goal updates to include both conservative percentage and explicit phase, with negative lifecycle tests.
+- Added configurable architecture and file-organization reporters with forbidden-dependency, ownership, root-placement, generic-folder, oversized-file, and ADR checks.
+- Added a registry-backed evidence generator and validator covering all 19 enforcement domains and all 32 selectable quality gates.
+- Rejected placeholders, qualitative-only performance claims, unverifiable evidence provenance, omitted domains, and summary-only final passes.
 
 ## 2.22.0 - 2026-08-01
 

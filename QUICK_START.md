@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant applies only the evidence and controls proportionate to the task, then verifies the requested outcome.
 
-The current release is 2.22.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. Run `scripts/reconcile-preferred-capabilities.ps1 -Install` to reconcile the complete preferred set: missing user skills are installed, while Codex-platform plugins and runtime-managed MCPs are verified and reported through their correct lifecycle. Runtime synchronization remains a separate operation; `scripts/install-codex.ps1 -InstallPreferredCapabilities` combines installation and reconciliation when explicitly requested.
+The current release is 2.23.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. For T2+ work, generate evidence with `scripts/new-task-evidence.ps1`, complete every selected domain, and validate it with `scripts/validate-task-evidence.ps1`. Runtime synchronization remains a separate operation.
 
 ## Minimal path
 

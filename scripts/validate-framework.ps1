@@ -74,10 +74,22 @@ $requiredAcceptance = @(
   "config/capability-registry.json",
   "config/preferred-skills.json",
   "config/preferred-capabilities.json",
+  "config/enforcement-registry.json",
   "scripts/install-preferred-skills.ps1",
   "scripts/install-preferred-skills.sh",
   "scripts/reconcile-preferred-capabilities.ps1",
   "scripts/test-preferred-capabilities.ps1",
+  "scripts/validate-task-evidence.ps1",
+  "scripts/new-task-evidence.ps1",
+  "scripts/test-new-task-evidence.ps1",
+  "scripts/test-enforcement-coverage.ps1",
+  "scripts/test-task-evidence-semantics.ps1",
+  "scripts/get-file-organization-report.ps1",
+  "scripts/test-file-organization-report.ps1",
+  "scripts/get-architecture-report.ps1",
+  "scripts/test-architecture-report.ps1",
+  "config/file-organization-policy.json",
+  "config/architecture-policy.json",
   "scripts/test-preferred-skills.mjs",
   "examples/generic-ai/runtime-check-example.md",
   "framework/27-quality-gates/16-ueef-activation-gate.md",
@@ -446,6 +458,11 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
   & node (Join-Path $Root "scripts/test-preferred-skills.mjs") $Root | Out-Null
   & (Join-Path $Root "scripts/test-preferred-capabilities.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-enforcement-coverage.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-new-task-evidence.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-task-evidence-semantics.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-file-organization-report.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-architecture-report.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-task-classification.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-frontend-routing.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null

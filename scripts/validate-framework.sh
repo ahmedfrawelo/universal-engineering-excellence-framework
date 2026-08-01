@@ -29,10 +29,22 @@ done
 [ -f "$ROOT/config/capability-registry.json" ] || { echo "Missing capability registry" >&2; exit 1; }
 [ -f "$ROOT/config/preferred-skills.json" ] || { echo "Missing preferred skills manifest" >&2; exit 1; }
 [ -f "$ROOT/config/preferred-capabilities.json" ] || { echo "Missing preferred capabilities manifest" >&2; exit 1; }
+[ -f "$ROOT/config/enforcement-registry.json" ] || { echo "Missing enforcement registry" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-preferred-skills.ps1" ] || { echo "Missing Windows preferred skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-preferred-skills.sh" ] || { echo "Missing Unix preferred skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/reconcile-preferred-capabilities.ps1" ] || { echo "Missing preferred capabilities reconciler" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-preferred-capabilities.ps1" ] || { echo "Missing preferred capabilities tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/validate-task-evidence.ps1" ] || { echo "Missing task evidence validator" >&2; exit 1; }
+[ -f "$ROOT/scripts/new-task-evidence.ps1" ] || { echo "Missing task evidence generator" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-new-task-evidence.ps1" ] || { echo "Missing task evidence generator tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-enforcement-coverage.ps1" ] || { echo "Missing enforcement coverage tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-task-evidence-semantics.ps1" ] || { echo "Missing task evidence semantic tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/get-file-organization-report.ps1" ] || { echo "Missing file organization reporter" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-file-organization-report.ps1" ] || { echo "Missing file organization reporter tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/get-architecture-report.ps1" ] || { echo "Missing architecture reporter" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-architecture-report.ps1" ] || { echo "Missing architecture reporter tests" >&2; exit 1; }
+[ -f "$ROOT/config/file-organization-policy.json" ] || { echo "Missing file organization policy" >&2; exit 1; }
+[ -f "$ROOT/config/architecture-policy.json" ] || { echo "Missing architecture policy" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-module-specificity.mjs" ] || { echo "Missing module specificity tests" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/13-autonomy-and-confirmation-policy.md" ] || { echo "Missing autonomy policy" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/14-delivery-continuation-policy.md" ] || { echo "Missing delivery continuation policy" >&2; exit 1; }
@@ -405,6 +417,11 @@ if [ "$SKIP_NESTED_TESTS" = 0 ]; then
   node "$ROOT/scripts/test-preferred-skills.mjs" "$ROOT" >/dev/null || { echo "Preferred skills tests failed" >&2; exit 1; }
   if command -v pwsh >/dev/null 2>&1; then
     pwsh -NoProfile -File "$ROOT/scripts/test-preferred-capabilities.ps1" >/dev/null || { echo "Preferred capabilities tests failed" >&2; exit 1; }
+    pwsh -NoProfile -File "$ROOT/scripts/test-enforcement-coverage.ps1" >/dev/null || { echo "Enforcement coverage tests failed" >&2; exit 1; }
+    pwsh -NoProfile -File "$ROOT/scripts/test-new-task-evidence.ps1" >/dev/null || { echo "Task evidence generator tests failed" >&2; exit 1; }
+    pwsh -NoProfile -File "$ROOT/scripts/test-task-evidence-semantics.ps1" >/dev/null || { echo "Task evidence semantic tests failed" >&2; exit 1; }
+    pwsh -NoProfile -File "$ROOT/scripts/test-file-organization-report.ps1" >/dev/null || { echo "File organization report tests failed" >&2; exit 1; }
+    pwsh -NoProfile -File "$ROOT/scripts/test-architecture-report.ps1" >/dev/null || { echo "Architecture report tests failed" >&2; exit 1; }
   fi
   "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
   "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }

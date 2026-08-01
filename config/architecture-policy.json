@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "sourceExtensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"],
+  "ignoredSegments": [".git", ".ueef", "node_modules", "dist", "build", "coverage", "bin", "obj", "vendor"],
+  "owners": [
+    { "id": "core", "paths": ["UEEF-LOADER.md", "release-manifest.json", "config/", "framework/01-core/"] },
+    { "id": "framework", "paths": ["framework/"] },
+    { "id": "automation", "paths": ["scripts/"] },
+    { "id": "documentation", "paths": ["README.md", "QUICK_START.md", "INSTALL.md", "VERSION.md", "CHANGELOG.md", "BUILD_PROGRESS.md", "ROADMAP.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md", "LICENSE", "docs/", "examples/"] }
+  ],
+  "allowedDependencies": {
+    "core": ["core"],
+    "framework": ["core", "framework"],
+    "automation": ["core", "framework", "automation"],
+    "documentation": ["core", "framework", "automation", "documentation"]
+  },
+  "publicBoundaryPatterns": ["UEEF-LOADER.md", "config/*.json", "scripts/sync-runtime.ps1"],
+  "adrPatterns": ["docs/adr/*.md", "docs/architecture/decisions/*.md"],
+  "requireAdrForPublicBoundaryChange": true
+}

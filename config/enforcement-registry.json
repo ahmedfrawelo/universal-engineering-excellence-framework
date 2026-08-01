@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "validator": "scripts/validate-task-evidence.ps1",
+    "template": "framework/38-templates/task-evidence-template.json",
+    "selectedGateRequiresEvidence": true,
+    "instructionOnlyCannotClaimPass": true,
+    "appliesToTiers": ["T2", "T3", "T4"]
+  },
+  "ignoredGateFiles": ["00-quality-gate-system.md", "INDEX.md", "README.md"],
+  "domains": [
+    {
+      "id": "runtime",
+      "mode": "automated-and-evidence",
+      "gates": ["16-ueef-activation-gate.md", "22-environment-bootstrap-gate.md", "24-workspace-hygiene-gate.md", "27-continuous-assurance-gate.md"],
+      "requiredFields": ["runtimeStatus", "dependencyStatus", "workspaceStatus", "assuranceStatus"]
+    },
+    {
+      "id": "architecture",
+      "mode": "automated-and-evidence",
+      "gates": ["architecture-gate.md"],
+      "requiredFields": ["automatedReport", "outcome", "ownershipBoundary", "existingConvention", "dependencyDirection", "couplingImpact", "reuseDecision", "adrDecision", "verification"]
+    },
+    {
+      "id": "file-organization",
+      "mode": "automated-and-evidence",
+      "gates": [],
+      "requiredFields": ["automatedReport", "newFileOwnerMap", "rootPlacementReview", "genericFolderReview", "mixedResponsibilityReview", "oversizedFileReview"]
+    },
+    {
+      "id": "requirements",
+      "mode": "evidence-gated",
+      "gates": ["requirements-gate.md", "33-spec-driven-development-gate.md"],
+      "requiredFields": ["outcome", "acceptanceCriteria", "ambiguities", "traceability"]
+    },
+    {
+      "id": "code-quality",
+      "mode": "automated-and-evidence",
+      "gates": ["code-quality-gate.md", "21-engineering-guardian-gate.md"],
+      "requiredFields": ["reviewScope", "correctness", "readability", "maintainability", "deadCodeReview"]
+    },
+    {
+      "id": "security",
+      "mode": "project-policy-and-evidence",
+      "gates": ["security-gate.md"],
+      "requiredFields": ["assets", "actors", "trustBoundaries", "threats", "authorization", "validation", "secretHandling", "verification"]
+    },
+    {
+      "id": "performance",
+      "mode": "measurement-and-evidence",
+      "gates": ["performance-gate.md"],
+      "requiredFields": ["baseline", "bottleneck", "change", "remeasurement", "varianceDecision", "budget"]
+    },
+    {
+      "id": "testing",
+      "mode": "automated-and-evidence",
+      "gates": ["testing-gate.md"],
+      "requiredFields": ["behaviorCoverage", "edgeCoverage", "failureCoverage", "commands", "results"]
+    },
+    {
+      "id": "accessibility",
+      "mode": "automated-and-evidence",
+      "gates": ["accessibility-gate.md"],
+      "requiredFields": ["keyboard", "focus", "semantics", "contrast", "reducedMotion", "verification"]
+    },
+    {
+      "id": "uiux",
+      "mode": "visual-and-evidence",
+      "gates": ["19-theme-responsive-interaction-security-performance-gate.md", "20-design-governance-gate.md", "25-skeleton-loading-gate.md", "26-design-intelligence-gate.md", "29-application-shell-design-gate.md", "30-visual-composition-gate.md", "ui-gate.md", "ux-gate.md"],
+      "requiredFields": ["designOwner", "states", "responsive", "interaction", "consistency", "visualVerification"]
+    },
+    {
+      "id": "browser",
+      "mode": "live-session-and-evidence",
+      "gates": ["23-browser-session-control-gate.md"],
+      "requiredFields": ["explicitNeed", "surface", "ownership", "scenario", "result"]
+    },
+    {
+      "id": "data-grid",
+      "mode": "automated-and-evidence",
+      "gates": ["28-data-grid-platform-gate.md"],
+      "requiredFields": ["dataContract", "operations", "scale", "accessibility", "verification"]
+    },
+    {
+      "id": "agent-routing",
+      "mode": "automated-and-evidence",
+      "gates": ["31-agent-model-routing-gate.md", "32-skill-invocation-protocol-gate.md"],
+      "requiredFields": ["tier", "riskFloor", "topology", "skillChain", "routingEvidence"]
+    },
+    {
+      "id": "modernization",
+      "mode": "baseline-and-evidence",
+      "gates": ["34-project-modernization-and-runtime-gate.md"],
+      "requiredFields": ["baseline", "compatibility", "migration", "rollback", "verification"]
+    },
+    {
+      "id": "api",
+      "mode": "automated-and-evidence",
+      "gates": ["api-gate.md"],
+      "requiredFields": ["contract", "validation", "authorization", "errors", "performance", "tests"]
+    },
+    {
+      "id": "database",
+      "mode": "automated-and-evidence",
+      "gates": ["database-gate.md"],
+      "requiredFields": ["schemaImpact", "dataSafety", "queryPlan", "migration", "rollback", "tests"]
+    },
+    {
+      "id": "documentation",
+      "mode": "evidence-gated",
+      "gates": ["documentation-gate.md"],
+      "requiredFields": ["audience", "changedBehavior", "commands", "links", "verification"]
+    },
+    {
+      "id": "production",
+      "mode": "operational-and-evidence",
+      "gates": ["production-gate.md", "enterprise-gate.md"],
+      "requiredFields": ["deployment", "observability", "capacity", "failureRecovery", "ownership", "rollback"]
+    },
+    {
+      "id": "final",
+      "mode": "evidence-gated",
+      "gates": ["final-gate.md"],
+      "requiredFields": ["requestedOutcome", "applicableGates", "verificationSummary", "remainingRisks"]
+    }
+  ]
+}

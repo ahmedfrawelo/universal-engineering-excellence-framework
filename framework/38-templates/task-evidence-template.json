@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "taskId": "replace-with-task-id",
+  "tier": "T3",
+  "repositoryRoot": "replace-with-absolute-repository-root",
+  "selectedGates": ["architecture-gate.md"],
+  "selectedDomains": ["architecture", "file-organization"],
+  "domains": {
+    "architecture": {
+      "status": "PASS",
+      "fields": {
+        "automatedReport": "replace-with-architecture-report-json",
+        "outcome": "Observable architectural outcome",
+        "ownershipBoundary": "Owning feature, layer, package, or service",
+        "existingConvention": "Existing convention reused or reason a new one is required",
+        "dependencyDirection": "Dependency direction before and after",
+        "couplingImpact": "Coupling and cohesion impact",
+        "reuseDecision": "Reuse, extend, or create decision with evidence",
+        "adrDecision": "ADR path or explicit reason an ADR is not required",
+        "verification": "Architecture check command, tool, or review method"
+      },
+      "evidence": [{"kind": "replace-me", "source": "replace-me", "result": "PENDING", "observedAt": "replace-me", "exitCode": null, "sha256": "replace-me", "reviewer": "replace-me"}],
+      "residualRisks": []
+    },
+    "file-organization": {
+      "status": "PASS",
+      "fields": {
+        "automatedReport": "replace-with-file-organization-report-json",
+        "newFileOwnerMap": ["path -> owner"],
+        "rootPlacementReview": "No unowned source files at repository root",
+        "genericFolderReview": "No new mixed dump folder",
+        "mixedResponsibilityReview": "Changed files retain one responsibility",
+        "oversizedFileReview": "Large changed files split or justified"
+      },
+      "evidence": [{"kind": "replace-me", "source": "replace-me", "result": "PENDING", "observedAt": "replace-me", "exitCode": null, "sha256": "replace-me", "reviewer": "replace-me"}],
+      "residualRisks": []
+    }
+  }
+}

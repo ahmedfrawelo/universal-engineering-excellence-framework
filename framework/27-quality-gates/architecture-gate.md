@@ -19,6 +19,8 @@
 
 Record inspected artifacts, exact commands or review method, results, exceptions, and the reviewer or automation source. A warning remains a warning; it cannot be averaged into a pass.
 
+For T2+ work, configure `.ueef/architecture-policy.json` (or supply an explicit policy), run `scripts/get-architecture-report.ps1` and `scripts/get-file-organization-report.ps1`, record both PASS reports in the Architecture and file-organization domains, and run `scripts/validate-task-evidence.ps1`. Missing policy, REVIEW_REQUIRED, checklist review, or narrative evidence alone cannot return PASS. Evidence must name ownership, existing conventions, dependency direction, coupling impact, reuse, ADR decision, file-owner mapping, placement review, and reproducible verification.
+
 ## Decision
 
 Return PASS, FAIL, or BLOCKED. BLOCKED must name the missing fact or authority and the smallest action that can resolve it.
