@@ -150,6 +150,11 @@ Control provenance: EXISTING_EXTENSION_TAB / BLOCKED
 Control channel: READY / THREAD_CONTROL_CHANNEL_DEGRADED
 Automatic ownership repair run when needed:
 Verification evidence: LOCAL / VERIFIED_HANDOFF / PENDING
+Emergency fallback authorization: NOT_REQUESTED / EXPLICIT
+Emergency readiness: NOT_USED / READY_LAST_RESORT / REJECTED
+Emergency target proof: SAME_EXISTING_TARGET / NOT_USED
+Remote debugging scope: LOOPBACK_ONLY / NOT_USED
+Browser storage inspected: NO
 Separate automation surface created: NO / BLOCKED
 Banner classification: ABSENT / VERIFIED_EXISTING_TAB / UNVERIFIED_BLOCKED
 Signed-in state verified when required:

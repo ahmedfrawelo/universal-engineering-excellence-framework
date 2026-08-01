@@ -59,11 +59,13 @@ if ($classification.values.taskTags -contains 'browser') {
       'Prefer the Codex Chrome control plugin against the user existing tabs/profile when available.',
       'On Claude hosts, bootstrap browser-client.mjs only through mcp__node_repl__js, then use the Chrome extension binding.',
       'Enumerate user.openTabs() and pass the exact returned object to claimTab() when that bridge is present.',
-      'Never launch Playwright MCP, chrome-devtools MCP, IDE Simple Browser, in-app browser, browser.newContext, or browser.launch as a substitute.'
+      'Never launch Playwright MCP, IDE Simple Browser, in-app browser, browser.newContext, or browser.launch as a substitute.',
+      'Treat Chrome DevTools/CDP as AUTHORIZED_LOOPBACK_LAST_RESORT only after every configured prior stage failed, explicit user authorization, and READY_LAST_RESORT from the readiness probe; stricter host rules win.'
     )
-    allowedPath = @('Codex Chrome control plugin', 'mcp__node_repl__js', 'Chrome extension binding', 'user.openTabs()', 'claimTab()', 'claimed tab.playwright')
-    forbiddenSurfaces = @('mcp__playwright__*', 'mcp__chrome_devtools__*', 'browser_*', 'Cursor/IDE Simple Browser', 'in-app browser', 'browser.newContext', 'browser.launch', 'second browser', 'temporary profile', 'isolated context')
-    failureAction = 'Do not select or call a browser tool and do not open an alternate surface. Stop and ask if Chrome control is unavailable.'
+    allowedPath = @('Codex Chrome control plugin', 'mcp__node_repl__js', 'Chrome extension binding', 'user.openTabs()', 'claimTab()', 'claimed tab.playwright', 'authorized loopback CDP on the same existing target')
+    forbiddenSurfaces = @('mcp__playwright__*', 'mcp__chrome_devtools__* outside AUTHORIZED_LOOPBACK_LAST_RESORT', 'browser_*', 'Cursor/IDE Simple Browser', 'in-app browser', 'browser.newContext', 'browser.launch', 'second browser', 'temporary profile', 'isolated context', 'non-loopback CDP', 'cookie/storage/profile inspection')
+    emergencyFallback = [ordered]@{status='EXPLICIT_LAST_RESORT_ONLY';policy='config/browser-emergency-fallback.json';probe='scripts/get-remote-debugging-readiness.ps1 -AuthorizedLastResort -PriorStageFailure <recorded-stages>';requiredResult='READY_LAST_RESORT';incompleteResult='PRIOR_STAGES_INCOMPLETE';requiresUserAuthorization=$true;requiresAllPriorStageEvidence=$true;hostRulesWin=$true}
+    failureAction = 'Do not select or call a browser tool outside allowedPath and do not invent another surface. After every authorized path and eligible explicit emergency fallback is unavailable, stop and report the exact missing condition.'
   }
 }
 $result = [ordered]@{

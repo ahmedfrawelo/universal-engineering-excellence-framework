@@ -27,3 +27,7 @@ Evidence provenance is typed: commands and tests record time and exit code, revi
 - Keep checklist-only enforcement: rejected because it cannot distinguish verified execution from confident prose.
 - Infer arbitrary project architecture without policy: rejected because it would produce false positives and false PASS results.
 - Require every gate for every task: rejected because it violates proportional routing.
+
+## Amendment: authorized loopback browser recovery
+
+Browser recovery may expose a loopback-only Chrome DevTools endpoint as `AUTHORIZED_LOOPBACK_LAST_RESORT`, but only after every configured same-tab control stage has recorded failure evidence and the user explicitly authorizes the emergency path. A readiness probe must return `READY_LAST_RESORT`; incomplete stage evidence returns `PRIOR_STAGES_INCOMPLETE`. The adapter may attach only to the same existing page target and cannot launch Chrome, create a profile/context, bind outside loopback, or inspect cookies, storage, passwords, history, or profile files. Stricter host, plugin, and installed-skill rules retain precedence.

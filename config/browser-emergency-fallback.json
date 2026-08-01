@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "enabled": true,
+  "mode": "explicit-last-resort",
+  "defaultEndpoint": "http://127.0.0.1:9222",
+  "allowedHosts": ["127.0.0.1", "localhost", "::1"],
+  "requiredPriorStages": [
+    "chrome-plugin-extension",
+    "bootstrap-and-chrome-troubleshooting",
+    "stale-ownership-repair",
+    "verified-same-tab-handoff",
+    "verified-visible-windows-control"
+  ],
+  "requiresExplicitUserAuthorization": true,
+  "existingBrowserOnly": true,
+  "sameTargetRequired": true,
+  "forbidden": [
+    "launch-browser",
+    "create-profile",
+    "create-context",
+    "inspect-cookies",
+    "inspect-storage",
+    "inspect-passwords",
+    "inspect-profile-directory",
+    "bind-non-loopback"
+  ]
+}

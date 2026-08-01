@@ -88,8 +88,11 @@ $requiredAcceptance = @(
   "scripts/test-file-organization-report.ps1",
   "scripts/get-architecture-report.ps1",
   "scripts/test-architecture-report.ps1",
+  "scripts/get-remote-debugging-readiness.ps1",
+  "scripts/test-remote-debugging-readiness.ps1",
   "config/file-organization-policy.json",
   "config/architecture-policy.json",
+  "config/browser-emergency-fallback.json",
   "scripts/test-preferred-skills.mjs",
   "examples/generic-ai/runtime-check-example.md",
   "framework/27-quality-gates/16-ueef-activation-gate.md",
@@ -463,6 +466,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-task-evidence-semantics.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-file-organization-report.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-architecture-report.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-remote-debugging-readiness.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-task-classification.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-frontend-routing.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null

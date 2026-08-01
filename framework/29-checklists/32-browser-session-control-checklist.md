@@ -5,6 +5,7 @@ Version: 1.5.0
 - [ ] `get-ueef-task-preflight.ps1 -TaskTag browser` produced `browserGate: REQUIRED` before any browser tool was selected.
 - [ ] The gate's allowed path is `mcp__node_repl__js` -> extension binding -> exact `user.openTabs()` object -> `claimTab()` -> claimed `tab.playwright` only.
 - [ ] If the gate could not be resolved, no browser tool or alternate surface was selected.
+- [ ] Emergency CDP, if used, was explicitly user-authorized only after every configured prior stage had recorded failure evidence; the probe received all `-PriorStageFailure` values and returned `READY_LAST_RESORT` rather than `PRIOR_STAGES_INCOMPLETE`, endpoint/socket were loopback-only, the same existing target was attached, no browser/profile/context was launched, and cookies/storage/password/profile/history APIs were not used.
 - [ ] User-owned browser surface selected.
 - [ ] Chrome extension/tab-claim authorization was used for the existing user tab when Chrome control was needed.
 - [ ] The target came from `user.openTabs()` and the exact returned object was passed to `claimTab()`.

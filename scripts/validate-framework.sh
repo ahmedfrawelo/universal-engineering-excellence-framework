@@ -43,8 +43,11 @@ done
 [ -f "$ROOT/scripts/test-file-organization-report.ps1" ] || { echo "Missing file organization reporter tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-architecture-report.ps1" ] || { echo "Missing architecture reporter" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-architecture-report.ps1" ] || { echo "Missing architecture reporter tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/get-remote-debugging-readiness.ps1" ] || { echo "Missing remote debugging readiness probe" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-remote-debugging-readiness.ps1" ] || { echo "Missing remote debugging readiness tests" >&2; exit 1; }
 [ -f "$ROOT/config/file-organization-policy.json" ] || { echo "Missing file organization policy" >&2; exit 1; }
 [ -f "$ROOT/config/architecture-policy.json" ] || { echo "Missing architecture policy" >&2; exit 1; }
+[ -f "$ROOT/config/browser-emergency-fallback.json" ] || { echo "Missing browser emergency fallback policy" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-module-specificity.mjs" ] || { echo "Missing module specificity tests" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/13-autonomy-and-confirmation-policy.md" ] || { echo "Missing autonomy policy" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/14-delivery-continuation-policy.md" ] || { echo "Missing delivery continuation policy" >&2; exit 1; }
@@ -422,6 +425,7 @@ if [ "$SKIP_NESTED_TESTS" = 0 ]; then
     pwsh -NoProfile -File "$ROOT/scripts/test-task-evidence-semantics.ps1" >/dev/null || { echo "Task evidence semantic tests failed" >&2; exit 1; }
     pwsh -NoProfile -File "$ROOT/scripts/test-file-organization-report.ps1" >/dev/null || { echo "File organization report tests failed" >&2; exit 1; }
     pwsh -NoProfile -File "$ROOT/scripts/test-architecture-report.ps1" >/dev/null || { echo "Architecture report tests failed" >&2; exit 1; }
+    pwsh -NoProfile -File "$ROOT/scripts/test-remote-debugging-readiness.ps1" >/dev/null || { echo "Remote debugging readiness tests failed" >&2; exit 1; }
   fi
   "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
   "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
