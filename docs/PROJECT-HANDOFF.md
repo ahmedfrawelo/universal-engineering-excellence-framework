@@ -2,10 +2,10 @@
 
 **Purpose:** تسليم المشروع لوكيل أو مطور جديد يستطيع فهمه وتشغيله والتحقق منه بدون الاعتماد على ذاكرة الجلسة السابقة.
 
-**Snapshot date:** 2026-08-02  
-**Repository:** `E:\MY DATA\div\universal-engineering-excellence-framework`  
-**Upstream:** `https://github.com/ahmedfrawelo/universal-engineering-excellence-framework`  
-**Version:** `2.23.0`  
+**Snapshot date:** 2026-08-02
+**Repository:** `E:\MY DATA\div\universal-engineering-excellence-framework`
+**Upstream:** `https://github.com/ahmedfrawelo/universal-engineering-excellence-framework`
+**Version:** `2.23.0`
 **Latest local commit:** `11d1ff1 fix: require evidence-backed task completion`
 
 ## 1. What this project is
