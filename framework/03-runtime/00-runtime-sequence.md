@@ -21,8 +21,13 @@ The runtime sequence defines how UEEF is applied without wasting context. It pri
 8. Evaluate named, installed, project-local, and UEEF skill candidates; select the minimal skill chain.
 9. Inspect the project and current implementation path.
 10. Plan edits for non-trivial work.
-11. Apply selected quality gates before final response.
-12. Return compact UEEF verification.
+11. For multi-step active goals, emit evidence-backed milestone updates using the dual-percentage progress contract from `framework/01-core/14-delivery-continuation-policy.md`.
+12. When the user updates the goal, classify its relation to the active step, update the plan, preserve or restore the resume point as required, and never discard current work reflexively.
+13. After implementation completes, announce the transition to goal review while the goal remains `ACTIVE`; create the literal completion checklist and inspect task-caused regressions on every changed surface.
+14. Fix task-caused gaps and regressions, but record and leave unrelated findings outside scope.
+15. Apply selected quality gates before final response.
+16. When the full review passes, say the goal is complete and stop without a follow-up question.
+17. Return compact UEEF verification.
 
 ## Compact Runtime Check
 
@@ -135,6 +140,22 @@ Validation Result:
 
 `READY` is valid only when all selected Mandatory dependencies pass. A Mandatory failure is `BLOCKED`; a Recommended failure is `READY_WITH_WARNINGS`; Optional gaps remain non-blocking.
 
+## Local Service Reuse Preflight
+
+Before starting any development server or other long-running local service, record:
+
+```text
+Project service owner inspected:
+Expected port and URL:
+Listener state:
+Health response:
+Readiness result: REUSE_EXISTING / START_ALLOWED / OCCUPIED_UNVERIFIED / EXISTING_UNHEALTHY
+Existing instance reused:
+New server start authorized:
+```
+
+Only `START_ALLOWED` permits starting one new scoped service. Every other result forbids a duplicate process or alternate port until the existing listener is identified, reused, repaired, or stopped through an explicitly scoped action.
+
 ## Browser Session Preflight
 
 For browser tasks, implementation must not begin until the assistant records:
@@ -143,19 +164,25 @@ For browser tasks, implementation must not begin until the assistant records:
 User-owned browser/profile verified:
 Chrome readiness flow completed:
 Extension/tab-claim authorization granted:
-Exact user.openTabs() object claimed:
+Chrome-family binding selected explicitly:
+Existing window/profile/session proven with user.openTabs():
+Dedicated task tab created in same Chrome window/profile/session:
+User working tab preserved:
+Exact dedicated-tab object claimed:
 Existing window state preserved:
 Target tab and domain verified:
 Control provenance: EXISTING_EXTENSION_TAB / BLOCKED
 Control channel: READY / THREAD_CONTROL_CHANNEL_DEGRADED
+Failure stage/reason/next recorded:
 Automatic ownership repair run when needed:
 Verification evidence: LOCAL / VERIFIED_HANDOFF / PENDING
 Emergency fallback authorization: NOT_REQUESTED / EXPLICIT
 Emergency readiness: NOT_USED / READY_LAST_RESORT / REJECTED
+Emergency exact target proof: NOT_USED / sameTargetProven
 Emergency target proof: SAME_EXISTING_TARGET / NOT_USED
 Remote debugging scope: LOOPBACK_ONLY / NOT_USED
 Browser storage inspected: NO
-Separate automation surface created: NO / BLOCKED
+New window/browser/profile/session/context/panel/internal surface created: NO / BLOCKED
 Banner classification: ABSENT / VERIFIED_EXISTING_TAB / UNVERIFIED_BLOCKED
 Signed-in state verified when required:
 Browser session gate: PASS / PARTIAL_VISUAL_GATE / BLOCKED
@@ -286,6 +313,20 @@ Context packet bounded:
 Escalation triggers active:
 Independent verification required:
 Agent model routing gate: PASS / BLOCKED
+```
+
+For every material milestone in a multi-step active goal, also record:
+
+```text
+Understanding:
+Phase:
+Current step:
+Current-step percent:
+Overall percent:
+New evidence:
+Current action:
+Next gate:
+Progress contract: PASS / BLOCKED
 ```
 
 Routing is mandatory; child-agent spawning is conditional. The lead agent is the correct single-agent topology when delegation would increase tokens or latency.

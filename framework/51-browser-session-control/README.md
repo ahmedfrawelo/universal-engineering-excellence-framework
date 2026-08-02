@@ -12,7 +12,7 @@ Browser work must use the browser and session the user actually opened. The assi
 - Confirm the target tab, visible domain, and signed-in state before reading or changing authenticated content.
 - Do not inspect cookies, local storage, passwords, profiles, or session stores.
 - If no user-owned browser/session is available, stop and ask the user to open the browser, target tab, and sign in.
-- A task-local control-channel failure is not proof that the browser is unavailable. Run the deterministic control-channel failover on the same user-owned tab automatically; never require a user acknowledgement merely to continue recovery.
+- A task-local control-channel failure is not proof that Chrome is unavailable. Run deterministic same-target failover on the dedicated task tab, report stage/reason/next, and never substitute the in-app browser.
 - Chrome work must pass the readiness flow before any browser-unavailable or blocked claim: supported skill bootstrap, exact `user.openTabs()` object selection, `claimTab()`, automatic stale-ownership repair, handoff when the task-local bridge is degraded, and `chrome.tabs.finalize(...)` before turn end.
 - Never use an isolated browser to perform or verify a Chrome task. A separately requested isolated test is a distinct task and result.
 

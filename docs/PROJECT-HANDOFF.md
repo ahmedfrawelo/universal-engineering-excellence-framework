@@ -5,8 +5,8 @@
 **Snapshot date:** 2026-08-02
 **Repository:** `E:\MY DATA\div\universal-engineering-excellence-framework`
 **Upstream:** `https://github.com/ahmedfrawelo/universal-engineering-excellence-framework`
-**Version:** `2.23.0`
-**Latest local commit:** `11d1ff1 fix: require evidence-backed task completion`
+**Version:** `2.24.0`
+**Authoritative commit:** resolve `v2.24.0` or run `git rev-parse HEAD`; do not rely on a copied hash in this handoff.
 
 ## 1. What this project is
 
@@ -32,7 +32,7 @@ The managed runtime currently reports:
 - `Runtime drift: PASS`
 - `Runtime source revision: PASS`
 - `Overall: ACTIVE`
-- UEEF version `2.23.0`
+- UEEF version `2.24.0`
 
 Run the authoritative check from the source repository:
 
@@ -65,6 +65,13 @@ Every non-trivial task follows this sequence:
 10. For T2+, create and validate evidence using `new-task-evidence.ps1` and `validate-task-evidence.ps1`.
 11. Create a completion audit mapping every explicit requirement to passing acceptance evidence.
 12. Only then may the goal become `COMPLETE` or report 100 percent.
+13. For each material milestone in a multi-step active goal, report what the agent currently understands, the named current step and its percentage, the separate conservative overall percentage, new evidence, current action, and next gate.
+14. When implementation ends, report `implementation complete` and immediately enter literal goal review with the goal still `ACTIVE`.
+15. The Completion Audit checklist must mark every requirement against requested implementation, best feasible in-scope outcome, and current evidence. Inspect all changed surfaces and fix task-caused regressions only; record unrelated findings without expanding scope.
+16. After the full review passes, report that the goal is complete and stop. Do not ask whether anything is missing or whether more work is wanted.
+17. Exception before completion: if the user already said they have another item before finish, keep the goal active and ask for it. The goal cannot complete until that commitment is clarified and resolved; this is not an optional post-completion question.
+18. Route every new goal update against the active plan. Merge current-step changes; save and restore a resume point for prior-step corrections; queue future changes with order, dependencies, and acceptance criteria; pause/replan only when continuing is invalid; preserve state and ask when requirements conflict.
+19. Completion review must compare every literal requirement with an inventory of actual implementation and observed behavior plus current evidence. Reverse-trace every implementation item to a requirement; prose review or unchecked/untraced implementation cannot pass.
 
 The completion audit is now an executable gate. Validate it with:
 
@@ -113,32 +120,39 @@ The completion audit is now an executable gate. Validate it with:
 - `framework/27-quality-gates/final-gate.md`: final completion/release gate.
 - `config/enforcement-registry.json`: T2+ domain/gate mapping and required fields.
 - `release-manifest.json`: version, tracked Markdown count, pack count, entrypoints, and release notes.
-- `docs/releases/v2.23.0.md`: current release notes.
+- `docs/releases/v2.24.0.md`: current release notes.
 
 ## 6. Important current behavior
 
 ### Completion truthfulness
 
-The latest change (`11d1ff1`) adds:
+Release `2.24.0` includes:
 
 - `framework/38-templates/completion-audit-template.json`;
 - `scripts/validate-completion-audit.ps1`;
+- `scripts/validate-completion-audit.mjs` and its Unix wrapper;
 - `scripts/test-completion-audit.ps1`;
 - lifecycle integration in `scripts/validate-goal-lifecycle.ps1` and its Unix counterpart.
 
 The lifecycle validator rejects `COMPLETE` unless a valid completion-audit path is supplied and passes. It also preserves status-only responses and valid external-blocker rules.
 
+Completion audits use schema version 2. Before `COMPLETE`, `sourceReview` must preserve the original goal text and its SHA-256, then cover every non-whitespace character with contiguous exact review units. Each unit is classified and linked to at least one passing requirement; gaps, overlaps, altered quotes, hash mismatches, or unlinked units are rejected.
+
 ### Browser control
 
-Browser work is explicit-task only and uses the user's existing Chrome tab. Never launch Playwright, a second profile/context, IDE Simple Browser, in-app browser, or a connector-created Chrome window. The normal path uses the installed Chrome control plugin and exact `user.openTabs()`/`claimTab()` ownership flow.
+Browser work is explicit-task only and uses the user's existing Chrome window/profile/session. The default is a dedicated task tab created through the explicit Chrome-family binding; the user's working tab is not claimed or navigated unless requested. Never use a default selector that can choose the in-app browser, or create another window/browser/profile/session/context/panel. Every recovery status must name the failed stage, observed reason, and next action.
 
-Loopback Chrome DevTools/CDP is an emergency last resort only after every configured same-tab stage has recorded failure evidence, explicit user authorization, and:
+Loopback Chrome DevTools/CDP is an emergency last resort only after every configured same-target stage has recorded stage/reason evidence, explicit user authorization, and:
 
 ```powershell
-& .\scripts\get-remote-debugging-readiness.ps1 -AuthorizedLastResort -PriorStageFailure <recorded-stages>
+& .\scripts\get-remote-debugging-readiness.ps1 -AuthorizedLastResort -PriorStageFailure <recorded-stages> -ExpectedTargetId <dedicated-target-id>
 ```
 
-must return `READY_LAST_RESORT`. It may attach only to an existing page target on loopback and must not inspect cookies, passwords, storage, history, or profile data. Stricter host or installed-skill rules win.
+must return `READY_LAST_RESORT` with `sameTargetProven: true`. Both the browser and exact page-target sockets must be loopback WebSockets. It must not inspect cookies, passwords, storage, history, or profile data. Stricter host or installed-skill rules win.
+
+### Local service reuse
+
+Before starting a development service, `scripts/get-local-service-readiness.ps1` checks the expected port, health response, and project ownership. Reuse is allowed only when both health and ownership are proven. An unhealthy or unverified listener must be diagnosed; it never authorizes a duplicate process or alternate port.
 
 ### Model capacity
 

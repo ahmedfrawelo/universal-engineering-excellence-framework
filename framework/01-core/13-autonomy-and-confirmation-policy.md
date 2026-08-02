@@ -12,14 +12,14 @@ User-requested scope overrides continuation, delegation, autonomous audits, inve
 - Edit scoped project files, run formatters, builds, type checks, tests, linters, and local development commands.
 - Create focused implementation artifacts, update project documentation, and run non-destructive diagnostics.
 - Use the normal engineering steps required to complete a user-requested change rather than stopping for routine approval.
-- Start, reuse, inspect, and stop scoped local development services as required for implementation and verification. Reuse an existing healthy service before starting another process.
+- Start, reuse, inspect, and stop scoped local development services as required for implementation and verification. Before every start, inspect the project's documented service owner, expected port/URL, listener, and health response, or run `scripts/get-local-service-readiness.ps1`. `REUSE_EXISTING` requires reuse; only `START_ALLOWED` permits one new scoped process. `OCCUPIED_UNVERIFIED` and `EXISTING_UNHEALTHY` require diagnosis and forbid another process or alternate port.
 
 ## Local Command Prompts
 
 - The agent must not ask the user whether it should run normal project commands or local development services.
 - A command prompt shown by Codex is a platform safety confirmation for the process itself, not an agent decision or a UEEF question.
 - When a platform command prompt appears, report the exact service or command being started only if the user asks. Do not misrepresent it as a task blocker.
-- Never create duplicate long-running services just to avoid a command prompt; inspect and reuse the existing service when possible.
+- Never create duplicate long-running services or select another port to avoid a conflict, command prompt, or failed health check. A new server is allowed only after current evidence proves no usable instance exists for that project.
 
 ## Platform and High-Impact Boundaries
 

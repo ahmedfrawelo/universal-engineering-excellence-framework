@@ -8,6 +8,7 @@ Implementation is not finished until code converges with the specification, plan
 
 - Implement from the task list and keep changes scoped to the current task.
 - When code reveals missing requirements, update the specification or task list instead of silently widening scope.
+- When the user changes the goal, record the update route and preserve the active resume point before changing execution. Completion convergence includes every received update, with no pending update or open resume point.
 - When tests reveal plan flaws, update the plan and tasks before retrying.
 - When a task is complete, record the evidence that proves the acceptance criteria it covers.
 - Before final response, run a convergence pass across spec, plan, tasks, code, tests, and residual risks.

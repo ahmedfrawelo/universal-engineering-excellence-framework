@@ -11,10 +11,10 @@ Pass only when:
 - The signed-in state was visibly verified without inspecting secrets.
 - No isolated or alternate browser was used silently.
 - Missing access caused a clear block and user action request.
-- No connector-created window, newly launched automation browser, temporary profile, or unrecognized profile was used; extension attachment to the verified existing user tab is allowed.
-- Final verification was performed in the same user-owned tab.
+- No connector-created window, newly launched automation browser, temporary profile, new session/panel, or in-app browser was used; the dedicated task tab belongs to the verified existing Chrome binding.
+- Final verification was performed in the dedicated task tab without taking over the user's working tab.
 - A transient browser-client or extension bridge failure followed the documented recovery flow instead of being treated as final unavailability.
-- A task-local control-channel failure was classified as `THREAD_CONTROL_CHANNEL_DEGRADED`; a current `VERIFIED_HANDOFF` from a trusted coordinator is accepted when it covers the same tab and current code state.
+- A task-local control-channel failure was classified as `THREAD_CONTROL_CHANNEL_DEGRADED` with stage/reason/next; a current `VERIFIED_HANDOFF` is accepted when it covers the same dedicated target and current code state.
 - Every claimed tab was finalized before the task turn ended, with `handoff` only when a later task needs that live tab.
 - A stale claimed-tab ownership conflict ran the automatic extension-host recovery before any handoff or user-facing limitation.
 

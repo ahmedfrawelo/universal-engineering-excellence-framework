@@ -11,8 +11,14 @@ This gate defines the minimum evidence required before work can be reported as c
 - Automated validation was run where available, and manual review covered the remaining risky behavior.
 - The final report distinguishes verified facts from assumptions and limitations.
 - The final report answers the user's direct question first and does not bury the outcome behind internal process detail.
+- Multi-step active-goal milestone updates expose the current understanding, named current step, current-step percent, conservative overall percent, new evidence, current action, and next gate as separate fields.
 - Completion, perfection, release, browser verification, push, and runtime activation claims are backed by current evidence.
-- `scripts/validate-completion-audit.ps1` passes an artifact covering every explicit requirement; `remainingWork` and `knownProblems` are empty.
+- `scripts/validate-completion-audit.ps1` passes a schema-version-2 artifact whose verbatim source review covers every non-whitespace character of the original goal and links every reviewed segment to a requirement; `remainingWork` and `knownProblems` are empty.
+- The audit proves implementation completion was announced before goal review, the goal remained active during review, every requirement checklist item passed both requested-implementation and best-feasible-outcome review, and every changed surface has a passing regression check.
+- Every requirement is compared to actual implemented and observed behavior with current evidence, and every implementation inventory item traces back to a requirement; no untraced implementation remains.
+- Every received goal update is detected and classified; no missing implementation, pending update, or open resume point remains.
+- No task-caused regression remains. Unrelated findings are documented with evidence and an out-of-scope reason and were not repaired without scope authority.
+- Every explicit before-finish user commitment was clarified before completion and has resolution evidence; no pending commitment remains.
 
 ## Failure Conditions
 - A terminal final response while `GoalStatus` is `ACTIVE`, unless the user explicitly requested status-only reporting.
@@ -22,6 +28,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - Claims of completion without validation evidence.
 - A `COMPLETE` transition without a passing completion-audit artifact, or with any known problem or required work still recorded.
 - Overstated final wording such as "perfect", "100%", "fully verified", or "released" without evidence for every explicit requirement.
+- Asking whether more work is wanted, whether anything is missing, or whether the goal is complete after the completion audit already proved the bounded goal complete.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.
 - Duplicated implementation paths where a shared local pattern already exists.
 - Missing rollback or mitigation plan for risky production changes.

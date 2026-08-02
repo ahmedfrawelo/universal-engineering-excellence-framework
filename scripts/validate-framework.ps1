@@ -236,6 +236,10 @@ $requiredAcceptance = @(
   "scripts/test-intent-fidelity-contract.ps1",
   "scripts/validate-goal-lifecycle.ps1",
   "scripts/validate-completion-audit.ps1",
+  "scripts/validate-completion-audit.mjs",
+  "scripts/validate-completion-audit.sh",
+  "scripts/get-local-service-readiness.ps1",
+  "scripts/test-local-service-readiness.ps1",
   "scripts/test-completion-audit.ps1",
   "scripts/validate-goal-lifecycle.sh",
   "scripts/test-goal-lifecycle.ps1",
@@ -437,7 +441,7 @@ $guardianTerms = @("Affected baseline recorded:","Regression monitors selected:"
 foreach ($term in $guardianTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing guardian field: $term" } }
 $bootstrapTerms = @("Environment Ready:","Profiles Loaded:","Mandatory Dependencies:","Recommended Dependencies:","Optional Dependencies:","Installation Performed:")
 foreach ($term in $bootstrapTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing bootstrap field: $term" } }
-$browserTerms = @("User-owned browser/profile verified:","Chrome readiness flow completed:","Extension/tab-claim authorization granted:","Exact user.openTabs() object claimed:","Existing window state preserved:","Target tab and domain verified:","Control provenance:","Control channel:","Automatic ownership repair run when needed:","Verification evidence:","Separate automation surface created:","Banner classification:","Signed-in state verified when required:","Browser session gate:")
+$browserTerms = @("User-owned browser/profile verified:","Chrome readiness flow completed:","Extension/tab-claim authorization granted:","Chrome-family binding selected explicitly:","Existing window/profile/session proven with user.openTabs():","Dedicated task tab created in same Chrome window/profile/session:","User working tab preserved:","Exact dedicated-tab object claimed:","Existing window state preserved:","Target tab and domain verified:","Control provenance:","Control channel:","Failure stage/reason/next recorded:","Automatic ownership repair run when needed:","Verification evidence:","New window/browser/profile/session/context/panel/internal surface created:","Banner classification:","Signed-in state verified when required:","Browser session gate:")
 foreach ($term in $browserTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing browser session field: $term" } }
 $skeletonTerms = @("Skeleton system selected:","Existing loading pattern searched:","Skeleton reused or updated:","State matrix defined:","Skeleton parity verified:","Layout shift checked:","Skeleton timing policy selected:","Delayed reveal verified:","Minimum visible duration verified:","SSR/hydration parity verified:","Shared skeleton API contract verified:","Skeleton family owner and canonical public import verified:","Cancellation and refresh behavior verified:","Skeleton gate:")
 foreach ($term in $skeletonTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skeleton field: $term" } }
@@ -491,6 +495,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-intent-fidelity-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-completion-audit.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-local-service-readiness.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-performance-forensics.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null

@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.23.0.
+UEEF Enterprise Edition version: 2.24.0.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -112,3 +112,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.21.5: added Windows PowerShell-safe Arabic intent classification, detected partially rejected plugin manifests, and surfaced non-interactive GitHub release credentials during environment bootstrap.
 - 2.22.0: unified preferred skill, plugin, and MCP governance with missing-only reconciliation and lifecycle-correct installation actions.
 - 2.23.0: executable goal-progress, architecture, file-organization, and evidence-provenance enforcement across all quality-gate domains.
+- 2.24.0: dedicated same-profile browser task tabs, fail-closed last-resort loopback control, literal completion audits, routed goal updates, implementation convergence, and project-owned local-service reuse.

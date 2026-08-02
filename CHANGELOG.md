@@ -2,7 +2,17 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.23.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.24.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.24.0 - 2026-08-02
+
+- Preserved the user's working Chrome tab while requiring a dedicated task tab in the same existing window, profile, and session.
+- Added fail-closed emergency loopback readiness with explicit authorization, complete prior-stage evidence, exact target identity, and loopback WebSocket enforcement.
+- Added project-ownership proof before reusing an existing local service and prohibited duplicate startup on unverified or unhealthy listeners.
+- Required literal schema-version-2 completion audits with current evidence, actual implementation inventory, reverse traceability, and no missing or untraced implementation.
+- Added deterministic routing for current, prior, future, invalidating, and conflicting goal updates, including resume points and completion convergence.
+- Enforced dual-scope progress reporting, before-finish commitments, changed-surface regression review, and stop-without-follow-up behavior after proven completion.
+- Restored PowerShell 5.1-safe test sources, compact runtime `AGENTS.md` generation, and equivalent PowerShell/Node/Unix validation behavior.
 
 ## 2.23.0 - 2026-08-01
 

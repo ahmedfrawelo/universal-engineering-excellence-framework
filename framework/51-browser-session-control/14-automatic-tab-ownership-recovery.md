@@ -2,7 +2,7 @@
 
 ## Trigger
 
-When exact-object `claimTab()` reports that the existing user tab is already part of another browser session, treat it as a stale ownership conflict. Do not ask the user to Share, Connect, restart Chrome, open another tab, or wait for another task.
+When exact-object `claimTab()` reports that the dedicated task tab is already part of another browser-control session, treat it as a stale ownership conflict. Do not ask the user to Share, Connect, restart Chrome, open another tab, or wait for another task.
 
 ## Required Recovery
 

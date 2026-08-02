@@ -29,13 +29,13 @@ grep -Fq 'Chrome readiness flow completed:' "$ROOT/framework/03-runtime/00-runti
 grep -Fq 'Automatic ownership repair run when needed:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo 'Missing runtime ownership-repair field' >&2; exit 1; }
 grep -Fq 'do not report `COMPLETE`' "$ROOT/framework/51-browser-session-control/07-browser-task-verification.md" || { echo 'Missing required-visual completion guard' >&2; exit 1; }
 grep -Fq 'chrome.tabs.finalize(...)' "$ROOT/framework/51-browser-session-control/07-browser-task-verification.md" || { echo 'Missing stale-tab ownership cleanup rule' >&2; exit 1; }
-for term in 'THREAD_CONTROL_CHANNEL_DEGRADED' 'CHROME_EXTERNALLY_UNAVAILABLE' 'VERIFIED_HANDOFF' 'trusted coordinator' 'existing user-owned tab' 'current code state'; do
+for term in 'THREAD_CONTROL_CHANNEL_DEGRADED' 'CHROME_EXTERNALLY_UNAVAILABLE' 'VERIFIED_HANDOFF' 'trusted coordinator' 'dedicated task tab' 'same-target' 'current code state'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/12-cross-session-evidence-handoff.md" || { echo "Missing evidence-handoff term: $term" >&2; exit 1; }
 done
-for term in 'first local bridge failure' 'Do not expose attempt counts' 'Browser verification is being completed on your existing tab; implementation continues.'; do
+for term in 'first local bridge failure' 'stage' 'reason' 'next' 'generic connection/channel failure' 'AUTHORIZED_LOOPBACK_LAST_RESORT' 'in-app browser'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/13-user-facing-recovery-protocol.md" || { echo "Missing user-facing recovery term: $term" >&2; exit 1; }
 done
-for term in 'already part of another browser session' 'Do not ask the user to Share, Connect, restart Chrome, open another tab, or wait for another task' 'repair-chrome-tab-ownership.ps1' 'user.openTabs()' 'exact returned target object' 'claimTab()' 'one automated recovery' 'without a coordinator or user action'; do
+for term in 'dedicated task tab' 'browser-control session' 'Do not ask the user to Share, Connect, restart Chrome, open another tab, or wait for another task' 'repair-chrome-tab-ownership.ps1' 'user.openTabs()' 'exact returned target object' 'claimTab()' 'one automated recovery' 'without a coordinator or user action'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/14-automatic-tab-ownership-recovery.md" || { echo "Missing automatic ownership-recovery term: $term" >&2; exit 1; }
 done
 
@@ -58,7 +58,7 @@ for file in "$ROOT/QUICK_START.md" "$ROOT/INSTALL.md"; do
   done
 done
 
-for term in 'same user-owned tab' 'Automatic Failover' 'VERIFIED_HANDOFF' 'visible Windows control' 'never creates' 'No user acknowledgement'; do
+for term in 'Same-Target' 'dedicated task tab' 'Automatic Failover' 'VERIFIED_HANDOFF' 'visible Windows control' 'in-app browser' 'stage and cause category' 'No user acknowledgement'; do
   grep -Fq "$term" "$ROOT/framework/51-browser-session-control/16-control-channel-failover.md" || { echo "Missing control-channel failover term: $term" >&2; exit 1; }
 done
 

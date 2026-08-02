@@ -45,6 +45,8 @@ done
 [ -f "$ROOT/scripts/test-architecture-report.ps1" ] || { echo "Missing architecture reporter tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-remote-debugging-readiness.ps1" ] || { echo "Missing remote debugging readiness probe" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-remote-debugging-readiness.ps1" ] || { echo "Missing remote debugging readiness tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/get-local-service-readiness.ps1" ] || { echo "Missing local service readiness probe" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-local-service-readiness.ps1" ] || { echo "Missing local service readiness tests" >&2; exit 1; }
 [ -f "$ROOT/config/file-organization-policy.json" ] || { echo "Missing file organization policy" >&2; exit 1; }
 [ -f "$ROOT/config/architecture-policy.json" ] || { echo "Missing architecture policy" >&2; exit 1; }
 [ -f "$ROOT/config/browser-emergency-fallback.json" ] || { echo "Missing browser emergency fallback policy" >&2; exit 1; }
@@ -147,7 +149,12 @@ grep -q "Environment Ready:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "User-owned browser/profile verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Chrome readiness flow completed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Extension/tab-claim authorization granted:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "Exact user.openTabs() object claimed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Chrome-family binding selected explicitly:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Existing window/profile/session proven with user.openTabs():" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Dedicated task tab created in same Chrome window/profile/session:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "User working tab preserved:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Exact dedicated-tab object claimed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
+grep -q "Emergency exact target proof:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Automatic ownership repair run when needed:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Existing window state preserved:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Control provenance:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -428,6 +435,7 @@ if [ "$SKIP_NESTED_TESTS" = 0 ]; then
     pwsh -NoProfile -File "$ROOT/scripts/test-file-organization-report.ps1" >/dev/null || { echo "File organization report tests failed" >&2; exit 1; }
     pwsh -NoProfile -File "$ROOT/scripts/test-architecture-report.ps1" >/dev/null || { echo "Architecture report tests failed" >&2; exit 1; }
     pwsh -NoProfile -File "$ROOT/scripts/test-remote-debugging-readiness.ps1" >/dev/null || { echo "Remote debugging readiness tests failed" >&2; exit 1; }
+    pwsh -NoProfile -File "$ROOT/scripts/test-local-service-readiness.ps1" >/dev/null || { echo "Local service readiness tests failed" >&2; exit 1; }
   fi
   "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
   "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }

@@ -1,8 +1,25 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "taskId": "replace-me",
   "auditedAt": "replace-me",
   "requestedOutcome": "replace-me",
+  "sourceReview": {
+    "coverageMode": "verbatim-segments",
+    "sourceText": "replace-me",
+    "sourceSha256": "replace-me",
+    "status": "PENDING",
+    "reviewUnits": [
+      {
+        "id": "RU-1",
+        "classification": "requirement",
+        "sourceQuote": "replace-me",
+        "start": 0,
+        "end": 0,
+        "status": "PENDING",
+        "linkedRequirements": ["REQ-1"]
+      }
+    ]
+  },
   "requirements": [
     {
       "id": "REQ-1",
@@ -26,6 +43,73 @@
       ]
     }
   ],
+  "implementationReview": {
+    "implementationCompletedAt": "replace-me",
+    "goalReviewStartedAt": "replace-me",
+    "transitionAnnounced": false,
+    "goalRemainedActiveDuringReview": true,
+    "requestedImplementationStatus": "PENDING",
+    "bestFeasibleOutcomeStatus": "PENDING",
+    "goalToImplementationComparisonStatus": "PENDING",
+    "bestFeasibleOutcomeRationale": "replace-me",
+    "actualImplementationInventory": [
+      {
+        "id": "IMP-1",
+        "surface": "replace-me",
+        "observedBehavior": "replace-me",
+        "evidence": "replace-me",
+        "linkedRequirements": ["REQ-1"],
+        "status": "PENDING"
+      }
+    ],
+    "missingImplementation": [],
+    "untracedImplementation": [],
+    "status": "PENDING"
+  },
+  "completionChecklist": [
+    {
+      "requirementId": "REQ-1",
+      "sourceReviewUnits": ["RU-1"],
+      "acceptanceCriteria": ["AC-1"],
+      "actualImplementationIds": ["IMP-1"],
+      "requestedImplementationStatus": "PENDING",
+      "bestFeasibleOutcomeStatus": "PENDING",
+      "goalToImplementationComparisonStatus": "PENDING",
+      "bestFeasibleOutcomeRationale": "replace-me",
+      "checked": false,
+      "status": "PENDING"
+    }
+  ],
+  "regressionReview": {
+    "scope": "changes introduced by this task only",
+    "changedSurfaces": ["replace-me"],
+    "checks": [
+      {
+        "surface": "replace-me",
+        "evidence": "replace-me",
+        "result": "PENDING"
+      }
+    ],
+    "taskCausedRegressions": [],
+    "unrelatedFindings": [],
+    "status": "PENDING"
+  },
+  "userCommitmentReview": {
+    "explicitBeforeFinishRequestDetected": false,
+    "clarificationAskedBeforeCompletion": false,
+    "resolutionEvidence": ["replace-me"],
+    "pendingCommitments": [],
+    "status": "PENDING"
+  },
+  "goalUpdateReview": {
+    "updatesReceived": 0,
+    "allReceivedUpdatesClassified": false,
+    "updateDetectionStatus": "PENDING",
+    "routes": [],
+    "pendingUpdates": [],
+    "openResumePoints": [],
+    "status": "PENDING"
+  },
   "remainingWork": [],
   "knownProblems": [],
   "limitations": [],

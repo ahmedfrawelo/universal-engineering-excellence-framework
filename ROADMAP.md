@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.23.0
+## Current: 2.24.0
 
-UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.23.0 adds executable progress checks, configurable architecture and file-organization reports, complete evidence generation, semantic domain validation, and verifiable evidence provenance. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.24.0 adds literal goal-to-implementation convergence, deterministic goal-update routing, dedicated task tabs inside the user's existing Chrome profile/session, exact-target emergency control, and project-owned local-service reuse. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 

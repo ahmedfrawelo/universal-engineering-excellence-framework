@@ -12,15 +12,18 @@ Chrome control failures must be resolved through a deterministic readiness path 
 Before using Chrome for navigation, inspection, screenshots, clicking, typing, upload, or authenticated verification, complete this Chrome readiness flow:
 
 1. Read the installed Chrome `control-chrome/SKILL.md` and use its supported `browser-client.mjs` bootstrap through `mcp__node_repl__js`.
-2. Select the Chrome plugin extension binding, not a directly exposed browser MCP and not a connector-created browser.
-3. Enumerate `user.openTabs()` and select the exact returned object for the user-owned tab. Do not reconstruct the tab from URL text.
-4. Run `claimTab()` on that exact object. A platform permission prompt is normal authorization, not a failure and not permission to create another browser profile.
-5. If `claimTab()` reports a stale browser-session owner, run `scripts/repair-chrome-tab-ownership.ps1`, reset the task browser binding, rebootstrap the same extension binding, and reclaim the exact tab once.
-6. If the local bridge is still degraded after documented bootstrap troubleshooting, classify it as `THREAD_CONTROL_CHANNEL_DEGRADED`, automatically seek or accept a current `VERIFIED_HANDOFF` for the same tab and current code state, and continue non-browser work. Do not ask the user to acknowledge, confirm, or type "done" to begin this failover.
-7. If no trusted coordinator channel can supply current same-tab evidence, use verified visible Windows control only on Windows when the Chrome plugin itself is independently unavailable and the same user-owned window can be identified. On macOS/Linux skip visible control and continue only to an eligible authorized loopback stage. Do not create a browser, profile, or isolated context.
-8. If every configured same-tab stage has recorded failure evidence and the user explicitly authorized emergency remote debugging, run `scripts/get-remote-debugging-readiness.ps1 -AuthorizedLastResort -PriorStageFailure <recorded-stages>`. Continue only on `READY_LAST_RESORT`; `PRIOR_STAGES_INCOMPLETE` is a hard rejection. Attach to the same existing page target through loopback under `AUTHORIZED_LOOPBACK_LAST_RESORT`; never launch Chrome or inspect cookies/storage/profile data. Stricter host or skill rules still win.
-9. Only report `CHROME_EXTERNALLY_UNAVAILABLE` when Chrome, the extension, every authorized same-window path, and any eligible authorized loopback fallback are independently proven unavailable.
-10. Finalize claimed tabs with `chrome.tabs.finalize(...)` before the turn ends unless an explicit handoff keeps the tab live for the next task; detach an emergency CDP session immediately after verification.
+2. Select Chrome explicitly with `agent.browsers.get("chrome")` or the current skill-documented Chrome-family selector. Do not call `getDefault()`, `getForUrl()`, `get("iab")`, a directly exposed browser MCP, or a connector-created browser.
+3. Read the selected Chrome binding documentation in full before using its tab API.
+4. Enumerate `user.openTabs()` to prove the existing user-owned Chrome window/profile/session and record the active working tab. Do not claim or navigate that working tab by default.
+5. Create one dedicated task tab through the documented API on the same Chrome binding. Verify that no window, profile, session, context, panel, or internal browser was created; prefer background creation and preserve the user's active tab.
+6. Run `claimTab()` on the exact created tab object. Reuse an existing tab only when the user explicitly requested it. A platform permission prompt is normal authorization, not permission to create another surface.
+7. If `claimTab()` reports a stale browser-session owner, run `scripts/repair-chrome-tab-ownership.ps1`, reset only the task tab binding, rebootstrap the same Chrome binding, and reclaim the exact dedicated tab once.
+8. If the local bridge remains degraded after documented troubleshooting, classify it as `THREAD_CONTROL_CHANNEL_DEGRADED`, report the structured stage/reason/next diagnosis, automatically seek or accept a current `VERIFIED_HANDOFF` for the same dedicated tab and current code state, and continue non-browser work.
+9. If no trusted coordinator channel can supply current same-target evidence, use verified visible Windows control only on Windows when the Chrome plugin itself is independently unavailable and the same user-owned window can be identified. On macOS/Linux skip visible control and continue only to an eligible authorized loopback stage.
+10. If every configured prior stage has recorded failure evidence, report those stage/reason results and request or consume explicit authorization for emergency remote debugging. Run `scripts/get-remote-debugging-readiness.ps1 -AuthorizedLastResort -PriorStageFailure <recorded-stages> -ExpectedTargetId <dedicated-target-id>` and continue only on `READY_LAST_RESORT` with `sameTargetProven`. "Use the alternative" counts only when it unambiguously refers to this authorized emergency path; it never authorizes the in-app browser.
+11. Attach to the same dedicated existing page target through loopback under `AUTHORIZED_LOOPBACK_LAST_RESORT`; never launch Chrome or inspect cookies/storage/profile data. Stricter host or skill rules still win.
+12. Only report `CHROME_EXTERNALLY_UNAVAILABLE` when Chrome, the extension, every authorized same-window path, and any eligible authorized loopback fallback are independently proven unavailable.
+13. Finalize the claimed task tab with `chrome.tabs.finalize(...)` before the turn ends unless an explicit handoff keeps it live; detach emergency CDP immediately after verification.
 
 ## Startup Order Hint
 
@@ -45,11 +48,11 @@ These conditions require readiness recovery or visual-evidence follow-up, not `B
 
 The task may ask for user action only when one of these is independently verified:
 
-- No user-owned Chrome profile or target tab exists and the user did not provide a target to open.
+- No user-owned Chrome profile exists, or the Chrome binding cannot create a same-window dedicated task tab for the supplied target.
 - The Chrome plugin/extension is unavailable and no verified visible Windows fallback can prove the same user-owned tab.
 - The requested workflow requires authentication and the user-owned tab is not signed in.
 - Chrome itself is closed or inaccessible outside the task-local bridge.
 
 ## Completion Rule
 
-For browser-required work, completion requires either local same-tab verification or a current trusted `VERIFIED_HANDOFF` that covers the same user-owned tab and current code state. Build success, tests, source inspection, structural equivalence, or screenshot delay cannot replace that browser gate, and cannot become a false `BLOCKED` state while meaningful implementation or non-visual verification can continue.
+For browser-required work, completion requires local verification in the dedicated task tab or a current trusted `VERIFIED_HANDOFF` covering that same target and current code state. Build success, tests, source inspection, structural equivalence, or screenshot delay cannot replace that browser gate and cannot become a false `BLOCKED` state while meaningful work remains.

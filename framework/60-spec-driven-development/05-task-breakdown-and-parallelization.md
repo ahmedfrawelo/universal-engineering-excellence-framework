@@ -11,6 +11,7 @@ Tasks convert the plan into executable work while preserving dependency order an
 - Mark tasks that are safe to run in parallel only when their write sets do not overlap and their dependencies are satisfied.
 - Do not create task items that are vague verbs such as "improve", "clean", or "finish" without a concrete deliverable.
 - Keep task lists current. When implementation discovers missing work, append or revise tasks before continuing.
+- Route user goal updates by relation to the active plan. Current-step updates merge in place; verified prior-step corrections save and restore a resume point; future-step updates receive explicit order, dependencies, acceptance criteria, and owner before the current step continues.
 
 ## Parallelization Checks
 

@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant applies only the evidence and controls proportionate to the task, then verifies the requested outcome.
 
-The current release is 2.23.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. For T2+ work, generate evidence with `scripts/new-task-evidence.ps1`, complete every selected domain, and validate it with `scripts/validate-task-evidence.ps1`. Runtime synchronization remains a separate operation.
+The current release is 2.24.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. For T2+ work, generate evidence with `scripts/new-task-evidence.ps1`, complete every selected domain, and validate it with `scripts/validate-task-evidence.ps1`. Runtime synchronization remains a separate operation.
 
 ## Minimal path
 

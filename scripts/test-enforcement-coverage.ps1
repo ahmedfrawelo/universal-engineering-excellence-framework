@@ -68,6 +68,16 @@ try {
 
 $loader = Get-Content -LiteralPath (Join-Path $root 'UEEF-LOADER.md') -Raw
 $sync = Get-Content -LiteralPath (Join-Path $root 'scripts\sync-runtime.ps1') -Raw
-if ($loader -notmatch 'both a conservative percent and an explicit phase' -or $sync -notmatch 'both a conservative percent and an explicit phase') { throw 'Strict long-goal progress contract is not present in source and generated AGENTS policy.' }
+foreach($text in @($loader,$sync)) {
+  foreach($required in @('current understanding','current step','current-step percent','overall percent','new evidence','current action','next gate')) {
+    if($text -notmatch [regex]::Escape($required)){throw "Strict long-goal progress contract is missing '$required' in source or generated AGENTS policy."}
+  }
+  foreach($required in @('goal review','best feasible','task-caused regressions','unrelated findings','stop without')) {
+    if($text -notmatch [regex]::Escape($required)){throw "Completion-review contract is missing '$required' in source or generated AGENTS policy."}
+  }
+  foreach($required in @('actual implementation','untraced implementation','goal update','resume point','FUTURE_STEP')) {
+    if($text -notmatch [regex]::Escape($required)){throw "Goal update or actual comparison contract is missing '$required' in source or generated AGENTS policy."}
+  }
+}
 
 Write-Output "Enforcement coverage tests passed ($($registry.domains.Count) domains, $($mapped.Count) quality gates)."

@@ -36,6 +36,14 @@ Applies To: implementation work with multiple dependent steps or material risk
 
 Only one dependent step may be `In progress` at a time. Independent steps may run concurrently when the execution policy permits it.
 
+## Goal Update Register
+
+| Update ID | Summary | Relation | Current/resume point | Target step | Order | Dependencies | Acceptance criteria | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| GU-1 |  | CURRENT_STEP / PRIOR_STEP_CORRECTION / FUTURE_STEP / INVALIDATES_CURRENT_WORK / CONFLICT_OR_AMBIGUOUS |  |  |  |  |  | Pending |
+
+Route every new user goal update before changing execution. Merge `CURRENT_STEP` updates into the active step. For `PRIOR_STEP_CORRECTION`, save the current resume point, verify the reopened step, then restore the interrupted step. Queue `FUTURE_STEP` updates with explicit order, dependencies, and acceptance criteria while preserving current work. Pause and replan only when an update invalidates current work; preserve state and ask the user when requirements conflict or remain materially ambiguous.
+
 ## Risk Controls
 
 - Destructive or externally visible actions:
@@ -45,13 +53,14 @@ Only one dependent step may be `In progress` at a time. Independent steps may ru
 
 ## Evidence Log
 
-| Acceptance criterion | Evidence source | Result | Remaining gap |
-| --- | --- | --- | --- |
-|  |  |  |  |
+| Acceptance criterion | Actual implementation/behavior | Evidence source | Result | Remaining gap |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
 
 ## Completion Audit
 
 - Every requested outcome maps to a completed step and evidence row.
+- Every actual implementation item maps back to a requirement; no untraced implementation remains.
 - Required gates passed; failures and skips were not hidden.
 - Runtime or published artifacts were synchronized when in scope.
 - Residual limitations have an owner and next action.

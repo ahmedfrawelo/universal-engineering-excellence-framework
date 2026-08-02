@@ -8,7 +8,7 @@
     "chrome-plugin-extension",
     "bootstrap-and-chrome-troubleshooting",
     "stale-ownership-repair",
-    "verified-same-tab-handoff",
+    "verified-dedicated-target-handoff",
     "verified-visible-windows-control"
   ],
   "requiresExplicitUserAuthorization": true,
