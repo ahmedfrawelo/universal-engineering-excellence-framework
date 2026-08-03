@@ -12,9 +12,14 @@ printf '{}\n' > "$FIXTURE/.openai/hosting.json"
 printf '%s\n' 'echo ok' > "$FIXTURE/scripts/test-example.sh"
 
 output="$(sh "$ROOT/scripts/project-context-map.sh" "$FIXTURE" 100)"
-for term in 'release-manifest.json' '.openai/hosting.json' 'src' 'scripts/test-example.sh' '.github' 'packages/sample/node_modules' 'packages/sample/dist'; do
+for term in 'Repository intelligence: NOT_BUILT' 'release-manifest.json' '.openai/hosting.json' 'src' 'scripts/test-example.sh' '.github' 'packages/sample/node_modules' 'packages/sample/dist'; do
   printf '%s\n' "$output" | grep -Fq -- "$term" || { echo "Project context map missing: $term" >&2; exit 1; }
 done
+
+mkdir -p "$FIXTURE/.ueef/repository-graph"
+printf '%s\n' '{"status":"PASS"}' > "$FIXTURE/.ueef/repository-graph/state.json"
+built_output="$(sh "$ROOT/scripts/project-context-map.sh" "$FIXTURE" 100)"
+printf '%s\n' "$built_output" | grep -Fq -- 'Repository intelligence: BUILT' || { echo 'Project context map did not expose built repository intelligence state.' >&2; exit 1; }
 
 if sh "$ROOT/scripts/project-context-map.sh" "$FIXTURE" 0 >/dev/null 2>&1; then
   echo 'Project context map accepted MAX_ITEMS 0' >&2

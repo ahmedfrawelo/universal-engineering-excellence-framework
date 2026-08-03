@@ -24,6 +24,8 @@ This module establishes the enforceable **runtime contract** contract for UEEF l
 ## Mandatory Safeguards
 
 - Do not claim activation, capability, or completion without the corresponding proof.
+- For a managed Codex runtime, `Overall: ACTIVE` requires exact managed-requirements and hook-file hashes. `AGENTS.md` alone is advisory and cannot satisfy the runtime contract.
+- Route-before-tool, protected browser/destructive paths, T2+ completion evidence, progress fields, and goal closure must be evaluated by the managed lifecycle hooks on every supported Codex event.
 - Reuse the repository's existing owner, pattern, and automation before adding a parallel mechanism.
 - Keep failure behavior explicit, bounded, diagnosable, and recoverable in proportion to risk.
 
@@ -38,6 +40,7 @@ This module establishes the enforceable **runtime contract** contract for UEEF l
 - The runtime contract decision is implicit, ownerless, or contradicted by the implementation.
 - Evidence demonstrates only intent, compilation, or a happy path when stronger proof is practical.
 - Residual risk is hidden, unbounded, or handed off without an owner and trigger.
+- Managed hooks or system requirements are missing, changed, disabled, unbound from active state, or replaced by prompt-only prose.
 
 ## Related Modules
 

@@ -35,11 +35,13 @@ On Unix-like systems:
 - Markdown file count is reported.
 - Version is reported.
 - Global loader exists or a required action is shown.
+- Managed requirements and all hook payload hashes pass for a Codex managed runtime.
 - Validation script exists.
 
 ## Interpretation
 
 - Overall: ACTIVE means the managed runtime is installed and may be used for engineering work.
+- `Managed enforcement: PASS` means Codex lifecycle hooks are installed and match active-state hashes; it does not claim that an already-open pre-install turn was retroactively intercepted.
 - Overall: SOURCE_VALIDATED means only that a source checkout passes repository validation; it must not be presented as runtime activation.
 - Overall: INACTIVE or SOURCE_INVALID means the assistant must not pretend UEEF is active.
 - Global loader: UNKNOWN means the repository is present but a global AI rules path was not verified.

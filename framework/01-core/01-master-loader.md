@@ -26,6 +26,7 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Route every task through `framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md` and `01-task-complexity-classifier.md`. Select the remaining pack modules when delegation, model override, parallel agents, token economy, escalation, or independent verification applies.
 - Select `framework/59-skill-invocation-protocol/` for named skill requests, skill routing, workflow protocols, Superpowers-inspired workflow work, TDD/evidence-loop hardening, subagent review chains, red-flag detection, or skill-authoring work.
 - Select `framework/60-spec-driven-development/` for Spec Kit-inspired work, specifications, requirements, acceptance criteria, project principles, clarification, technical plans, task breakdown, cross-artifact analysis, convergence, extension/preset/bundle governance, or third-party attribution.
+- Select `framework/63-repository-intelligence/` for broad repository orientation, architecture/ownership mapping, dependency paths, affected-code analysis, or incremental local knowledge graphs. Treat graph results as bounded evidence and confirm them against owning source and behavior.
 
 ## Agent and Model Routing
 

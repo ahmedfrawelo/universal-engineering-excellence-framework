@@ -1,9 +1,17 @@
-$script:UeefOwnedDirectories = @('framework','scripts','docs','examples','tools','assets','config')
+$script:UeefOwnedDirectories = @('framework','scripts','docs','examples','tools','assets','config','vendor')
 $script:UeefOwnedRootFiles = @(
   '.gitattributes','.gitignore','BUILD_PROGRESS.md','CHANGELOG.md','CODE_OF_CONDUCT.md',
   'CONTRIBUTING.md','INSTALL.md','LICENSE','QUICK_START.md','README.md','ROADMAP.md',
   'SECURITY.md','VERSION.md','release-manifest.json'
 )
+$script:UeefRuntimeGeneratedSegments = @('.venv','build','graphifyy.egg-info','__pycache__','.pytest_cache','.hypothesis','.ruff_cache','.mypy_cache')
+
+function Test-UeefRuntimeGeneratedRelativePath {
+  param([Parameter(Mandatory)][string]$RelativePath)
+  $segments = $RelativePath.Replace('\','/').TrimStart('/').Split('/')
+  return $segments.Count -ge 3 -and $segments[0] -ceq 'vendor' -and $segments[1] -ceq 'repository-intelligence-engine' -and
+    @($segments | Where-Object { $_ -in $script:UeefRuntimeGeneratedSegments }).Count -gt 0
+}
 
 function Test-UeefSensitiveRelativePath {
   param([Parameter(Mandatory)][string]$RelativePath)
@@ -111,6 +119,7 @@ function Get-UeefRuntimeDriftMismatches {
       $mismatches.Add("Unsafe runtime reparse point: $relative")
       continue
     }
+    if (Test-UeefRuntimeGeneratedRelativePath $relative) { continue }
     if (!$runtimeItem.PSIsContainer -and $relative -ne 'UEEF-LOADER.md' -and !$sourceSet.Contains($relative)) {
       $mismatches.Add("Extra runtime: $relative")
     }

@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.24.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.25.0 - 2026-08-03
+
+- Added managed Codex enforcement hooks and policies with runtime activation and status proof.
+- Added native repository intelligence through an attributed Graphify engine, UEEF wrappers, focused tests, and vendor-integrity verification.
+- Hardened Windows paths, caches, installers, hooks, exports, watch queues, and platform-specific test behavior without changing Windows system configuration.
+- Added source/runtime drift and source-revision validation for the expanded release payload.
 
 ## 2.24.0 - 2026-08-02
 

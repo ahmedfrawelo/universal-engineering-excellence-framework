@@ -66,6 +66,7 @@ Temporary creative bypass:
 
 Large-project reuse:
 - For broad or unfamiliar repositories, run `scripts/project-context-map.ps1`, `scripts/project-context-map.sh`, or an equivalent repository map before implementation.
+- For broad or unfamiliar repositories where cross-file architecture, dependency paths, or impact analysis materially helps, select `framework/63-repository-intelligence/`, check its local graph status, and build or refresh it when absent or stale. Use graph results to orient source inspection; never substitute them for owning-source inspection or behavioral proof.
 - Discover module boundaries, aliases, barrel exports, public APIs, registries, package boundaries, shared folders, state stores, validators, service clients, and test utilities before implementation.
 - Use public imports/exports and project registries. Do not reach into private internals unless that is the established project convention.
 - When adding reusable capability, update the shared public export, tests, and at least one real consumer where project conventions expect it.
@@ -97,6 +98,7 @@ Agent routing hardening:
 - T1 code changes default to a single agent. Record `Agent route: <tier> | Agent: spawned <id>` or `not spawned - NO_INDEPENDENT_WORK/CRITICAL_PATH_ONLY/TOOL_UNAVAILABLE`; spawn only when independent work materially improves the requested outcome.
 
 Live runtime refresh:
+- Managed Codex hooks refresh current runtime context at `SessionStart` and `UserPromptSubmit`, require route evidence before supported local tools, and evaluate final evidence at `Stop`. Resolve a hook denial through the named gate; never bypass it with another tool surface.
 - Re-read this loader once per task, or when the runtime version, loader content, or browser hard-stop policy may have changed. Do not re-read it on every trivial follow-up in the same task.
 - Do not rely on a stale loader or browser decision when the runtime, active state, or preflight cache has changed. On a routine same-task follow-up, prior loader evidence remains valid.
 - If the runtime version, loader content, or browser hard-stop policy changed, discard the cached decision and restart preflight.

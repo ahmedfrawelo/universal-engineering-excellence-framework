@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "enforcementVersion": 1,
+  "requiredFinalLabels": ["UEEF", "Loaded", "Selected", "Gates", "Tools", "Skills", "UIUX", "Status"],
+  "requiredProgressConcepts": [
+    "Understanding|الفهم",
+    "Phase|المرحلة",
+    "Current step|الخطوة الحالية",
+    "Current-step percent|نسبة الخطوة الحالية",
+    "Overall percent|النسبة الكلية",
+    "New evidence|الدليل الجديد",
+    "Current action|الإجراء الحالي",
+    "Next gate|البوابة التالية"
+  ],
+  "protectedPathFragments": [
+    "UEEF-ACTIVE.json",
+    "managed-hooks",
+    "hook-state",
+    "requirements.toml"
+  ],
+  "prohibitedBrowserToolPatterns": [
+    "(?i)(^|__)browser($|__)",
+    "(?i)in.?app.?browser",
+    "(?i)chrome.?devtools"
+  ],
+  "prohibitedBrowserInputPatterns": [
+    "(?i)browser\\.newContext",
+    "(?i)browser\\.launch",
+    "(?i)getDefault\\(",
+    "(?i)getForUrl\\(",
+    "(?i)chrome-devtools",
+    "(?i)IDE Simple Browser",
+    "(?i)--user-data-dir"
+  ],
+  "browserInputPatterns": [
+    "(?i)user\\.openTabs",
+    "(?i)claimTab\\(",
+    "(?i)tab\\.playwright",
+    "(?i)browser-client"
+  ],
+  "completionClaimPattern": "(?i)(\\bCOMPLETE\\b|\\b100\\s*%|\\bperfect\\b|\\bfully verified\\b|مكتمل|اكتمل|كامل|تم بالكامل)",
+  "postCompletionQuestionPattern": "(?i)(\\?|هل تريد|هل تحب|حابب|anything else|do you want|would you like)",
+  "destructiveCommands": [
+    {"id": "delete", "authorization": "delete", "pattern": "(?i)(Remove-Item|rm\\s+-r|del(?:ete)?\\s|rmdir|erase\\s|git\\s+branch\\s+-D)"},
+    {"id": "reset", "authorization": "reset", "pattern": "(?i)(git\\s+(reset|clean|checkout\\s+--)|Clear-RecycleBin)"},
+    {"id": "push", "authorization": "push", "pattern": "(?i)(git\\s+push\\b)"},
+    {"id": "release", "authorization": "release", "pattern": "(?i)(publish-github-release|gh\\s+release\\s+create|npm\\s+publish|dotnet\\s+nuget\\s+push)"}
+  ]
+}

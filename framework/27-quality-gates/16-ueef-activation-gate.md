@@ -17,6 +17,7 @@ This gate prevents fake activation claims. A task is incomplete if UEEF was not 
 - Master Index file exists: framework/01-core/02-master-index.md or framework/MASTER_INDEX.md.
 - Runtime sequence exists: framework/03-runtime/00-runtime-sequence.md.
 - Runtime activation proof exists: framework/01-core/10-runtime-activation-proof.md.
+- A Codex managed runtime reports `Managed enforcement: PASS`; AGENTS injection without system-managed hooks is insufficient.
 - Relevant modules were selected for the task.
 - MCPs, tools, connectors, local scripts, and installed skills were checked.
 - UI work selected `Quick`, `Build`, or `Audit`, and each selected design skill has an independent task trigger.

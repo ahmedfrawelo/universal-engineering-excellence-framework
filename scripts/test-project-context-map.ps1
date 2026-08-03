@@ -9,11 +9,16 @@ try {
   Set-Content -LiteralPath (Join-Path $fixture 'scripts\test-example.ps1') -Value "Write-Output 'ok'"
 
   $output = (& (Join-Path $root 'scripts\project-context-map.ps1') -Path $fixture -MaxItems 100) -join "`n"
-  foreach ($term in @('release-manifest.json', '.openai/hosting.json', 'src', 'scripts/test-example.ps1', '.github', 'packages/sample/node_modules', 'packages/sample/dist')) {
+  foreach ($term in @('Repository intelligence: NOT_BUILT', 'release-manifest.json', '.openai/hosting.json', 'src', 'scripts/test-example.ps1', '.github', 'packages/sample/node_modules', 'packages/sample/dist')) {
     if ($output -notmatch [regex]::Escape($term)) { throw "Project context map missing: $term" }
   foreach ($item in @('specs', 'scripts/test-example.ps1')) {
     if ($output -notmatch "(?m)^- $([regex]::Escape($item))$") { throw "Project context map did not emit a separate test candidate: $item" }
   }
+
+  New-Item -ItemType Directory -Path (Join-Path $fixture '.ueef\repository-graph') -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $fixture '.ueef\repository-graph\state.json') -Value '{"status":"PASS"}'
+  $builtOutput = (& (Join-Path $root 'scripts\project-context-map.ps1') -Path $fixture -MaxItems 100) -join "`n"
+  if ($builtOutput -notmatch 'Repository intelligence: BUILT') { throw 'Project context map did not expose built repository intelligence state.' }
   }
 
   $rejected = $false

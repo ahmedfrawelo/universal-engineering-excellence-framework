@@ -4,6 +4,7 @@
 
 | Version | Supported |
 | --- | --- |
+| 2.25.x | Yes |
 | 2.24.x | Yes |
 | 2.22.x and earlier | No; update to the latest release |
 | Earlier releases | No; update to the latest release |

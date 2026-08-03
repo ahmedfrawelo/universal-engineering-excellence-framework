@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "outputDirectory": ".ueef/repository-graph",
+  "commands": ["build", "query", "path", "explain", "affected", "status", "doctor"],
+  "defaultMode": "local-offline-ast",
+  "maxItems": 500,
+  "ignoredDirectories": [
+    ".git", ".hg", ".svn", ".ueef", ".venv", "venv", "env",
+    "node_modules", "vendor", "dist", "build", "coverage", "target",
+    "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"
+  ],
+  "blockedCapabilities": [
+    "assistant-installers", "hooks", "mcp", "llm", "cloud", "url-ingestion",
+    "remote-database", "browser", "conversation-memory"
+  ],
+  "requiredArtifacts": ["graph.json", "GRAPH_REPORT.md", "graph.html", "state.json"],
+  "confidenceLevels": ["EXTRACTED", "INFERRED", "AMBIGUOUS"],
+  "measuredFixtureBudgetsMs": {
+    "coldBuild": 30000,
+    "warmBuild": 2000,
+    "query": 5000
+  }
+}

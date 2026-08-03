@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { releaseFiles, walkFiles } from './runtime-file-policy.mjs';
+import { isRuntimeGenerated, releaseFiles, walkFiles } from './runtime-file-policy.mjs';
 
 const [sourceArgument, runtimeArgument] = process.argv.slice(2);
 if (!sourceArgument || !runtimeArgument) throw new Error('Usage: check-runtime-drift.mjs <source> <runtime>');
@@ -17,7 +17,7 @@ for (const relative of sourceFiles) {
   if (!fs.existsSync(runtimeFile)) mismatches.push(`Missing runtime: ${relative}`);
   else if (hash(sourceFile) !== hash(runtimeFile)) mismatches.push(`Different: ${relative}`);
 }
-for (const relative of walkFiles(runtime)) {
+for (const relative of walkFiles(runtime, { ignore: isRuntimeGenerated })) {
   if (relative !== 'UEEF-LOADER.md' && !sourceFiles.includes(relative)) mismatches.push(`Extra runtime: ${relative}`);
 }
 const loader = path.join(runtime, 'UEEF-LOADER.md');

@@ -817,3 +817,9 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`62-performance-forensics/07-approved-implementation-and-regression.md`](62-performance-forensics/07-approved-implementation-and-regression.md)
 - [`62-performance-forensics/INDEX.md`](62-performance-forensics/INDEX.md)
 - [`62-performance-forensics/README.md`](62-performance-forensics/README.md)
+
+## 63-repository-intelligence
+
+- [`63-repository-intelligence/00-repository-intelligence-system.md`](63-repository-intelligence/00-repository-intelligence-system.md)
+- [`63-repository-intelligence/INDEX.md`](63-repository-intelligence/INDEX.md)
+- [`63-repository-intelligence/README.md`](63-repository-intelligence/README.md)

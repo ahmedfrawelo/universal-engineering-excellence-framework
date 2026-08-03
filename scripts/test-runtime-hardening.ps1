@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$sandbox = Join-Path ([IO.Path]::GetTempPath()) ("ueef-runtime-test-" + [guid]::NewGuid().ToString('N'))
+$sandbox = Join-Path ([IO.Path]::GetTempPath()) ("ueef-rt-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
 $codexHome = Join-Path $sandbox 'codex-home'
 
 function Initialize-FakeSkillInstaller([string]$TargetHome) {
@@ -121,6 +121,15 @@ try {
   if (!$staleDetected) { throw 'Runtime drift check accepted a stale file inside an owned runtime folder.' }
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' | Out-Null
   if (Test-Path -LiteralPath $staleRuntimeFile) { throw 'Runtime sync left a stale file inside an owned runtime folder.' }
+  $generatedRuntimeCache = Join-Path $runtime 'vendor\repository-intelligence-engine\.venv\cache.bin'
+  New-Item -ItemType Directory -Path (Split-Path -Parent $generatedRuntimeCache) -Force | Out-Null
+  Set-Content -LiteralPath $generatedRuntimeCache -Value 'generated environment cache'
+  $generatedRuntimeMetadata = Join-Path $runtime 'vendor\repository-intelligence-engine\graphifyy.egg-info\PKG-INFO'
+  New-Item -ItemType Directory -Path (Split-Path -Parent $generatedRuntimeMetadata) -Force | Out-Null
+  Set-Content -LiteralPath $generatedRuntimeMetadata -Value 'generated package metadata'
+  $generatedCacheMismatches = @(Get-UeefRuntimeDriftMismatches -SourcePath $root -RuntimePath $runtime)
+  if ($generatedCacheMismatches | Where-Object { $_ -like '*vendor/repository-intelligence-engine/.venv*' }) { throw 'Runtime drift rejected the bounded generated repository-intelligence environment.' }
+  if ($generatedCacheMismatches | Where-Object { $_ -like '*vendor/repository-intelligence-engine/graphifyy.egg-info*' }) { throw 'Runtime drift rejected bounded generated repository-intelligence package metadata.' }
   $runtimeLinkTarget = Join-Path $sandbox 'runtime-link-target'
   $runtimeLink = Join-Path $runtime 'framework\runtime-link'
   New-Item -ItemType Directory -Path $runtimeLinkTarget -Force | Out-Null
@@ -137,6 +146,10 @@ try {
   $statePath = Join-Path $codexHome 'ueef\UEEF-ACTIVE.json'
   $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
   if ($state.agent -ne 'codex' -or $state.requireAgents -ne $true) { throw 'Active state did not preserve the Codex agent and RequireAgents contract.' }
+  if ($state.managedEnforcement.required -ne $true -or $state.managedEnforcement.contractVersion -ne 1) { throw 'Active state did not require managed enforcement.' }
+  $managedRequirementsPath = [string]$state.managedEnforcement.requirementsPath
+  $managedHooksPath = [string]$state.managedEnforcement.hooksPath
+  if (!(Test-Path -LiteralPath $managedRequirementsPath -PathType Leaf) -or !(Test-Path -LiteralPath $managedHooksPath -PathType Container)) { throw 'Managed requirements or hook payload was not installed.' }
   if ([IO.Path]::GetFullPath([string]$state.runtimePath) -ne [IO.Path]::GetFullPath($runtime)) { throw 'Active state runtime path is wrong.' }
   $stateBeforeWriterGuard = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
   $writerGuardRejected = $false
@@ -161,12 +174,17 @@ try {
   }
   $stateBeforeRollback = Get-Content -LiteralPath $statePath -Raw
   $agentsBeforeRollback = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
+  $managedRequirementsBeforeRollback = [IO.File]::ReadAllText($managedRequirementsPath, [Text.Encoding]::UTF8)
+  $managedHookHashesBeforeRollback = @($state.managedEnforcement.hookFiles | ForEach-Object { (Get-FileHash -LiteralPath (Join-Path $managedHooksPath ([string]$_.relativePath)) -Algorithm SHA256).Hash })
   $rollbackTriggered = $false
   try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -TestFailAfterState | Out-Null }
   catch { $rollbackTriggered = $_.Exception.Message -like '*Injected test failure*' }
   if (!$rollbackTriggered) { throw 'Runtime sync rollback injection did not fail.' }
   if ((Get-Content -LiteralPath $statePath -Raw) -cne $stateBeforeRollback) { throw 'Runtime sync did not restore the previous active state.' }
   if ((Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw) -cne $agentsBeforeRollback) { throw 'Runtime sync did not restore the previous AGENTS file.' }
+  if ([IO.File]::ReadAllText($managedRequirementsPath, [Text.Encoding]::UTF8) -cne $managedRequirementsBeforeRollback) { throw 'Runtime sync did not restore managed requirements.' }
+  $managedHookHashesAfterRollback = @($state.managedEnforcement.hookFiles | ForEach-Object { (Get-FileHash -LiteralPath (Join-Path $managedHooksPath ([string]$_.relativePath)) -Algorithm SHA256).Hash })
+  if (($managedHookHashesAfterRollback -join ',') -cne ($managedHookHashesBeforeRollback -join ',')) { throw 'Runtime sync did not restore managed hook payload.' }
   $freshCodexHome = Join-Path $sandbox 'fresh-codex-home'
   Initialize-FakeSkillInstaller $freshCodexHome
   $freshRollbackTriggered = $false
@@ -182,6 +200,27 @@ try {
   $integrityStateText = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
   $agentsPath = Join-Path $codexHome 'AGENTS.md'
   $integrityAgentsText = [IO.File]::ReadAllText($agentsPath, [Text.Encoding]::UTF8)
+  $integrityRequirementsText = [IO.File]::ReadAllText($managedRequirementsPath, [Text.Encoding]::UTF8)
+  $integrityHookPath = Join-Path $managedHooksPath 'ueef-codex-hook.mjs'
+  $integrityHookText = [IO.File]::ReadAllText($integrityHookPath, [Text.Encoding]::UTF8)
+  try {
+    [IO.File]::AppendAllText($managedRequirementsPath, "# tampered`n", [Text.UTF8Encoding]::new($false))
+    $invalidManagedStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
+    if ($invalidManagedStatus -notcontains 'Managed enforcement: FAIL' -or $invalidManagedStatus -notcontains 'Overall: INACTIVE') { throw 'Windows status accepted tampered managed requirements.' }
+    if ($bashPath) {
+      $invalidManagedShellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)
+      if ($invalidManagedShellStatus -notcontains 'Managed enforcement: FAIL' -or $invalidManagedShellStatus -notcontains 'Overall: INACTIVE') { throw 'Unix status accepted tampered managed requirements.' }
+    }
+  } finally { [IO.File]::WriteAllText($managedRequirementsPath, $integrityRequirementsText, [Text.UTF8Encoding]::new($false)) }
+  try {
+    [IO.File]::AppendAllText($integrityHookPath, "# tampered`n", [Text.UTF8Encoding]::new($false))
+    $invalidHookStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
+    if ($invalidHookStatus -notcontains 'Managed enforcement: FAIL' -or $invalidHookStatus -notcontains 'Overall: INACTIVE') { throw 'Windows status accepted a tampered managed hook.' }
+    if ($bashPath) {
+      $invalidHookShellStatus = @(& $bashPath (Join-Path $runtime 'scripts\ueef-status.sh').Replace('\','/') 2>&1)
+      if ($invalidHookShellStatus -notcontains 'Managed enforcement: FAIL' -or $invalidHookShellStatus -notcontains 'Overall: INACTIVE') { throw 'Unix status accepted a tampered managed hook.' }
+    }
+  } finally { [IO.File]::WriteAllText($integrityHookPath, $integrityHookText, [Text.UTF8Encoding]::new($false)) }
   try {
     $invalidCodexState = $integrityStateText | ConvertFrom-Json
     $invalidCodexState.requireAgents = $false
@@ -293,5 +332,14 @@ try {
   if ($invalidStatus -notcontains 'Overall: INACTIVE') { throw 'Malformed/inactive state was accepted.' }
   Write-Host 'Runtime hardening tests passed'
 } finally {
-  if (Test-Path -LiteralPath $sandbox) { Remove-Item -LiteralPath $sandbox -Recurse -Force }
+  for ($cleanupAttempt = 1; $cleanupAttempt -le 10 -and (Test-Path -LiteralPath $sandbox); $cleanupAttempt++) {
+    try { Remove-Item -LiteralPath $sandbox -Recurse -Force -ErrorAction Stop }
+    catch {
+      if ($cleanupAttempt -eq 10) {
+        Write-Warning "Runtime hardening tests passed, but temporary sandbox cleanup could not finish: $sandbox"
+        break
+      }
+      Start-Sleep -Milliseconds 250
+    }
+  }
 }

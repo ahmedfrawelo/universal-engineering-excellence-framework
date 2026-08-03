@@ -15,7 +15,7 @@ fi
 for f in README.md INSTALL.md QUICK_START.md VERSION.md CHANGELOG.md LICENSE CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md ROADMAP.md BUILD_PROGRESS.md UEEF-LOADER.md; do
   [ -e "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
-for d in framework scripts docs examples tools config; do
+for d in framework scripts docs examples tools config vendor; do
   [ -d "$ROOT/$d" ] || { echo "Missing $d" >&2; exit 1; }
 done
 [ -f "$ROOT/scripts/new-spec-workflow.ps1" ] || { echo "Missing spec workflow generator" >&2; exit 1; }
@@ -30,6 +30,13 @@ done
 [ -f "$ROOT/config/preferred-skills.json" ] || { echo "Missing preferred skills manifest" >&2; exit 1; }
 [ -f "$ROOT/config/preferred-capabilities.json" ] || { echo "Missing preferred capabilities manifest" >&2; exit 1; }
 [ -f "$ROOT/config/enforcement-registry.json" ] || { echo "Missing enforcement registry" >&2; exit 1; }
+[ -f "$ROOT/config/codex-enforcement-policy.json" ] || { echo "Missing Codex enforcement policy" >&2; exit 1; }
+[ -f "$ROOT/scripts/managed-enforcement.ps1" ] || { echo "Missing managed enforcement installer" >&2; exit 1; }
+[ -f "$ROOT/scripts/codex-hooks/ueef-codex-hook.mjs" ] || { echo "Missing Codex managed hook" >&2; exit 1; }
+[ -f "$ROOT/scripts/codex-hooks/record-ueef-route.mjs" ] || { echo "Missing Codex route recorder" >&2; exit 1; }
+[ -f "$ROOT/scripts/codex-hooks/ueef-hook-common.mjs" ] || { echo "Missing Codex hook common module" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-managed-enforcement.ps1" ] || { echo "Missing managed enforcement tests" >&2; exit 1; }
+[ -f "$ROOT/docs/architecture/decisions/0001-managed-codex-enforcement.md" ] || { echo "Missing managed enforcement ADR" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-preferred-skills.ps1" ] || { echo "Missing Windows preferred skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-preferred-skills.sh" ] || { echo "Missing Unix preferred skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/reconcile-preferred-capabilities.ps1" ] || { echo "Missing preferred capabilities reconciler" >&2; exit 1; }
@@ -61,13 +68,13 @@ for p in "$ROOT"/framework/[0-9][0-9]-*; do
   [ -f "$p/README.md" ] || { echo "Missing $p/README.md" >&2; exit 1; }
   [ -f "$p/INDEX.md" ] || { echo "Missing $p/INDEX.md" >&2; exit 1; }
 done
-count="$(find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -name '*.md' -type f -print | wc -l)"
+count="$(find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.venv" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/build" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/graphifyy.egg-info" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/__pycache__" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.pytest_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.hypothesis" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.ruff_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.mypy_cache" -prune -o -name '*.md' -type f -print | wc -l)"
 manifest_counts=$(node -e 'const m=require(process.argv[1]); process.stdout.write(`${m.minimumMarkdownFiles || 0}\n${m.trackedMarkdownFiles || 0}\n`)' "$ROOT/release-manifest.json")
 minimum_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '1p')
 tracked_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '2p')
 [ "$count" -ge "$minimum_markdown" ] || { echo "Markdown count below minimum: $count < $minimum_markdown" >&2; exit 1; }
 [ "$tracked_markdown" -gt 0 ] && [ "$count" -eq "$tracked_markdown" ] || { echo "Markdown inventory mismatch: actual $count, manifest $tracked_markdown" >&2; exit 1; }
-if find "$ROOT" -name '*.md' -type f -size 0c | grep .; then echo "Empty Markdown files found" >&2; exit 1; fi
+if find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.venv" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/build" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/graphifyy.egg-info" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/__pycache__" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.pytest_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.hypothesis" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.ruff_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.mypy_cache" -prune -o -name '*.md' -type f -size 0c -print | grep .; then echo "Empty Markdown files found" >&2; exit 1; fi
 grep -q "00-foundation" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "27-quality-gates" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "38-templates" "$ROOT/framework/MASTER_INDEX.md"
@@ -299,6 +306,21 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/framework/60-spec-driven-development/07-implementation-and-convergence.md" ] || { echo "Missing spec convergence module" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/08-extension-preset-bundle-governance.md" ] || { echo "Missing spec extension governance module" >&2; exit 1; }
 [ -f "$ROOT/framework/60-spec-driven-development/09-third-party-attribution.md" ] || { echo "Missing spec third-party attribution module" >&2; exit 1; }
+[ -f "$ROOT/framework/63-repository-intelligence/README.md" ] || { echo "Missing repository intelligence README" >&2; exit 1; }
+[ -f "$ROOT/framework/63-repository-intelligence/INDEX.md" ] || { echo "Missing repository intelligence index" >&2; exit 1; }
+[ -f "$ROOT/framework/63-repository-intelligence/00-repository-intelligence-system.md" ] || { echo "Missing repository intelligence system" >&2; exit 1; }
+[ -f "$ROOT/scripts/repository-intelligence.ps1" ] || { echo "Missing repository intelligence PowerShell entrypoint" >&2; exit 1; }
+[ -f "$ROOT/scripts/repository-intelligence.sh" ] || { echo "Missing repository intelligence Unix entrypoint" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-repository-intelligence.ps1" ] || { echo "Missing repository intelligence PowerShell tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-repository-intelligence.sh" ] || { echo "Missing repository intelligence Unix tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/verify-repository-intelligence-vendor.mjs" ] || { echo "Missing repository intelligence vendor verifier" >&2; exit 1; }
+[ -f "$ROOT/config/repository-intelligence-policy.json" ] || { echo "Missing repository intelligence policy" >&2; exit 1; }
+[ -f "$ROOT/vendor/repository-intelligence-engine/UEEF-VENDOR.json" ] || { echo "Missing repository intelligence vendor manifest" >&2; exit 1; }
+[ -f "$ROOT/vendor/repository-intelligence-engine/MODIFICATIONS.md" ] || { echo "Missing repository intelligence modification log" >&2; exit 1; }
+[ -f "$ROOT/vendor/repository-intelligence-engine/UPSTREAM-FILES.json" ] || { echo "Missing repository intelligence upstream inventory" >&2; exit 1; }
+[ -f "$ROOT/vendor/repository-intelligence-engine/LICENSE" ] || { echo "Missing repository intelligence Apache license" >&2; exit 1; }
+[ -f "$ROOT/vendor/repository-intelligence-engine/LICENSE-MIT" ] || { echo "Missing repository intelligence MIT license" >&2; exit 1; }
+[ -f "$ROOT/vendor/repository-intelligence-engine/NOTICE" ] || { echo "Missing repository intelligence notice" >&2; exit 1; }
 [ -f "$ROOT/framework/27-quality-gates/33-spec-driven-development-gate.md" ] || { echo "Missing spec-driven gate" >&2; exit 1; }
 [ -f "$ROOT/framework/29-checklists/42-spec-driven-development-checklist.md" ] || { echo "Missing spec-driven checklist" >&2; exit 1; }
 [ -f "$ROOT/framework/38-templates/29-spec-driven-development-template.md" ] || { echo "Missing spec-driven template" >&2; exit 1; }

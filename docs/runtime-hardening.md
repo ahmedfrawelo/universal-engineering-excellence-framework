@@ -30,7 +30,15 @@ Run:
 .\scripts\sync-runtime.ps1
 ```
 
-The sync script creates a self-contained runtime copy, writes `UEEF-LOADER.md`, updates `CODEX_HOME/AGENTS.md`, and writes `UEEF-ACTIVE.json`.
+The sync script creates a self-contained runtime copy, writes `UEEF-LOADER.md`, updates `CODEX_HOME/AGENTS.md`, installs system-managed lifecycle hooks, and writes `UEEF-ACTIVE.json`.
+
+## Managed Codex enforcement
+
+On Windows, exact Codex synchronization owns `%ProgramData%\OpenAI\Codex\requirements.toml` only when that file is absent or already starts with `# UEEF-MANAGED-REQUIREMENTS`. It pins hooks on and points Codex at `CODEX_HOME/ueef/managed-hooks`. A foreign administrator requirements file is rejected unchanged instead of being parsed or weakened.
+
+The managed hook layer uses the official `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, and `Stop` events. It refreshes the current loader, requires a route record before supported local tools, blocks protected browser/destructive paths, records passing validators, and continues the turn when required final evidence is missing.
+
+Codex does not route hosted tools and some specialized paths through local function hooks. This is an explicit platform boundary, not a reason to claim universal interception. The hook layer enforces every officially supported local path and the final `Stop` gate prevents unsupported evidence from becoming a completion claim.
 
 ## Drift Check
 
@@ -44,7 +52,7 @@ The drift check compares critical files between the source repository and Codex 
 
 ## Active State
 
-`UEEF-ACTIVE.json` records version, runtime path, source commit, loader path, AGENTS path, old HOME `.ueef` state, and required check results.
+`UEEF-ACTIVE.json` records version, runtime path, source commit, loader path, AGENTS path, managed requirements and hook hashes, old HOME `.ueef` state, and required check results.
 
 ## Quality Gate Selector
 
@@ -93,5 +101,7 @@ For Codex, UEEF installs exactly into the active Codex runtime. `CODEX_HOME` is 
 - `CODEX_HOME/ueef/codex`
 - `CODEX_HOME/ueef/codex/UEEF-LOADER.md`
 - `CODEX_HOME/ueef/UEEF-ACTIVE.json`
+- `CODEX_HOME/ueef/managed-hooks`
+- `%ProgramData%/OpenAI/Codex/requirements.toml` (Windows managed enforcement)
 
 If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-codex.sh` must fail instead of installing to a fallback path.

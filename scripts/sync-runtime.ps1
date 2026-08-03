@@ -3,6 +3,7 @@ param(
   [string]$CodexHome = '',
   [string]$Agent = "codex",
   [string]$BackupRoot = '',
+  [string]$ManagedRequirementsPath = '',
   [switch]$TestFailAfterState,
   [switch]$InstallOpenDesignSkills,
   [switch]$SkipOpenDesignSkills
@@ -43,6 +44,7 @@ function Clear-StaleRuntimeTransactions {
 }
 
 . (Join-Path $PSScriptRoot 'runtime-file-policy.ps1')
+. (Join-Path $PSScriptRoot 'managed-enforcement.ps1')
 
 if (!(Test-Path -LiteralPath $SourcePath)) { throw "SourcePath not found: $SourcePath" }
 if (!(Test-Path -LiteralPath (Join-Path $SourcePath "framework"))) { throw "Source framework not found: $SourcePath" }
@@ -69,6 +71,11 @@ if (Test-Path -LiteralPath $runtimeRoot) {
 $resolvedRuntimeRoot = [IO.Path]::GetFullPath($runtimeRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePath = [IO.Path]::GetFullPath((Join-Path $resolvedRuntimeRoot $Agent))
 $resolvedCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $CodexHome).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+$requireManagedEnforcement = $Agent -ieq 'codex'
+if ($requireManagedEnforcement -and [string]::IsNullOrWhiteSpace($ManagedRequirementsPath)) {
+  $defaultCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath (Resolve-CodexHome)).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+  $ManagedRequirementsPath = if ($resolvedCodexHome -eq $defaultCodexHome) { Get-UeefManagedRequirementsPath -CodexHome $resolvedCodexHome } else { Join-Path $resolvedCodexHome 'managed-requirements\requirements.toml' }
+}
 $resolvedBackupRoot = Resolve-UeefBackupRoot -CodexHome $resolvedCodexHome -BackupRoot $BackupRoot
 $resolvedSource = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePrefix = $resolvedCodexHome + [IO.Path]::DirectorySeparatorChar
@@ -126,6 +133,7 @@ Write-Utf8File $stagingLoader @(
   "For non-trivial work or capability uncertainty, optionally run scripts/get-ueef-task-preflight.ps1. For multi-file changes, get-diff-impact.ps1 is heuristic only. Use project memory only for explicit local decisions, team-policy resolution only when a profile is declared, and evidence export before a high-risk closure or PR; these are proportional helpers, not a T0/T1 checklist.",
   "Re-read this loader once per task, or when the runtime version, loader content, or browser hard-stop policy may have changed. Do not re-read it on every trivial follow-up in the same task.",
   "Do not rely on a stale loader or browser decision when the runtime, active state, or preflight cache has changed.",
+  "Managed Codex hooks refresh current runtime context at prompt boundaries and mechanically guard supported local tools and Stop. A hook denial must be resolved, never bypassed through another surface.",
   "6. Select relevant UEEF modules for the task.",
   "7. Check MCPs, tools, connectors, scripts, and installed skills.",
   "8. Route UI/UX work through Quick, Build, or Audit in framework/10-frontend/01-frontend-task-modes.md; select design skills only when their independent triggers apply.",
@@ -289,6 +297,15 @@ if ($stateExisted) {
   $stateBackup = Join-Path $resolvedRuntimeRoot ('.state-' + [guid]::NewGuid().ToString('N') + '.json')
   Copy-Item -LiteralPath $statePath -Destination $stateBackup -Force
 }
+$managedHooksPath = Join-Path $resolvedRuntimeRoot 'managed-hooks'
+$managedHooksExisted = $requireManagedEnforcement -and (Test-Path -LiteralPath $managedHooksPath -PathType Container)
+$managedHooksBackup = $null
+if ($managedHooksExisted) {
+  $managedHooksBackup = Join-Path $resolvedRuntimeRoot ('.hooks-external-' + [guid]::NewGuid().ToString('N'))
+  Copy-Item -LiteralPath $managedHooksPath -Destination $managedHooksBackup -Recurse
+}
+$managedRequirementsExisted = $requireManagedEnforcement -and (Test-Path -LiteralPath $ManagedRequirementsPath -PathType Leaf)
+$managedRequirementsBefore = if ($managedRequirementsExisted) { [IO.File]::ReadAllText($ManagedRequirementsPath, [Text.Encoding]::UTF8) } else { $null }
 try {
   if (Test-Path -LiteralPath $runtimePath) {
     Move-Item -LiteralPath $runtimePath -Destination $rollbackPath
@@ -307,6 +324,7 @@ $managedAgentsLines = @(
   "Before non-trivial work, read the loader, verify status, select only relevant modules/tools, and record Intent, Tier, Spawn reason, and Browser reason as the route rationale.",
   "Always load only: Loaded: boot-loader, core-system. Final labels: UEEF, Loaded, Selected, Gates, Tools, Skills, UIUX, Status.",
   "T2+ gates: generate via scripts/new-task-evidence.ps1; require scripts/validate-task-evidence.ps1 PASS; prose cannot pass.",
+  "Managed hooks enforce context, routing, protected paths, T2 evidence, completion, progress, and goal closure.",
   "Status-loop guard: do not repeat the same safety, deletion, cleanup, or progress line; when bounded work is complete, give one final verified outcome.",
   "Long goals: updates need understanding, phase, current step, current-step percent, overall percent, new evidence, current action, and next gate; 100 percent means complete.",
   "",
@@ -341,13 +359,34 @@ if ($InstallOpenDesignSkills -and !$SkipOpenDesignSkills) {
   & (Join-Path $runtimePath 'scripts\install-open-design-skills.ps1') -CodexHome $CodexHome | Out-Null
 }
 
-& (Join-Path $runtimePath "scripts\write-active-state.ps1") -RepositoryPath $runtimePath -CodexHome $CodexHome -RuntimeRoot $resolvedRuntimeRoot -Agent $Agent -RequireAgents -SourceRepositoryPath $resolvedSource -SourceCommit $sourceCommit | Out-Null
+$managedInstall = $null
+if ($requireManagedEnforcement) {
+  $managedInstall = Install-UeefManagedEnforcement -RuntimePath $runtimePath -RuntimeRoot $resolvedRuntimeRoot -RequirementsPath $ManagedRequirementsPath
+}
+$stateParameters = @{
+  RepositoryPath = $runtimePath
+  CodexHome = $CodexHome
+  RuntimeRoot = $resolvedRuntimeRoot
+  Agent = $Agent
+  RequireAgents = $true
+  SourceRepositoryPath = $resolvedSource
+  SourceCommit = $sourceCommit
+}
+if ($requireManagedEnforcement) {
+  $stateParameters.RequireManagedEnforcement = $true
+  $stateParameters.ManagedRequirementsPath = $managedInstall.requirementsPath
+  $stateParameters.ManagedHooksPath = $managedInstall.hooksPath
+  $stateParameters.ManagedNodePath = $managedInstall.nodePath
+}
+& (Join-Path $runtimePath "scripts\write-active-state.ps1") @stateParameters | Out-Null
 if ($TestFailAfterState) { throw 'Injected test failure after active-state write.' }
 if (Test-Path -LiteralPath $rollbackPath) { Remove-Item -LiteralPath $rollbackPath -Recurse -Force }
 $runtimeSwapped = $false
 if ($stateBackup -and (Test-Path -LiteralPath $stateBackup)) { Remove-Item -LiteralPath $stateBackup -Force -ErrorAction SilentlyContinue }
+if ($managedHooksBackup -and (Test-Path -LiteralPath $managedHooksBackup)) { Remove-Item -LiteralPath $managedHooksBackup -Recurse -Force -ErrorAction SilentlyContinue }
 Write-Output "UEEF runtime synced to $runtimePath"
 Write-Output "Codex AGENTS updated at $agents"
+if ($requireManagedEnforcement) { Write-Output "Codex managed enforcement installed at $managedHooksPath" }
 } catch {
   $failure = $_
   $rollbackFailure = $null
@@ -369,8 +408,17 @@ Write-Output "Codex AGENTS updated at $agents"
   } elseif (!$stateExisted -and (Test-Path -LiteralPath $statePath)) {
     Remove-Item -LiteralPath $statePath -Force
   }
+  if ($requireManagedEnforcement) {
+    if (Test-Path -LiteralPath $managedHooksPath) { Remove-Item -LiteralPath $managedHooksPath -Recurse -Force }
+    if ($managedHooksExisted -and $managedHooksBackup -and (Test-Path -LiteralPath $managedHooksBackup)) { Move-Item -LiteralPath $managedHooksBackup -Destination $managedHooksPath }
+    if ($managedRequirementsExisted) {
+      New-Item -ItemType Directory -Path (Split-Path -Parent $ManagedRequirementsPath) -Force | Out-Null
+      [IO.File]::WriteAllText($ManagedRequirementsPath, $managedRequirementsBefore, [Text.UTF8Encoding]::new($false))
+    } elseif (Test-Path -LiteralPath $ManagedRequirementsPath) { Remove-Item -LiteralPath $ManagedRequirementsPath -Force }
+  }
   Get-ChildItem -LiteralPath $resolvedRuntimeRoot -Filter 'UEEF-ACTIVE.json.tmp.*' -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
   if ($stateBackup -and (Test-Path -LiteralPath $stateBackup)) { Remove-Item -LiteralPath $stateBackup -Force -ErrorAction SilentlyContinue }
+  if ($managedHooksBackup -and (Test-Path -LiteralPath $managedHooksBackup)) { Remove-Item -LiteralPath $managedHooksBackup -Recurse -Force -ErrorAction SilentlyContinue }
   if (Test-Path -LiteralPath $stagingPath) { Remove-Item -LiteralPath $stagingPath -Recurse -Force }
   if ($rollbackFailure) { throw "Runtime sync failed and rollback was incomplete: $($rollbackFailure.Exception.Message)" }
   throw $failure

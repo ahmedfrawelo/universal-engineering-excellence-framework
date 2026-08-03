@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 $requiredRoot = @("README.md","INSTALL.md","QUICK_START.md","VERSION.md","CHANGELOG.md","LICENSE","CONTRIBUTING.md","CODE_OF_CONDUCT.md","SECURITY.md","ROADMAP.md","BUILD_PROGRESS.md","UEEF-LOADER.md")
 $missing = @()
 foreach ($f in $requiredRoot) { if (!(Test-Path (Join-Path $Root $f))) { $missing += $f } }
-$requiredDirs = @("framework","scripts","docs","examples","tools","config")
+$requiredDirs = @("framework","scripts","docs","examples","tools","config","vendor")
 foreach ($d in $requiredDirs) { if (!(Test-Path (Join-Path $Root $d))) { $missing += $d } }
 $manifestPath = Join-Path $Root "release-manifest.json"
 if (!(Test-Path -LiteralPath $manifestPath)) { $missing += "release-manifest.json" }
@@ -30,6 +30,13 @@ $requiredAcceptance = @(
   "scripts/test-frontend-routing.ps1",
   "scripts/check-runtime-drift.ps1",
   "scripts/sync-runtime.ps1",
+  "scripts/managed-enforcement.ps1",
+  "scripts/codex-hooks/ueef-codex-hook.mjs",
+  "scripts/codex-hooks/record-ueef-route.mjs",
+  "scripts/codex-hooks/ueef-hook-common.mjs",
+  "scripts/test-managed-enforcement.ps1",
+  "config/codex-enforcement-policy.json",
+  "docs/architecture/decisions/0001-managed-codex-enforcement.md",
   "scripts/new-spec-workflow.ps1",
   "scripts/validate-spec-workflow.ps1",
   "scripts/test-spec-workflow.ps1",
@@ -223,6 +230,22 @@ $requiredAcceptance = @(
   "framework/29-checklists/42-spec-driven-development-checklist.md",
   "framework/38-templates/29-spec-driven-development-template.md",
   "docs/third-party/spec-kit-attribution.md",
+  "framework/63-repository-intelligence/README.md",
+  "framework/63-repository-intelligence/INDEX.md",
+  "framework/63-repository-intelligence/00-repository-intelligence-system.md",
+  "scripts/repository-intelligence.ps1",
+  "scripts/repository-intelligence.sh",
+  "scripts/test-repository-intelligence.ps1",
+  "scripts/test-repository-intelligence.sh",
+  "scripts/verify-repository-intelligence-vendor.mjs",
+  "config/repository-intelligence-policy.json",
+  "docs/architecture/decisions/0002-native-repository-intelligence.md",
+  "vendor/repository-intelligence-engine/UEEF-VENDOR.json",
+  "vendor/repository-intelligence-engine/MODIFICATIONS.md",
+  "vendor/repository-intelligence-engine/UPSTREAM-FILES.json",
+  "vendor/repository-intelligence-engine/LICENSE",
+  "vendor/repository-intelligence-engine/LICENSE-MIT",
+  "vendor/repository-intelligence-engine/NOTICE",
   "scripts/select-agent-route.ps1",
   "scripts/select-agent-route.sh",
   "scripts/test-agent-route.ps1",
@@ -398,7 +421,10 @@ foreach ($p in $packs) {
   if (!(Test-Path (Join-Path $p.FullName "INDEX.md"))) { $missing += "$($p.Name)/INDEX.md" }
 }
 if ($missing.Count) { throw "Missing required items: $($missing -join ', ')" }
-$md = Get-ChildItem $Root -Filter *.md -Recurse | Where-Object { $_.FullName -notmatch '[\\/]\.ueef[\\/]' }
+$vendorGeneratedPattern = '[\\/]vendor[\\/]repository-intelligence-engine[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
+$md = Get-ChildItem $Root -Filter *.md -Recurse | Where-Object {
+  $_.FullName -notmatch '[\\/]\.ueef[\\/]' -and $_.FullName -notmatch $vendorGeneratedPattern
+}
 $minimumMarkdownFiles = if ($manifest -and $manifest.minimumMarkdownFiles) { [int]$manifest.minimumMarkdownFiles } else { 160 }
 if ($md.Count -lt $minimumMarkdownFiles) { throw "Markdown count below minimum: $($md.Count) < $minimumMarkdownFiles" }
 $trackedMarkdownFiles = if ($manifest -and $manifest.trackedMarkdownFiles) { [int]$manifest.trackedMarkdownFiles } else { 0 }
@@ -494,6 +520,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-intent-fidelity-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-goal-lifecycle.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-managed-enforcement.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-completion-audit.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-local-service-readiness.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-performance-forensics.ps1") | Out-Null
@@ -504,12 +531,13 @@ if (!$SkipNestedTests) {
   & node (Join-Path $Root "scripts/test-module-specificity.mjs") $Root | Out-Null
   & (Join-Path $Root "scripts/test-release-consistency.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-context-map.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-repository-intelligence.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-modernization-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-continuous-assurance-failure-propagation.ps1") | Out-Null
   & (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
 }
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
-foreach ($term in @("Unsafe agent name","runtimeRootPrefix","-Agent `$Agent","environment-bootstrap")) {
+foreach ($term in @("Unsafe agent name","runtimeRootPrefix","Agent = `$Agent","RequireManagedEnforcement","environment-bootstrap")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime sync missing hardening contract: $term" }
 }
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
@@ -574,7 +602,9 @@ if ($displayMetadata.icon -ne "assets/ueef-skill-icon.svg" -or $displayMetadata.
 $iconText = Get-Content (Join-Path $Root "assets/ueef-skill-icon.svg") -Raw
 foreach ($term in @("<svg","role=""img""","UEEF skill icon")) { if ($iconText -notmatch [regex]::Escape($term)) { throw "Skill icon missing required SVG term: $term" } }
 $projectMapText = Get-Content (Join-Path $Root "scripts/project-context-map.ps1") -Raw
-foreach ($term in @("Project Context Map","Shared candidates","Generated/output candidates")) { if ($projectMapText -notmatch [regex]::Escape($term)) { throw "Project context map missing required behavior: $term" } }
+foreach ($term in @("Project Context Map","Shared candidates","Generated/output candidates","Repository intelligence:")) { if ($projectMapText -notmatch [regex]::Escape($term)) { throw "Project context map missing required behavior: $term" } }
+$repositoryIntelligenceText = (Get-Content (Join-Path $Root "scripts/repository-intelligence.ps1") -Raw) + "`n" + (Get-Content (Join-Path $Root "framework/63-repository-intelligence/00-repository-intelligence-system.md") -Raw)
+foreach ($term in @("build", "query", "path", "explain", "affected", "status", "doctor", "local", "offline", "EXTRACTED", "INFERRED", "AMBIGUOUS")) { if ($repositoryIntelligenceText -notmatch [regex]::Escape($term)) { throw "Repository intelligence contract missing required term: $term" } }
 $statusAndTestText = (Get-Content (Join-Path $Root "scripts/ueef-status.ps1") -Raw) + "`n" + (Get-Content (Join-Path $Root "scripts/test-runtime-hardening.ps1") -Raw)
 foreach ($term in @("Runtime drift:","Runtime drift did not invalidate ACTIVE status","sourceRepositoryPath")) { if ($statusAndTestText -notmatch [regex]::Escape($term)) { throw "Runtime status/drift coverage missing: $term" } }
 $selectorText = (Get-Content (Join-Path $Root "scripts/select-quality-gates.ps1") -Raw) + "`n" + (Get-Content (Join-Path $Root "scripts/select-frontend-route.mjs") -Raw)

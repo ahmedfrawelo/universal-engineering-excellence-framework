@@ -5,8 +5,8 @@
 **Snapshot date:** 2026-08-02
 **Repository:** `E:\MY DATA\div\universal-engineering-excellence-framework`
 **Upstream:** `https://github.com/ahmedfrawelo/universal-engineering-excellence-framework`
-**Version:** `2.24.0`
-**Authoritative commit:** resolve `v2.24.0` or run `git rev-parse HEAD`; do not rely on a copied hash in this handoff.
+**Version:** `2.25.0`
+**Authoritative commit:** resolve `v2.25.0` or run `git rev-parse HEAD`; do not rely on a copied hash in this handoff.
 
 ## 1. What this project is
 
@@ -32,7 +32,7 @@ The managed runtime currently reports:
 - `Runtime drift: PASS`
 - `Runtime source revision: PASS`
 - `Overall: ACTIVE`
-- UEEF version `2.24.0`
+- UEEF version `2.25.0`
 
 Run the authoritative check from the source repository:
 
@@ -120,13 +120,13 @@ The completion audit is now an executable gate. Validate it with:
 - `framework/27-quality-gates/final-gate.md`: final completion/release gate.
 - `config/enforcement-registry.json`: T2+ domain/gate mapping and required fields.
 - `release-manifest.json`: version, tracked Markdown count, pack count, entrypoints, and release notes.
-- `docs/releases/v2.24.0.md`: current release notes.
+- `docs/releases/v2.25.0.md`: current release notes.
 
 ## 6. Important current behavior
 
 ### Completion truthfulness
 
-Release `2.24.0` includes:
+Release `2.25.0` includes:
 
 - `framework/38-templates/completion-audit-template.json`;
 - `scripts/validate-completion-audit.ps1`;

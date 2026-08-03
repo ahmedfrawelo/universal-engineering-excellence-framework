@@ -28,7 +28,7 @@ function Write-Section {
 }
 
 $MetadataSkipDirs = @(".git")
-$GeneratedSkipDirs = @("node_modules","dist","build","out","coverage",".next",".angular","bin","obj")
+$GeneratedSkipDirs = @(".ueef","node_modules","dist","build","out","coverage",".next",".angular","bin","obj")
 $AllFiles = New-Object System.Collections.Generic.List[object]
 $AllDirs = New-Object System.Collections.Generic.List[object]
 $queue = New-Object System.Collections.Generic.Queue[string]
@@ -85,6 +85,8 @@ $generatedDirs = Find-DirsByName @("dist","build","out","coverage",".next",".ang
 Write-Output "Project Context Map"
 Write-Output "Root: $Root"
 Write-Output "Generated: $(Get-Date -Format s)"
+$graphStatePath = Join-Path $Root '.ueef\repository-graph\state.json'
+Write-Output "Repository intelligence: $(if (Test-Path -LiteralPath $graphStatePath) { 'BUILT - run scripts/repository-intelligence.ps1 -Command status -Root <path> -Json to verify freshness' } else { 'NOT_BUILT - select pack 63 and build only when cross-file graph evidence materially helps' })"
 Write-Section "Manifests" @($manifests | Sort-Object -Unique)
 Write-Section "Shared candidates" @($sharedDirs | Sort-Object -Unique)
 Write-Section "Feature/module candidates" @($featureDirs | Sort-Object -Unique)

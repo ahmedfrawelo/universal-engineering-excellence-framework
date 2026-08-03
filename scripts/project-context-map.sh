@@ -50,6 +50,11 @@ print_generated_section() {
 echo "Project Context Map"
 echo "Root: $ROOT"
 echo "Generated: $(date +%Y-%m-%dT%H:%M:%S)"
+if [ -f "$ROOT/.ueef/repository-graph/state.json" ]; then
+  echo "Repository intelligence: BUILT - run scripts/repository-intelligence.sh status --root <path> --json to verify freshness"
+else
+  echo "Repository intelligence: NOT_BUILT - select pack 63 and build only when cross-file graph evidence materially helps"
+fi
 
 print_section "Manifests" f release-manifest.json package.json pnpm-workspace.yaml pnpm-lock.yaml yarn.lock package-lock.json angular.json vite.config.ts vite.config.js next.config.js next.config.mjs tsconfig.json Dockerfile docker-compose.yml docker-compose.yaml global.json hosting.json pyproject.toml requirements.txt Pipfile poetry.lock Cargo.toml Cargo.lock go.mod go.sum pom.xml build.gradle build.gradle.kts "*.sln" "*.csproj" "*.fsproj" "*.vbproj" "*.xcodeproj"
 print_section "Shared candidates" d shared common lib libs library components ui design-system services api clients validators schemas stores state hooks utils

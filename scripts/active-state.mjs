@@ -15,11 +15,36 @@ function readState(file) {
   return state;
 }
 
+function managedEnforcementValid(state, expectedRuntimePath) {
+  if (!state?.managedEnforcement || state.managedEnforcement.required !== true || state.managedEnforcement.contractVersion !== 1) return false;
+  const managed = state.managedEnforcement;
+  if (typeof managed.requirementsPath !== 'string' || typeof managed.requirementsSha256 !== 'string' ||
+      typeof managed.hooksPath !== 'string' || typeof managed.nodePath !== 'string' || typeof managed.nodeSha256 !== 'string' || !Array.isArray(managed.hookFiles)) return false;
+  const expectedHooksPath = path.join(path.dirname(expectedRuntimePath), 'managed-hooks');
+  if (normalizePath(managed.hooksPath) !== normalizePath(expectedHooksPath)) return false;
+  if (!fs.existsSync(managed.requirementsPath) || fs.lstatSync(managed.requirementsPath).isSymbolicLink() ||
+      sha256(managed.requirementsPath) !== managed.requirementsSha256) return false;
+  if (!fs.existsSync(managed.nodePath) || fs.lstatSync(managed.nodePath).isSymbolicLink() || sha256(managed.nodePath) !== managed.nodeSha256) return false;
+  const requirementsText = fs.readFileSync(managed.requirementsPath, 'utf8');
+  if (!requirementsText.startsWith('# UEEF-MANAGED-REQUIREMENTS') || !/^hooks\s*=\s*true$/m.test(requirementsText)) return false;
+  const requiredHookFiles = new Set(['ueef-codex-hook.mjs', 'record-ueef-route.mjs', 'ueef-hook-common.mjs', 'codex-enforcement-policy.json']);
+  if (managed.hookFiles.length !== requiredHookFiles.size || !fs.existsSync(managed.hooksPath) || fs.lstatSync(managed.hooksPath).isSymbolicLink()) return false;
+  for (const item of managed.hookFiles) {
+    if (!item || typeof item.relativePath !== 'string' || typeof item.sha256 !== 'string' || !requiredHookFiles.delete(item.relativePath)) return false;
+    const hookPath = path.join(managed.hooksPath, item.relativePath);
+    if (!fs.existsSync(hookPath) || fs.lstatSync(hookPath).isSymbolicLink() || sha256(hookPath) !== item.sha256) return false;
+  }
+  return requiredHookFiles.size === 0;
+}
+
 if (command === 'write') {
   const [file, version, codexHome, runtimeRoot, runtimePath, agent, repositoryPath, sourceRepositoryPath, loaderPath, agentsPath, requireAgents, agentsOk] = args;
   if (fs.existsSync(file) && fs.lstatSync(file).isSymbolicLink()) throw new Error(`Refusing symbolic-link active state: ${file}`);
   if (agent.toLowerCase() === 'codex' && requireAgents !== '1') {
     throw new Error('Refusing to write an ACTIVE Codex state without RequireAgents.');
+  }
+  if (agent.toLowerCase() === 'codex') {
+    throw new Error('The portable active-state writer cannot write Codex state without managed enforcement; use sync-runtime.ps1.');
   }
   const state = {
     active: true,
@@ -46,7 +71,9 @@ if (command === 'write') {
       masterLoader: true,
       masterIndex: true,
       activationGate: true,
-      statusScript: true
+      statusScript: true,
+      managedRequirements: true,
+      managedHooks: true
     }
   };
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -60,7 +87,7 @@ if (command === 'write') {
   }
   const state = readState(file);
   const codexRequiresAgents = expectedAgent.toLowerCase() === 'codex';
-  const requiredCheckNames = ['loader', 'agents', 'coreSystem', 'masterLoader', 'masterIndex', 'activationGate', 'statusScript'];
+  const requiredCheckNames = ['loader', 'agents', 'coreSystem', 'masterLoader', 'masterIndex', 'activationGate', 'statusScript', 'managedRequirements', 'managedHooks'];
   const requiredChecksValid = state.requiredChecks && typeof state.requiredChecks === 'object' && !Array.isArray(state.requiredChecks) &&
     requiredCheckNames.every((name) => state.requiredChecks[name] === true) &&
     Object.values(state.requiredChecks).every((value) => value === true);
@@ -68,12 +95,16 @@ if (command === 'write') {
     fs.existsSync(state.loaderPath) && !fs.lstatSync(state.loaderPath).isSymbolicLink() && state.runtimeLoaderSha256 === sha256(state.loaderPath);
   const runtimePathValid = typeof state.runtimePath === 'string' && normalizePath(state.runtimePath) === normalizePath(expectedRuntimePath);
   const loaderPathValid = typeof state.loaderPath === 'string' && normalizePath(state.loaderPath) === normalizePath(expectedLoaderPath);
+  const managedValid = !codexRequiresAgents || managedEnforcementValid(state, expectedRuntimePath);
   const valid = state.active === true && state.agentRoutingContractVersion === 4 && state.reasoningCeiling === 'proportional' &&
     state.version === expectedVersion && state.agent === expectedAgent && state.requiredChecks &&
     (!codexRequiresAgents || state.requireAgents === true) &&
     runtimePathValid && loaderPathValid &&
-    loaderHashValid && requiredChecksValid;
+    loaderHashValid && requiredChecksValid && managedValid;
   if (!valid) process.exit(1);
+} else if (command === 'validate-managed') {
+  const [file, expectedRuntimePath] = args;
+  if (!expectedRuntimePath || !managedEnforcementValid(readState(file), expectedRuntimePath)) process.exit(1);
 } else if (command === 'source') {
   const state = readState(args[0]);
   if (typeof state.sourceRepositoryPath !== 'string' || !state.sourceRepositoryPath) process.exit(1);

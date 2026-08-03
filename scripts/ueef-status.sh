@@ -52,12 +52,17 @@ quality_gates=0; exists "$REPOSITORY_PATH/framework/27-quality-gates" && quality
 validation=0; exists "$REPOSITORY_PATH/scripts/validate-framework.sh" && validation=1
 agent_routing=0
 if [ -f "$REPOSITORY_PATH/scripts/select-agent-route.ps1" ] && [ -f "$REPOSITORY_PATH/scripts/select-agent-route.sh" ] && [ -f "$REPOSITORY_PATH/UEEF-LOADER.md" ] && grep -q 'reasoningCeiling' "$REPOSITORY_PATH/scripts/select-agent-route.ps1" && grep -q 'noSpawnReason' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'routeEvidenceRequired' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'TOOL_UNAVAILABLE' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'Agent route:' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'proportional' "$REPOSITORY_PATH/scripts/select-agent-route.ps1"; then agent_routing=1; fi
+repository_intelligence=1
+for f in framework/63-repository-intelligence/00-repository-intelligence-system.md scripts/repository-intelligence.ps1 scripts/repository-intelligence.sh config/repository-intelligence-policy.json vendor/repository-intelligence-engine/UEEF-VENDOR.json vendor/repository-intelligence-engine/UPSTREAM-FILES.json; do
+  exists "$REPOSITORY_PATH/$f" || repository_intelligence=0
+done
 
 source_validation=0
-if [ "$root_pass" = "1" ] && [ "$core_pass" = "1" ] && [ "$master_loader" = "1" ] && [ "$master_index" = "1" ] && [ "$activation_proof" = "1" ] && [ "$activation_gate" = "1" ] && [ "$quality_gates" = "1" ] && [ "$validation" = "1" ] && [ "$agent_routing" = "1" ]; then source_validation=1; fi
+if [ "$root_pass" = "1" ] && [ "$core_pass" = "1" ] && [ "$master_loader" = "1" ] && [ "$master_index" = "1" ] && [ "$activation_proof" = "1" ] && [ "$activation_gate" = "1" ] && [ "$quality_gates" = "1" ] && [ "$validation" = "1" ] && [ "$agent_routing" = "1" ] && [ "$repository_intelligence" = "1" ]; then source_validation=1; fi
 
 agents_pass=1
 active_state_pass=1
+managed_enforcement_pass=1
 runtime_drift_pass=1
 runtime_drift_status="NOT_APPLICABLE"
 source_revision_status="SKIPPED"
@@ -76,6 +81,7 @@ if [ "$managed_runtime" = "1" ]; then
   if [ -f "$agents_path" ] && { grep -Fq "$REPOSITORY_PATH" "$agents_path" || grep -Fq "$repository_native" "$agents_path"; } && grep -Eq 'T0/T1 stay single-agent|T1 defaults to single-agent' "$agents_path" && grep -q 'route rationale' "$agents_path" && grep -Fq "(version $version)" "$agents_path"; then agents_pass=1; fi
 
   active_state_pass=0
+  managed_enforcement_pass=0
   runtime_agent=$(basename "$REPOSITORY_PATH")
   expected_runtime_path="$REPOSITORY_PATH"
   expected_loader_path="$REPOSITORY_PATH/UEEF-LOADER.md"
@@ -84,6 +90,7 @@ if [ "$managed_runtime" = "1" ]; then
     expected_loader_path=$(cygpath -w "$expected_loader_path")
   fi
   if [ -f "$state_path" ] && node "$REPOSITORY_PATH/scripts/active-state.mjs" validate "$state_path" "$version" "$runtime_agent" "$expected_runtime_path" "$expected_loader_path" >/dev/null; then active_state_pass=1; fi
+  if [ -f "$state_path" ] && node "$REPOSITORY_PATH/scripts/active-state.mjs" validate-managed "$state_path" "$expected_runtime_path" >/dev/null; then managed_enforcement_pass=1; fi
   require_agents=$(node "$REPOSITORY_PATH/scripts/active-state.mjs" require-agents "$state_path" 2>/dev/null || printf true)
   if [ "$require_agents" = false ]; then
     case "$runtime_agent" in [Cc][Oo][Dd][Ee][Xx]) : ;; *) agents_pass=1 ;; esac
@@ -116,7 +123,7 @@ if [ "$managed_runtime" = "1" ]; then
   if [ -d "$REPOSITORY_PATH" ] && [ -d "$GLOBAL_PATH" ] && [ "$global_loader" = "PASS" ]; then installed="YES"; fi
 fi
 
-markdown_count=$(find "$REPOSITORY_PATH" -path "$REPOSITORY_PATH/.git" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')
+markdown_count=$(find "$REPOSITORY_PATH" -path "$REPOSITORY_PATH/.git" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.venv" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/__pycache__" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.pytest_cache" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.hypothesis" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.ruff_cache" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.mypy_cache" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')
 overall="SOURCE_INVALID"
 mode="source-checkout"
 agents_status="NOT_APPLICABLE"
@@ -126,7 +133,7 @@ if [ "$managed_runtime" = "1" ]; then
   agents_status=$(passfail "$agents_pass")
   active_state_status=$(passfail "$active_state_pass")
   overall="INACTIVE"
-  if [ "$installed" = "YES" ] && [ "$source_validation" = "1" ] && [ "$agents_pass" = "1" ] && [ "$active_state_pass" = "1" ] && [ "$runtime_drift_pass" = "1" ] && [ "$old_home_absent" = "1" ]; then overall="ACTIVE"; fi
+  if [ "$installed" = "YES" ] && [ "$source_validation" = "1" ] && [ "$agents_pass" = "1" ] && [ "$active_state_pass" = "1" ] && [ "$managed_enforcement_pass" = "1" ] && [ "$runtime_drift_pass" = "1" ] && [ "$old_home_absent" = "1" ]; then overall="ACTIVE"; fi
 elif [ "$source_validation" = "1" ]; then
   overall="SOURCE_VALIDATED"
 fi
@@ -149,7 +156,9 @@ printf '%s\n' "Markdown file count: $markdown_count"
 printf '%s\n' "Global loader: $global_loader"
 printf '%s\n' "Codex AGENTS: $agents_status"
 printf '%s\n' "Agent routing contract: $(passfail "$agent_routing")"
+printf '%s\n' "Repository intelligence: $(passfail "$repository_intelligence")"
 printf '%s\n' "Active state: $active_state_status"
+printf '%s\n' "Managed enforcement: $(if [ "$managed_runtime" = "1" ]; then passfail "$managed_enforcement_pass"; else printf 'NOT_APPLICABLE'; fi)"
 printf '%s\n' "Runtime drift: $runtime_drift_status"
 printf '%s\n' "Runtime source revision: $source_revision_status"
 printf '%s\n' "Old HOME .ueef absent: $old_home_status"

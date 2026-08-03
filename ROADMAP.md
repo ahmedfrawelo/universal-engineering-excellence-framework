@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.24.0
+## Current: 2.25.0
 
-UEEF now has intent-first proportional routing, one shared task-classification contract, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, bounded impact signals, evidence previews, safe static local callable readiness, performance forensics for slow data views and APIs, and selected Unix counterparts. Release 2.24.0 adds literal goal-to-implementation convergence, deterministic goal-update routing, dedicated task tabs inside the user's existing Chrome profile/session, exact-target emergency control, and project-owned local-service reuse. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, and native repository intelligence. Release 2.25.0 adds an attributed Graphify engine, cross-platform repository-intelligence entrypoints, managed enforcement hooks, activation diagnostics, and runtime drift/source-revision proof. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 

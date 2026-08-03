@@ -2,8 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-export const ownedDirectories = new Set(['framework','scripts','docs','examples','tools','assets','config']);
+export const ownedDirectories = new Set(['framework','scripts','docs','examples','tools','assets','config','vendor']);
 export const ownedRootFiles = new Set(['.gitattributes','.gitignore','BUILD_PROGRESS.md','CHANGELOG.md','CODE_OF_CONDUCT.md','CONTRIBUTING.md','INSTALL.md','LICENSE','QUICK_START.md','README.md','ROADMAP.md','SECURITY.md','VERSION.md','release-manifest.json']);
+const runtimeGeneratedSegments = new Set(['.venv','build','graphifyy.egg-info','__pycache__','.pytest_cache','.hypothesis','.ruff_cache','.mypy_cache']);
+
+export const isRuntimeGenerated = (relative) => {
+  const segments = relative.replaceAll('\\', '/').split('/');
+  return segments.length >= 3 && segments[0] === 'vendor' && segments[1] === 'repository-intelligence-engine' && segments.some((segment) => runtimeGeneratedSegments.has(segment));
+};
 
 export const isOwned = (relative, includeLoader = false) => {
   if (!relative || relative.split('/').includes('..')) return false;
@@ -17,15 +23,17 @@ export const isSensitive = (relative) => {
     /^service-account-.*\.json$/.test(name) || ['.pem','.key','.pfx','.p12'].includes(path.posix.extname(name));
 };
 
-export function walkFiles(root) {
+export function walkFiles(root, { ignore = () => false } = {}) {
   const files = [];
   const visit = (directory) => {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       if (entry.name === '.git') continue;
       const full = path.join(directory, entry.name);
+      const relative = path.relative(root, full).split(path.sep).join('/');
       if (entry.isSymbolicLink()) throw new Error(`Runtime policy rejects symbolic link: ${path.relative(root, full)}`);
+      if (entry.isDirectory() && ignore(relative)) continue;
       if (entry.isDirectory()) visit(full);
-      else if (entry.isFile()) files.push(path.relative(root, full).split(path.sep).join('/'));
+      else if (entry.isFile()) files.push(relative);
     }
   };
   visit(root);
