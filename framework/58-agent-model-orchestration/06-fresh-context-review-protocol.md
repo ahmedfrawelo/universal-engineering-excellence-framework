@@ -10,7 +10,7 @@ Use a reviewer who did not produce the implementation to inspect the actual fina
 | --- | --- | --- |
 | T0-T2 | `NONE` | The lead's focused review is sufficient unless the route escalates. |
 | T3 | `FRESH_CONTEXT_RECOMMENDED` | Use for shared architecture, broad refactors, public contracts, or when the lead requests a commitment-boundary review. A documented direct-review fallback is allowed only when a fresh reviewer is unavailable. |
-| T4 | `FRESH_CONTEXT_REQUIRED` | A fresh-context reviewer and a passing fresh-review evidence artifact are required before completion when the host exposes an eligible review lane. If it does not, record the capability gap and strengthen direct evidence; never claim independent review happened. |
+| T4 | `FRESH_CONTEXT_REQUIRED` | A fresh-context reviewer and a passing fresh-review evidence artifact are required before completion when the host exposes an eligible review lane. The lead triggers the selected review lane automatically as part of the route; do not stop to ask the user to request the reviewer manually. If no lane is exposed, record the capability gap and strengthen direct evidence; never claim independent review happened. |
 
 Model families are runtime mappings. Do not hard-code a vendor, model name, or reasoning level in this protocol.
 
@@ -41,6 +41,6 @@ Start from `framework/38-templates/33-fresh-review-evidence-template.json`. Stor
 ## Boundaries
 
 - This protocol strengthens, but does not replace, task evidence, completion audit, tests, security review, or lead accountability.
-- Do not spawn a reviewer merely for ceremony. T3 uses it where the decision materially benefits; T4 follows the runtime route and available capability.
+- Do not spawn a reviewer merely for ceremony. T3 uses it where the decision materially benefits; T4 follows the runtime route and available capability. When the route requires an eligible reviewer, run it automatically and record the evidence instead of asking the user for a separate trigger phrase.
 - Do not substitute a different agent, model, or browser surface silently when an explicitly selected review route is unavailable.
 - External workflow references inform this UEEF-native protocol; see `docs/third-party/sol-advisor-attribution.md`.

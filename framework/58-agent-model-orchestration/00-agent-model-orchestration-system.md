@@ -32,7 +32,7 @@ Route every task to the smallest capable model class and agent topology while pr
 - Security, authorization, production, destructive operations, data migrations, architecture, and incident response have mandatory capability floors.
 - Delegation may reduce elapsed time or context size, but never transfers final accountability from the lead agent.
 - Agents do not duplicate the same investigation or edit overlapping files without an explicit integration plan.
-- T3 recommends a fresh-context review for shared architecture, broad refactors, public contracts, and commitment boundaries. T4 requires fresh-context review evidence when an eligible review lane is available; a host capability gap is recorded, never disguised as independent review.
+- T3 recommends a fresh-context review for shared architecture, broad refactors, public contracts, and commitment boundaries. T4 requires fresh-context review evidence when an eligible review lane is available; the lead runs the selected review lane automatically before completion rather than asking the user to request it. A host capability gap is recorded and strengthened with direct evidence, never disguised as independent review.
 - A reviewer verdict is bound to the reviewed diff identity. Any later mutation invalidates it and requires a new review.
 
 ## Gate

@@ -8,7 +8,7 @@ For consequential UEEF delivery, a reviewer who did not produce the implementati
 
 1. The task router exposes a proportional review mode without hard-coding a model name.
 2. T3 routes recommend fresh review for consequential architecture and broad changes, while allowing a documented direct-review fallback when no eligible review lane exists.
-3. T4 routes require fresh-context review evidence when an eligible lane is available; no fallback may be represented as independent review.
+3. T4 routes require fresh-context review evidence when an eligible lane is available. The lead triggers the selected fresh-review lane automatically during completion; the user is not asked to issue a separate "run reviewer" prompt. No fallback may be represented as independent review.
 4. Evidence records the reviewer identity, role, capability, observable reasoning, sandbox and permission context, verdict, reason, reviewed paths, final diff hash, and verification commands/results.
 5. `ship` is the only verdict that can support completion. `fix-first`, `rethink`, changed post-review diffs, reused implementation identity, and invalid hashes must fail validation.
 6. Managed enforcement blocks a T4 completion claim unless fresh-review validation passed in that turn.

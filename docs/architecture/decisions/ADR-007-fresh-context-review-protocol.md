@@ -17,7 +17,7 @@ UEEF routes agent topology and retains lead accountability, but its final eviden
 
 ## Consequences
 
-Fresh review is an evidence-backed delivery gate rather than an advisory note. T0-T2 remain economical, T3 receives proportional review, and T4 cannot silently represent a lead review as independent review. A later diff mutation invalidates the earlier verdict.
+Fresh review is an evidence-backed delivery gate rather than an advisory note. T0-T2 remain economical, T3 receives proportional review, and T4 cannot silently represent a lead review as independent review. When an eligible T4 review lane exists, the lead triggers it automatically during completion rather than asking the user to request a reviewer. A later diff mutation invalidates the earlier verdict.
 
 ## Alternatives rejected
 

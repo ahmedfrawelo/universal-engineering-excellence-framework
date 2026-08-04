@@ -98,7 +98,7 @@ function onPreToolUse(event) {
   if (toolName === 'update_goal') {
     const status = String(event.tool_input?.status || '');
     if (status === 'complete' && (state.validations.completionAudit !== true || state.validations.goalLifecycleComplete !== true)) return preToolDeny('Goal completion denied until completion audit and COMPLETE lifecycle validation both pass.');
-    if (status === 'complete' && state.route?.tier === 'T4' && state.validations.freshReview !== true) return preToolDeny('T4 goal completion denied until fresh-context review evidence passes in the current turn.');
+    if (status === 'complete' && state.route?.tier === 'T4' && state.validations.freshReview !== true) return preToolDeny('T4 goal completion denied until the agent automatically runs the selected fresh-context review lane and fresh-review evidence passes in the current turn. Do not ask the user for a separate reviewer trigger.');
     if (status === 'blocked' && state.validations.goalLifecycleBlocked !== true) return preToolDeny('Goal BLOCKED transition denied until BLOCKED lifecycle validation passes.');
   }
   return {};
@@ -210,7 +210,7 @@ function onStop(event) {
   if (completionClaim) {
     if (state.route?.modelRouteVerified === true && state.validations.modelDispatch !== true) return stopBlock('Completion claim requires a successful host model dispatch matching the validated work-unit route.');
     if (['T2','T3','T4'].includes(state.route?.tier) && state.validations.taskEvidence !== true) return stopBlock('T2+ completion requires passing task evidence in the current turn.');
-    if (state.route?.tier === 'T4' && state.validations.freshReview !== true) return stopBlock('T4 completion requires passing fresh-context review evidence in the current turn.');
+    if (state.route?.tier === 'T4' && state.validations.freshReview !== true) return stopBlock('T4 completion requires the agent to automatically run the selected fresh-context review lane and pass fresh-review evidence in the current turn. Do not ask the user for a separate reviewer trigger.');
     if (state.validations.completionAudit !== true) return stopBlock('Completion claim requires a passing schema-version-2 completion audit in the current turn.');
     if (state.goalTask === true && (state.validations.goalLifecycleComplete !== true || state.validations.goalComplete !== true)) return stopBlock('Goal completion requires passing COMPLETE lifecycle validation and a successful update_goal complete transition.');
     if (regex(policy.postCompletionQuestionPattern).test(message)) return stopBlock('Remove the post-completion follow-up question; stop after the evidenced bounded goal is complete.');

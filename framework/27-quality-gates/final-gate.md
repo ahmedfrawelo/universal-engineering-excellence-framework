@@ -17,7 +17,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - The audit proves implementation completion was announced before goal review, the goal remained active during review, every requirement checklist item passed both requested-implementation and best-feasible-outcome review, and every changed surface has a passing regression check.
 - Every requirement is compared to actual implemented and observed behavior with current evidence, and every implementation inventory item traces back to a requirement; no untraced implementation remains.
 - Every received goal update is detected and classified; no missing implementation, pending update, or open resume point remains.
-- For a T4 route with an eligible review lane, `scripts/validate-fresh-review-evidence.ps1` passes a distinct fresh-context reviewer artifact whose `ship` verdict is bound to an unchanged final diff.
+- For a T4 route with an eligible review lane, the agent automatically runs the selected fresh-context review before completion, and `scripts/validate-fresh-review-evidence.ps1` passes a distinct reviewer artifact whose `ship` verdict is bound to an unchanged final diff. Do not ask the user to trigger this reviewer manually.
 - No task-caused regression remains. Unrelated findings are documented with evidence and an out-of-scope reason and were not repaired without scope authority.
 - Every explicit before-finish user commitment was clarified before completion and has resolution evidence; no pending commitment remains.
 
