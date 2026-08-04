@@ -121,8 +121,26 @@ function Get-UeefContentHashes {
   if (!$RelativePaths.Count) { return @() }
   $git = Get-Command git -ErrorAction SilentlyContinue
   if ($git) {
-    $hashes = @($RelativePaths | & $git.Source -C $RootPath hash-object --stdin-paths 2>$null)
-    if ($LASTEXITCODE -eq 0 -and $hashes.Count -eq $RelativePaths.Count) { return $hashes }
+    try {
+      $psi = [Diagnostics.ProcessStartInfo]::new()
+      $psi.FileName = $git.Source
+      $psi.UseShellExecute = $false
+      $psi.RedirectStandardInput = $true
+      $psi.RedirectStandardOutput = $true
+      $psi.RedirectStandardError = $true
+      [void]$psi.ArgumentList.Add('-C')
+      [void]$psi.ArgumentList.Add($RootPath)
+      [void]$psi.ArgumentList.Add('hash-object')
+      [void]$psi.ArgumentList.Add('--stdin-paths')
+      $process = [Diagnostics.Process]::Start($psi)
+      foreach ($relative in $RelativePaths) { $process.StandardInput.WriteLine($relative) }
+      $process.StandardInput.Close()
+      $stdout = $process.StandardOutput.ReadToEnd()
+      $process.StandardError.ReadToEnd() | Out-Null
+      $process.WaitForExit()
+      $hashes = @($stdout -split "`r?`n" | Where-Object { $_ })
+      if ($process.ExitCode -eq 0 -and $hashes.Count -eq $RelativePaths.Count) { return $hashes }
+    } catch {}
   }
   return @($RelativePaths | ForEach-Object { (Get-FileHash -LiteralPath (Join-Path $RootPath $_) -Algorithm SHA256).Hash })
 }
