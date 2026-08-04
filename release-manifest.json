@@ -1,47 +1,44 @@
 {
-  "name": "Universal Engineering Excellence Framework",
-  "shortName": "UEEF",
-  "version": "2.25.6",
-  "repository": "ahmedfrawelo/universal-engineering-excellence-framework",
-  "releaseDate": "2026-08-04",
-  "minimumMarkdownFiles": 748,
-  "trackedMarkdownFiles": 1177,
-  "frameworkPacks": 65,
-  "entrypoints": {
-    "loaderTemplate": "UEEF-LOADER.md",
-    "core": "framework/01-core/00-core-system.md",
-    "selector": "framework/01-core/01-master-loader.md",
-    "index": "framework/MASTER_INDEX.md",
-    "runtime": "framework/03-runtime/00-runtime-sequence.md"
-  },
-  "assets": {
-    "displayMetadata": "assets/ueef-display.json",
-    "skillIcon": "assets/ueef-skill-icon.svg"
-  },
-  "expansionPacks": [
-    "framework/45-identity-access-application-models",
-    "framework/46-design-system-consistency-reuse",
-    "framework/47-theme-responsive-interaction-security-performance",
-    "framework/48-design-governance",
-    "framework/49-engineering-guardian",
-    "framework/50-environment-bootstrap",
-    "framework/51-browser-session-control",
-    "framework/52-workspace-hygiene",
-    "framework/53-skeleton-loading",
-    "framework/54-design-intelligence",
-    "framework/55-continuous-assurance",
-    "framework/56-data-grid-platform",
-    "framework/57-application-shell-design",
-    "framework/58-agent-model-orchestration",
-    "framework/59-skill-invocation-protocol",
-    "framework/60-spec-driven-development",
-    "framework/61-project-modernization",
-    "framework/62-performance-forensics",
-    "framework/63-repository-intelligence",
-    "framework/64-frontend-design-production"
-  ],
-  "releaseNotes": "docs/releases/v2.25.6.md"
+    "name":  "Universal Engineering Excellence Framework",
+    "shortName":  "UEEF",
+    "version":  "2.25.7",
+    "repository":  "ahmedfrawelo/universal-engineering-excellence-framework",
+    "releaseDate":  "2026-08-04",
+    "minimumMarkdownFiles":  748,
+    "trackedMarkdownFiles":  1178,
+    "frameworkPacks":  65,
+    "entrypoints":  {
+                        "loaderTemplate":  "UEEF-LOADER.md",
+                        "core":  "framework/01-core/00-core-system.md",
+                        "selector":  "framework/01-core/01-master-loader.md",
+                        "index":  "framework/MASTER_INDEX.md",
+                        "runtime":  "framework/03-runtime/00-runtime-sequence.md"
+                    },
+    "assets":  {
+                   "displayMetadata":  "assets/ueef-display.json",
+                   "skillIcon":  "assets/ueef-skill-icon.svg"
+               },
+    "expansionPacks":  [
+                           "framework/45-identity-access-application-models",
+                           "framework/46-design-system-consistency-reuse",
+                           "framework/47-theme-responsive-interaction-security-performance",
+                           "framework/48-design-governance",
+                           "framework/49-engineering-guardian",
+                           "framework/50-environment-bootstrap",
+                           "framework/51-browser-session-control",
+                           "framework/52-workspace-hygiene",
+                           "framework/53-skeleton-loading",
+                           "framework/54-design-intelligence",
+                           "framework/55-continuous-assurance",
+                           "framework/56-data-grid-platform",
+                           "framework/57-application-shell-design",
+                           "framework/58-agent-model-orchestration",
+                           "framework/59-skill-invocation-protocol",
+                           "framework/60-spec-driven-development",
+                           "framework/61-project-modernization",
+                           "framework/62-performance-forensics",
+                           "framework/63-repository-intelligence",
+                           "framework/64-frontend-design-production"
+                       ],
+    "releaseNotes":  "docs/releases/v2.25.7.md"
 }
-
-
-

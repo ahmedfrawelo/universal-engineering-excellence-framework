@@ -2,9 +2,9 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.6`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.7`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
 
-## 2.25.6 - 2026-08-04
+## 2.25.7 - 2026-08-04
 
 - Finalized the previously staged model-routing, frontend-production, fresh-review, browser-control, graph-viewer, and optional-health changes on `main`.
 - Published the release as a patch because `v2.25.0` through `v2.25.5` already existed on the remote before release publication completed.
@@ -17,23 +17,23 @@ This file is a high-level changelog. Individual release notes are available in [
 
 ## 2.25.1 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.6 after CI exposed the offline viewer asset normalization issue.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.7 after CI exposed the offline viewer asset normalization issue.
 
 ## 2.25.2 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.6 after CI exposed a stale Unix route-test expectation.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.7 after CI exposed a stale Unix route-test expectation.
 
 ## 2.25.3 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.6 after CI exposed UTF-8 BOM in release metadata.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.7 after CI exposed UTF-8 BOM in release metadata.
 
 ## 2.25.4 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.6 after CI exposed Unix preflight live-catalog discovery in installer validation.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.7 after CI exposed Unix preflight live-catalog discovery in installer validation.
 
 ## 2.25.5 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.6 after CI exposed a stale Quick frontend preflight assertion.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.7 after CI exposed a stale Quick frontend preflight assertion.
 
 ## 2.25.0 - 2026-08-03
 
