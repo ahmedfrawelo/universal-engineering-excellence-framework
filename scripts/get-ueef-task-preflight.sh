@@ -44,6 +44,7 @@ const verification=risk===3?3:(debug?2:(change?1:0));
 const floor=critical?(has(/\b(payment|billing)\b/)?"Payment":(has(/\b(production|prod|live)\b/)?"Production":(has(/\b(incident|outage|breach)\b/)?"Incident":"Migration"))):(security?"Security":"None");
 const routeArgs=["--scope",String(scope),"--ambiguity",String(ambiguity),"--coupling",String(coupling),"--risk",String(risk),"--verification",String(verification),"--risk-floor",floor];
 if(change) routeArgs.push("--code-change");
+routeArgs.push("--models-unavailable");
 const route=JSON.parse(execFileSync("sh",[root+"/scripts/select-agent-route.sh",...routeArgs],{encoding:"utf8"}));
 const tags=[ui?"ui":null,browser?"browser":null,currentDocs?"current-docs":null,ambiguous?"ambiguous":null,debug?"debugging":null].filter(Boolean);
 let frontendMode="NA"; const skills=[];

@@ -2,28 +2,33 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.4`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.5`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
 
-## 2.25.4 - 2026-08-04
+## 2.25.5 - 2026-08-04
 
 - Finalized the previously staged model-routing, frontend-production, fresh-review, browser-control, graph-viewer, and optional-health changes on `main`.
-- Published the release as a patch because `v2.25.0`, `v2.25.1`, `v2.25.2`, and `v2.25.3` already existed on the remote before release publication completed.
+- Published the release as a patch because `v2.25.0` through `v2.25.4` already existed on the remote before release publication completed.
 - Fixed Git line-ending normalization for the pinned offline `vis-network.min.js` viewer asset so the SHA384/SRI check remains stable on Windows and Unix CI.
 - Aligned Unix route-test expectations with the current PowerShell route contract.
 - Removed UTF-8 BOM from release metadata so Unix release consistency can parse `release-manifest.json`.
+- Prevented Unix preflight from trying to discover a live Codex App Server during CI and installer validation.
 - Kept optional plugin and skill warnings visible while preventing them from degrading overall UEEF health when no blocking diagnostics exist.
 
 ## 2.25.1 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.4 after CI exposed the offline viewer asset normalization issue.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.5 after CI exposed the offline viewer asset normalization issue.
 
 ## 2.25.2 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.4 after CI exposed a stale Unix route-test expectation.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.5 after CI exposed a stale Unix route-test expectation.
 
 ## 2.25.3 - 2026-08-04
 
-- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.4 after CI exposed UTF-8 BOM in release metadata.
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.5 after CI exposed UTF-8 BOM in release metadata.
+
+## 2.25.4 - 2026-08-04
+
+- Reserved by a pushed tag before GitHub Release publication completed; superseded by 2.25.5 after CI exposed Unix preflight live-catalog discovery in installer validation.
 
 ## 2.25.0 - 2026-08-03
 
