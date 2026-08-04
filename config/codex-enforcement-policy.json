@@ -43,12 +43,12 @@
   "frontendEnforcement": {
     "promptPatterns": [
       "(?i)\\b(frontend|front-end|ui|ux|css|scss|tailwind|react|angular|vue|svelte|page|screen|component|dashboard|landing|responsive|theme|design system|data grid)\\b",
-      "[\\u0600-\\u06ff]*(واجهة|فرونت|فورنت|صفحة|شاشة|مكون|تصميم|ألوان|الوان|ثيم|متجاوب|لوحة|جدول)[\\u0600-\\u06ff]*"
+      "[\\u0600-\\u06ff]*(واجهة|فرنت|فورنت|صفحة|شاشة|مكون|تصميم|ألوان|الوان|ثيم|متجاوب|لوحة|جدول)[\\u0600-\\u06ff]*"
     ],
     "metaPromptExclusionPatterns": [
       "(?i)\\bUEEF\\b.{0,80}\\b(frontend|ui|ux)\\b.{0,80}\\b(rule|policy|route|routing|gate|validator|enforcement|framework)\\b",
       "(?i)\\b(frontend|ui|ux)\\b.{0,80}\\b(rule|policy|route|routing|gate|validator|enforcement)\\b.{0,80}\\bUEEF\\b",
-      "(?:قواعد|سياسة|توجيه|بوابة|فاحص|إنفاذ|اطار|إطار).{0,40}(?:الفرونت|الفورنت|الواجهة).{0,80}UEEF|UEEF.{0,80}(?:قواعد|سياسة|توجيه|بوابة|فاحص|إنفاذ|اطار|إطار).{0,40}(?:الفرونت|الفورنت|الواجهة)"
+      "(?:قواعد|سياسة|توجيه|بوابة|فاحص|إنفاذ|اطار|إطار).{0,40}(?:الفرنت|الفورنت|الواجهة).{0,80}UEEF|UEEF.{0,80}(?:قواعد|سياسة|توجيه|بوابة|فاحص|إنفاذ|اطار|إطار).{0,40}(?:الفرنت|الفورنت|الواجهة)"
     ],
     "routeCommandPattern": "select-frontend-route\\.mjs",
     "evidenceCommandPattern": "validate-frontend-execution-evidence\\.mjs",

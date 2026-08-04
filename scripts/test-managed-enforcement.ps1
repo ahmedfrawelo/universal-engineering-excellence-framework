@@ -7,6 +7,12 @@ $policySource = Join-Path $root 'config\codex-enforcement-policy.json'
 foreach ($required in @($installer, $hookSource, $recorderSource, $policySource)) {
   if (!(Test-Path -LiteralPath $required -PathType Leaf)) { throw "Managed enforcement dependency missing: $required" }
 }
+$policyText = [IO.File]::ReadAllText($policySource, [Text.Encoding]::UTF8)
+function Decode-Utf8Base64([string]$Value) { return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($Value)) }
+foreach ($term in @('2KfZhNmB2YfZhQ==','2KfZhNmF2LHYrdmE2Kk=','2KfZhNmG2LPYqNipINin2YTZg9mE2YrYqQ==','2KfZhNmI2KfYrNmH2Kk=','2YfZhCDYqtix2YrYrw==') | ForEach-Object { Decode-Utf8Base64 $_ }) {
+  if (!$policyText.Contains($term)) { throw "Managed enforcement policy lost Arabic term: $term" }
+}
+if ($policyText -match '[ØÙ�]') { throw 'Managed enforcement policy contains mojibake instead of Arabic UTF-8 text.' }
 
 . $installer
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ('ueef-managed-enforcement-' + [guid]::NewGuid().ToString('N'))
@@ -334,6 +340,20 @@ try {
 
   $progressMissing = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message="UEEF: ACTIVE`nLoaded: boot-loader, core-system`nSelected: runtime; Model used: test-model / Medium label (host: medium)`nGates: T4`nTools: PowerShell`nSkills: none`nUIUX: NA`nStatus: ACTIVE"})
   Assert-StopBlocked $progressMissing 'Long goal response without progress fields'
+
+  $arabicProgress = (@(
+    '2KfZhNmB2YfZhTog2YXYsdin2KzYudipINiq2LTYutmK2YQgVUVFRg==',
+    '2KfZhNmF2LHYrdmE2Kk6INiq2K3ZgtmC',
+    '2KfZhNiu2LfZiNipINin2YTYrdin2YTZitipOiDZgdit2LUg2KfZhNil2YbZgdin2LA=',
+    '2YbYs9io2Kkg2KfZhNiu2LfZiNipINin2YTYrdin2YTZitipOiA3MCU=',
+    '2KfZhNmG2LPYqNipINin2YTZg9mE2YrYqTogNjAl',
+    '2KfZhNiv2YTZitmEINin2YTYrNiv2YrYrzogcm91dGUvc3RhdHVzIGNoZWNrcw==',
+    '2KfZhNil2KzYsdin2KEg2KfZhNit2KfZhNmKOiDZhdiq2KfYqNi52Kkg2KfZhNiq2LTYrtmK2LU=',
+    '2KfZhNio2YjYp9io2Kkg2KfZhNiq2KfZhNmK2Kk6IG1hbmFnZWQgZW5mb3JjZW1lbnQ='
+  ) | ForEach-Object { Decode-Utf8Base64 $_ }) -join "`n"
+  $arabicProgress += "`nUEEF: ACTIVE`nLoaded: boot-loader, core-system`nSelected: runtime; Model used: test-model / Medium label (host: medium)`nGates: T4`nTools: PowerShell`nSkills: none`nUIUX: NA`nStatus: ACTIVE"
+  $arabicProgressStop = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message=$arabicProgress})
+  if ($arabicProgressStop.continue -eq $false -or [string]$arabicProgressStop.decision -eq 'block') { throw "Arabic long-goal progress update was blocked: $($arabicProgressStop.reason)" }
 
   $completionWithoutAudit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message="Goal COMPLETE.`nUnderstanding: done`nPhase: review`nCurrent step: closure`nCurrent-step percent: 100%`nOverall percent: 100%`nNew evidence: tests`nCurrent action: close`nNext gate: none`nUEEF: ACTIVE`nLoaded: boot-loader, core-system`nSelected: runtime; Model used: test-model / Medium label (host: medium)`nGates: T4`nTools: PowerShell`nSkills: none`nUIUX: NA`nStatus: COMPLETE"})
   Assert-StopBlocked $completionWithoutAudit 'Completion without completion audit'
