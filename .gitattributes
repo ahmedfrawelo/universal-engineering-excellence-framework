@@ -2,3 +2,4 @@
 *.sh text eol=lf
 *.ps1 text eol=crlf
 *.md text eol=lf
+vendor/repository-intelligence-engine/graphify/assets/vis-network-9.1.6/vis-network.min.js -text

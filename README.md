@@ -1,6 +1,6 @@
 ﻿# Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.25.1; it adds managed Codex enforcement and native repository intelligence with an attributed, cross-platform Graphify engine.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.25.2; it adds managed Codex enforcement and native repository intelligence with an attributed, cross-platform Graphify engine.
 
 ## Why UEEF Exists
 
@@ -50,7 +50,7 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.25.1. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.25.2. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 
@@ -119,4 +119,5 @@ For frontend work, UEEF inspects the existing theme and component system before 
 Design work also follows pack 48: search the project, design system, component registry, shared components, shared services, and pattern library before creating anything. Reuse is mandatory before extension or new creation, repeated capabilities belong in shared owners, and all visual values must map to governed tokens.
 
 Frontend routing is proportional: `Quick` handles bounded changes in an existing owner, `Build` covers new or materially extended production surfaces, and `Audit` covers critique, redesign, and visual hardening. Design skills, skeleton modules, browser evidence, and visual-composition gates are selected only when their own triggers are part of the requested outcome.
+
 
