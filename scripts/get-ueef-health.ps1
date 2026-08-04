@@ -40,10 +40,11 @@ foreach ($capability in $capabilities) {
   elseif (!$capability.required -and $capability.health -in @('MISSING_DEPENDENCY','DISABLED','NOT_CONFIGURED')) { $diagnostics.Add([pscustomobject]@{id="optional-$($capability.type)-$($capability.name)";severity='WARN';status=$capability.health;source='capability-doctor';detail=$capability.detail;action=$capability.fallback}) }
   elseif ($capability.health -eq 'DEGRADED') { $diagnostics.Add([pscustomobject]@{id="degraded-$($capability.type)-$($capability.name)";severity=if($capability.required){'ERROR'}else{'WARN'};status=$capability.health;source='capability-doctor';detail=$capability.detail;action='Repair or update the installed capability manifest, then rerun capability health.'}) }
 }
-$overall = if ($diagnostics.severity -contains 'ERROR') { 'FAIL' } elseif ($diagnostics.severity -contains 'WARN') { 'DEGRADED' } else { 'PASS' }
+$blockingWarnings = @($diagnostics | Where-Object { $_.severity -eq 'WARN' -and $_.id -notmatch '^(optional-|degraded-(plugin|skill)-)' })
+$overall = if ($diagnostics.severity -contains 'ERROR') { 'FAIL' } elseif ($blockingWarnings.Count) { 'DEGRADED' } else { 'PASS' }
 $counts = @{}
 foreach ($group in $capabilities | Group-Object health) { $counts[$group.Name] = $group.Count }
-$result = [ordered]@{ schemaVersion=2; generatedAt=(Get-Date).ToUniversalTime().ToString('o'); overall=[ordered]@{status=$overall}; runtime=$runtime; capabilities=[ordered]@{summary=$counts;items=$capabilities}; diagnostics=@($diagnostics) }
+$result = [ordered]@{ schemaVersion=2; generatedAt=(Get-Date).ToUniversalTime().ToString('o'); overall=[ordered]@{status=$overall;warnings=@($diagnostics | Where-Object severity -eq 'WARN').Count;blockingWarnings=$blockingWarnings.Count}; runtime=$runtime; capabilities=[ordered]@{summary=$counts;items=$capabilities}; diagnostics=@($diagnostics) }
 if ($Json) { $result | ConvertTo-Json -Depth 8 } else { Write-Output "UEEF Health: $overall"; Write-Output "Runtime: $($runtime.overall) ($($runtime.version))"; Write-Output "Capabilities: $(($counts.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join '; ')"; if($diagnostics.Count){$diagnostics | ForEach-Object { Write-Output "$($_.severity): $($_.id) -> $($_.action)" }} }
 if ($overall -eq 'FAIL') { exit 1 }
 exit 0

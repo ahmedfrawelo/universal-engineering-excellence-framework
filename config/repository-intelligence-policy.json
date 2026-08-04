@@ -3,6 +3,10 @@
   "outputDirectory": ".ueef/repository-graph",
   "commands": ["build", "query", "path", "explain", "affected", "status", "doctor"],
   "defaultMode": "local-offline-ast",
+  "enforceWhenSelected": true,
+  "autoBuildWhenMissing": true,
+  "autoRefreshWhenStale": true,
+  "autoQueryWhenSelected": true,
   "maxItems": 500,
   "ignoredDirectories": [
     ".git", ".hg", ".svn", ".ueef", ".venv", "venv", "env",

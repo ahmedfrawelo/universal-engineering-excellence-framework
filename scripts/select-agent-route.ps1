@@ -11,9 +11,23 @@ param(
   [ValidateRange(1,16)][int]$IndependentWorkstreams = 1,
   [switch]$AgentsUnavailable,
   [switch]$ModelsUnavailable,
+  [string]$ModelPolicyPath,
+  [string]$ModelCatalogPath,
+  [switch]$TestModelCatalog,
+  [switch]$UseCurrentModel,
+  [string]$CurrentModel,
+  [string]$ReasoningOverride,
+  [switch]$AllowExceed,
+  [switch]$AllowModelConstraintOverride,
+  [string]$WorkUnitId = 'default-work-unit',
+  [string]$SpecialistPurpose,
+  [ValidateRange(0,2147483647)][int]$InvocationIndex = 0,
   [switch]$Json
 )
 $ErrorActionPreference = 'Stop'
+
+$root = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($ModelPolicyPath)) { $ModelPolicyPath = Join-Path $root 'config\model-routing-policy.json' }
 
 $score = $Scope + $Ambiguity + $Coupling + $Risk + $Verification
 if ($Risk -eq 3 -and $RiskFloor -eq 'None') {
@@ -25,34 +39,80 @@ if ($CodeChange -and $tier -eq 'T0') { $tier = 'T1' }
 if ($RiskFloor -in @('Architecture','Authentication','Authorization','Security','Release') -and $tier -in @('T0','T1','T2')) { $tier = 'T3' }
 if ($RiskFloor -in @('Production','Migration','Destructive','Privacy','Payment','Incident')) { $tier = 'T4' }
 
-$routes = @{
-  T0 = @{ capability='Inherited'; model='inherit'; reasoning='low'; topology='single-agent' }
-  T1 = @{ capability='Fast'; model='inherit'; reasoning='medium'; topology='single-agent' }
-  T2 = @{ capability='Balanced'; model='inherit'; reasoning='medium'; topology='lead-plus-sidecar' }
-  T3 = @{ capability='Frontier'; model='inherit'; reasoning='high'; topology='parallel-specialists' }
-  T4 = @{ capability='Frontier'; model='inherit'; reasoning='high'; topology='lead-workers-independent-verifier' }
+$topologies = @{
+  T0 = 'single-agent'
+  T1 = 'single-agent'
+  T2 = 'lead-plus-sidecar'
+  T3 = 'parallel-specialists'
+  T4 = 'lead-workers-independent-verifier'
 }
-$route = $routes[$tier]
-$reasoning = $route.reasoning
+$modelPolicy = Get-Content -LiteralPath $ModelPolicyPath -Raw | ConvertFrom-Json
+if ($modelPolicy.schemaVersion -ne 3 -or $modelPolicy.adapter -ne 'codex-host-routing' -or $null -eq $modelPolicy.tiers.$tier) {
+  throw "Unsupported model routing policy: $ModelPolicyPath"
+}
+$resolverArgs = @((Join-Path $PSScriptRoot 'resolve-model-route.mjs'), '--tier', $tier, '--policy', $ModelPolicyPath)
+$resolverArgs += @('--work-unit-id', $WorkUnitId)
+$resolverArgs += @('--invocation-index', $InvocationIndex)
+if ($ModelCatalogPath) { $resolverArgs += @('--catalog', $ModelCatalogPath) }
+if ($TestModelCatalog) { $resolverArgs += '--allow-test-catalog' }
+if ($ModelsUnavailable) { $resolverArgs += '--models-unavailable' }
+if ($UseCurrentModel) { $resolverArgs += @('--use-current-model', '--current-model', $CurrentModel) }
+if ($ReasoningOverride) { $resolverArgs += @('--reasoning-override', $ReasoningOverride) }
+if ($AllowExceed) { $resolverArgs += '--allow-exceed' }
+if ($AllowModelConstraintOverride) { $resolverArgs += '--allow-model-constraint-override' }
+if ($SpecialistPurpose) { $resolverArgs += @('--specialist-purpose', $SpecialistPurpose) }
+$modelRoute = & node @resolverArgs | ConvertFrom-Json
+$reasoning = $modelRoute.reasoning
 $spawnAgents = !$AgentsUnavailable -and ($DelegationBenefit.IsPresent -or $tier -eq 'T4')
 $topology = if (!$spawnAgents) {
   'single-agent'
 } elseif ($tier -eq 'T2' -or $IndependentWorkstreams -eq 1) {
   if ($tier -eq 'T4') { 'lead-plus-independent-verifier' } else { 'lead-plus-sidecar' }
 } else {
-  $route.topology
+  $topologies[$tier]
 }
-$preferredModel = if ($ModelsUnavailable) { $null } else { $route.model }
+$preferredModel = $modelRoute.preferredModel
 $noSpawnReason = if ($spawnAgents) { $null } elseif ($CodeChange -and $AgentsUnavailable) { 'TOOL_UNAVAILABLE' } elseif ($tier -in @('T0','T1')) { 'NO_INDEPENDENT_WORK' } else { 'CRITICAL_PATH_ONLY' }
+$freshReviewMode = if ($tier -eq 'T4') { 'FRESH_CONTEXT_REQUIRED' } elseif ($tier -eq 'T3') { 'FRESH_CONTEXT_RECOMMENDED' } else { 'NONE' }
 $result = [ordered]@{
   schemaVersion = 4
   score = $score
   riskFloor = $RiskFloor
   tier = $tier
-  capability = $route.capability
+  capability = $modelRoute.capability
   preferredModel = $preferredModel
   reasoning = $reasoning
-  reasoningCeiling = 'proportional'
+  displayReasoning = $modelRoute.displayReasoning
+  hostReasoning = $modelRoute.hostReasoning
+  modelSelectionMode = $modelRoute.modelSelectionMode
+  fallbackModel = $modelRoute.fallbackModel
+  fallbackReasoning = $modelRoute.fallbackReasoning
+  fallbackDisplayReasoning = $modelRoute.fallbackDisplayReasoning
+  fallbackHostReasoning = $modelRoute.fallbackHostReasoning
+  modelAvailability = $modelRoute.modelAvailability
+  accountRotationAllowed = $modelRoute.accountRotationAllowed
+  accountCatalogVerified = $modelRoute.accountCatalogVerified
+  testCatalogAllowed = $modelRoute.testCatalogAllowed
+  catalogProvider = $modelRoute.catalogProvider
+  eligibleSelectionPool = $modelRoute.eligibleSelectionPool
+  selectionPoolSize = $modelRoute.selectionPoolSize
+  distributionKey = $modelRoute.distributionKey
+  distributionIndex = $modelRoute.distributionIndex
+  specialistPurpose = $modelRoute.specialistPurpose
+  invocationIndex = $modelRoute.invocationIndex
+  effortRotation = $modelRoute.effortRotation
+  catalogDiscoveredAt = $modelRoute.catalogDiscoveredAt
+  catalogFresh = $modelRoute.catalogFresh
+  catalogContractValid = $modelRoute.catalogContractValid
+  catalogModelCount = $modelRoute.catalogModelCount
+  generalModelCount = $modelRoute.generalModelCount
+  catalogCoverage = $modelRoute.catalogCoverage
+  catalogDigest = $modelRoute.catalogDigest
+  reasoningCeiling = $modelRoute.reasoningCeiling
+  aboveCeilingAuthorized = $modelRoute.aboveCeilingAuthorized
+  requestedCurrentModel = $modelRoute.requestedCurrentModel
+  currentModelConstraintApplied = $modelRoute.currentModelConstraintApplied
+  currentModelConstraintOverridden = $modelRoute.currentModelConstraintOverridden
   topology = $topology
   delegationBenefit = $DelegationBenefit.IsPresent
   codeChange = $CodeChange.IsPresent
@@ -62,7 +122,9 @@ $result = [ordered]@{
   noSpawnReason = $noSpawnReason
   routeEvidenceRequired = $true
   independentVerificationRequired = $tier -eq 'T4'
-  modelAvailabilityMustBeVerified = !$ModelsUnavailable -and $route.model -ne 'inherit'
-  note = 'Delegation is optional and requires an independent benefit. T0/T1 default to single-agent; models inherit the platform default; T4 requires independent verification.'
+  freshReviewMode = $freshReviewMode
+  freshReviewRequired = $tier -eq 'T4'
+  modelAvailabilityMustBeVerified = $modelRoute.accountCatalogVerified -eq $true
+  note = 'Routing and verification stay proportional to tier and risk. Discover the signed-in account catalog through the current host first and Codex App Server model/list when available, then run the selected model and exact host effort. Display the host-provided effort name without a repository rename. The policy ceiling is high unless the user explicitly authorizes an override. On provider capacity, attempt the declared fallback once without rotating accounts.'
 }
 if ($Json) { $result | ConvertTo-Json -Depth 3 } else { [pscustomobject]$result }

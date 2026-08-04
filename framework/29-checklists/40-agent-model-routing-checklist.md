@@ -5,7 +5,12 @@
 - [ ] Child agent identity and bounded ownership recorded when spawned.
 - [ ] No-spawn reason is explicit: NO_INDEPENDENT_WORK, CRITICAL_PATH_ONLY, or TOOL_UNAVAILABLE.
 - [ ] Risk floor checked.
-- [ ] Model capability selected or inherited intentionally.
+- [ ] Capability and effort position resolved from `config/model-routing-policy.json`; concrete model and per-model effort resolved from the live host catalog.
+- [ ] Concrete names and each model's efforts came from the signed-in host catalog, not repository constants.
+- [ ] Model and host-provided effort display were shown before every work unit; changed routes were shown before changed execution.
+- [ ] Current-model, model-constraint override, and above-`high` flags match explicit user instructions.
+- [ ] Actual routed-lead creation result records the model and reasoning that executed.
+- [ ] Capacity fallback is attempted once only when the primary reports capacity; no account/profile/cookie rotation.
 - [ ] Delegation benefit is positive.
 - [ ] Critical path identified.
 - [ ] Child tasks have disjoint ownership and bounded context.
@@ -15,3 +20,4 @@
 - [ ] Failed or ambiguous work escalated.
 - [ ] Completed agents closed.
 - [ ] Verification matches the route and risk.
+- [ ] Fresh-context review mode is recorded; T4 evidence proves a distinct reviewer and unchanged post-review diff when an eligible lane is available.

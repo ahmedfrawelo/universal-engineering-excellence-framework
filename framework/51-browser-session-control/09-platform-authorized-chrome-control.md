@@ -30,3 +30,8 @@ A failed `mcp__node_repl__js` bootstrap or extension discovery call is a recover
 6. If the task's control channel remains degraded after that one readiness/self-repair pass, report stage/reason/next and seek a current `VERIFIED_HANDOFF` for the same dedicated task tab and current code state. Do not ask the user to acknowledge the handoff or run a visible retry loop.
 7. If visual verification was requested, keep the task active until the dedicated task tab is claimed and verified locally or through the current handoff. Build, tests, or structural similarity cannot substitute for that gate.
 8. Do not tell the user to restart Chrome unless Chrome or the extension is independently proven unavailable outside this task-local failure.
+9. If control works and only `file://` navigation is rejected, keep the same
+   dedicated tab and expose the artifact through a checked read-only
+   `127.0.0.1` service. This is local navigation recovery, not a bridge failure,
+   runtime-sync fix, alternate browser, or CDP justification. Report the
+   stage/reason/next recovery to the user once.

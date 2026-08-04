@@ -16,8 +16,24 @@
       "profiles": ["AI", "Optional"],
       "triggers": ["JavaScript runtime bridge", "explicit browser control"],
       "management": "runtime-managed",
+      "requiredForReadiness": false,
       "configKey": "mcp_servers.node_repl",
       "fallback": "Use task-appropriate non-MCP tools and repair or update the Codex runtime before an MCP-dependent task."
+    },
+    {
+      "type": "mcp",
+      "id": "penpot",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["Penpot file", "design canvas", "design-to-code", "code-to-design"],
+      "management": "runtime-managed",
+      "requiredForReadiness": false,
+      "configKey": "mcp_servers.penpot",
+      "endpoint": "http://localhost:4401/mcp",
+      "preferredFor": "New UEEF-controlled design-canvas work; explicit supplied Figma artifacts remain on Figma.",
+      "defaultState": "disabled-until-selected-and-reachable",
+      "stateCommand": "scripts/set-penpot-mcp-state.ps1",
+      "fallback": "Use the repository DESIGN.md contract and rendered evidence; do not claim live Penpot use unless the MCP server and Penpot plugin are connected."
     },
     {
       "type": "plugin",

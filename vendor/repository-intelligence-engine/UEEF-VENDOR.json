@@ -52,7 +52,11 @@
     "UEEF-VENDOR.json",
     "MODIFICATIONS.md",
     "UPSTREAM-FILES.json",
-    "graphify/ueef_adapter.py"
+    "graphify/ueef_adapter.py",
+    "graphify/assets/vis-network-9.1.6/LICENSE-APACHE-2.0",
+    "graphify/assets/vis-network-9.1.6/LICENSE-MIT",
+    "graphify/assets/vis-network-9.1.6/README.txt",
+    "graphify/assets/vis-network-9.1.6/vis-network.min.js"
   ],
   "ueefFacade": "graphify.ueef_adapter:main"
 }

@@ -63,7 +63,10 @@ function Install-UeefManagedEnforcement {
   $resolvedRuntimePath = (Resolve-Path -LiteralPath $RuntimePath).Path
   $sourceHookRoot = Join-Path $resolvedRuntimePath 'scripts\codex-hooks'
   $policySource = Join-Path $resolvedRuntimePath 'config\codex-enforcement-policy.json'
-  foreach ($required in @((Join-Path $sourceHookRoot 'ueef-codex-hook.mjs'),(Join-Path $sourceHookRoot 'record-ueef-route.mjs'),(Join-Path $sourceHookRoot 'ueef-hook-common.mjs'),$policySource)) {
+  $modelPolicySource = Join-Path $resolvedRuntimePath 'config\model-routing-policy.json'
+  $modelResolverSource = Join-Path $resolvedRuntimePath 'scripts\resolve-model-route.mjs'
+  $modelDiscoverySource = Join-Path $resolvedRuntimePath 'scripts\codex-app-server-models.mjs'
+  foreach ($required in @((Join-Path $sourceHookRoot 'ueef-codex-hook.mjs'),(Join-Path $sourceHookRoot 'record-ueef-route.mjs'),(Join-Path $sourceHookRoot 'ueef-hook-common.mjs'),$policySource,$modelPolicySource,$modelResolverSource,$modelDiscoverySource)) {
     if (!(Test-Path -LiteralPath $required -PathType Leaf)) { throw "Managed enforcement source missing: $required" }
   }
   if (Test-Path -LiteralPath $RequirementsPath) {
@@ -83,6 +86,9 @@ function Install-UeefManagedEnforcement {
     New-Item -ItemType Directory -Path $staging -Force | Out-Null
     foreach ($name in @('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs')) { Copy-Item -LiteralPath (Join-Path $sourceHookRoot $name) -Destination (Join-Path $staging $name) }
     Copy-Item -LiteralPath $policySource -Destination (Join-Path $staging 'codex-enforcement-policy.json')
+    Copy-Item -LiteralPath $modelPolicySource -Destination (Join-Path $staging 'model-routing-policy.json')
+    Copy-Item -LiteralPath $modelResolverSource -Destination (Join-Path $staging 'resolve-model-route.mjs')
+    Copy-Item -LiteralPath $modelDiscoverySource -Destination (Join-Path $staging 'codex-app-server-models.mjs')
     if (Test-Path -LiteralPath $hooksPath) {
       $hooksItem = Get-Item -LiteralPath $hooksPath -Force
       if (($hooksItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw "Refusing reparse-point managed hooks: $hooksPath" }
@@ -104,7 +110,7 @@ function Install-UeefManagedEnforcement {
     if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
     throw $failure
   }
-  $hookFiles = @('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json') | ForEach-Object {
+  $hookFiles = @('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json','model-routing-policy.json','resolve-model-route.mjs','codex-app-server-models.mjs') | ForEach-Object {
     $path = Join-Path $hooksPath $_
     [pscustomobject]@{relativePath=$_;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()}
   }

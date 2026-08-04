@@ -15,7 +15,7 @@ This module defines compact final UEEF verification. It prevents old verbose out
 UEEF Verification
 UEEF: ACTIVE / INACTIVE
 Loaded: boot-loader, core-system
-Selected: <task-specific module paths or compact count>
+Selected: <task-specific module paths or compact count>; Model used: <actual model> / <actual reasoning>
 Gates: <task-specific gate paths or compact count>
 Tools: <checked tools, compact>
 Skills: <checked skills, compact>
@@ -31,6 +31,8 @@ Status: PASS / PARTIAL / ACTIVE / BLOCKED
 - Do not list `master-loader`, `master-index`, `runtime-sequence`, or `activation proof` under `Loaded` for normal tasks.
 - The Master Loader is a selector. If used, mention its output under `Selected`, not `Loaded`.
 - Use module paths or compact counts under `Selected`.
+- For model-routed work units, append `Model used: <actual model> / <host display effort> (host: <technical effort>)` to `Selected`; list each materially different route when more than one ran. If the host did not supply a display label, repeat the exact technical identifier rather than translating it. If a capacity fallback ran, also name the requested model and the observed capacity result. Do not report the requested route as the actual model before execution evidence exists.
+- If a visible picker update was requested, report `Picker: updated <threadId> / verified`, `Picker: attempted / unverified`, or `Picker: not changed - no explicit threadId`. Do not imply the UI dropdown changed just because routed execution succeeded.
 - Keep quality gates under `Gates`.
 - Keep UI UX Pro Max as `UIUX: YES`, `NO`, or `NA`.
 - Do not repeat full framework rules in the final response.

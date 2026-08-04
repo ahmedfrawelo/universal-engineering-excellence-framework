@@ -30,7 +30,8 @@ import sys
 destination = pathlib.Path(sys.argv[sys.argv.index("--dest") + 1])
 paths = sys.argv[sys.argv.index("--path") + 1:sys.argv.index("--dest")]
 for path in paths:
-    target = destination / pathlib.PurePosixPath(path).name
+    install_name = sys.argv[sys.argv.index("--name") + 1] if "--name" in sys.argv else pathlib.PurePosixPath(path).name
+    target = destination / install_name
     target.mkdir(parents=True, exist_ok=True)
     (target / "SKILL.md").write_text("# test skill\n", encoding="utf-8")
 '@
@@ -41,7 +42,7 @@ try {
   $codexBackupRoot = Join-Path $sandbox 'codex-backups'
   Initialize-FakeSkillInstaller $codexHome
   $python = (Get-Command python -ErrorAction Stop).Source
-  $preferredSkillIds = @('frontend-ui-engineering','performance-optimization','code-review-and-quality')
+  $preferredSkillIds = @('design-taste-frontend','frontend-ui-engineering','performance-optimization','code-review-and-quality')
   & (Join-Path $root 'scripts\install-preferred-skills.ps1') -CodexHome $codexHome -PythonPath $python -Skill $preferredSkillIds | Out-Null
   $preferredSupportFiles = @(
     'skills\frontend-ui-engineering\references\accessibility-checklist.md',
@@ -51,6 +52,11 @@ try {
   )
   foreach ($relativePath in $preferredSupportFiles) {
     if (!(Test-Path -LiteralPath (Join-Path $codexHome $relativePath) -PathType Leaf)) { throw "Windows preferred-skill overlay missing: $relativePath" }
+  }
+  $tasteEntrypoint = Join-Path $codexHome 'skills\design-taste-frontend\SKILL.md'
+  $tasteReference = Join-Path $codexHome 'skills\design-taste-frontend\references\upstream-full.md'
+  if (!(Test-Path -LiteralPath $tasteReference -PathType Leaf) -or (Get-Content -LiteralPath $tasteEntrypoint -Raw) -notmatch 'UEEF-PROGRESSIVE-ENTRYPOINT' -or (Get-Content -LiteralPath $tasteReference -Raw) -notmatch '# test skill') {
+    throw 'Windows preferred-skill installer did not preserve Taste upstream content behind the progressive entrypoint.'
   }
   & (Join-Path $root 'scripts\install-codex.ps1') -CodexHome $codexHome -Agent 'codex-test' -BackupRoot $codexBackupRoot -Force -NoBackup -SkipAutoUpdate | Out-Null
   Assert-Installed (Join-Path $codexHome 'ueef') 'codex-test'

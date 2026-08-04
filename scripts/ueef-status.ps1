@@ -2,6 +2,7 @@ param(
   [string]$RepositoryPath = (Split-Path -Parent $PSScriptRoot),
   [string]$GlobalPath = "",
   [switch]$SkipRuntimeDrift,
+  [switch]$RefreshRuntimeDrift,
   [switch]$Json
 )
 $ErrorActionPreference = "Stop"
@@ -138,6 +139,7 @@ $oldHomePath = Join-Path $HOME ".ueef"
 $oldHomeAbsent = !(Test-Item $oldHomePath)
 $runtimeDriftPass = $true
 $runtimeDriftStatus = "SKIPPED"
+$runtimeDriftMode = "SKIPPED"
 $sourceRevisionStatus = "SKIPPED"
 if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath)) {
   try {
@@ -145,7 +147,32 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
     $sourceForDrift = [string]$stateForDrift.sourceRepositoryPath
     if (![string]::IsNullOrWhiteSpace($sourceForDrift) -and (Test-Item $sourceForDrift)) {
       . (Join-Path $RepositoryPath 'scripts\runtime-file-policy.ps1')
-      $runtimeDriftPass = !(@(Get-UeefRuntimeDriftMismatches -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash ([string]$stateForDrift.runtimeLoaderSha256)).Count)
+      $expectedLoaderHash = [string]$stateForDrift.runtimeLoaderSha256
+      $contentSignature = Get-UeefRuntimeContentSignature -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash $expectedLoaderHash
+      $cachePath = Join-Path $GlobalPath 'logs\runtime-drift-cache.json'
+      $cacheHit = $false
+      if (!$RefreshRuntimeDrift -and (Test-Path -LiteralPath $cachePath -PathType Leaf)) {
+        try {
+          $cache = Get-Content -LiteralPath $cachePath -Raw | ConvertFrom-Json
+          $cacheHit = $cache.schemaVersion -eq 2 -and $cache.runtimePath -eq $RepositoryPath -and
+            $cache.sourcePath -eq $sourceForDrift -and $cache.contentSignature -ceq $contentSignature -and $cache.result -eq 'PASS'
+        } catch { $cacheHit = $false }
+      }
+      if ($cacheHit) {
+        $runtimeDriftPass = $true
+        $runtimeDriftMode = 'CACHED_CONTENT_VERIFIED'
+      } else {
+        $runtimeDriftPass = !(@(Get-UeefRuntimeDriftMismatches -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash $expectedLoaderHash).Count)
+        $runtimeDriftMode = 'FULL_CONTENT_HASH'
+        if ($runtimeDriftPass) {
+          $cacheDirectory = Split-Path -Parent $cachePath
+          New-Item -ItemType Directory -Path $cacheDirectory -Force | Out-Null
+          $cacheDocument = [ordered]@{ schemaVersion=2; generatedAt=(Get-Date).ToUniversalTime().ToString('o'); sourcePath=$sourceForDrift; runtimePath=$RepositoryPath; contentSignature=$contentSignature; result='PASS' }
+          $temporaryCache = "$cachePath.$([guid]::NewGuid().ToString('N')).tmp"
+          [IO.File]::WriteAllText($temporaryCache, ($cacheDocument | ConvertTo-Json -Depth 3), [Text.UTF8Encoding]::new($false))
+          Move-Item -LiteralPath $temporaryCache -Destination $cachePath -Force
+        }
+      }
       $runtimeDriftStatus = if ($runtimeDriftPass) { "PASS" } else { "FAIL" }
       $recordedSourceCommit = [string]$stateForDrift.sourceCommit
       $currentSourceCommit = ''
@@ -159,8 +186,8 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
     $runtimeDriftStatus = "FAIL"
   }
 }
-$vendorGeneratedPattern = '[\\/]vendor[\\/]repository-intelligence-engine[\\/](?:\.venv|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
-$markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.FullName -notmatch $vendorGeneratedPattern }).Count } else { 0 }
+$vendorGeneratedPattern = '[\\/]vendor[\\/]repository-intelligence-engine[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
+$markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $vendorGeneratedPattern }).Count } else { 0 }
 $globalExists = Test-Item $GlobalPath
 $loaderCandidates = @()
 if ($globalExists) {
@@ -203,6 +230,7 @@ $statusResult = [ordered]@{
     activeState = if ($isManagedRuntime) { (PassFail $activeStatePass) } else { 'NOT_APPLICABLE' }
     managedEnforcement = if ($isManagedRuntime) { (PassFail $managedEnforcementPass) } else { 'NOT_APPLICABLE' }
     runtimeDrift = if ($isManagedRuntime) { $runtimeDriftStatus } else { 'NOT_APPLICABLE' }
+    runtimeDriftMode = if ($isManagedRuntime) { $runtimeDriftMode } else { 'NOT_APPLICABLE' }
     sourceRevision = $sourceRevisionStatus
     validationScript = (PassFail $validationPass)
   }
@@ -230,6 +258,7 @@ Write-Output "Repository intelligence: $(PassFail $repositoryIntelligencePass)"
 Write-Output "Active state: $(if ($isManagedRuntime) { PassFail $activeStatePass } else { 'NOT_APPLICABLE' })"
 Write-Output "Managed enforcement: $(if ($isManagedRuntime) { PassFail $managedEnforcementPass } else { 'NOT_APPLICABLE' })"
 Write-Output "Runtime drift: $(if ($isManagedRuntime) { $runtimeDriftStatus } else { 'NOT_APPLICABLE' })"
+Write-Output "Runtime drift mode: $(if ($isManagedRuntime) { $runtimeDriftMode } else { 'NOT_APPLICABLE' })"
 Write-Output "Runtime source revision: $sourceRevisionStatus"
 if ($sourceRevisionStatus -eq 'WARN_OUTDATED') { Write-Output 'Required action: Sync the runtime before relying on updated intent or browser policies.' }
 Write-Output "Old HOME .ueef absent: $(if ($isManagedRuntime) { PassFail $oldHomeAbsent } else { 'NOT_APPLICABLE' })"

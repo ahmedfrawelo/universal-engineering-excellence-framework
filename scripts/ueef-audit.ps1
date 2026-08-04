@@ -19,6 +19,20 @@ if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) {
   }
 }
 $results = [System.Collections.Generic.List[object]]::new()
+$auditSkipDirectories = @('.git','.ueef','node_modules','dist','build','out','coverage','.next','.angular','bin','obj','.venv','graphifyy.egg-info','__pycache__','.pytest_cache','.hypothesis','.ruff_cache','.mypy_cache')
+function Get-UeefAuditSourceFiles {
+  $files = [Collections.Generic.List[IO.FileInfo]]::new()
+  $queue = [Collections.Generic.Queue[string]]::new()
+  $queue.Enqueue($resolvedRoot)
+  while ($queue.Count) {
+    foreach ($item in Get-ChildItem -LiteralPath $queue.Dequeue() -Force -ErrorAction SilentlyContinue) {
+      if ($item.PSIsContainer) {
+        if ($item.Name -notin $auditSkipDirectories) { $queue.Enqueue($item.FullName) }
+      } else { $files.Add($item) }
+    }
+  }
+  return $files.ToArray()
+}
 function Check($name, [scriptblock]$action) {
   $duration = [System.Diagnostics.Stopwatch]::StartNew()
   try {
@@ -37,9 +51,7 @@ Check 'framework-validation' {
 }
 Check 'git-clean-diff' { if (!(Test-Path -LiteralPath (Join-Path $gitRoot '.git'))) { throw 'Source Git repository unavailable' }; git -c "safe.directory=$gitRoot" -c core.safecrlf=false -C $gitRoot diff --check 2>$null | Out-Null; if ($LASTEXITCODE -ne 0) { throw 'git diff --check failed' } }
 Check 'source-hygiene' {
-  $bad = Get-ChildItem $resolvedRoot -Recurse -File -Force | Where-Object {
-    $_.FullName -notmatch '[\\/]\.git[\\/]' -and $_.Name -match '(^\.env(?:\..+)?$|\.pem$|\.key$|\.pfx$|\.p12$|^id_(rsa|ed25519)$|^credentials\.json$|^service-account(?:-.+)?\.json$)'
-  }
+  $bad = Get-UeefAuditSourceFiles | Where-Object { $_.Name -match '(^\.env(?:\..+)?$|\.pem$|\.key$|\.pfx$|\.p12$|^id_(rsa|ed25519)$|^credentials\.json$|^service-account(?:-.+)?\.json$)' }
   if ($bad) { throw "Sensitive-looking files present: $($bad.Name -join ', ')" }
   $secretPatterns = '-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}'
   $matches = @(git -c "safe.directory=$gitRoot" -C $gitRoot grep -n -I -E -e $secretPatterns -- . ':(exclude)scripts/ueef-audit.ps1' ':(exclude)scripts/ueef-audit.sh' 2>$null)

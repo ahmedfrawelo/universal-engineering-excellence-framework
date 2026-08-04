@@ -2,7 +2,7 @@
 
 ## Single Agent
 
-Use for T0 and T1. T1 defaults to single-agent, including narrow code changes, unless an independent sidecar has positive benefit.
+Use for T0 and T1. T1 defaults to single-agent: the routed implementation lead is the single task agent, including narrow code changes, unless an independent sidecar has positive benefit. The original conversation only owns route dispatch and result integration.
 
 ## Lead and Sidecar
 
@@ -14,7 +14,7 @@ Use for T3 only when at least two independent workstreams exist, such as fronten
 
 ## Lead, Workers, Independent Verifier
 
-Use for T4 when delegation benefit exists. The lead owns decisions and integration. Use workers only when at least two independent implementation streams exist; otherwise use the lead plus an independent verifier. Independent verification remains required when the platform exposes a suitable verifier, even when implementation stays with one lead agent.
+Use for T4 when delegation benefit exists. The lead owns decisions and integration. Use workers only when at least two independent implementation streams exist; otherwise use the lead plus an independent verifier. Independent verification remains required when the platform exposes a suitable verifier, even when implementation stays with one lead agent. The final verifier must use the fresh-context review protocol and inspect the final diff rather than a worker summary.
 
 ## Delegation Benefit Test
 

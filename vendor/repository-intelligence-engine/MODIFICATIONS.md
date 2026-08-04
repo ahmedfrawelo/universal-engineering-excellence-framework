@@ -12,6 +12,10 @@ UEEF changes after import:
 - Added `graphify/ueef_adapter.py`, a bounded local-only facade. It exposes build,
   query, path, explain, affected, status, and doctor; it cannot dispatch upstream
   installers, hooks, MCP, LLM, cloud, URL ingestion, remote database, or memory commands.
+- Connected the UEEF facade to Graphify's upstream interactive `vis-network`
+  exporter instead of emitting a flat node list. The pinned `vis-network` 9.1.6
+  browser bundle and both license choices live under `graphify/assets/` so the
+  generated viewer remains fully local and does not depend on the upstream CDN.
 - Added the `ueef-repository-intelligence` console entry point.
 - Normalized relative `source_file` values to POSIX separators in `graphify/extract.py`
   so artifacts are portable and the upstream Astro relative-input regression passes on Windows.

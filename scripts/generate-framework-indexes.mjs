@@ -5,22 +5,27 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const defaultRoot = path.resolve(scriptDir, '..');
 
-function markdownFiles(root) {
+function filesMatching(root, predicate) {
   const files = [];
   const walk = (directory) => {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const full = path.join(directory, entry.name);
       if (entry.isDirectory()) walk(full);
-      else if (entry.isFile() && entry.name.endsWith('.md')) files.push(full);
+      else if (entry.isFile() && predicate(entry.name)) files.push(full);
     }
   };
   walk(root);
   return files.sort((a, b) => a.localeCompare(b));
 }
 
+const markdownFiles = (root) => filesMatching(root, (name) => name.endsWith('.md'));
+
 function packIndex(packDirectory) {
   const packName = path.basename(packDirectory);
-  const files = markdownFiles(packDirectory)
+  const packFiles = packName === '38-templates'
+    ? filesMatching(packDirectory, (name) => name.endsWith('.md') || name.endsWith('.json'))
+    : markdownFiles(packDirectory);
+  const files = packFiles
     .filter((file) => path.basename(file) !== 'INDEX.md')
     .map((file) => path.relative(packDirectory, file).replaceAll(path.sep, '/'));
   files.sort((a, b) => {

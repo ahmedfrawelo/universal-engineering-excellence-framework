@@ -23,6 +23,7 @@ This is the canonical file inventory for this pack. Use README.md for pack guida
 - [`32-skill-invocation-protocol-gate.md`](32-skill-invocation-protocol-gate.md)
 - [`33-spec-driven-development-gate.md`](33-spec-driven-development-gate.md)
 - [`34-project-modernization-and-runtime-gate.md`](34-project-modernization-and-runtime-gate.md)
+- [`35-frontend-design-production-gate.md`](35-frontend-design-production-gate.md)
 - [`accessibility-gate.md`](accessibility-gate.md)
 - [`api-gate.md`](api-gate.md)
 - [`architecture-gate.md`](architecture-gate.md)

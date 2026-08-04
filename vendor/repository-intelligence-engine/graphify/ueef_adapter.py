@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import html
 import json
 import os
 import re
@@ -24,11 +23,40 @@ from typing import Any
 
 
 SCHEMA_VERSION = "1.0"
+VIEWER_VERSION = "4.6.1"
+VIEWER_CLUSTER_MIN_MEMBERS = 11
+UEEF_COMMUNITY_COLORS = [
+    "#F2C94C", "#9331F5", "#49BCF5", "#F53172",
+    "#31F531", "#29CC96", "#7A5CB8", "#B85625",
+    "#F549D8", "#B8F57A", "#B85C8A", "#7AF5F5",
+]
+UEEF_MIN_PALETTE_DISTANCE = 35.0
 _DEFAULT_NOISE_DIRS = {
     ".git", ".hg", ".svn", ".ueef", ".venv", "venv", "env",
     "node_modules", "vendor", "dist", "build", "coverage", "target",
     "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache",
 }
+
+
+def _rgb_to_lab(color: str) -> tuple[float, float, float]:
+    channels = [int(color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+    linear = [value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4 for value in channels]
+    red, green, blue = linear
+    x = (red * 0.4124 + green * 0.3576 + blue * 0.1805) / 0.95047
+    y = red * 0.2126 + green * 0.7152 + blue * 0.0722
+    z = (red * 0.0193 + green * 0.1192 + blue * 0.9505) / 1.08883
+    transform = lambda value: value ** (1 / 3) if value > 0.008856 else 7.787 * value + 16 / 116
+    fx, fy, fz = transform(x), transform(y), transform(z)
+    return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
+
+
+def _minimum_palette_distance(colors: list[str]) -> float:
+    labs = [_rgb_to_lab(color) for color in colors]
+    return min(
+        sum((left[channel] - right[channel]) ** 2 for channel in range(3)) ** 0.5
+        for index, left in enumerate(labs)
+        for right in labs[index + 1:]
+    )
 _DEFAULT_POLICY = {
     "outputDirectory": ".ueef/repository-graph",
     "commands": ["build", "query", "path", "explain", "affected", "status", "doctor"],
@@ -279,6 +307,21 @@ def _sanitize_graph(graph: dict[str, Any], root: Path) -> None:
         item.pop("target_file", None)
         item.pop("origin_file", None)
 
+    def ignored_source(item: dict[str, Any]) -> bool:
+        source = str(item.get("source_file") or "").replace("\\", "/").lstrip("./")
+        first = source.split("/", 1)[0].lower() if source else ""
+        return first in NOISE_DIRS
+
+    ignored_node_ids = {str(node.get("id")) for node in nodes if ignored_source(node)}
+    if ignored_node_ids:
+        nodes[:] = [node for node in nodes if str(node.get("id")) not in ignored_node_ids]
+        edges[:] = [
+            edge for edge in edges
+            if str(edge.get("source")) not in ignored_node_ids
+            and str(edge.get("target")) not in ignored_node_ids
+            and not ignored_source(edge)
+        ]
+
 
 def _write_report(graph: dict[str, Any], output: Path, cache: dict[str, int], duration_ms: int) -> None:
     nodes, edges, _ = _graph_parts(graph)
@@ -306,16 +349,626 @@ def _write_report(graph: dict[str, Any], output: Path, cache: dict[str, int], du
     (output / "GRAPH_REPORT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _write_html(graph: dict[str, Any], output: Path) -> None:
-    nodes, edges, _ = _graph_parts(graph)
-    payload = json.dumps({"nodes": nodes[:5000], "edges": edges[:10000]}, ensure_ascii=False).replace("</", "<\\/")
-    document = f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Repository Intelligence</title><style>
-body{{font:14px system-ui;margin:0;background:#0d1117;color:#e6edf3}}header{{position:sticky;top:0;padding:16px;background:#161b22;border-bottom:1px solid #30363d}}input{{width:min(640px,90%);padding:10px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:inherit}}main{{padding:16px}}article{{padding:10px;margin:8px 0;border:1px solid #30363d;border-radius:6px}}small{{color:#8b949e}}
-</style></head><body><header><strong>Repository Intelligence</strong><br><input id="q" aria-label="Filter nodes" placeholder="Filter nodes"></header><main id="results"></main>
-<script>const data={payload};const out=document.getElementById('results');const q=document.getElementById('q');function draw(){{const term=q.value.toLowerCase();const rows=data.nodes.filter(n=>!term||JSON.stringify(n).toLowerCase().includes(term)).slice(0,250);out.innerHTML=rows.map(n=>`<article><strong>${{esc(n.label||n.id)}}</strong><br><small>${{esc(n.source_file||'')}} · ${{esc(n.confidence||'AMBIGUOUS')}}</small></article>`).join('')||'<p>No matches</p>'}}function esc(v){{return String(v).replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]))}}q.addEventListener('input',draw);draw();</script></body></html>"""
-    (output / "graph.html").write_text(document, encoding="utf-8")
+def _visual_owner(node_id: str, node: dict[str, Any]) -> str:
+    """Map a node to a stable architecture owner for the overview graph."""
+    source = str(node.get("source_file") or "").replace("\\", "/").strip("/")
+    parts = [part for part in source.split("/") if part]
+    if not parts:
+        return "external-references" if str(node_id).startswith("ref_") else "unowned"
+    if parts[0] == "framework" and len(parts) > 1:
+        return "framework/root" if "." in parts[1] else "/".join(parts[:2])
+    if parts[0] == "vendor" and len(parts) > 2:
+        if parts[2] == "graphify":
+            if len(parts) > 3 and "." not in parts[3]:
+                return f"vendor/graphify/{parts[3]}"
+            return "vendor/graphify/core"
+        if parts[2] == "tests":
+            return "vendor/graphify/tests"
+        return "vendor/graphify/project"
+    if parts[0] in {"docs", "tools"} and len(parts) > 1:
+        return f"{parts[0]}/root" if "." in parts[1] else "/".join(parts[:2])
+    if len(parts) == 1 and "." in parts[0]:
+        return "root-files"
+    return parts[0]
+
+
+def _visualization_communities(graph: Any) -> tuple[dict[int, list[str]], dict[int, str]]:
+    """Keep meaningful clusters, merge noise, and collapse disconnected islands."""
+    from graphify.cluster import cluster
+
+    detected = cluster(graph)
+    degree = dict(graph.degree())
+    groups: list[tuple[str, list[str]]] = []
+    supporting: dict[str, list[str]] = {}
+    for cluster_id, members in detected.items():
+        if len(members) >= VIEWER_CLUSTER_MIN_MEMBERS:
+            ranked = sorted(members, key=lambda node_id: (-degree.get(node_id, 0), str(node_id)))
+            lead = ranked[0]
+            owner = _visual_owner(str(lead), graph.nodes[lead])
+            lead_label = str(graph.nodes[lead].get("label") or lead)
+            groups.append((f"{owner} · {lead_label}", list(members)))
+            continue
+        for node_id in members:
+            owner = _visual_owner(str(node_id), graph.nodes[node_id])
+            supporting.setdefault(owner, []).append(node_id)
+    groups.extend((f"{owner} · supporting nodes", members) for owner, members in sorted(supporting.items()))
+
+    communities: dict[int, list[str]] = {}
+    labels: dict[int, str] = {}
+    used_labels: set[str] = set()
+    for community_id, (base_label, members) in enumerate(groups):
+        label = base_label
+        if label in used_labels:
+            label = f"{base_label} · cluster {community_id + 1}"
+        used_labels.add(label)
+        communities[community_id] = sorted(members, key=str)
+        labels[community_id] = label
+    return communities, labels
+
+
+def _overview_graph(
+    graph: Any,
+    communities: dict[int, list[str]],
+    labels: dict[int, str],
+) -> tuple[Any, dict[int, list[str]], dict[int, str]]:
+    """Build a connected architecture map from extracted and ownership edges."""
+    from collections import Counter
+
+    import networkx as nx
+
+    overview = nx.DiGraph()
+    node_community = {
+        node_id: community_id
+        for community_id, members in communities.items()
+        for node_id in members
+    }
+    owners: dict[int, str] = {}
+    for community_id, members in communities.items():
+        label = labels[community_id]
+        owner = label.split(" · ", 1)[0]
+        owners[community_id] = owner
+        overview.add_node(
+            f"cluster:{community_id}",
+            label=label,
+            source_file=owner,
+            file_type="architecture-cluster",
+            member_count=len(members),
+        )
+
+    cross_counts: Counter[tuple[int, int]] = Counter()
+    relation_counts: dict[tuple[int, int], Counter[str]] = {}
+    for source, target, data in graph.edges(data=True):
+        source_community = node_community.get(source)
+        target_community = node_community.get(target)
+        if source_community is None or target_community is None or source_community == target_community:
+            continue
+        pair = (source_community, target_community)
+        cross_counts[pair] += 1
+        relation_counts.setdefault(pair, Counter())[str(data.get("relation") or "related")] += 1
+    for (source_community, target_community), count in cross_counts.items():
+        common_relation = relation_counts[(source_community, target_community)].most_common(1)[0][0]
+        overview.add_edge(
+            f"cluster:{source_community}",
+            f"cluster:{target_community}",
+            relation=f"{count} extracted relationships ({common_relation})",
+            confidence="EXTRACTED",
+            weight=count,
+            _src=f"cluster:{source_community}",
+            _tgt=f"cluster:{target_community}",
+        )
+
+    root_id = "hub:ueef-project"
+    overview.add_node(root_id, label="UEEF project", source_file=".", file_type="architecture-root")
+    for community_id, owner in owners.items():
+        parent = root_id
+        segments = [segment for segment in owner.split("/") if segment]
+        for depth in range(1, len(segments) + 1):
+            path = "/".join(segments[:depth])
+            hub_id = f"hub:{path}"
+            if hub_id not in overview:
+                overview.add_node(hub_id, label=path, source_file=path, file_type="architecture-owner")
+            if not overview.has_edge(parent, hub_id):
+                overview.add_edge(
+                    parent,
+                    hub_id,
+                    relation="contains (path ownership)",
+                    confidence="INFERRED",
+                    weight=1,
+                    _src=parent,
+                    _tgt=hub_id,
+                )
+            parent = hub_id
+        cluster_id = f"cluster:{community_id}"
+        if not overview.has_edge(parent, cluster_id):
+            overview.add_edge(
+                parent,
+                cluster_id,
+                relation="contains (graph cluster)",
+                confidence="INFERRED",
+                weight=1,
+                _src=parent,
+                _tgt=cluster_id,
+            )
+
+    domain_nodes: dict[str, list[str]] = {}
+    for node_id, node in overview.nodes(data=True):
+        if node_id == root_id:
+            domain = "project"
+        else:
+            source = str(node.get("source_file") or "other")
+            domain = source.split("/", 1)[0] or "other"
+        domain_nodes.setdefault(domain, []).append(node_id)
+    overview_communities: dict[int, list[str]] = {}
+    overview_labels: dict[int, str] = {}
+    for domain_id, domain in enumerate(sorted(domain_nodes)):
+        overview_communities[domain_id] = sorted(domain_nodes[domain], key=str)
+        overview_labels[domain_id] = domain
+    return overview, overview_communities, overview_labels
+
+
+def _full_graph_search_payload(raw_graph: dict[str, Any]) -> tuple[list[list[Any]], list[list[Any]]]:
+    """Create a compact, offline index used to open any node's neighborhood."""
+    from collections import Counter
+
+    raw_nodes, raw_edges, _ = _graph_parts(raw_graph)
+    raw_degree: Counter[str] = Counter()
+    for edge in raw_edges:
+        if edge.get("source") is not None:
+            raw_degree[str(edge.get("source"))] += 1
+        if edge.get("target") is not None:
+            raw_degree[str(edge.get("target"))] += 1
+    full_nodes: list[list[Any]] = []
+    graph_node_ids: set[str] = set()
+    for node in raw_nodes:
+        if node.get("id") is None:
+            continue
+        node_id = str(node.get("id"))
+        graph_node_ids.add(node_id)
+        owner = _visual_owner(str(node_id), node)
+        color_index = int(hashlib.sha256(owner.encode("utf-8")).hexdigest()[:8], 16) % len(UEEF_COMMUNITY_COLORS)
+        color = UEEF_COMMUNITY_COLORS[color_index]
+        label = str(node.get("label") or node_id)
+        source = str(node.get("source_file") or "").replace("\\", "/")
+        full_nodes.append([
+            node_id,
+            label,
+            source,
+            str(node.get("file_type") or node.get("type") or "unknown"),
+            owner,
+            raw_degree[node_id],
+            color,
+        ])
+
+    referenced_node_ids = {
+        str(edge.get(endpoint))
+        for edge in raw_edges
+        for endpoint in ("source", "target")
+        if edge.get(endpoint) is not None
+    }
+    external_color = UEEF_COMMUNITY_COLORS[
+        int(hashlib.sha256(b"external-references").hexdigest()[:8], 16) % len(UEEF_COMMUNITY_COLORS)
+    ]
+    for node_id in sorted(referenced_node_ids - graph_node_ids):
+        full_nodes.append([
+            node_id,
+            node_id,
+            "",
+            "external-reference",
+            "external-references",
+            raw_degree[node_id],
+            external_color,
+        ])
+
+    full_edges: list[list[Any]] = []
+    for edge_id, edge in enumerate(raw_edges):
+        source = edge.get("source")
+        target = edge.get("target")
+        if source is None or target is None:
+            continue
+        source = str(source)
+        target = str(target)
+        confidence = str(edge.get("confidence") or "EXTRACTED")
+        relation = str(edge.get("relation") or "related")
+        full_edges.append([f"full:{edge_id}", source, target, relation, confidence])
+    return full_nodes, full_edges
+
+
+def _routing_evidence_payload(root: Path) -> list[dict[str, Any]]:
+    """Summarize recent local routing receipts for the offline graph viewer."""
+    evidence_dir = root / ".ueef" / "evidence"
+    if not evidence_dir.is_dir():
+        return []
+    payload: list[dict[str, Any]] = []
+    for dispatch_path in sorted(evidence_dir.glob("*-dispatch.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+        try:
+            dispatch = json.loads(dispatch_path.read_text(encoding="utf-8-sig"))
+        except Exception:
+            continue
+        route_path = dispatch_path.with_name(dispatch_path.name.replace("-dispatch.json", "-route.json"))
+        route: dict[str, Any] = {}
+        if route_path.is_file():
+            try:
+                route = json.loads(route_path.read_text(encoding="utf-8-sig"))
+            except Exception:
+                route = {}
+        payload.append({
+            "name": dispatch_path.stem,
+            "tier": route.get("tier"),
+            "workUnitId": route.get("workUnitId") or route.get("distributionKey"),
+            "requestedModel": dispatch.get("requestedModel") or route.get("preferredModel"),
+            "requestedHostReasoning": dispatch.get("requestedHostReasoning") or route.get("hostReasoning"),
+            "actualModel": dispatch.get("actualModel"),
+            "actualHostReasoning": dispatch.get("actualHostReasoning"),
+            "executionVerified": dispatch.get("executionVerified") is True,
+            "result": dispatch.get("result"),
+            "capacityFallbackUsed": dispatch.get("capacityFallbackUsed") is True,
+            "threadId": dispatch.get("threadId"),
+            "turnId": dispatch.get("turnId"),
+            "routeDigest": dispatch.get("routeDigest") or route.get("routeDigest"),
+            "completedAt": dispatch.get("completedAt") or dispatch.get("observedAt"),
+            "pickerStatus": "not changed by dispatch",
+        })
+        if len(payload) >= 40:
+            break
+    for settings_path in sorted(evidence_dir.glob("*thread-settings*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+        try:
+            settings = json.loads(settings_path.read_text(encoding="utf-8-sig"))
+        except Exception:
+            continue
+        payload.append({
+            "name": settings_path.stem,
+            "tier": "picker",
+            "workUnitId": "visible-picker",
+            "requestedModel": settings.get("requestedModel"),
+            "requestedHostReasoning": settings.get("requestedHostReasoning"),
+            "actualModel": settings.get("acceptedModel"),
+            "actualHostReasoning": settings.get("acceptedHostReasoning"),
+            "executionVerified": settings.get("uiPickerMutationVerified") is True,
+            "result": settings.get("result"),
+            "capacityFallbackUsed": False,
+            "threadId": settings.get("threadId"),
+            "turnId": None,
+            "routeDigest": settings.get("routeDigest"),
+            "completedAt": settings.get("completedAt") or settings.get("observedAt"),
+            "pickerStatus": "updated and verified" if settings.get("uiPickerMutationVerified") is True else "attempted",
+        })
+        if len(payload) >= 50:
+            break
+    payload.sort(key=lambda item: str(item.get("completedAt") or item.get("name") or ""), reverse=True)
+    return payload
+
+
+def _write_html(graph: dict[str, Any], output: Path, root: Path) -> None:
+    """Render Graphify's real interactive network with an offline JS asset."""
+    from contextlib import redirect_stdout
+    from io import StringIO
+
+    from graphify.build import build_from_json
+    from graphify.exporters.base import COMMUNITY_COLORS
+    from graphify.exporters.html import to_html
+
+    palette_distance = _minimum_palette_distance(UEEF_COMMUNITY_COLORS)
+    if palette_distance < UEEF_MIN_PALETTE_DISTANCE:
+        raise RuntimeError(f"UEEF viewer palette colors are too similar: {palette_distance:.2f}")
+    COMMUNITY_COLORS[:] = UEEF_COMMUNITY_COLORS
+
+    network = build_from_json(graph, directed=bool(graph.get("directed", True)))
+    communities, labels = _visualization_communities(network)
+    if network.number_of_nodes() > 5000:
+        rendered_graph, rendered_communities, rendered_labels = _overview_graph(network, communities, labels)
+    else:
+        rendered_graph, rendered_communities, rendered_labels = network, communities, labels
+    full_nodes, full_edges = _full_graph_search_payload(graph)
+    html_path = output / "graph.html"
+    # The upstream exporter reports aggregation progress on stdout. The UEEF
+    # facade reserves stdout for its JSON contract, so contain those messages.
+    with redirect_stdout(StringIO()):
+        to_html(
+            rendered_graph,
+            rendered_communities,
+            str(html_path),
+            community_labels=rendered_labels,
+            node_limit=5000,
+        )
+
+    source_assets = Path(__file__).resolve().parent / "assets" / "vis-network-9.1.6"
+    output_assets = output / "assets" / "vis-network-9.1.6"
+    output_assets.mkdir(parents=True, exist_ok=True)
+    for name in ("vis-network.min.js", "LICENSE-MIT", "LICENSE-APACHE-2.0", "README.txt"):
+        source = source_assets / name
+        if not source.is_file():
+            raise RuntimeError(f"Offline graph viewer asset is missing: {source}")
+        destination = output_assets / name
+        if not destination.is_file() or destination.read_bytes() != source.read_bytes():
+            destination.write_bytes(source.read_bytes())
+
+    document = html_path.read_text(encoding="utf-8")
+    external_script = re.compile(
+        r'<script src="https://unpkg\.com/vis-network@9\.1\.6/standalone/umd/vis-network\.min\.js".*?</script>',
+        re.DOTALL,
+    )
+    local_script = '<script src="assets/vis-network-9.1.6/vis-network.min.js"></script>'
+    document, replacements = external_script.subn(local_script, document, count=1)
+    if replacements != 1:
+        raise RuntimeError("Graphify HTML exporter no longer exposes the expected pinned vis-network script.")
+
+    full_nodes_json = json.dumps(full_nodes, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    full_edges_json = json.dumps(full_edges, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    routing_evidence_json = json.dumps(_routing_evidence_payload(root), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    dataset_marker = "// Build vis datasets"
+    if dataset_marker not in document:
+        raise RuntimeError("Graphify HTML exporter no longer exposes the dataset marker.")
+    document = document.replace(
+        dataset_marker,
+        f"""const FULL_NODE_RECORDS = {full_nodes_json};
+const FULL_EDGE_RECORDS = {full_edges_json};
+const FULL_NODES = FULL_NODE_RECORDS.map(([id, label, source, fileType, owner, degree, color]) => ({{
+  id, label, size: 13, title: esc(label),
+  color: {{ background: color, border: color, highlight: {{ background: '#ffffff', border: color }} }},
+  font: {{ size: 0, color: '#ffffff' }},
+  _community: owner, _community_name: owner, _source_file: source,
+  _file_type: fileType, _degree: degree,
+}}));
+const FULL_EDGES = FULL_EDGE_RECORDS.map(([id, from, to, relation, confidence]) => ({{
+  id, from, to, relation, confidence, title: esc(`${{relation}} [${{confidence}}]`),
+  dashes: confidence !== 'EXTRACTED', width: confidence === 'EXTRACTED' ? 2 : 1,
+  color: {{ opacity: confidence === 'EXTRACTED' ? 0.7 : 0.35 }},
+  arrows: {{ to: {{ enabled: true, scaleFactor: 0.5 }} }},
+}}));
+const ROUTING_EVIDENCE = {routing_evidence_json};
+
+{dataset_marker}""",
+        1,
+    )
+
+    document = document.replace(
+        '<div id="graph"></div>',
+        '<div id="graph-shell"><div id="graph" role="application" tabindex="0" '
+        'aria-label="Interactive repository graph. Pan, zoom, and select nodes to inspect relationships."></div>'
+        '<div id="graph-toolbar" role="toolbar" aria-label="Graph viewport controls">'
+        '<button type="button" id="fit-graph">Fit</button>'
+        '<button type="button" id="zoom-in" aria-label="Zoom in">+</button>'
+        '<button type="button" id="zoom-out" aria-label="Zoom out">−</button>'
+        '<button type="button" id="reset-overview">Overview</button>'
+        '<span id="view-state" role="status" aria-live="polite"></span>'
+        '</div></div>',
+    )
+    document = document.replace(
+        '<input id="search" type="text" placeholder="Search nodes..." autocomplete="off">',
+        '<input id="search" type="search" placeholder="Search nodes..." autocomplete="off" '
+        'aria-label="Search repository graph nodes">',
+    )
+    document = document.replace(
+        '<div id="search-results"></div>',
+        '<div id="search-results" role="listbox" aria-label="Matching graph nodes"></div>',
+    )
+    document = document.replace(
+        '<div id="info-content">',
+        '<div id="info-content" aria-live="polite">',
+    )
+    document = document.replace(
+        '<div id="sidebar">',
+        '<div id="sidebar"><section id="routing-panel" aria-label="UEEF routed execution status">'
+        '<div id="routing-title">UEEF Routed Execution</div>'
+        '<div id="routing-summary" role="status"></div>'
+        '<button type="button" id="routing-toggle" aria-expanded="false" aria-controls="routing-list">Show recent routes</button>'
+        '<div id="routing-list" hidden></div>'
+        '</section>',
+        1,
+    )
+    document = document.replace(
+        "keyboard: false,",
+        "keyboard: { enabled: true, bindToWindow: false },",
+    )
+    navigation_marker = "const searchInput = document.getElementById('search');"
+    if navigation_marker not in document:
+        raise RuntimeError("Graphify HTML exporter no longer exposes the search marker.")
+    navigation_script = r"""
+const VIEW_ANIMATION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ? false : { duration: 320, easingFunction: 'easeInOutQuad' };
+const OVERVIEW_NODES = nodesDS.get();
+const OVERVIEW_EDGES = edgesDS.get();
+const FULL_NODE_INDEX = new Map(FULL_NODES.map(node => [node.id, node]));
+const SEARCH_NODES = [...RAW_NODES, ...FULL_NODES];
+const viewState = document.getElementById('view-state');
+const routingSummary = document.getElementById('routing-summary');
+const routingList = document.getElementById('routing-list');
+const routingToggle = document.getElementById('routing-toggle');
+
+function renderRoutingEvidence() {
+  if (!routingSummary || !routingList) return;
+  const verified = ROUTING_EVIDENCE.filter(item => item.executionVerified && item.result === 'SUCCESS');
+  routingSummary.textContent = ROUTING_EVIDENCE.length
+    ? `${verified.length.toLocaleString()} verified of ${ROUTING_EVIDENCE.length.toLocaleString()} recent routed executions`
+    : 'No routing receipts found in .ueef/evidence';
+  routingList.innerHTML = '';
+  for (const item of ROUTING_EVIDENCE.slice(0, 8)) {
+    const row = document.createElement('div');
+    row.className = item.executionVerified && item.result === 'SUCCESS' ? 'routing-row verified' : 'routing-row unverified';
+    const actual = item.actualModel && item.actualHostReasoning
+      ? `${item.actualModel} / ${item.actualHostReasoning}`
+      : 'not verified';
+    row.innerHTML = `
+      <div class="routing-main">${esc(actual)}</div>
+      <div class="routing-meta">${esc(item.tier || 'tier?')} · picker ${esc(item.pickerStatus || 'not changed')} · ${esc(item.result || 'unknown')}</div>
+    `;
+    row.title = esc(`thread=${item.threadId || 'n/a'} route=${item.routeDigest || 'n/a'}`);
+    routingList.appendChild(row);
+  }
+}
+renderRoutingEvidence();
+if (routingToggle && routingList) {
+  routingToggle.addEventListener('click', () => {
+    const expanded = routingToggle.getAttribute('aria-expanded') === 'true';
+    routingToggle.setAttribute('aria-expanded', String(!expanded));
+    routingToggle.textContent = expanded ? 'Show recent routes' : 'Hide recent routes';
+    routingList.hidden = expanded;
+  });
+}
+
+function updateViewState(label, nodeCount, edgeCount) {
+  viewState.textContent = `${label} · ${nodeCount.toLocaleString()} nodes · ${edgeCount.toLocaleString()} edges`;
+}
+
+function stabilizeAndFit(iterations = 120) {
+  network.setOptions({ physics: { enabled: true, stabilization: { iterations, fit: true } } });
+  network.stabilize(iterations);
+  network.once('stabilized', () => {
+    network.setOptions({ physics: { enabled: false } });
+    network.fit({ animation: VIEW_ANIMATION });
+  });
+}
+
+function resetOverview() {
+  nodesDS.clear();
+  edgesDS.clear();
+  nodesDS.add(OVERVIEW_NODES);
+  edgesDS.add(OVERVIEW_EDGES);
+  hiddenCommunities.clear();
+  document.querySelectorAll('.legend-item').forEach(item => item.classList.remove('dimmed'));
+  document.querySelectorAll('.legend-cb').forEach(checkbox => { checkbox.checked = true; });
+  updateSelectAllState();
+  updateViewState('Architecture overview', OVERVIEW_NODES.length, OVERVIEW_EDGES.length);
+  stabilizeAndFit(100);
+}
+
+function loadNeighborhood(nodeId) {
+  const selected = FULL_NODE_INDEX.get(nodeId);
+  if (!selected) return;
+  const incident = [];
+  const nodeIds = new Set([nodeId]);
+  for (const edge of FULL_EDGES) {
+    if (edge.from !== nodeId && edge.to !== nodeId) continue;
+    incident.push(edge);
+    nodeIds.add(edge.from);
+    nodeIds.add(edge.to);
+    if (incident.length >= 400) break;
+  }
+  const neighborhoodNodes = [...nodeIds]
+    .map(id => FULL_NODE_INDEX.get(id))
+    .filter(Boolean)
+    .map(node => ({
+      ...node,
+      size: node.id === nodeId ? 28 : Math.min(20, 12 + Math.log2((node._degree || 0) + 1)),
+      font: { ...node.font, size: node.id === nodeId ? 16 : 11 },
+      borderWidth: node.id === nodeId ? 4 : 1.5,
+    }));
+  nodesDS.clear();
+  edgesDS.clear();
+  nodesDS.add(neighborhoodNodes);
+  edgesDS.add(incident);
+  updateViewState(`Neighborhood: ${selected.label}`, neighborhoodNodes.length, incident.length);
+  stabilizeAndFit(140);
+  network.selectNodes([nodeId]);
+  showInfo(nodeId);
+}
+
+function openGraphNode(nodeId) {
+  if (nodesDS.get(nodeId)) {
+    focusNode(nodeId);
+  } else if (FULL_NODE_INDEX.has(nodeId)) {
+    loadNeighborhood(nodeId);
+  } else if (OVERVIEW_NODES.some(node => node.id === nodeId)) {
+    resetOverview();
+    requestAnimationFrame(() => focusNode(nodeId));
+  }
+}
+
+document.getElementById('fit-graph').addEventListener('click', () => network.fit({ animation: VIEW_ANIMATION }));
+document.getElementById('zoom-in').addEventListener('click', () => network.moveTo({ scale: Math.min(5, network.getScale() * 1.25), animation: VIEW_ANIMATION }));
+document.getElementById('zoom-out').addEventListener('click', () => network.moveTo({ scale: Math.max(0.05, network.getScale() / 1.25), animation: VIEW_ANIMATION }));
+document.getElementById('reset-overview').addEventListener('click', resetOverview);
+updateViewState('Architecture overview', OVERVIEW_NODES.length, OVERVIEW_EDGES.length);
+
+network.on('selectEdge', params => {
+  if (params.nodes.length || !params.edges.length) return;
+  const edge = edgesDS.get(params.edges[0]);
+  if (!edge) return;
+  document.getElementById('info-content').innerHTML = `
+    <div class="field"><b>Relationship</b></div>
+    <div class="field">${esc(edge.title || edge.relation || 'related')}</div>
+    <div class="field">From: ${esc(String(edge.from))}</div>
+    <div class="field">To: ${esc(String(edge.to))}</div>`;
+});
+
+"""
+    document = document.replace(navigation_marker, navigation_script + navigation_marker, 1)
+    document = document.replace(
+        "const matches = RAW_NODES.filter(n => n.label.toLowerCase().includes(q)).slice(0, 20);",
+        "const matches = SEARCH_NODES.filter(n => n.label.toLowerCase().includes(q) || "
+        "String(n._source_file || '').toLowerCase().includes(q)).slice(0, 20);",
+        1,
+    )
+    document = document.replace(
+        "if (!matches.length) { searchResults.style.display = 'none'; return; }",
+        "if (!matches.length) { searchResults.innerHTML = '<div class=\"search-empty\" role=\"status\">No matching nodes</div>'; "
+        "searchResults.style.display = 'block'; return; }",
+        1,
+    )
+    document = document.replace(
+        "    el.className = 'search-item';",
+        "    el.className = 'search-item';\n    el.setAttribute('role', 'option');\n    el.tabIndex = 0;",
+        1,
+    )
+    document = document.replace(
+        "    el.textContent = n.label;",
+        "    el.textContent = n._source_file ? `${n.label} — ${n._source_file}` : n.label;",
+        1,
+    )
+    old_search_action = """      network.focus(n.id, { scale: 1.5, animation: true });
+      network.selectNodes([n.id]);
+      showInfo(n.id);"""
+    if old_search_action not in document:
+        raise RuntimeError("Graphify HTML exporter no longer exposes the search selection action.")
+    document = document.replace(old_search_action, "      openGraphNode(n.id);", 1)
+    document = document.replace("animation: true", "animation: VIEW_ANIMATION")
+    document = document.replace(
+        "    searchResults.appendChild(el);",
+        "    el.addEventListener('keydown', event => {\n"
+        "      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); el.click(); }\n"
+        "    });\n    searchResults.appendChild(el);",
+    )
+    responsive_styles = """<style>
+  #graph-shell { position: relative; flex: 1; min-width: 0; min-height: 320px; overflow: hidden; }
+  #graph { width: 100%; height: 100%; min-width: 0; min-height: 320px; outline: none; }
+  #graph:focus-visible { box-shadow: inset 0 0 0 2px #70a5d8; }
+  #search:focus-visible, input:focus-visible { outline: 2px solid #70a5d8; outline-offset: 2px; }
+  #graph-toolbar { position: absolute; z-index: 3; top: 12px; left: 12px; display: flex; align-items: center; gap: 6px; padding: 6px; border: 1px solid #2a2a4e; border-radius: 7px; background: rgba(15,15,26,.9); backdrop-filter: blur(8px); }
+  #graph-toolbar button { min-width: 34px; min-height: 32px; padding: 5px 9px; border: 1px solid #3a3a5e; border-radius: 5px; background: #1a1a2e; color: #e0e0e0; cursor: pointer; }
+  #graph-toolbar button:hover { background: #2a2a4e; }
+  #graph-toolbar button:focus-visible { outline: 2px solid #70a5d8; outline-offset: 2px; }
+  #view-state { max-width: min(42vw, 430px); padding: 0 6px; color: #a7b0c0; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #routing-panel { flex: 0 0 auto; margin: 0; padding: 12px; border-bottom: 1px solid #2a2a4e; background: #121220; }
+  #routing-title { margin-bottom: 6px; color: #e0e0e0; font-size: 13px; font-weight: 700; }
+  #routing-summary { margin-bottom: 8px; color: #a7b0c0; font-size: 12px; line-height: 1.35; }
+  #routing-toggle { min-height: 32px; padding: 5px 9px; border: 1px solid #3a3a5e; border-radius: 5px; background: #1a1a2e; color: #d7deea; cursor: pointer; }
+  #routing-toggle:hover { background: #2a2a4e; }
+  #routing-toggle:focus-visible { outline: 2px solid #70a5d8; outline-offset: 2px; }
+  #routing-list { display: grid; max-height: 260px; gap: 6px; margin-top: 8px; overflow-y: auto; }
+  #routing-list[hidden] { display: none; }
+  #info-panel { flex: 0 0 auto; min-height: 150px; background: #19192c; }
+  #legend-wrap::before { content: 'Colors represent architecture ownership and extracted clusters. Labels and checkboxes carry the same meaning without relying on color alone.'; display: block; margin-bottom: 10px; color: #9aa5b5; font-size: 11px; line-height: 1.4; }
+  .routing-row { padding: 7px 8px; border-left: 3px solid #6f7890; border-radius: 5px; background: #18182a; }
+  .routing-row.verified { border-left-color: #4fb477; }
+  .routing-row.unverified { border-left-color: #c99b4a; }
+  .routing-main { color: #f0f3f8; font-size: 12px; font-weight: 650; overflow-wrap: anywhere; }
+  .routing-meta { margin-top: 2px; color: #9aa5b5; font-size: 11px; overflow-wrap: anywhere; }
+  .search-empty { padding: 8px 6px; color: #8b949e; font-size: 12px; }
+  @media (max-width: 720px) {
+    body { flex-direction: column; }
+    #graph-shell { width: 100%; height: 62vh; flex: none; }
+    #graph { min-height: 0; }
+    #sidebar { width: 100%; height: 38vh; border-left: 0; border-top: 1px solid #2a2a4e; }
+    #info-panel { min-height: 0; }
+    #graph-toolbar { top: 8px; left: 8px; right: 8px; flex-wrap: wrap; }
+    #view-state { flex: 1 1 100%; max-width: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; }
+  }
+</style>"""
+    document = document.replace("</head>", responsive_styles + "\n</head>", 1)
+    html_path.write_text(document, encoding="utf-8")
 
 
 def _load_graph(output: Path) -> dict[str, Any]:
@@ -364,13 +1017,17 @@ def _build(root: Path) -> dict[str, Any]:
     duration_ms = int((time.perf_counter() - started) * 1000)
     cache = {"reusedFiles": reused, "changedFiles": changed, "deletedFiles": deleted}
     _write_report(graph, output, cache, duration_ms)
-    _write_html(graph, output)
+    viewer_changed = old_state.get("viewerVersion") != VIEWER_VERSION
+    viewer_missing = not (output / "graph.html").is_file()
+    if changed or deleted or viewer_changed or viewer_missing:
+        _write_html(graph, output, root)
     nodes, edges, _ = _graph_parts(graph)
     state = {
         "schemaVersion": SCHEMA_VERSION, "status": "PASS", "generatedAt": _utc_now(),
         "root": ".", "inventory": inventory, "cache": cache,
         "counts": {"files": len(inventory), "nodes": len(nodes), "edges": len(edges)},
         "durationMs": duration_ms, "mode": "local-offline-ast",
+        "viewerVersion": VIEWER_VERSION,
     }
     _write_json(output / "state.json", state)
     result = _base("build")

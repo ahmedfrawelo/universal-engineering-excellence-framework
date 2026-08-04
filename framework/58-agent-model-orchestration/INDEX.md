@@ -11,3 +11,4 @@ This is the canonical file inventory for this pack. Use README.md for pack guida
 - [`03-agent-topologies.md`](03-agent-topologies.md)
 - [`04-context-and-token-economy.md`](04-context-and-token-economy.md)
 - [`05-escalation-verification-and-fallback.md`](05-escalation-verification-and-fallback.md)
+- [`06-fresh-context-review-protocol.md`](06-fresh-context-review-protocol.md)

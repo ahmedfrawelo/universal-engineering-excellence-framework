@@ -55,6 +55,24 @@ function Set-ManualOnlyPolicy([string]$SkillFile) {
   [IO.File]::WriteAllText($SkillFile, $updated, [Text.UTF8Encoding]::new($false))
 }
 
+function Set-ProgressiveDisclosure([object]$Entry, [string]$SkillRoot, [string]$SkillFile) {
+  if (!($Entry.PSObject.Properties.Name -contains 'progressiveDisclosure')) { return }
+  $policy = $Entry.progressiveDisclosure
+  $entrypointSource = [IO.Path]::GetFullPath((Join-Path $root ([string]$policy.entrypointSource)))
+  $fullReference = [IO.Path]::GetFullPath((Join-Path $SkillRoot ([string]$policy.fullReference)))
+  $rootPrefix = [IO.Path]::GetFullPath($root).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+  $skillPrefix = [IO.Path]::GetFullPath($SkillRoot).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+  if (!$entrypointSource.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase) -or !(Test-Path -LiteralPath $entrypointSource -PathType Leaf)) { throw "Invalid progressive-disclosure entrypoint: $($policy.entrypointSource)" }
+  if (!$fullReference.StartsWith($skillPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw "Unsafe progressive-disclosure reference: $($policy.fullReference)" }
+  $current = [IO.File]::ReadAllText($SkillFile)
+  if (!(Test-Path -LiteralPath $fullReference -PathType Leaf)) {
+    if ($current -match 'UEEF-PROGRESSIVE-ENTRYPOINT') { throw "Progressive-disclosure reference is missing for $($Entry.id); refusing to discard the upstream skill." }
+    New-Item -ItemType Directory -Path (Split-Path -Parent $fullReference) -Force | Out-Null
+    Copy-Item -LiteralPath $SkillFile -Destination $fullReference
+  }
+  Copy-Item -LiteralPath $entrypointSource -Destination $SkillFile -Force
+}
+
 foreach ($entry in $all) {
   $skillRoot = Join-Path $destination ([string]$entry.id)
   $skillFile = Join-Path $skillRoot 'SKILL.md'
@@ -78,7 +96,9 @@ foreach ($entry in $all) {
   }
   if (!(Test-Path -LiteralPath $skillFile -PathType Leaf)) { throw "Installer completed without creating $skillFile" }
   if ($sourceKind -eq 'github-manual-only') { Set-ManualOnlyPolicy $skillFile }
-  foreach ($supportFile in @($entry.supportFiles)) {
+  Set-ProgressiveDisclosure -Entry $entry -SkillRoot $skillRoot -SkillFile $skillFile
+  $supportFiles = if ($entry.PSObject.Properties.Name -contains 'supportFiles') { @($entry.supportFiles) } else { @() }
+  foreach ($supportFile in $supportFiles) {
     $supportSource = [IO.Path]::GetFullPath((Join-Path $root ([string]$supportFile.source)))
     $supportDestination = [IO.Path]::GetFullPath((Join-Path $skillRoot ([string]$supportFile.destination)))
     $rootPrefix = [IO.Path]::GetFullPath($root).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar

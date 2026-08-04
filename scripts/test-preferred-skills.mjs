@@ -17,6 +17,7 @@ const expected = [
   "frontend-ui-engineering", "browser-testing-with-devtools", "performance-optimization",
   "code-review-and-quality", "responsive-craft", "frontend-design-review", "web-design-guidelines",
   "prototype", "extract-design-system",
+  "design-taste-frontend", "styleseed-design-review",
 ];
 const ids = manifest.preferred.map((entry) => entry.id);
 if (new Set(ids).size !== ids.length) throw new Error("Duplicate preferred skill ids");
@@ -80,6 +81,8 @@ const routeTasks = [
   "Run visual QA and screenshot diff for the responsive UI",
   "Prototype multiple dashboard variants",
   "Extract the design system from a public website",
+  "Create an expressive landing page visual redesign",
+  "Run a Styleseed design score review in Penpot",
 ];
 for (const task of routeTasks) {
   const output = execFileSync(process.execPath, [path.join(root, "scripts", "select-frontend-route.mjs"), "--task", task], { encoding: "utf8" });

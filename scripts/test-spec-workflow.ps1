@@ -19,6 +19,11 @@ try {
   }
   & $validate -Path $created.path -Mode Ready | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Validator rejected a completed workflow.' }
+  $completedTasksPath = Join-Path $created.path 'tasks.md'
+  $completedTasks = (Get-Content -LiteralPath $completedTasksPath -Raw) -replace '- \[ \] TASK-001', '- [x] TASK-001'
+  Set-Content -LiteralPath $completedTasksPath -Value $completedTasks -Encoding utf8
+  & $validate -Path $created.path -Mode Ready | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'Validator rejected a Ready workflow after TASK-001 was checked complete.' }
   $duplicateRejected = $false
   try { & $new -Id 'demo-feature' -Root $sandbox | Out-Null } catch { $duplicateRejected = $true }
   if (!$duplicateRejected) { throw 'Generator overwrote an existing workflow without -Force.' }

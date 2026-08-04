@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "taskId": "replace-me",
+  "tier": "T3",
+  "status": "PASS",
+  "review": {
+    "mode": "FRESH_CONTEXT_RECOMMENDED",
+    "freshContext": true,
+    "reviewerThreadId": "replace-me",
+    "implementationThreadIds": ["replace-me"],
+    "role": "reviewer",
+    "modelCapability": "Frontier",
+    "reasoning": "high",
+    "sandboxPolicyType": "read-only",
+    "permissionProfileType": "replace-me",
+    "verdict": "ship",
+    "reason": "replace-me",
+    "findings": [],
+    "residualRisk": "none"
+  },
+  "reviewedChange": {
+    "paths": ["replace-me"],
+    "reviewedDiffSha256": "replace-me",
+    "postReviewDiffSha256": "replace-me",
+    "repositoryStateBeforeSha256": "replace-me",
+    "repositoryStateAfterSha256": "replace-me"
+  },
+  "verification": {
+    "commands": ["replace-me"],
+    "results": ["replace-me"]
+  },
+  "fallback": {
+    "used": false,
+    "reason": ""
+  }
+}

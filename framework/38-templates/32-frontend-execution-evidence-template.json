@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "task": "replace-me with the exact frontend task",
+  "completedPhases": ["ownership-preflight", "design-contract", "build", "state-accessibility-responsive-check", "performance-check", "test", "render-verify", "frontend-execution-evidence"],
+  "ownership": {"inspected": true, "owner": "replace-me", "reuseSearch": "replace-me", "decision": "replace-me"},
+  "designContract": {"required": true, "path": "DESIGN.md", "status": "PASS"},
+  "tokens": {"inspected": true, "semanticTokensReused": true, "rawValuesReviewed": true, "themesVerified": ["replace-me"]},
+  "states": {"verified": [], "notApplicable": {}},
+  "responsive": {"verified": true, "evidence": "replace-me"},
+  "accessibility": {"verified": true, "evidence": "replace-me"},
+  "performance": {"reviewed": true, "measured": false, "evidence": "replace-me"},
+  "tests": {"status": "PASS", "commands": ["replace-me"]},
+  "render": {"visualChange": true, "status": "PASS", "evidence": "replace-me", "rationale": ""},
+  "taste": {"preflight": "NOT_APPLICABLE", "finalCheck": "NOT_APPLICABLE", "checks": []},
+  "styleseed": {"score": null, "finalRenderVerified": false},
+  "penpot": {"liveUseClaimed": false},
+  "status": "PENDING"
+}

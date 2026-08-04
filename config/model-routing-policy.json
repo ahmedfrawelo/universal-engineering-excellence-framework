@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 3,
+  "adapter": "codex-host-routing",
+  "catalog": {
+    "providers": ["host-orchestration-tool", "codex-app-server:model/list"],
+    "includeHidden": true
+  },
+  "availability": {
+    "unavailableSignal": "Selected model is at capacity",
+    "accountRotationAllowed": false,
+    "retryCapacityFallbacks": 1
+  },
+  "reasoningPolicy": {
+    "source": "host-supportedReasoningEfforts",
+    "selection": "per-model-supported-order",
+    "maximum": "high",
+    "executionEffortCycle": ["low", "medium", "high"],
+    "executionEffortCycleByTier": {"T4": ["medium", "high"]},
+    "allowAboveMaximumOnlyWithExplicitUserInstruction": true,
+    "useCurrentModelOnlyWhenExplicit": true,
+    "allowModelConstraintOverrideOnlyWithExplicitUserInstruction": true
+  },
+  "tiers": {
+    "T0": {"capability": "Fast"},
+    "T1": {"capability": "Fast"},
+    "T2": {"capability": "Balanced"},
+    "T3": {"capability": "Frontier"},
+    "T4": {"capability": "Frontier", "preferLatest": true}
+  },
+  "selection": {
+    "strategy": "host-capability-class-then-deterministic-work-unit-distribution",
+    "useEveryEligibleModel": true,
+    "hiddenModelsRequireMatchingSpecialistPurpose": true,
+    "recordActualExecution": true,
+    "executionMode": "ROUTED_LEAD_REQUIRED"
+  }
+}

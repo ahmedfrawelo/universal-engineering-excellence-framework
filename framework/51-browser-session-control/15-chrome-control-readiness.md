@@ -25,6 +25,23 @@ Before using Chrome for navigation, inspection, screenshots, clicking, typing, u
 12. Only report `CHROME_EXTERNALLY_UNAVAILABLE` when Chrome, the extension, every authorized same-window path, and any eligible authorized loopback fallback are independently proven unavailable.
 13. Finalize the claimed task tab with `chrome.tabs.finalize(...)` before the turn ends unless an explicit handoff keeps it live; detach emergency CDP immediately after verification.
 
+## Local Navigation Recovery
+
+If the dedicated tab is controllable but browser policy rejects only a local
+`file://` target, keep the control channel `READY`. Do not run runtime sync or
+enter ownership/CDP recovery. Serve the same artifact through a verified
+read-only `127.0.0.1` project service after checking documented ownership,
+current listeners, and health. Report the local-navigation stage/reason/next
+once, then continue verification in the same dedicated Chrome tab.
+
+## Synthetic-Only Contingency
+
+When all real-browser recovery paths fail, standalone Playwright may be offered
+only after an explicit user request and only if the host permits it. It may test
+a public or loopback page without personal session state and must be labeled
+`SYNTHETIC_ONLY`. It cannot satisfy a same-profile, authenticated, existing-tab,
+or visual Chrome gate and cannot bypass stricter host or installed-skill rules.
+
 ## Startup Order Hint
 
 When the control channel fails before any `user.openTabs()` evidence exists, check and communicate the startup-order requirement before deeper recovery:

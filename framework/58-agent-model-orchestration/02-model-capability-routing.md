@@ -1,34 +1,21 @@
 # Model Capability Routing
 
-## Capability Classes
+Medium is the economical default, not a hard ceiling. The router uses the signed-in Codex account catalog rather than a repository-maintained model list.
 
-- `Fast`: low cost and latency for deterministic, bounded tasks.
-- `Balanced`: everyday implementation, debugging, and moderate reasoning.
-- `Frontier`: complex architecture, broad integration, high ambiguity, or high-risk review.
-
-## Default Mapping
-
-When the platform exposes the current Codex model family:
-
-| Tier | Model | Reasoning |
+| Tier | Capability target | Effort position in the model's host order | Model source |
 | --- | --- | --- |
-| T0 | inherited | low |
-| T1 | inherited (Fast class) | medium |
-| T2 | inherited (Balanced class) | medium |
-| T3 | inherited (Frontier class) | high |
-| T4 | inherited (Frontier class) | high |
+| T0 | Fast | invocation cycle | signed-in account catalog |
+| T1 | Fast | invocation cycle | signed-in account catalog |
+| T2 | Balanced | invocation cycle | signed-in account catalog |
+| T3 | Frontier | invocation cycle | signed-in account catalog |
+| T4 | Frontier | invocation cycle | signed-in account catalog |
 
-The route selector emits `preferredModel: inherit` for every tier. UEEF describes capability classes (Fast, Balanced, Frontier), not fixed model names, so platform-supplied model families are not overridden by outdated or fictional identifiers.
+Every tier uses `ROUTED_LEAD_REQUIRED`: the original conversation routes implementation to a host work unit with the exact emitted `preferredModel` and `hostReasoning` values. Codex App Server `model/list` is the sole production catalog source and is paged through with hidden entries included; a caller-provided catalog file is test-only and never account-verified. The Windows discovery path resolves an executable from the active `CODEX_HOME` runtime before falling back to `PATH`. Every returned entry appears in `catalogCoverage`. Picker-visible general models are eligible for ordinary work; host-hidden specialized entries remain covered but are not used for unrelated execution. The router matches host capability metadata or generic description signals to the tier and never infers capability from how many efforts a model supports. For a tier that prefers the latest model, a model is latest when the host marks it through upgrade metadata or a generic latest-description signal; host catalog order and stable identifier resolve remaining ties. It selects solely from that model's own ordered supported efforts, using the host default only as catalog evidence rather than a cross-model quality rank. There is no adaptive learning or persistent performance profile. The default ceiling is `high`; a higher effort requires explicit user authorization. This changes the model that performs the work unit. It does not automatically mutate the model dropdown of the already-running conversation; a picker update is a separate explicit `thread/settings/update` operation and requires a known target `threadId`.
 
-`medium` is the economical default, not a hard ceiling. A recorded T3/T4 or high-ambiguity route may request a platform-supported higher level; higher-risk work also increases topology, evidence, and independent verification. UEEF must not override a higher level chosen by the platform.
+Resolve again before each materially different work unit and after scope, ambiguity, risk, or verification changes. Before execution show `Model route: <work-unit> | <model> / <host display effort> (host: <technical effort>)`; `<model>` is always the complete technical identifier returned by Codex, never its short display nickname. Show a changed line before any re-dispatch. Never translate an effort name in repository policy. If the live catalog has no display name, show its exact technical identifier. The current picker is a constraint only after an explicit user request; constraint override and above-`high` execution each require their own explicit authorization.
 
-Use an inherited model when it already satisfies the class. Do not override merely to make routing visible. If a specific model must be requested, verify its availability from the current orchestration tool before naming it; otherwise stay with `inherit`.
+Treat T0-T4 as difficulty and capability classes, never as five fixed model slots or fixed reasoning levels. Within the best matching general capability class, use the stable work-unit ID to distribute deterministically across every eligible account model. For repeated successful executions of the same work unit in one active session, T0-T3 advance through `low`, `medium`, `high`, then repeat; T4 advances through `medium`, `high`, then repeat and fails closed if either level is unsupported. Recording or a failed dispatch never consumes a cycle step. The invocation index is digest-bound so execution evidence cannot be replayed for a different cycle step. A hidden model is never general fallback and requires a specialist-purpose token whose words match the host description. This permits host-added or host-removed models without source changes.
 
-Verify model entitlement from the current orchestration tool before using a named override. When availability cannot be verified, emit the capability class with no model ID and continue with the strongest available inherited model.
+For every tier, dispatch the current route before other work-unit tools. Then publish the verified actual line returned by the host or App Server. A requested pair or a sub-agent's prose self-identification is insufficient. Routed turns preserve the user's language by default and the App Server dispatcher accepts an optional BCP-47 response-language tag, including `ar`. If the user explicitly wants the visible picker to match a route and provides or authorizes the exact target thread, use `scripts/update-codex-thread-settings.mjs --thread-id <id> --route <route.json> --resume-first`; without an exact `threadId`, UEEF must only show the verified actual model in `Selected` and the repository graph routing panel.
 
-## Quality Protection
-
-- Never choose from token price alone.
-- A smaller model may execute a mechanical child task inside a critical rollout, but it may not own the critical decision or final verification.
-- Escalate after two inconclusive attempts, one unexplained test regression, missing architecture context, or conflicting evidence.
-- Do not downgrade a route after discovering security, data-loss, production, or shared-contract risk.
+Record each managed work unit through `record-ueef-route.mjs --route-output <path>`; the hook stores its route digest, invocation index, and revision, then reads the assistant-message transcript and denies the next local tool until the exact current route line has been shown. A canonical catalog digest binds ordered identifiers, visibility, capability class, supported efforts, defaults, and upgrade metadata; the route digest then binds that catalog digest with the tier, work-unit ID, invocation index, primary pair, fallback pair, provider, and discovery time. It rejects a model-aware dispatch whose explicit model/effort, fallback pair, catalog digest, or route digest differs and requires a successful matching host dispatch before a completion claim. The direct App Server dispatcher records the effective model from `thread/start` and `model/rerouted`, and proves the turn effort through `thread/settings/updated`; a thread default or model prose is never proof of the executed turn effort. Its hook receipt must also contain the App Server provider, thread and turn IDs, full verification source, disabled provider fallback, exact pair, digest, and success. `scripts/record-model-route-result.mjs` is a supplemental digest-bound receipt. It rejects stale/fixture routes in production and supports request IDs for pre-thread `CAPACITY`. A fallback success is proven either by the dispatcher's digest-bound aggregate attempts or by a separate matching primary-capacity receipt; account rotation, cookie/profile inspection, and lowered quality gates remain forbidden.

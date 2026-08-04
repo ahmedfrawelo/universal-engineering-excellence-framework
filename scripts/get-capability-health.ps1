@@ -100,16 +100,17 @@ if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
     if ($line -match '^\s*\[') { $currentPlugin = $null }
   }
   foreach ($name in $mcpNames) {
-    $section = $false; $command = ''; $url = ''
+    $section = $false; $command = ''; $url = ''; $mcpEnabled = $true
     foreach ($line in $lines) {
       if ($line -match '^\s*\[mcp_servers\.([^\.\]]+)\]\s*$') { $section = ($matches[1] -eq $name); continue }
       if ($section -and $line -match '^\s*\[') { break }
       if ($section -and $line -match '^\s*command\s*=\s*["'']([^"'']+)["'']') { $command=$matches[1] }
       if ($section -and $line -match '^\s*url\s*=\s*["'']([^"'']+)["'']') { $url=$matches[1] }
+      if ($section -and $line -match '^\s*enabled\s*=\s*(true|false)\s*$') { $mcpEnabled=($matches[1] -eq 'true') }
     }
     $installed = if ($command) { if ([IO.Path]::IsPathRooted($command)) { Test-Path -LiteralPath $command -PathType Leaf } else { [bool](Get-Command $command -ErrorAction SilentlyContinue) } } elseif ($url) { $true } else { $false }
     $detail = if ($command) { 'Local command configured; no process was started by this diagnostic.' } elseif ($url) { 'Remote endpoint configured; no network request was made by this diagnostic.' } else { 'Configuration has neither command nor URL.' }
-    Add-Capability 'mcp' $name $true $installed $true 'UNVERIFIED' $detail
+    Add-Capability 'mcp' $name $true $installed $mcpEnabled 'UNVERIFIED' $detail
   }
 } else {
   Add-Capability 'runtime' 'config.toml' $false $false $false 'NOT_RUN' "Configuration file not found: $ConfigPath"

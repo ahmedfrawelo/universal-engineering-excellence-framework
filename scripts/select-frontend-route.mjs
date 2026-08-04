@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {selectDesignProductionRoute} from './frontend-design-production-route-lib.mjs';
+
 const args = process.argv.slice(2);
 const value = (name, fallback = '') => {
   const index = args.indexOf(name);
@@ -67,6 +72,9 @@ const signals = {
   sourceDriven: has(/\b(official docs|official documentation|current angular|latest angular|source.cited)\b/),
   codeReview: has(/\b(code review|review (?:the )?(?:pr|diff)|pull request review)\b/),
   visualQa: has(/\b(visual qa|visual regression|screenshot diff|browser verification|responsive verification)\b/),
+  expressive: has(/\b(landing page|portfolio|marketing site|expressive|visual redesign)\b|صفحة هبوط|بورتفوليو|تسويق|إعادة تصميم/),
+  designReview: has(/\b(design score|styleseed|post-build design review|visual quality floor)\b|تقييم التصميم|مراجعة بصرية/),
+  penpot: has(/\b(penpot|design canvas|code-to-design|design-to-code)\b|بنبوت|لوحة تصميم/),
 };
 
 const domains = Object.entries(signals)
@@ -93,6 +101,8 @@ const modules = [];
 const gates = [];
 const skills = [];
 const reasons = [];
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const designProductionPolicy = JSON.parse(fs.readFileSync(path.join(root, 'config/frontend-design-production-policy.json'), 'utf8'));
 const add = (target, ...items) => target.push(...items);
 if (applies) {
   add(modules, 'framework/10-frontend/00-frontend-engineering.md', 'framework/10-frontend/01-frontend-task-modes.md');
@@ -154,6 +164,23 @@ if (applies && signals.design) {
   reasons.push('design-system decision detected');
   add(skills, 'design-system-guardian');
 }
+const designProductionApplies = applies && (signals.expressive || signals.designReview || signals.penpot || signals.design || (mutation === 'Implement' && scope !== 'Quick'));
+const designProduction = designProductionApplies ? selectDesignProductionRoute(task, designProductionPolicy, {mutation, frontendMode}) : null;
+if (designProductionApplies) {
+  add(modules, 'framework/64-frontend-design-production/00-frontend-design-production-system.md');
+  add(gates, 'framework/27-quality-gates/35-frontend-design-production-gate.md');
+  add(skills, ...designProduction.skills);
+  reasons.push('mandatory frontend design-production execution contract selected');
+}
+if (applies && signals.expressive && !signals.dataGrid && !signals.appShell && !has(/\b(dashboard|admin|saas|settings|dense product ui)\b/)) {
+  add(skills, 'design-taste-frontend');
+  reasons.push('expressive surface matched Taste scope');
+}
+if (applies && signals.designReview) {
+  add(skills, 'styleseed-design-review');
+  reasons.push('measured Styleseed review requested');
+}
+if (applies && signals.penpot) reasons.push('Penpot preferred; live MCP health evidence remains required');
 if (applies && signals.motion) { add(skills, 'emil-design-eng'); reasons.push('motion craft detected'); }
 // Angular has its own implementation authority. The general UI engineering
 // skill contains framework-specific examples that must not override it.
@@ -180,4 +207,5 @@ console.log(JSON.stringify({
   schemaVersion: 1, task, applies, forcedFrontend: forceFrontend, frontendMode: applies ? frontendMode : 'NA', intent: applies ? intent : 'NA',
   scope: applies ? scope : 'NA', mutation: applies ? mutation : 'NA', domains, stack: [signals.react ? 'React' : null, signals.angular ? 'Angular' : null].filter(Boolean),
   skills: unique(skills), modules: unique(modules), gates: unique(gates), reasons, confidence, matchedSignals,
+  designProductionApplies, designProduction,
 }, null, 2));

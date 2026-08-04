@@ -21,7 +21,8 @@
   "prohibitedBrowserToolPatterns": [
     "(?i)(^|__)browser($|__)",
     "(?i)in.?app.?browser",
-    "(?i)chrome.?devtools"
+    "(?i)chrome.?devtools",
+    "(?i)(^|__)playwright($|__)"
   ],
   "prohibitedBrowserInputPatterns": [
     "(?i)browser\\.newContext",
@@ -29,6 +30,7 @@
     "(?i)getDefault\\(",
     "(?i)getForUrl\\(",
     "(?i)chrome-devtools",
+    "(?i)mcp__playwright",
     "(?i)IDE Simple Browser",
     "(?i)--user-data-dir"
   ],
@@ -38,6 +40,20 @@
     "(?i)tab\\.playwright",
     "(?i)browser-client"
   ],
+  "frontendEnforcement": {
+    "promptPatterns": [
+      "(?i)\\b(frontend|front-end|ui|ux|css|scss|tailwind|react|angular|vue|svelte|page|screen|component|dashboard|landing|responsive|theme|design system|data grid)\\b",
+      "[\\u0600-\\u06ff]*(واجهة|فرونت|فورنت|صفحة|شاشة|مكون|تصميم|ألوان|الوان|ثيم|متجاوب|لوحة|جدول)[\\u0600-\\u06ff]*"
+    ],
+    "metaPromptExclusionPatterns": [
+      "(?i)\\bUEEF\\b.{0,80}\\b(frontend|ui|ux)\\b.{0,80}\\b(rule|policy|route|routing|gate|validator|enforcement|framework)\\b",
+      "(?i)\\b(frontend|ui|ux)\\b.{0,80}\\b(rule|policy|route|routing|gate|validator|enforcement)\\b.{0,80}\\bUEEF\\b",
+      "(?:قواعد|سياسة|توجيه|بوابة|فاحص|إنفاذ|اطار|إطار).{0,40}(?:الفرونت|الفورنت|الواجهة).{0,80}UEEF|UEEF.{0,80}(?:قواعد|سياسة|توجيه|بوابة|فاحص|إنفاذ|اطار|إطار).{0,40}(?:الفرونت|الفورنت|الواجهة)"
+    ],
+    "routeCommandPattern": "select-frontend-route\\.mjs",
+    "evidenceCommandPattern": "validate-frontend-execution-evidence\\.mjs",
+    "passingTestCommandPattern": "(?:(?:npm(?:\\.cmd)?|pnpm|yarn|bun)\\s+(?:run\\s+)?test\\b|npx\\s+(?:vitest|jest)\\b|ng\\s+test\\b|dotnet\\s+test\\b|pytest\\b|python(?:\\.exe)?\\s+-m\\s+pytest\\b|cargo\\s+test\\b|go\\s+test\\b|test-|validate-framework|ueef-audit|invoke-full-assurance)"
+  },
   "completionClaimPattern": "(?i)(\\bCOMPLETE\\b|\\b100\\s*%|\\bperfect\\b|\\bfully verified\\b|مكتمل|اكتمل|كامل|تم بالكامل)",
   "postCompletionQuestionPattern": "(?i)(\\?|هل تريد|هل تحب|حابب|anything else|do you want|would you like)",
   "destructiveCommands": [

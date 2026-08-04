@@ -4,6 +4,9 @@ set -eu
 scope=0 ambiguity=0 coupling=0 risk=0 verification=0
 risk_floor=None code_change=false delegation_benefit=false independent_workstreams=1
 agents_available=true models_available=true
+model_policy="" model_catalog="" test_model_catalog=false
+use_current_model=false current_model="" reasoning_override="" allow_exceed=false allow_model_constraint_override=false
+work_unit_id=default-work-unit specialist_purpose="" invocation_index=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -18,6 +21,17 @@ while [ "$#" -gt 0 ]; do
     --independent-workstreams) independent_workstreams="$2"; shift 2 ;;
     --agents-unavailable) agents_available=false; shift ;;
     --models-unavailable) models_available=false; shift ;;
+    --model-policy) model_policy="$2"; shift 2 ;;
+    --model-catalog) model_catalog="$2"; shift 2 ;;
+    --test-model-catalog) test_model_catalog=true; shift ;;
+    --use-current-model) use_current_model=true; shift ;;
+    --current-model) current_model="$2"; shift 2 ;;
+    --reasoning-override) reasoning_override="$2"; shift 2 ;;
+    --allow-exceed) allow_exceed=true; shift ;;
+    --allow-model-constraint-override) allow_model_constraint_override=true; shift ;;
+    --work-unit-id) work_unit_id="$2"; shift 2 ;;
+    --specialist-purpose) specialist_purpose="$2"; shift 2 ;;
+    --invocation-index) invocation_index="$2"; shift 2 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -47,12 +61,27 @@ case "$risk_floor" in
 esac
 
 case "$tier" in
-  T0) capability=Inherited; model=inherit; reasoning=low; routed_topology=single-agent ;;
-  T1) capability=Fast; model=inherit; reasoning=medium; routed_topology=single-agent ;;
-  T2) capability=Balanced; model=inherit; reasoning=medium; routed_topology=lead-plus-sidecar ;;
-  T3) capability=Frontier; model=inherit; reasoning=high; routed_topology=parallel-specialists ;;
-  T4) capability=Frontier; model=inherit; reasoning=high; routed_topology=lead-workers-independent-verifier ;;
+  T0) routed_topology=single-agent ;;
+  T1) routed_topology=single-agent ;;
+  T2) routed_topology=lead-plus-sidecar ;;
+  T3) routed_topology=parallel-specialists ;;
+  T4) routed_topology=lead-workers-independent-verifier ;;
 esac
+
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+[ -n "$model_policy" ] || model_policy="$ROOT/config/model-routing-policy.json"
+set -- --tier "$tier" --policy "$model_policy"
+set -- "$@" --work-unit-id "$work_unit_id"
+set -- "$@" --invocation-index "$invocation_index"
+[ -n "$model_catalog" ] && set -- "$@" --catalog "$model_catalog"
+[ "$test_model_catalog" = true ] && set -- "$@" --allow-test-catalog
+[ "$models_available" = false ] && set -- "$@" --models-unavailable
+[ "$use_current_model" = true ] && set -- "$@" --use-current-model --current-model "$current_model"
+[ -n "$reasoning_override" ] && set -- "$@" --reasoning-override "$reasoning_override"
+[ "$allow_exceed" = true ] && set -- "$@" --allow-exceed
+[ "$allow_model_constraint_override" = true ] && set -- "$@" --allow-model-constraint-override
+[ -n "$specialist_purpose" ] && set -- "$@" --specialist-purpose "$specialist_purpose"
+model_route=$(node "$ROOT/scripts/resolve-model-route.mjs" "$@")
 
 spawn_agents=false
 if [ "$agents_available" = true ] && { [ "$delegation_benefit" = true ] || [ "$tier" = T4 ]; }; then spawn_agents=true; fi
@@ -62,14 +91,18 @@ elif [ "$tier" = T2 ] || [ "$independent_workstreams" -eq 1 ]; then topology=lea
 else topology="$routed_topology"
 fi
 if [ "$tier" = T4 ]; then independent=true; else independent=false; fi
+if [ "$tier" = T4 ]; then fresh_review_mode=FRESH_CONTEXT_REQUIRED; fresh_review_required=true
+elif [ "$tier" = T3 ]; then fresh_review_mode=FRESH_CONTEXT_RECOMMENDED; fresh_review_required=false
+else fresh_review_mode=NONE; fresh_review_required=false
+fi
 if [ "$spawn_agents" = true ]; then no_spawn_reason=null
 elif [ "$code_change" = true ] && [ "$agents_available" = false ]; then no_spawn_reason='"TOOL_UNAVAILABLE"'
 elif [ "$tier" = T0 ] || [ "$tier" = T1 ]; then no_spawn_reason='"NO_INDEPENDENT_WORK"'
 else no_spawn_reason='"CRITICAL_PATH_ONLY"'
 fi
-if [ "$models_available" = false ]; then model_json=null; model_verify=false
-else model_json="\"$model\""; if [ "$model" = inherit ]; then model_verify=false; else model_verify=true; fi
-fi
-
-printf '{"schemaVersion":4,"score":%s,"riskFloor":"%s","tier":"%s","capability":"%s","preferredModel":%s,"reasoning":"%s","reasoningCeiling":"proportional","topology":"%s","delegationBenefit":%s,"codeChange":%s,"independentWorkstreams":%s,"agentsAvailable":%s,"spawnAgents":%s,"noSpawnReason":%s,"routeEvidenceRequired":true,"independentVerificationRequired":%s,"modelAvailabilityMustBeVerified":%s,"note":"Delegation is optional and requires an independent benefit. T0/T1 default to single-agent; models inherit the platform default; T4 requires independent verification."}\n' \
-  "$score" "$risk_floor" "$tier" "$capability" "$model_json" "$reasoning" "$topology" "$delegation_benefit" "$code_change" "$independent_workstreams" "$agents_available" "$spawn_agents" "$no_spawn_reason" "$independent" "$model_verify"
+printf '%s' "$model_route" | node -e '
+let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
+  const r=JSON.parse(s), meta=JSON.parse(process.argv[1]);
+  const out={schemaVersion:4,score:meta.score,riskFloor:meta.riskFloor,tier:meta.tier,capability:r.capability,preferredModel:r.preferredModel,reasoning:r.reasoning,displayReasoning:r.displayReasoning,hostReasoning:r.hostReasoning,modelSelectionMode:r.modelSelectionMode,fallbackModel:r.fallbackModel,fallbackReasoning:r.fallbackReasoning,fallbackDisplayReasoning:r.fallbackDisplayReasoning,fallbackHostReasoning:r.fallbackHostReasoning,modelAvailability:r.modelAvailability,accountRotationAllowed:r.accountRotationAllowed===true,accountCatalogVerified:r.accountCatalogVerified===true,testCatalogAllowed:r.testCatalogAllowed===true,catalogProvider:r.catalogProvider,eligibleSelectionPool:r.eligibleSelectionPool,selectionPoolSize:r.selectionPoolSize,distributionKey:r.distributionKey,distributionIndex:r.distributionIndex,specialistPurpose:r.specialistPurpose,invocationIndex:r.invocationIndex,effortRotation:r.effortRotation,catalogDiscoveredAt:r.catalogDiscoveredAt,catalogFresh:r.catalogFresh===true,catalogContractValid:r.catalogContractValid===true,catalogModelCount:r.catalogModelCount,generalModelCount:r.generalModelCount,catalogCoverage:r.catalogCoverage,catalogDigest:r.catalogDigest,reasoningCeiling:r.reasoningCeiling,aboveCeilingAuthorized:r.aboveCeilingAuthorized===true,requestedCurrentModel:r.requestedCurrentModel,currentModelConstraintApplied:r.currentModelConstraintApplied===true,currentModelConstraintOverridden:r.currentModelConstraintOverridden===true,topology:meta.topology,delegationBenefit:meta.delegationBenefit,codeChange:meta.codeChange,independentWorkstreams:meta.independentWorkstreams,agentsAvailable:meta.agentsAvailable,spawnAgents:meta.spawnAgents,noSpawnReason:meta.noSpawnReason,routeEvidenceRequired:true,independentVerificationRequired:meta.independent,freshReviewMode:meta.freshReviewMode,freshReviewRequired:meta.freshReviewRequired,modelAvailabilityMustBeVerified:r.accountCatalogVerified===true,note:"Routing and verification stay proportional to tier and risk. Discover the signed-in account catalog through the current host first and Codex App Server model/list when available, then run the selected model and exact host effort. Display the host-provided effort name without a repository rename. The policy ceiling is high unless the user explicitly authorizes an override. On provider capacity, attempt the declared fallback once without rotating accounts."};
+  process.stdout.write(JSON.stringify(out)+"\n");
+});' "$(node -e 'process.stdout.write(JSON.stringify({score:Number(process.argv[1]),riskFloor:process.argv[2],tier:process.argv[3],topology:process.argv[4],delegationBenefit:process.argv[5]==="true",codeChange:process.argv[6]==="true",independentWorkstreams:Number(process.argv[7]),agentsAvailable:process.argv[8]==="true",spawnAgents:process.argv[9]==="true",noSpawnReason:process.argv[10]==="null"?null:process.argv[10],independent:process.argv[11]==="true",freshReviewMode:process.argv[12],freshReviewRequired:process.argv[13]==="true"}))' "$score" "$risk_floor" "$tier" "$topology" "$delegation_benefit" "$code_change" "$independent_workstreams" "$agents_available" "$spawn_agents" "$(printf '%s' "$no_spawn_reason" | tr -d '"')" "$independent" "$fresh_review_mode" "$fresh_review_required")"

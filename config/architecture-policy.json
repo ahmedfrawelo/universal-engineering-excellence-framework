@@ -6,12 +6,14 @@
     { "id": "core", "paths": ["UEEF-LOADER.md", "release-manifest.json", "config/", "framework/01-core/"] },
     { "id": "framework", "paths": ["framework/"] },
     { "id": "automation", "paths": ["scripts/"] },
+    { "id": "tools", "paths": ["tools/"] },
     { "id": "documentation", "paths": ["README.md", "QUICK_START.md", "INSTALL.md", "VERSION.md", "CHANGELOG.md", "BUILD_PROGRESS.md", "ROADMAP.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md", "LICENSE", "docs/", "examples/"] }
   ],
   "allowedDependencies": {
     "core": ["core"],
     "framework": ["core", "framework"],
-    "automation": ["core", "framework", "automation"],
+    "automation": ["core", "framework", "automation", "tools"],
+    "tools": ["core", "framework", "automation", "tools"],
     "documentation": ["core", "framework", "automation", "documentation"]
   },
   "publicBoundaryPatterns": ["UEEF-LOADER.md", "config/*.json", "scripts/sync-runtime.ps1"],

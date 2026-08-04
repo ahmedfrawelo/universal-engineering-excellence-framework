@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "authority": {
+    "designContract": "DESIGN.md",
+    "implementationLock": "STYLESEED.md",
+    "rule": "DESIGN.md owns durable identity and tokens. STYLESEED.md may narrow a task but must reference the DESIGN.md SHA-256 and cannot contradict it."
+  },
+  "routing": {
+    "productUiDirector": "interface-design",
+    "expressiveDirector": "frontend-design",
+    "tasteSupplement": "design-taste-frontend",
+    "reviewGate": "styleseed-design-review",
+    "preferredCanvas": "penpot",
+    "explicitFigmaArtifact": "figma@openai-curated-remote"
+  },
+  "taste": {
+    "allowed": ["landing-page", "portfolio", "marketing-site", "expressive-redesign"],
+    "denied": ["dashboard", "admin", "data-grid", "dense-product-ui"],
+    "requiredPhases": ["taste-preflight", "taste-final-check"],
+    "antiRepetitionChecks": ["duplicate-cta-intent", "section-layout-repetition", "zigzag-alternation", "eyebrow-density"]
+  },
+  "styleseed": {
+    "minimumScore": 80,
+    "sequence": ["lock", "resolve", "build", "score", "revise", "render-verify"]
+  },
+  "penpot": {
+    "configKey": "mcp_servers.penpot",
+    "endpoint": "http://localhost:4401/mcp",
+    "liveUseRequires": ["configured MCP", "reachable server", "connected Penpot plugin", "task design file"]
+  },
+  "mandatoryExecution": {
+    "routeBeforeMutation": true,
+    "evidenceBeforeDelivery": true,
+    "finalUiuxLabelMustNotBeNaAfterMutation": true,
+    "requiredPhases": ["ownership-preflight", "design-contract", "build", "state-accessibility-responsive-check", "performance-check", "test", "render-verify", "frontend-execution-evidence"]
+  },
+  "qualityContract": {
+    "ownership": ["inspect existing design system", "identify owning component or shared family", "search for semantic reuse before creating"],
+    "tokens": ["reuse semantic tokens", "no raw visual values when a token exists", "preserve supported themes"],
+    "states": ["default", "hover", "focus-visible", "active", "disabled", "loading", "empty", "error"],
+    "responsive": ["small phone", "tablet", "desktop", "zoom and text growth", "short viewport"],
+    "accessibility": ["keyboard", "focus order and restoration", "semantics and names", "contrast", "reduced motion"],
+    "performance": ["measure when performance is in scope", "review render and bundle impact", "avoid layout shift and interaction delay"],
+    "verification": ["focused tests", "rendered final state for visual changes", "current frontend execution evidence"]
+  },
+  "upstreams": [
+    {"name":"Taste","repository":"Leonxlnx/taste-skill","ref":"e988add20dab0fa97d7a76781c48961c8184288e","license":"MIT"},
+    {"name":"Styleseed","repository":"bitjaru/styleseed","ref":"0e2cb9a6f61c30b11e648fa92987cc0aebcf1b52","license":"MIT"},
+    {"name":"DESIGN.md","repository":"google-labs-code/design.md","ref":"9bf8eae67128b6cc55ad9bf86665767deb4c11cd","license":"Apache-2.0"},
+    {"name":"Penpot MCP","repository":"penpot/penpot","ref":"f023c090187b4f7c847fc11e5da37e008b8b0265","path":"mcp","license":"MPL-2.0"}
+  ]
+}

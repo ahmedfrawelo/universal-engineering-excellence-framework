@@ -7,7 +7,7 @@ Applies To: broad or unfamiliar repositories, architecture discovery, dependency
 
 ## Purpose
 
-Provide an optional local knowledge graph as fresh repository evidence. It
+Provide a selectively mandatory local knowledge graph as fresh repository evidence. It
 supplements source inspection; it never replaces inspection of the owning files
 or direct behavioral verification.
 
@@ -22,6 +22,11 @@ Select this pack when a task needs one or more of:
 
 Do not select it for a self-contained answer or a narrow edit whose owner and
 behavior are already known.
+
+Once selected by task preflight, use is mandatory: preflight builds the graph
+when missing, refreshes it when stale, and runs one bounded task query before
+other substantial repository work continues. A failed selected graph gate makes
+preflight non-ready instead of silently falling back to prose-only orientation.
 
 ## Commands
 
@@ -67,8 +72,10 @@ upstream general-purpose CLI.
 
 ## Evidence use
 
-1. Run `status`; build or refresh when the graph is absent or stale.
-2. Use `query`, `path`, `explain`, or `affected` for bounded orientation.
+1. Run task preflight; when this pack is selected it automatically checks,
+   builds or refreshes, and performs one bounded query.
+2. Use additional `query`, `path`, `explain`, or `affected` calls when the
+   initial bounded query does not answer the repository question.
 3. Open the cited owning files and confirm the relevant implementation.
 4. Test the requested behavior itself and run the applicable UEEF gates.
 5. Treat missing or ambiguous graph evidence as unresolved, never as proof of absence.

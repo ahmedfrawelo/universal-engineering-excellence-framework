@@ -27,16 +27,17 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Select `framework/59-skill-invocation-protocol/` for named skill requests, skill routing, workflow protocols, Superpowers-inspired workflow work, TDD/evidence-loop hardening, subagent review chains, red-flag detection, or skill-authoring work.
 - Select `framework/60-spec-driven-development/` for Spec Kit-inspired work, specifications, requirements, acceptance criteria, project principles, clarification, technical plans, task breakdown, cross-artifact analysis, convergence, extension/preset/bundle governance, or third-party attribution.
 - Select `framework/63-repository-intelligence/` for broad repository orientation, architecture/ownership mapping, dependency paths, affected-code analysis, or incremental local knowledge graphs. Treat graph results as bounded evidence and confirm them against owning source and behavior.
+- Select `framework/64-frontend-design-production/` for material frontend design creation, expressive visual direction, measured design review, `DESIGN.md`, Styleseed, Taste, Penpot, or design-canvas work. Keep one primary director, restrict Taste to expressive surfaces, and require live health evidence before claiming Penpot use.
 
 ## Agent and Model Routing
 
-- Use the lowest-cost model class that satisfies the task's complexity and risk floor.
+- Resolve the capability, effort position, execution mode, and fallback policy from `config/model-routing-policy.json`, then resolve concrete model names and supported efforts from the signed-in host catalog. Re-route materially different work units and dispatch through the selected host model rather than retaining the primary conversation's selection unless the user explicitly requires it.
 - Keep T0 and most T1 work on the lead agent when delegation overhead exceeds the work.
 - Use bounded, non-overlapping sidecars for T2. Parallel specialists require positive delegation benefit and at least two independently owned workstreams.
-- Use the strongest available model and independent verification for T4 security, production, migration, destructive, privacy, payment, or incident work.
-- Reject risk score `3` without an explicit risk floor. Verify current agent and named-model availability before emitting a spawn or override decision.
+- Use a live-catalog frontier-capable route and independent verification for T4 security, production, migration, destructive, privacy, payment, or incident work; do not equate this with blindly selecting the account's highest model or an above-`high` effort.
+- Reject risk score `3` without an explicit risk floor. Verify named-model availability from the actual host-agent creation result; on capacity, use the one declared fallback and record both outcomes.
 - Reclassify and escalate when scope, ambiguity, failures, or risk increase.
-- `medium` is the economical reasoning default. A recorded T3/T4 or high-ambiguity route may request a platform-supported higher level; increase verification and topology with risk, never lower the risk floor to avoid escalation, and do not prohibit a higher inherited level selected by the platform.
+- `medium` is the economical reasoning default. T3/T4 may request higher reasoning; increase verification and topology with risk, never lower the risk floor to avoid escalation. Never rotate accounts, profiles, cookies, or credentials to satisfy a model route.
 - T1 code changes default to a single lead. Spawn a bounded child only when an independent sidecar materially benefits the requested outcome; T4 still requires independent verification. Before the first project command or edit, expose the tier and either the spawned-agent identity or an explicit no-spawn reason: `NO_INDEPENDENT_WORK`, `CRITICAL_PATH_ONLY`, or `TOOL_UNAVAILABLE`.
 
 ## Frontend UI Tasks

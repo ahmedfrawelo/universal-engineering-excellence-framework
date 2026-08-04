@@ -88,6 +88,22 @@ Design engineering skill route:
 Specialist motion skills checked:
 ```
 
+For every frontend mutation, also record and mechanically validate:
+
+```text
+Frontend route selected before mutation:
+Frontend execution artifact:
+Ownership and reuse decision:
+DESIGN.md validation:
+States verified or reasoned not applicable:
+Responsive evidence:
+Accessibility evidence:
+Performance evidence:
+Focused tests:
+Rendered verification or non-visual rationale:
+Frontend execution evidence: PASS / BLOCKED
+```
+
 The final user-facing verification still uses only the compact required labels. The detailed evidence belongs in the plan, task record, tests, or review artifacts, not in the `Loaded` line.
 
 ## Design Governance Preflight
@@ -303,7 +319,15 @@ Task complexity score:
 Risk floor:
 Agent route tier:
 Model capability class:
-Model override or inherited:
+Selected model and reasoning:
+Host-provided reasoning display name:
+Work-unit identifier and route-change reason:
+Current-model constraint and explicit override authorization:
+Above-high authorization:
+Model execution mode:
+Declared capacity fallback:
+Actual primary model creation result:
+Actual fallback result (when used):
 Agent topology:
 Delegation benefit verified:
 Independent workstreams:
@@ -312,6 +336,8 @@ Named model availability verified:
 Context packet bounded:
 Escalation triggers active:
 Independent verification required:
+Fresh review mode:
+Fresh review evidence and unchanged post-review diff verified when required:
 Agent model routing gate: PASS / BLOCKED
 ```
 

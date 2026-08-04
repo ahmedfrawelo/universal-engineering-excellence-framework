@@ -28,7 +28,9 @@ $expectedPlugins = @(
 foreach ($id in $expectedPlugins) {
   if (!($manifest.capabilities | Where-Object { $_.type -eq 'plugin' -and $_.id -eq $id })) { throw "Missing preferred plugin: $id" }
 }
-if (!($manifest.capabilities | Where-Object { $_.type -eq 'mcp' -and $_.id -eq 'node_repl' })) { throw 'Preferred node_repl MCP is missing.' }
+foreach ($mcpId in @('node_repl','penpot')) {
+  if (!($manifest.capabilities | Where-Object { $_.type -eq 'mcp' -and $_.id -eq $mcpId })) { throw "Preferred MCP is missing: $mcpId" }
+}
 $windowsInstaller = Get-Content -LiteralPath (Join-Path $root 'scripts\install-codex.ps1') -Raw
 $unixInstaller = Get-Content -LiteralPath (Join-Path $root 'scripts\install-codex.sh') -Raw
 if ($windowsInstaller -notmatch 'InstallPreferredCapabilities' -or $windowsInstaller -notmatch 'reconcile-preferred-capabilities\.ps1') { throw 'Windows installer is not wired to preferred capability reconciliation.' }
@@ -45,7 +47,11 @@ try {
   $command = if ($env:ComSpec) { $env:ComSpec } else { (Get-Command pwsh -ErrorAction Stop).Source }
   $config = @(
     '[mcp_servers.node_repl]',
-    "command = '$command'"
+    "command = '$command'",
+    '[mcp_servers.penpot]',
+    "url = 'http://localhost:4401/mcp'",
+    'enabled = true',
+    'required = false'
   )
   foreach ($entry in @($manifest.capabilities | Where-Object type -eq 'plugin')) {
     $parts = [string]$entry.id -split '@',2
@@ -64,10 +70,10 @@ try {
   Set-Content -LiteralPath (Join-Path $tempRoot 'config.toml') -Value $config -Encoding utf8
   $report = & (Join-Path $root 'scripts\reconcile-preferred-capabilities.ps1') -CodexHome $tempRoot -Json | ConvertFrom-Json
   $expectedTotal = @($skills.preferred).Count + @($manifest.capabilities).Count
-  if ($report.total -ne $expectedTotal -or $report.skills -ne @($skills.preferred).Count -or $report.plugins -ne 15 -or $report.mcps -ne 1) {
+  if ($report.total -ne $expectedTotal -or $report.skills -ne @($skills.preferred).Count -or $report.plugins -ne 15 -or $report.mcps -ne 2) {
     throw 'Preferred capability reconciliation counts are incorrect.'
   }
-  if (!$report.ready -or $report.missing -ne 0) { throw 'Complete preferred capability fixture was not READY.' }
+  if (!$report.ready -or !$report.fullyAvailable -or $report.missing -ne 0 -or $report.blockingUnavailable -ne 0) { throw 'Complete preferred capability fixture was not READY.' }
   if (@($report.capabilities | Where-Object { !$_.declared }).Count) { throw 'A preferred capability was not declared by capability health.' }
   $remote = $report.capabilities | Where-Object id -eq 'github@openai-curated-remote'
   if ($remote.management -ne 'platform-managed-explicit' -or !$remote.installed -or !$remote.configured) { throw 'Remote plugin registration was not recognized.' }
@@ -75,11 +81,25 @@ try {
   Remove-Item -LiteralPath (Join-Path $tempRoot 'plugins\cache\openai-curated-remote\github') -Recurse -Force
   $missingReport = & (Join-Path $root 'scripts\reconcile-preferred-capabilities.ps1') -CodexHome $tempRoot -Json | ConvertFrom-Json
   $missingGitHub = $missingReport.capabilities | Where-Object id -eq 'github@openai-curated-remote'
-  if ($missingReport.ready -or $missingGitHub.installed -or $missingGitHub.configured -or $missingGitHub.action -notmatch 'Codex plugin platform') {
+  if (!$missingReport.ready -or $missingReport.fullyAvailable -or $missingReport.blockingUnavailable -ne 0 -or $missingGitHub.blocking -or $missingGitHub.installed -or $missingGitHub.configured -or $missingGitHub.action -notmatch 'Codex plugin platform') {
     throw "Missing platform plugin did not produce the required explicit action: $($missingGitHub | ConvertTo-Json -Compress)"
+  }
+
+  $configPath = Join-Path $tempRoot 'config.toml'
+  $disabledConfig = (Get-Content -LiteralPath $configPath -Raw) -replace '(?m)^enabled = true\s*\r?\nrequired = false', "enabled = false`r`nrequired = false"
+  Set-Content -LiteralPath $configPath -Value $disabledConfig -Encoding utf8
+  $disabledReport = & (Join-Path $root 'scripts\reconcile-preferred-capabilities.ps1') -CodexHome $tempRoot -Json | ConvertFrom-Json
+  $penpot = $disabledReport.capabilities | Where-Object id -eq 'penpot'
+  if (!$disabledReport.ready -or $disabledReport.fullyAvailable -or $penpot.enabled -ne $false -or $penpot.available -or $penpot.blocking) {
+    throw "Disabled conditional Penpot was not reported accurately: $($penpot | ConvertTo-Json -Compress)"
+  }
+  & (Join-Path $root 'scripts\set-penpot-mcp-state.ps1') -State Disable -CodexHome $tempRoot | Out-Null
+  $roundTrip = Get-Content -LiteralPath $configPath -Raw
+  if ($roundTrip -notmatch '(?m)^\[mcp_servers\.penpot\]\r?$' -or $roundTrip -notmatch '(?m)^enabled = false\r?$' -or $roundTrip -notmatch '(?m)^required = false\r?$' -or $roundTrip -notmatch '(?m)^\[plugins\.') {
+    throw 'Penpot state command damaged the following TOML sections or failed to persist the fast default.'
   }
 } finally {
   if (Test-Path -LiteralPath $tempRoot) { Remove-Item -LiteralPath $tempRoot -Recurse -Force }
 }
 
-Write-Output "Preferred capability tests passed ($(@($skills.preferred).Count) skills, 15 plugins, 1 MCP)."
+Write-Output "Preferred capability tests passed ($(@($skills.preferred).Count) skills, 15 plugins, 2 MCPs)."

@@ -55,6 +55,8 @@ Skills are selected by purpose, not stacked as a universal baseline:
 - `typeui-fundamentals`: lightweight principles for layout, typography, interaction, or accessibility when those decisions are present.
 - `frontend-design`: building or materially extending a production frontend.
 - `interface-design`: sole primary director for dashboards, admin tools, SaaS, settings, and dense product UI.
+- `design-taste-frontend`: a supplementary taste layer only for landing pages, portfolios, marketing surfaces, and expressive redesigns; never select it for dashboards, admin tools, data grids, or dense product UI.
+- `styleseed-design-review`: a measured post-build review when scoring or material visual release review is requested; its 80-point floor does not replace behavioral evidence.
 - `frontend-ui-engineering`: framework-neutral production implementation craft after selecting a visual direction; do not stack it onto Angular routes.
 - `angular-developer`: the implementation authority for Angular work, including architecture and framework-specific code.
 - `company-data-table` and `angular-table-harness`: custom data-grid behavior and stable Angular test APIs.
@@ -70,6 +72,8 @@ Skills are selected by purpose, not stacked as a universal baseline:
 `browser-testing-with-devtools` is intentionally never auto-selected: its isolated or alternate Chrome profile conflicts with UEEF browser-session ownership. Installation does not grant tool authority.
 
 No UI skill is mandatory merely because a task mentions `frontend` or `component`. Multiple skills are used together only when their independent triggers are both part of the requested outcome.
+
+For material design production, load `framework/64-frontend-design-production/`. Treat `DESIGN.md` as the durable design contract, and use Penpot as the preferred canvas for new UEEF-controlled design work only after live MCP health is proved. Explicit supplied Figma artifacts remain on Figma.
 
 ## Escalation Rules
 

@@ -294,6 +294,7 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`27-quality-gates/32-skill-invocation-protocol-gate.md`](27-quality-gates/32-skill-invocation-protocol-gate.md)
 - [`27-quality-gates/33-spec-driven-development-gate.md`](27-quality-gates/33-spec-driven-development-gate.md)
 - [`27-quality-gates/34-project-modernization-and-runtime-gate.md`](27-quality-gates/34-project-modernization-and-runtime-gate.md)
+- [`27-quality-gates/35-frontend-design-production-gate.md`](27-quality-gates/35-frontend-design-production-gate.md)
 - [`27-quality-gates/accessibility-gate.md`](27-quality-gates/accessibility-gate.md)
 - [`27-quality-gates/api-gate.md`](27-quality-gates/api-gate.md)
 - [`27-quality-gates/architecture-gate.md`](27-quality-gates/architecture-gate.md)
@@ -428,6 +429,7 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`38-templates/28-agent-routing-decision-template.md`](38-templates/28-agent-routing-decision-template.md)
 - [`38-templates/29-spec-driven-development-template.md`](38-templates/29-spec-driven-development-template.md)
 - [`38-templates/30-project-modernization-plan-template.md`](38-templates/30-project-modernization-plan-template.md)
+- [`38-templates/31-design-contract-template.md`](38-templates/31-design-contract-template.md)
 - [`38-templates/adr-template.md`](38-templates/adr-template.md)
 - [`38-templates/api-creation-template.md`](38-templates/api-creation-template.md)
 - [`38-templates/component-creation-template.md`](38-templates/component-creation-template.md)
@@ -761,6 +763,7 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`58-agent-model-orchestration/03-agent-topologies.md`](58-agent-model-orchestration/03-agent-topologies.md)
 - [`58-agent-model-orchestration/04-context-and-token-economy.md`](58-agent-model-orchestration/04-context-and-token-economy.md)
 - [`58-agent-model-orchestration/05-escalation-verification-and-fallback.md`](58-agent-model-orchestration/05-escalation-verification-and-fallback.md)
+- [`58-agent-model-orchestration/06-fresh-context-review-protocol.md`](58-agent-model-orchestration/06-fresh-context-review-protocol.md)
 - [`58-agent-model-orchestration/INDEX.md`](58-agent-model-orchestration/INDEX.md)
 - [`58-agent-model-orchestration/README.md`](58-agent-model-orchestration/README.md)
 
@@ -823,3 +826,15 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`63-repository-intelligence/00-repository-intelligence-system.md`](63-repository-intelligence/00-repository-intelligence-system.md)
 - [`63-repository-intelligence/INDEX.md`](63-repository-intelligence/INDEX.md)
 - [`63-repository-intelligence/README.md`](63-repository-intelligence/README.md)
+
+## 64-frontend-design-production
+
+- [`64-frontend-design-production/00-frontend-design-production-system.md`](64-frontend-design-production/00-frontend-design-production-system.md)
+- [`64-frontend-design-production/01-design-contract.md`](64-frontend-design-production/01-design-contract.md)
+- [`64-frontend-design-production/02-routing-and-skill-roles.md`](64-frontend-design-production/02-routing-and-skill-roles.md)
+- [`64-frontend-design-production/03-styleseed-quality-loop.md`](64-frontend-design-production/03-styleseed-quality-loop.md)
+- [`64-frontend-design-production/04-penpot-mcp-workflow.md`](64-frontend-design-production/04-penpot-mcp-workflow.md)
+- [`64-frontend-design-production/05-execution-sequence.md`](64-frontend-design-production/05-execution-sequence.md)
+- [`64-frontend-design-production/INDEX.md`](64-frontend-design-production/INDEX.md)
+- [`64-frontend-design-production/README.md`](64-frontend-design-production/README.md)
+- [`64-frontend-design-production/THIRD-PARTY-NOTICES.md`](64-frontend-design-production/THIRD-PARTY-NOTICES.md)

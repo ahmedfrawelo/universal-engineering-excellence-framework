@@ -55,9 +55,20 @@ node -e '
 const fs=require("fs"),path=require("path");
 const [root,manifestPath,destination,...wanted]=process.argv.slice(1);
 const manifest=JSON.parse(fs.readFileSync(manifestPath,"utf8"));
-for(const entry of manifest.preferred){
+  for(const entry of manifest.preferred){
   if(wanted.length&&!wanted.includes(entry.id))continue;
   const skillRoot=path.resolve(destination,entry.id);
+  if(entry.progressiveDisclosure){
+    const skillFile=path.join(skillRoot,"SKILL.md"),source=path.resolve(root,entry.progressiveDisclosure.entrypointSource),target=path.resolve(skillRoot,entry.progressiveDisclosure.fullReference);
+    if(!source.startsWith(path.resolve(root)+path.sep)||!fs.statSync(source).isFile())throw new Error(`Invalid progressive-disclosure entrypoint: ${entry.progressiveDisclosure.entrypointSource}`);
+    if(!target.startsWith(skillRoot+path.sep))throw new Error(`Unsafe progressive-disclosure reference: ${entry.progressiveDisclosure.fullReference}`);
+    const current=fs.readFileSync(skillFile,"utf8");
+    if(!fs.existsSync(target)){
+      if(current.includes("UEEF-PROGRESSIVE-ENTRYPOINT"))throw new Error(`Progressive-disclosure reference is missing for ${entry.id}; refusing to discard the upstream skill.`);
+      fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(skillFile,target);
+    }
+    fs.copyFileSync(source,skillFile);
+  }
   for(const item of entry.supportFiles||[]){
     const source=path.resolve(root,item.source),target=path.resolve(skillRoot,item.destination);
     if(!source.startsWith(path.resolve(root)+path.sep)||!fs.statSync(source).isFile())throw new Error(`Invalid preferred-skill support source: ${item.source}`);

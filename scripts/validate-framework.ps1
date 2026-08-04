@@ -3,6 +3,12 @@ param(
   [switch]$SkipNestedTests
 )
 $ErrorActionPreference = "Stop"
+
+function Invoke-NodeChecked {
+  param([Parameter(Mandatory)][string[]]$Arguments)
+  & node @Arguments
+  if ($LASTEXITCODE -ne 0) { throw "Node validation failed with exit code ${LASTEXITCODE}: $($Arguments -join ' ')" }
+}
 $requiredRoot = @("README.md","INSTALL.md","QUICK_START.md","VERSION.md","CHANGELOG.md","LICENSE","CONTRIBUTING.md","CODE_OF_CONDUCT.md","SECURITY.md","ROADMAP.md","BUILD_PROGRESS.md","UEEF-LOADER.md")
 $missing = @()
 foreach ($f in $requiredRoot) { if (!(Test-Path (Join-Path $Root $f))) { $missing += $f } }
@@ -27,6 +33,7 @@ $requiredAcceptance = @(
   "scripts/select-frontend-route.ps1",
   "scripts/select-frontend-route.sh",
   "scripts/test-frontend-routing.mjs",
+  "scripts/test-design-production-workflow.mjs",
   "scripts/test-frontend-routing.ps1",
   "scripts/check-runtime-drift.ps1",
   "scripts/sync-runtime.ps1",
@@ -78,6 +85,7 @@ $requiredAcceptance = @(
   "scripts/measure-assurance.ps1",
   "scripts/test-assurance-performance.ps1",
   "config/assurance-budgets.json",
+  "config/model-routing-policy.json",
   "config/capability-registry.json",
   "config/preferred-skills.json",
   "config/preferred-capabilities.json",
@@ -199,9 +207,13 @@ $requiredAcceptance = @(
   "framework/27-quality-gates/31-agent-model-routing-gate.md",
   "framework/29-checklists/40-agent-model-routing-checklist.md",
   "framework/38-templates/28-agent-routing-decision-template.md",
+  "framework/38-templates/33-fresh-review-evidence-template.json",
   "framework/58-agent-model-orchestration/README.md",
   "framework/58-agent-model-orchestration/INDEX.md",
   "framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md",
+  "framework/58-agent-model-orchestration/06-fresh-context-review-protocol.md",
+  "docs/specifications/fresh-review-protocol.md",
+  "docs/third-party/sol-advisor-attribution.md",
   "framework/59-skill-invocation-protocol/README.md",
   "framework/59-skill-invocation-protocol/INDEX.md",
   "framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md",
@@ -233,6 +245,20 @@ $requiredAcceptance = @(
   "framework/63-repository-intelligence/README.md",
   "framework/63-repository-intelligence/INDEX.md",
   "framework/63-repository-intelligence/00-repository-intelligence-system.md",
+  "framework/64-frontend-design-production/README.md",
+  "framework/64-frontend-design-production/INDEX.md",
+  "framework/64-frontend-design-production/00-frontend-design-production-system.md",
+  "framework/64-frontend-design-production/01-design-contract.md",
+  "framework/64-frontend-design-production/02-routing-and-skill-roles.md",
+  "framework/64-frontend-design-production/03-styleseed-quality-loop.md",
+  "framework/64-frontend-design-production/04-penpot-mcp-workflow.md",
+  "framework/64-frontend-design-production/05-execution-sequence.md",
+  "framework/64-frontend-design-production/THIRD-PARTY-NOTICES.md",
+  "framework/27-quality-gates/35-frontend-design-production-gate.md",
+  "framework/38-templates/31-design-contract-template.md",
+  "framework/38-templates/32-frontend-execution-evidence-template.json",
+  "scripts/frontend-design-production-route-lib.mjs",
+  "scripts/validate-frontend-execution-evidence.mjs",
   "scripts/repository-intelligence.ps1",
   "scripts/repository-intelligence.sh",
   "scripts/test-repository-intelligence.ps1",
@@ -249,7 +275,14 @@ $requiredAcceptance = @(
   "scripts/select-agent-route.ps1",
   "scripts/select-agent-route.sh",
   "scripts/test-agent-route.ps1",
+  "scripts/resolve-model-route.mjs",
+  "scripts/update-codex-thread-settings.mjs",
+  "scripts/test-model-routing-policy.mjs",
+  "scripts/test-codex-thread-settings-update.mjs",
+  "docs/specifications/model-route-execution.md",
   "scripts/test-agent-route.sh",
+  "scripts/validate-fresh-review-evidence.ps1",
+  "scripts/test-fresh-review-protocol.ps1",
   "scripts/test-browser-control-contract.ps1",
   "scripts/test-skeleton-loading-contract.ps1",
   "scripts/test-skeleton-loading-contract.sh",
@@ -269,6 +302,7 @@ $requiredAcceptance = @(
   "scripts/test-goal-lifecycle.sh",
   "scripts/test-performance-forensics.ps1",
   "scripts/test-runtime-hardening.ps1",
+  "scripts/test-runtime-drift-performance.ps1",
   "scripts/test-environment-bootstrap.ps1",
   "scripts/test-installers.ps1",
   "scripts/test-cleanup-workspace.ps1",
@@ -481,7 +515,7 @@ $shellTerms = @("Shell baseline extracted:","Navigation/header contracts verifie
 foreach ($term in $shellTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing shell field: $term" } }
 $visualTerms = @("First-viewport composition reviewed:","Density and responsive composition verified:","Visual evidence gate:")
 foreach ($term in $visualTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing visual-composition field: $term" } }
-$agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Model capability class:","Agent topology:","Delegation benefit verified:","Independent workstreams:","Agent capability available:","Named model availability verified:","Agent model routing gate:")
+$agentTerms = @("Task complexity score:","Risk floor:","Agent route tier:","Model capability class:","Agent topology:","Delegation benefit verified:","Independent workstreams:","Agent capability available:","Named model availability verified:","Fresh review mode:","Fresh review evidence and unchanged post-review diff verified when required:","Agent model routing gate:")
 foreach ($term in $agentTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing agent-routing field: $term" } }
 $skillProtocolTerms = @("Skill candidates:","Selected skill chain:","Skipped skills and reason:","Red flags checked:","Skill protocol gate:")
 foreach ($term in $skillProtocolTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing skill protocol field: $term" } }
@@ -491,7 +525,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-spec-workflow.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
-  & node (Join-Path $Root "scripts/test-preferred-skills.mjs") $Root | Out-Null
+  Invoke-NodeChecked @((Join-Path $Root "scripts/test-preferred-skills.mjs"), $Root) | Out-Null
   & (Join-Path $Root "scripts/test-preferred-capabilities.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-enforcement-coverage.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-new-task-evidence.ps1") | Out-Null
@@ -501,6 +535,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-remote-debugging-readiness.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-task-classification.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-frontend-routing.ps1") | Out-Null
+  Invoke-NodeChecked @((Join-Path $Root "scripts/test-design-production-workflow.mjs")) | Out-Null
   & (Join-Path $Root "scripts/test-ueef-task-preflight.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-ueef-doctor.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-diff-impact.ps1") | Out-Null
@@ -515,6 +550,8 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-assistant-adapters.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-assurance-performance.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-agent-route.ps1") | Out-Null
+  Invoke-NodeChecked @((Join-Path $Root "scripts/test-model-routing-policy.mjs")) | Out-Null
+  & (Join-Path $Root "scripts/test-fresh-review-protocol.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-browser-control-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-skeleton-loading-contract.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-delivery-continuation-contract.ps1") | Out-Null
@@ -527,9 +564,10 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-environment-bootstrap.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-quality-gate-selection.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-documentation-links.ps1") | Out-Null
-  & node (Join-Path $Root "scripts/test-framework-indexes.mjs") $Root | Out-Null
-  & node (Join-Path $Root "scripts/test-module-specificity.mjs") $Root | Out-Null
+  Invoke-NodeChecked @((Join-Path $Root "scripts/test-framework-indexes.mjs"), $Root) | Out-Null
+  Invoke-NodeChecked @((Join-Path $Root "scripts/test-module-specificity.mjs"), $Root) | Out-Null
   & (Join-Path $Root "scripts/test-release-consistency.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-runtime-drift-performance.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-context-map.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-repository-intelligence.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-project-modernization-contract.ps1") | Out-Null

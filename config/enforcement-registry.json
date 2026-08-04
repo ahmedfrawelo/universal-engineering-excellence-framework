@@ -66,7 +66,7 @@
     {
       "id": "uiux",
       "mode": "visual-and-evidence",
-      "gates": ["19-theme-responsive-interaction-security-performance-gate.md", "20-design-governance-gate.md", "25-skeleton-loading-gate.md", "26-design-intelligence-gate.md", "29-application-shell-design-gate.md", "30-visual-composition-gate.md", "ui-gate.md", "ux-gate.md"],
+      "gates": ["19-theme-responsive-interaction-security-performance-gate.md", "20-design-governance-gate.md", "25-skeleton-loading-gate.md", "26-design-intelligence-gate.md", "29-application-shell-design-gate.md", "30-visual-composition-gate.md", "35-frontend-design-production-gate.md", "ui-gate.md", "ux-gate.md"],
       "requiredFields": ["designOwner", "states", "responsive", "interaction", "consistency", "visualVerification"]
     },
     {

@@ -9,6 +9,37 @@
   },
   "preferred": [
     {
+      "id": "design-taste-frontend",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["landing page", "portfolio", "expressive frontend", "visual redesign"],
+      "installEvidence": "skills/design-taste-frontend/SKILL.md",
+      "source": {
+        "kind": "github",
+        "repository": "Leonxlnx/taste-skill",
+        "ref": "e988add20dab0fa97d7a76781c48961c8184288e",
+        "path": "skills/taste-skill",
+        "installName": "design-taste-frontend"
+      },
+      "progressiveDisclosure": {
+        "entrypointSource": "tools/frontend-power-skills/design-taste-frontend/SKILL.md",
+        "fullReference": "references/upstream-full.md"
+      }
+    },
+    {
+      "id": "styleseed-design-review",
+      "level": "conditional",
+      "profiles": ["Frontend", "UIUX"],
+      "triggers": ["design score", "visual quality floor", "Styleseed review", "post-build design review"],
+      "installEvidence": "skills/styleseed-design-review/SKILL.md",
+      "source": {
+        "kind": "github",
+        "repository": "bitjaru/styleseed",
+        "ref": "0e2cb9a6f61c30b11e648fa92987cc0aebcf1b52",
+        "path": "skills/styleseed-design-review"
+      }
+    },
+    {
       "id": "ui-ux-pro-max",
       "level": "conditional",
       "profiles": ["UIUX"],

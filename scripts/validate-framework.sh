@@ -26,6 +26,7 @@ done
 [ -f "$ROOT/scripts/select-capability-profile.ps1" ] || { echo "Missing capability profile selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/measure-assurance.ps1" ] || { echo "Missing assurance measurement script" >&2; exit 1; }
 [ -f "$ROOT/config/assurance-budgets.json" ] || { echo "Missing assurance budget configuration" >&2; exit 1; }
+[ -f "$ROOT/config/model-routing-policy.json" ] || { echo "Missing model routing policy" >&2; exit 1; }
 [ -f "$ROOT/config/capability-registry.json" ] || { echo "Missing capability registry" >&2; exit 1; }
 [ -f "$ROOT/config/preferred-skills.json" ] || { echo "Missing preferred skills manifest" >&2; exit 1; }
 [ -f "$ROOT/config/preferred-capabilities.json" ] || { echo "Missing preferred capabilities manifest" >&2; exit 1; }
@@ -396,11 +397,20 @@ grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-f
 [ -f "$ROOT/scripts/install-open-design-skills.ps1" ] || { echo "Missing Open Design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-open-design-skills.sh" ] || { echo "Missing Unix Open Design skills installer" >&2; exit 1; }
 [ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
+[ -f "$ROOT/framework/58-agent-model-orchestration/06-fresh-context-review-protocol.md" ] || { echo "Missing fresh review protocol" >&2; exit 1; }
 [ -f "$ROOT/framework/27-quality-gates/31-agent-model-routing-gate.md" ] || { echo "Missing agent routing gate" >&2; exit 1; }
+[ -f "$ROOT/framework/38-templates/33-fresh-review-evidence-template.json" ] || { echo "Missing fresh review template" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-agent-route.ps1" ] || { echo "Missing agent route selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-agent-route.sh" ] || { echo "Missing Unix agent route selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-agent-route.ps1" ] || { echo "Missing agent route tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-agent-route.sh" ] || { echo "Missing Unix agent route tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/resolve-model-route.mjs" ] || { echo "Missing model route resolver" >&2; exit 1; }
+[ -f "$ROOT/scripts/update-codex-thread-settings.mjs" ] || { echo "Missing Codex thread settings updater" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-model-routing-policy.mjs" ] || { echo "Missing model routing policy tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-codex-thread-settings-update.mjs" ] || { echo "Missing Codex thread settings update tests" >&2; exit 1; }
+[ -f "$ROOT/docs/specifications/model-route-execution.md" ] || { echo "Missing executable model route specification" >&2; exit 1; }
+[ -f "$ROOT/scripts/validate-fresh-review-evidence.ps1" ] || { echo "Missing fresh review validator" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-fresh-review-protocol.ps1" ] || { echo "Missing fresh review protocol tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-browser-control-contract.ps1" ] || { echo "Missing browser control contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-browser-control-contract.sh" ] || { echo "Missing Unix browser control contract tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-skeleton-loading-contract.ps1" ] || { echo "Missing skeleton loading contract tests" >&2; exit 1; }
@@ -460,6 +470,7 @@ if [ "$SKIP_NESTED_TESTS" = 0 ]; then
     pwsh -NoProfile -File "$ROOT/scripts/test-local-service-readiness.ps1" >/dev/null || { echo "Local service readiness tests failed" >&2; exit 1; }
   fi
   "$ROOT/scripts/test-agent-route.sh" >/dev/null || { echo "Unix agent route tests failed" >&2; exit 1; }
+  node "$ROOT/scripts/test-model-routing-policy.mjs" >/dev/null || { echo "Model routing policy tests failed" >&2; exit 1; }
   "$ROOT/scripts/test-goal-lifecycle.sh" >/dev/null || { echo "Unix goal lifecycle tests failed" >&2; exit 1; }
   sh "$ROOT/scripts/test-release-consistency.sh" "$ROOT" >/dev/null || { echo "Unix release consistency tests failed" >&2; exit 1; }
   sh "$ROOT/scripts/test-documentation-links.sh" "$ROOT" >/dev/null || { echo "Unix documentation link tests failed" >&2; exit 1; }
@@ -475,6 +486,8 @@ route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"spawnAgents":true' || { echo "Unix agent route T4 verifier guard failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"independentVerificationRequired":true' || { echo "Unix agent route T4 evidence guard failed" >&2; exit 1; }
+printf '%s' "$route" | grep -q '"freshReviewMode":"FRESH_CONTEXT_REQUIRED"' || { echo "Unix agent route fresh review guard failed" >&2; exit 1; }
+printf '%s' "$route" | grep -q '"freshReviewRequired":true' || { echo "Unix agent route required-review guard failed" >&2; exit 1; }
 version="$(sed -n 's/.*version: \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "$ROOT/VERSION.md" | head -n 1)"
 grep -q "\"version\": \"$version\"" "$ROOT/release-manifest.json" || { echo "Version and release manifest do not match" >&2; exit 1; }
 if grep -q '\[0-9\.\]\*' "$ROOT/scripts/ueef-audit.sh"; then echo "Unix audit uses an unsafe broad version pattern" >&2; exit 1; fi

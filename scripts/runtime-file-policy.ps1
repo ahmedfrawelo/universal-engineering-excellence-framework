@@ -55,7 +55,10 @@ function Assert-UeefReleasePathHasNoReparsePoint {
 }
 
 function Get-UeefReleaseRelativeFiles {
-  param([Parameter(Mandatory)][string]$SourcePath)
+  param(
+    [Parameter(Mandatory)][string]$SourcePath,
+    [switch]$SkipPathSafetyValidation
+  )
   $root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd('\','/')
   $relativeFiles = @()
   $git = Get-Command git -ErrorAction SilentlyContinue
@@ -85,12 +88,43 @@ function Get-UeefReleaseRelativeFiles {
     if (Test-UeefIgnoredReleaseRelativePath $normalized) { continue }
     if ($normalized.Split('/') -contains '..') { throw "Unsafe release path: $normalized" }
     if (Test-UeefSensitiveRelativePath $normalized) { throw "Sensitive file cannot enter the runtime: $normalized" }
-    Assert-UeefReleasePathHasNoReparsePoint -RootPath $root -RelativePath $normalized
+    if (!$SkipPathSafetyValidation) { Assert-UeefReleasePathHasNoReparsePoint -RootPath $root -RelativePath $normalized }
     $full = Join-Path $root $normalized
     if (!(Test-Path -LiteralPath $full -PathType Leaf)) { throw "Tracked release file is missing: $normalized" }
     $result.Add($normalized)
   }
   return $result.ToArray()
+}
+
+function Get-UeefReleaseRelativeFilesFast {
+  param([Parameter(Mandatory)][string]$SourcePath)
+  $root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd('\','/')
+  $git = Get-Command git -ErrorAction SilentlyContinue
+  if (!$git -or !(Test-Path -LiteralPath (Join-Path $root '.git'))) {
+    return @(Get-UeefReleaseRelativeFiles -SourcePath $root -SkipPathSafetyValidation)
+  }
+  $pathspec = @($script:UeefOwnedDirectories) + @($script:UeefOwnedRootFiles)
+  $relativeFiles = @(& $git.Source -c "safe.directory=$root" -C $root ls-files --recurse-submodules -- @pathspec 2>$null)
+  if ($LASTEXITCODE -ne 0) { throw 'Unable to enumerate tracked release files.' }
+  $ignoredPattern = '(?:^|/)(?:\.ueef-local|node_modules|dist|build)(?:/|$)|(?:\.tmp|\.log)$'
+  $sensitivePattern = '(?i)(?:^|/)(?:\.env(?:\..+)?|credentials\.json|service-account(?:-.+)?\.json|id_rsa|id_ed25519|[^/]+\.(?:pem|key|pfx|p12))$'
+  return @($relativeFiles | ForEach-Object { ([string]$_).Replace('\','/').TrimStart('/') } | Where-Object {
+    $_ -and $_ -ne 'UEEF-LOADER.md' -and $_ -notmatch $ignoredPattern -and $_ -notmatch $sensitivePattern -and $_ -notmatch '(?:^|/)\.\.(?:/|$)'
+  } | Sort-Object -Unique)
+}
+
+function Get-UeefContentHashes {
+  param(
+    [Parameter(Mandatory)][string]$RootPath,
+    [Parameter(Mandatory)][string[]]$RelativePaths
+  )
+  if (!$RelativePaths.Count) { return @() }
+  $git = Get-Command git -ErrorAction SilentlyContinue
+  if ($git) {
+    $hashes = @($RelativePaths | & $git.Source -C $RootPath hash-object --stdin-paths 2>$null)
+    if ($LASTEXITCODE -eq 0 -and $hashes.Count -eq $RelativePaths.Count) { return $hashes }
+  }
+  return @($RelativePaths | ForEach-Object { (Get-FileHash -LiteralPath (Join-Path $RootPath $_) -Algorithm SHA256).Hash })
 }
 
 function Get-UeefRuntimeDriftMismatches {
@@ -101,17 +135,17 @@ function Get-UeefRuntimeDriftMismatches {
   )
   $sourceRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd('\','/')
   $runtimeRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RuntimePath).Path).TrimEnd('\','/')
-  $sourceFiles = @(Get-UeefReleaseRelativeFiles -SourcePath $sourceRoot)
+  $sourceFiles = @(Get-UeefReleaseRelativeFilesFast -SourcePath $sourceRoot)
   $sourceSet = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
   foreach ($relative in $sourceFiles) { [void]$sourceSet.Add($relative) }
   $mismatches = [Collections.Generic.List[string]]::new()
-  foreach ($relative in $sourceFiles) {
-    $sourceFile = Join-Path $sourceRoot $relative
-    $runtimeFile = Join-Path $runtimeRoot $relative
-    if (!(Test-Path -LiteralPath $runtimeFile -PathType Leaf)) { $mismatches.Add("Missing runtime: $relative"); continue }
-    if ((Get-FileHash -LiteralPath $sourceFile -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $runtimeFile -Algorithm SHA256).Hash) {
-      $mismatches.Add("Different: $relative")
-    }
+  $comparable = @($sourceFiles | Where-Object {
+    if (Test-Path -LiteralPath (Join-Path $runtimeRoot $_) -PathType Leaf) { $true } else { $mismatches.Add("Missing runtime: $_"); $false }
+  })
+  $sourceHashes = @(Get-UeefContentHashes -RootPath $sourceRoot -RelativePaths $comparable)
+  $runtimeHashes = @(Get-UeefContentHashes -RootPath $runtimeRoot -RelativePaths $comparable)
+  for ($index = 0; $index -lt $comparable.Count; $index++) {
+    if ($sourceHashes[$index] -cne $runtimeHashes[$index]) { $mismatches.Add("Different: $($comparable[$index])") }
   }
   foreach ($runtimeItem in Get-ChildItem -LiteralPath $runtimeRoot -Recurse -Force) {
     $relative = $runtimeItem.FullName.Substring($runtimeRoot.Length).TrimStart('\','/').Replace('\','/')
@@ -138,6 +172,45 @@ function Get-UeefRuntimeDriftMismatches {
     }
   }
   return $mismatches.ToArray()
+}
+
+function Get-UeefRuntimeContentSignature {
+  param(
+    [Parameter(Mandatory)][string]$SourcePath,
+    [Parameter(Mandatory)][string]$RuntimePath,
+    [string]$ExpectedLoaderHash = ''
+  )
+  $sourceRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd('\','/')
+  $runtimeRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RuntimePath).Path).TrimEnd('\','/')
+  $records = [Collections.Generic.List[string]]::new()
+  $releaseFiles = @(Get-UeefReleaseRelativeFilesFast -SourcePath $sourceRoot)
+  $runtimeItems = @(Get-ChildItem -LiteralPath $runtimeRoot -Recurse -Force)
+  $runtimeByRelativePath = @{}
+  foreach ($runtimeItem in $runtimeItems) {
+    $relative = $runtimeItem.FullName.Substring($runtimeRoot.Length).TrimStart('\','/').Replace('\','/')
+    $runtimeByRelativePath[$relative] = $runtimeItem
+  }
+  $comparable = @($releaseFiles | Where-Object { $runtimeByRelativePath.ContainsKey($_) -and !$runtimeByRelativePath[$_].PSIsContainer })
+  $sourceHashes = @(Get-UeefContentHashes -RootPath $sourceRoot -RelativePaths $comparable)
+  $runtimeHashes = @(Get-UeefContentHashes -RootPath $runtimeRoot -RelativePaths $comparable)
+  $hashByRelative = @{}
+  for ($index = 0; $index -lt $comparable.Count; $index++) { $hashByRelative[$comparable[$index]] = "$($sourceHashes[$index])|$($runtimeHashes[$index])" }
+  foreach ($relative in $releaseFiles) { $records.Add("F|$relative|$(if ($hashByRelative.ContainsKey($relative)) { $hashByRelative[$relative] } else { 'MISSING' })") }
+  foreach ($runtimeItem in $runtimeItems) {
+    $relative = $runtimeItem.FullName.Substring($runtimeRoot.Length).TrimStart('\','/').Replace('\','/')
+    if (Test-UeefRuntimeGeneratedRelativePath $relative) { continue }
+    $kind = if ($runtimeItem.PSIsContainer) { 'D' } else { 'X' }
+    $length = if ($runtimeItem.PSIsContainer) { 0 } else { $runtimeItem.Length }
+    $reparse = if (($runtimeItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { 1 } else { 0 }
+    $records.Add("$kind|$relative|$length|$($runtimeItem.LastWriteTimeUtc.Ticks)|$reparse")
+  }
+  $records.Add("L|$ExpectedLoaderHash")
+  $runtimeLoader = Join-Path $runtimeRoot 'UEEF-LOADER.md'
+  $records.Add("LA|$(if (Test-Path -LiteralPath $runtimeLoader -PathType Leaf) { (Get-FileHash -LiteralPath $runtimeLoader -Algorithm SHA256).Hash } else { 'MISSING' })")
+  $payload = ($records | Sort-Object) -join "`n"
+  $bytes = [Text.Encoding]::UTF8.GetBytes($payload)
+  $sha = [Security.Cryptography.SHA256]::Create()
+  try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace('-','') } finally { $sha.Dispose() }
 }
 
 function Copy-UeefReleaseFiles {

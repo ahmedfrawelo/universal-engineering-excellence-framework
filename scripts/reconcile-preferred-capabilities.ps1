@@ -35,6 +35,8 @@ $results = [Collections.Generic.List[object]]::new()
 foreach ($entry in @($skills.preferred)) {
   $item = $health.Find({ param($candidate) $candidate.type -eq 'skill' -and $candidate.name -eq $entry.id })
   $installed = [bool]$item.installed
+  $configured = if ($item) { [bool]$item.configured } else { $false }
+  $enabled = if ($item) { $item.enabled } else { $null }
   $results.Add([pscustomobject]@{
     type = 'skill'
     id = [string]$entry.id
@@ -42,8 +44,10 @@ foreach ($entry in @($skills.preferred)) {
     management = 'skill-installer'
     declared = if ($item) { [bool]$item.declared } else { $false }
     installed = $installed
-    configured = if ($item) { [bool]$item.configured } else { $false }
-    enabled = if ($item) { $item.enabled } else { $null }
+    configured = $configured
+    enabled = $enabled
+    available = $installed -and $configured -and $enabled -ne $false
+    blocking = ([string]$entry.level -ne 'optional')
     health = if ($item) { [string]$item.health } elseif ($installed) { 'CONFIGURED_UNVERIFIED' } else { 'MISSING_DEPENDENCY' }
     action = if ($installed) { 'NONE' } else { "Run scripts/install-preferred-skills.ps1 -Skill $($entry.id)" }
   })
@@ -56,7 +60,7 @@ foreach ($entry in @($manifest.capabilities)) {
   $installed = if ($item) { [bool]$item.installed } else { $false }
   $configured = if ($item) { [bool]$item.configured } else { $false }
   $action = 'NONE'
-  if (!$installed -or !$configured) {
+  if (!$installed -or !$configured -or ($item -and $item.enabled -eq $false)) {
     $action = switch ([string]$entry.management) {
       'platform-managed-explicit' { "Install or enable plugin '$($entry.pluginId)' through the Codex plugin platform." }
       'runtime-managed' { "Repair or update the Codex runtime capability '$($entry.id)'." }
@@ -72,12 +76,17 @@ foreach ($entry in @($manifest.capabilities)) {
     installed = $installed
     configured = $configured
     enabled = if ($item) { $item.enabled } else { $null }
+    available = $installed -and $configured -and (!$item -or $item.enabled -ne $false)
+    blocking = ($entry.PSObject.Properties.Name -contains 'requiredForReadiness' -and $entry.requiredForReadiness -eq $true)
     health = if ($item) { [string]$item.health } else { 'MISSING_DEPENDENCY' }
     action = $action
   })
 }
 
 $missing = @($results | Where-Object { !$_.installed -or !$_.configured })
+$inactive = @($results | Where-Object { $_.installed -and $_.configured -and $_.enabled -eq $false })
+$unavailable = @($results | Where-Object { !$_.available })
+$blockingUnavailable = @($unavailable | Where-Object { $_.blocking })
 $summary = [pscustomobject]@{
   schemaVersion = 1
   codexHome = $CodexHome
@@ -86,7 +95,11 @@ $summary = [pscustomobject]@{
   plugins = @($results | Where-Object type -eq 'plugin').Count
   mcps = @($results | Where-Object type -eq 'mcp').Count
   missing = $missing.Count
-  ready = $missing.Count -eq 0
+  inactive = $inactive.Count
+  unavailable = $unavailable.Count
+  blockingUnavailable = $blockingUnavailable.Count
+  ready = $blockingUnavailable.Count -eq 0
+  fullyAvailable = $unavailable.Count -eq 0
   installationPerformed = [bool]$Install
   capabilities = $results.ToArray()
 }
@@ -95,7 +108,7 @@ if ($Json) {
   $summary | ConvertTo-Json -Depth 5
 } else {
   $results | Sort-Object type,id | Format-Table type,id,management,installed,configured,enabled,health -AutoSize
-  Write-Output "Preferred capabilities: $($summary.total); Skills: $($summary.skills); Plugins: $($summary.plugins); MCPs: $($summary.mcps); Missing: $($summary.missing)"
-  foreach ($item in $missing) { Write-Output "Required action: $($item.id) -> $($item.action)" }
-  Write-Output "Overall: $(if ($summary.ready) { 'READY' } else { 'READY_WITH_ACTIONS' })"
+  Write-Output "Preferred capabilities: $($summary.total); Skills: $($summary.skills); Plugins: $($summary.plugins); MCPs: $($summary.mcps); Missing: $($summary.missing); Inactive: $($summary.inactive); Blocking unavailable: $($summary.blockingUnavailable)"
+  foreach ($item in $unavailable) { Write-Output "$(if ($item.blocking) { 'Required' } else { 'Conditional' }) action: $($item.id) -> $($item.action)" }
+  Write-Output "Overall: $(if (!$summary.ready) { 'BLOCKED' } elseif (!$summary.fullyAvailable) { 'READY_WITH_CONDITIONAL_ACTIONS' } else { 'READY' })"
 }

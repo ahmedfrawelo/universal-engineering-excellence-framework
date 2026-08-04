@@ -8,10 +8,21 @@
 - Child agent identity and bounded ownership (when spawned):
 - No-spawn reason: NO_INDEPENDENT_WORK | CRITICAL_PATH_ONLY | TOOL_UNAVAILABLE
 - Model capability:
-- Model override or inherited:
+- Selected model and reasoning:
+- Host-provided display reasoning:
+- Work unit and route-change reason:
+- Current-model constraint and explicit override authorization:
+- Above-`high` authorization:
+- Model execution mode:
+- Declared capacity fallback:
+- Actual primary model creation result:
+- Actual fallback result (when used):
 - Agent topology:
 - Delegation benefit:
 - Independent workstreams:
+- Fresh review mode: NONE | FRESH_CONTEXT_RECOMMENDED | FRESH_CONTEXT_REQUIRED
+- Fresh reviewer identity and observed runtime/sandbox evidence (when run):
+- Reviewed diff identity and post-review identity (when run):
 - Agents available:
 - Named model availability verified:
 - Critical path owner:
