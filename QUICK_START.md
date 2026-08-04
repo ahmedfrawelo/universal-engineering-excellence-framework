@@ -1,4 +1,4 @@
-# Quick Start
+﻿# Quick Start
 
 1. Clone the repository: git clone https://github.com/ahmedfrawelo/universal-engineering-excellence-framework.git.
 2. Enter it: cd universal-engineering-excellence-framework.
@@ -8,7 +8,7 @@
 
 UEEF is active when the assistant applies only the evidence and controls proportionate to the task, then verifies the requested outcome.
 
-The current release is 2.25.0. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. For T2+ work, generate evidence with `scripts/new-task-evidence.ps1`, complete every selected domain, and validate it with `scripts/validate-task-evidence.ps1`. Runtime synchronization remains a separate operation.
+The current release is 2.25.1. See [VERSION.md](VERSION.md) for the version policy and [docs/releases](docs/releases/) for individual release notes. For T2+ work, generate evidence with `scripts/new-task-evidence.ps1`, complete every selected domain, and validate it with `scripts/validate-task-evidence.ps1`. Runtime synchronization remains a separate operation.
 
 ## Minimal path
 
@@ -110,3 +110,4 @@ If `CODEX_HOME` is missing, `scripts/install-codex.ps1` and `scripts/install-cod
 ## UI Selection
 
 For theme, responsive, page, form, table, dashboard, dropdown, panel, modal, or interaction work, select the relevant modules in packs 46 and 47. Include pack 45 when identity, permissions, entitlements, employee access, public access, SaaS tenancy, or hybrid application boundaries are involved.
+

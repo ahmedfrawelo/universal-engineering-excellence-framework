@@ -1,6 +1,6 @@
-# Build Progress
+﻿# Build Progress
 
-Current release: 2.25.0 (2026-08-03)
+Current release: 2.25.1 (2026-08-04)
 
 ## Delivered baseline
 
@@ -19,7 +19,7 @@ Current release: 2.25.0 (2026-08-03)
 - 2.22.0 adds a unified preferred-capability manifest and reconciler for 27 user skills, 15 Codex plugins, and the runtime-managed Node REPL MCP.
 - 2.23.0 adds executable progress, architecture, file-organization, semantic evidence, and provenance validation across all registered quality gates.
 - 2.24.0 adds literal completion convergence, routed goal updates, dedicated same-profile browser tabs, guarded same-target emergency control, and project-owned local-service reuse.
-- 2.25.0 adds managed Codex enforcement and native repository intelligence with attributed vendoring, cross-platform entrypoints, activation status, and runtime drift/source-revision proof.
+- 2.25.1 adds managed Codex enforcement and native repository intelligence with attributed vendoring, cross-platform entrypoints, activation status, and runtime drift/source-revision proof.
 - 2.19.5 moves Codex runtime backups outside `CODEX_HOME`, makes the external location configurable, and rejects unsafe internal backup roots.
 - 2.19.4 hardens Codex activation and status integrity, truthful bootstrap/capability evidence, PowerShell 5.1 text handling, and full CI assurance.
 - 2.19.3 fixes release-consistency documentation parity so clean GitHub Actions checkouts pass the framework validation gate.
@@ -29,8 +29,8 @@ Current release: 2.25.0 (2026-08-03)
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.25.0.
-- Codex, Cursor, generic, rollback, and staged-runtime installer tests include and validate the complete 2.25.0 payload.
+- Source validation and nested deterministic tests pass for 2.25.1.
+- Codex, Cursor, generic, rollback, and staged-runtime installer tests include and validate the complete 2.25.1 payload.
 - The source checkout passes validation and reports `SOURCE_VALIDATED`; the managed runtime must be synchronized before it can claim `ACTIVE_RUNTIME`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 
@@ -39,3 +39,4 @@ Current release: 2.25.0 (2026-08-03)
 1. Measure adoption and improve the Unix health/profile surface only with equivalent safe contracts.
 2. Add adapters only when a real assistant integration requires one.
 3. Evolve textual diff signals toward dependency graphs only with fixture-backed accuracy evidence.
+
