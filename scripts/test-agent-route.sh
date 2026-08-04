@@ -24,7 +24,7 @@ assert_contains "$route" '"spawnAgents":false'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --code-change)"
 assert_contains "$route" '"tier":"T1"'
-assert_contains "$route" '"reasoning":"medium"'
+assert_contains "$route" '"reasoning":"low"'
 assert_contains "$route" '"preferredModel":"gpt-5.6-luna"'
 assert_contains "$route" '"codeChange":true'
 assert_contains "$route" '"spawnAgents":false'
@@ -41,7 +41,7 @@ assert_contains "$route" '"topology":"lead-plus-sidecar"'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --risk-floor Payment --delegation-benefit --independent-workstreams 2)"
 assert_contains "$route" '"tier":"T4"'
-assert_contains "$route" '"reasoning":"high"'
+assert_contains "$route" '"reasoning":"medium"'
 assert_contains "$route" '"preferredModel":"gpt-5.6-sol"'
 assert_contains "$route" '"topology":"lead-workers-independent-verifier"'
 assert_contains "$route" '"freshReviewMode":"FRESH_CONTEXT_REQUIRED"'
@@ -50,7 +50,7 @@ assert_contains "$route" '"freshReviewRequired":true'
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --risk-floor Authentication)"
 assert_contains "$route" '"tier":"T3"'
 assert_contains "$route" '"preferredModel":"gpt-5.6-sol"'
-assert_contains "$route" '"reasoning":"high"'
+assert_contains "$route" '"reasoning":"low"'
 assert_contains "$route" '"freshReviewMode":"FRESH_CONTEXT_RECOMMENDED"'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --risk-floor Authentication --models-unavailable)"
@@ -62,7 +62,7 @@ assert_contains "$route" '"spawnAgents":false'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --scope 2 --ambiguity 2 --coupling 1 --risk 1 --verification 1 --use-current-model --current-model gpt-5.6-luna)"
 assert_contains "$route" '"preferredModel":"gpt-5.6-luna"'
-assert_contains "$route" '"reasoning":"medium"'
+assert_contains "$route" '"reasoning":"low"'
 assert_contains "$route" '"currentModelConstraintApplied":true'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --risk-floor Privacy --use-current-model --current-model gpt-5.6-luna --reasoning-override xhigh --allow-exceed --allow-model-constraint-override)"

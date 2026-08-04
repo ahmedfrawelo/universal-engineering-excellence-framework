@@ -1,8 +1,8 @@
 ﻿# Roadmap
 
-## Current: 2.25.2
+## Current: 2.25.3
 
-UEEF now has intent-first proportional routing, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, and native repository intelligence. Release 2.25.2 adds an attributed Graphify engine, cross-platform repository-intelligence entrypoints, managed enforcement hooks, activation diagnostics, and runtime drift/source-revision proof. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, and native repository intelligence. Release 2.25.3 adds an attributed Graphify engine, cross-platform repository-intelligence entrypoints, managed enforcement hooks, activation diagnostics, and runtime drift/source-revision proof. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 
@@ -16,5 +16,6 @@ UEEF now has intent-first proportional routing, tier-aware quality gates, option
 - No automatic secret collection, remote installation, or user-configuration overwrite.
 - New tools must have deterministic fixtures, rollback/preview behavior where they write, and a documented fallback.
 - Compatibility claims require a tested adapter, not a generic installer alone.
+
 
 
