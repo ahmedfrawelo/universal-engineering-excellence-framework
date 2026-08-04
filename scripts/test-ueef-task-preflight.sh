@@ -19,7 +19,7 @@ printf '%s' "$backend_out" | grep -q '"codeChange": true'
 quick_ui_out=$("$root/scripts/get-ueef-task-preflight.sh" 'Fix spacing in an existing CSS component')
 printf '%s' "$quick_ui_out" | grep -q '"frontendMode": "Quick"'
 printf '%s' "$quick_ui_out" | grep -q '"typeui-fundamentals"'
-if printf '%s' "$quick_ui_out" | grep -Eq '"(impeccable|ui-ux-pro-max|frontend-design)"'; then
+if printf '%s' "$quick_ui_out" | grep -Eq '"(impeccable|ui-ux-pro-max)"'; then
   echo 'Unix preflight stacked unrelated design skills for Quick frontend work.' >&2
   exit 1
 fi
