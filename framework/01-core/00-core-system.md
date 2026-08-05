@@ -125,8 +125,9 @@ Select `framework/10-frontend/01-frontend-task-modes.md` for UI and frontend wor
 
 ## Ask/Do and Route Visibility
 
-- In Ask mode, resolve only material ambiguity: ask one concise question or disclose the smallest reversible assumption.
-- In Do mode, execute the clear requested outcome and direct verification only.
+- Professional autonomy is the default: do not ask routine confirmation questions. Infer the best safe scoped implementation from current source, project graph, tests, and existing patterns; then execute, verify, and report evidence.
+- Ask mode is last resort only: ask one concise question only when no safe reversible assumption exists, requirements materially conflict, user-owned secret/login/external access is required, or the next action is destructive/irreversible/outside scope. Otherwise state the assumption and continue.
+- In Do mode, execute the requested work and all direct implementation, recovery, review, graph, model-routing, and verification steps needed for a complete professional result; do not manufacture unrelated work.
 - Before non-trivial execution, emit a four-item localized route list. For Arabic responses use `المطلوب`, `المستوى`, `الوكلاء`, and `المتصفح`; translate them for other response languages. Keep one field per line, do not join fields with `|`, and do not wrap the entire list in inline code.
 
 ## Backend and SSR Performance Requirements

@@ -54,8 +54,9 @@ Task scope discipline:
 - **Scope wins:** if task scope conflicts with continuation, delegation, autonomy, audits, or modernization, the user's requested task wins. Expand only on an explicit user request or for a direct blocker required to verify that task.
 
 Ask/Do mode:
-- **Ask mode:** when a material ambiguity prevents a safe scoped outcome, ask one concise question or state the smallest reversible assumption.
-- **Do mode:** when the outcome is clear, execute only the requested work and its direct verification; do not manufacture adjacent work.
+- **Professional autonomy by default:** do not ask routine confirmation questions. Infer the best safe scoped implementation from current source, project graph, tests, and existing patterns; then execute, verify, and report evidence.
+- **Ask mode is last resort only:** ask one concise question only when no safe reversible assumption exists, requirements materially conflict, user-owned secret/login/external access is required, or the next action is destructive/irreversible/outside scope. Otherwise state the assumption and continue.
+- **Do mode:** when the outcome is clear enough, execute the requested work and all direct implementation, recovery, review, graph, model-routing, and verification steps needed for a complete professional result; do not manufacture unrelated work.
 - Before non-trivial execution, present the route rationale as a four-item localized list. In Arabic use the labels `المطلوب`, `المستوى`, `الوكلاء`, and `المتصفح`; translate them for other response languages. Put each field on its own line, never join route fields with `|`, and never wrap the whole list in inline code.
 
 Temporary creative bypass:
@@ -124,6 +125,7 @@ Delivery continuation:
 
 Local command autonomy:
 - Run and reuse normal project commands and local development services without asking the user. A Codex command prompt is a platform confirmation, not an agent question or task blocker.
+- Use the professional default: run needed non-destructive local checks, formatters, builds, tests, repository graph status/build/query, runtime status, and scoped recovery commands automatically. Do not ask whether to continue, whether to run tests, whether to inspect the graph, whether to use selected skills, or whether to perform required review when these are in scope.
 - Before starting any local development server, inspect the project's documented owner, expected port/URL, listening process, and health response. Reuse a healthy existing instance for that same project. Starting another process or selecting another port is forbidden unless current evidence proves that no usable project server exists; an occupied but unverified or unhealthy port requires diagnosis, not a duplicate server.
 
 Browser hard stop:

@@ -18,6 +18,11 @@ Require-Term 'UEEF-LOADER.md' 'Never turn a T0/T1 request into an autonomous inv
 Require-Term 'framework/01-core/00-core-system.md' 'Do not turn T0/T1 work into an autonomous upgrade or inventory.'
 Require-Term 'framework/01-core/01-master-loader.md' 'mere mention of a browser'
 Require-Term 'UEEF-LOADER.md' 'Ask/Do mode'
+Require-Term 'UEEF-LOADER.md' 'Professional autonomy by default'
+Require-Term 'UEEF-LOADER.md' 'Ask mode is last resort only'
+Require-Term 'framework/01-core/00-core-system.md' 'Professional autonomy is the default'
+Require-Term 'framework/01-core/13-autonomy-and-confirmation-policy.md' 'The default is professional execution, not permission-seeking.'
+Require-Term 'framework/01-core/13-autonomy-and-confirmation-policy.md' 'Do not ask for preferences or permission when the project has a clear owner'
 Require-Term 'UEEF-LOADER.md' 'four-item localized list'
 Require-Term 'UEEF-LOADER.md' 'never join route fields with `|`'
 Require-Term 'UEEF-LOADER.md' 'never wrap the whole list in inline code'
@@ -42,6 +47,10 @@ $activeContracts = @(
 ) | ForEach-Object { Get-Content -LiteralPath (Join-Path $root $_) -Raw }
 if (($activeContracts -join "`n") -match 'For every non-trivial T1-T4 code change, spawn at least one bounded child|only valid no-spawn reason|No route may emit or request a higher level|reasoning ceiling is `medium`|Cap every requested.*medium|never request a reasoning level above medium') {
   throw 'An absolute T1 child-spawn contract remains.'
+}
+$autonomyText = (Get-Content -LiteralPath (Join-Path $root 'UEEF-LOADER.md') -Raw) + "`n" + (Get-Content -LiteralPath (Join-Path $root 'framework/01-core/13-autonomy-and-confirmation-policy.md') -Raw)
+foreach($badPattern in @('must ask whether to continue','must ask whether to run tests','must ask whether to inspect the graph','ask for routine approval before normal work','permission-seeking by default')) {
+  if($autonomyText -match [regex]::Escape($badPattern)) { throw "Routine permission-seeking policy remains: $badPattern" }
 }
 
 $t1Route = & (Join-Path $PSScriptRoot 'select-agent-route.ps1') -CodeChange -Json | ConvertFrom-Json
