@@ -289,14 +289,19 @@ def _append_unique_edge(
 
 def _supplement_graph(graph: dict[str, Any], root: Path, inventory: dict[str, str]) -> None:
     nodes, edges, _ = _graph_parts(graph)
-    file_tree_node_ids = {str(node.get("id")) for node in nodes if node.get("_origin") == "ueef-file-tree"}
-    if file_tree_node_ids:
-        nodes[:] = [node for node in nodes if str(node.get("id")) not in file_tree_node_ids]
+    supplemental_origins = {"ueef-file-tree", "ueef-local"}
+    supplemental_node_ids = {
+        str(node.get("id"))
+        for node in nodes
+        if node.get("_origin") in supplemental_origins
+    }
+    if supplemental_node_ids:
+        nodes[:] = [node for node in nodes if str(node.get("id")) not in supplemental_node_ids]
         edges[:] = [
             edge for edge in edges
-            if edge.get("_origin") != "ueef-file-tree"
-            and str(edge.get("source")) not in file_tree_node_ids
-            and str(edge.get("target")) not in file_tree_node_ids
+            if edge.get("_origin") not in supplemental_origins
+            and str(edge.get("source")) not in supplemental_node_ids
+            and str(edge.get("target")) not in supplemental_node_ids
         ]
     node_ids = {str(node.get("id", "")) for node in nodes}
     node_by_id = {str(node.get("id", "")): node for node in nodes if node.get("id") is not None}
