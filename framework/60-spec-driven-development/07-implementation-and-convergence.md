@@ -12,6 +12,8 @@ Implementation is not finished until code converges with the specification, plan
 - When tests reveal plan flaws, update the plan and tasks before retrying.
 - When a task is complete, record the evidence that proves the acceptance criteria it covers.
 - Before final response, run a convergence pass across spec, plan, tasks, code, tests, and residual risks.
+- If a Spec Kit-style `implement` request arrives, execute the current UEEF task list and do not invent new tasks unless convergence exposes a requirement gap.
+- If a Spec Kit-style `converge` request arrives, audit drift across specification, plan, tasks, implementation, tests, and evidence; append explicit remaining tasks instead of declaring completion from partial alignment.
 
 ## Completion Criteria
 
@@ -20,3 +22,4 @@ Implementation is not finished until code converges with the specification, plan
 - No acceptance criterion lacks evidence.
 - No final claim exceeds the verified scope.
 - Residual risks are concrete and actionable.
+- Any remaining task-to-issue export is either completed with explicit authorization or recorded as out of scope.

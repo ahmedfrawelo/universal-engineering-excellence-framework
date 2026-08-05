@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $installer = Join-Path $root 'scripts\managed-enforcement.ps1'
 $hookSource = Join-Path $root 'scripts\codex-hooks\ueef-codex-hook.mjs'

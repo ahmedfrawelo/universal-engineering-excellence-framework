@@ -60,8 +60,6 @@ try {
 }
 
 $arguments = @(
-  'run', '--no-sync', '--project', $vendorRoot,
-  'ueef-repository-intelligence', $Command,
   '--root', $resolvedRoot,
   '--max-items', $MaxItems.ToString()
 )
@@ -73,7 +71,7 @@ if ($Json) { $arguments += '--json' }
 $previousLinkMode = $env:UV_LINK_MODE
 try {
   $env:UV_LINK_MODE = 'copy'
-  & uv @arguments
+  & $entryExecutable $Command @arguments
   if ($LASTEXITCODE -ne 0) { throw "Repository intelligence command failed with exit code $LASTEXITCODE." }
 } finally {
   $env:UV_LINK_MODE = $previousLinkMode

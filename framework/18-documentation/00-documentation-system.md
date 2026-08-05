@@ -21,6 +21,34 @@ This module establishes the enforceable **documentation** contract for accurate,
 2. Document decisions, contracts, commands, and failure recovery next to their owners.
 3. Record assumptions, rejected alternatives, and the condition that would require revisiting the decision.
 
+## Documentation Placement Rules
+
+- Put contributor workflow in `CONTRIBUTING.md`.
+- Put user onboarding in `README.md`, `QUICK_START.md`, or `INSTALL.md` depending on audience.
+- Put runtime/source/sync behavior in `docs/` beside existing runtime documentation.
+- Put reusable task examples under `examples/`.
+- Put enforceable domain contracts inside the owning `framework/<pack>/` file.
+- Put generated or task-local proof under `.ueef/`; do not make generated evidence the authoritative source of policy.
+
+## Documentation Quality Bar
+
+Good UEEF documentation is executable by an agent:
+
+1. It states when the guidance applies.
+2. It names the owning file, script, module, or runtime boundary.
+3. It gives exact commands where commands are expected.
+4. It states what output or behavior proves success.
+5. It states what remains out of scope or unsafe.
+
+Avoid vague claims such as "make it better", "ensure quality", or "run tests" without naming the relevant check.
+
+## Staleness Controls
+
+- Prefer links to canonical files over duplicating long policy text.
+- Mention version-sensitive facts only when they are checked in the current task.
+- Keep source validation separate from installed runtime activation.
+- Mark legacy/generated artifacts clearly so agents do not treat them as active owners.
+
 ## Mandatory Safeguards
 
 - Remove stale instructions and avoid duplicating authoritative guidance.
@@ -38,6 +66,7 @@ This module establishes the enforceable **documentation** contract for accurate,
 - The documentation decision is implicit, ownerless, or contradicted by the implementation.
 - Evidence demonstrates only intent, compilation, or a happy path when stronger proof is practical.
 - Residual risk is hidden, unbounded, or handed off without an owner and trigger.
+- Documentation adds a claim that cannot be verified from current source, command output, runtime status, or an explicitly named external source.
 
 ## Related Modules
 

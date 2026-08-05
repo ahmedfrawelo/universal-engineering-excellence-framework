@@ -21,6 +21,30 @@ This module establishes the enforceable **testing and qa** contract for risk-bas
 2. Test observable behavior at the cheapest layer that can prove it.
 3. Record assumptions, rejected alternatives, and the condition that would require revisiting the decision.
 
+## Test Selection Ladder
+
+Use the cheapest layer that can prove the requested behavior. Move up only when the lower layer cannot prove the requirement.
+
+1. Static contract check: schema, config, links, script syntax, generated artifact shape.
+2. Unit or script test: pure behavior, parser, validator, policy, helper, command wrapper.
+3. Integration test: component plus owner, API plus service, script plus generated fixture, runtime plus source copy.
+4. Browser or end-to-end proof: only when DOM, visual, interaction, authentication, or browser session behavior is part of the requirement.
+5. Fresh review: required only for eligible T4 closure or explicit high-risk independent verification.
+
+## Regression Coverage Requirements
+
+Every non-trivial fix needs a nearest regression check:
+
+- bug fix: a test or command that would fail on the old behavior;
+- performance fix: baseline/post-change measurement plus correctness check;
+- docs/workflow fix: link, command, or example validation against current files;
+- runtime fix: source validation plus installed runtime status after sync;
+- browser fix: allowed Chrome path evidence when browser behavior is in scope.
+
+## Evidence Quality
+
+Evidence is strong only when it proves the requested behavior itself. Build success, generic tests, or prose summaries are not enough unless they directly cover the requirement.
+
 ## Mandatory Safeguards
 
 - Avoid brittle implementation-coupled tests and unverified happy-path-only claims.
@@ -38,6 +62,7 @@ This module establishes the enforceable **testing and qa** contract for risk-bas
 - The testing and qa decision is implicit, ownerless, or contradicted by the implementation.
 - Evidence demonstrates only intent, compilation, or a happy path when stronger proof is practical.
 - Residual risk is hidden, unbounded, or handed off without an owner and trigger.
+- A broad completion claim is made from a narrow test that does not cover the requested behavior.
 
 ## Related Modules
 

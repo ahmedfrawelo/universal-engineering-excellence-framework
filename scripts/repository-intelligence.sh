@@ -46,4 +46,4 @@ if [[ ! -x "$entry_executable" || "$installed_signature" != "$dependency_signatu
 fi
 rmdir "$lock_dir"
 trap - EXIT
-exec uv run --no-sync --project "$vendor_root" ueef-repository-intelligence "$@"
+exec "$entry_executable" "$@"

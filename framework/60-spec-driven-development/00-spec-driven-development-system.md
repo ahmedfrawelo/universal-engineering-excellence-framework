@@ -23,6 +23,22 @@ For substantial work, produce or update the project-local equivalent of:
 - tasks: ordered executable tasks, parallel-safe groups, test gates, and done criteria.
 - convergence notes: mismatches found between spec, plan, tasks, code, and tests.
 
+## Phase Mapping
+
+Use these phases when translating Spec Kit-style requests into UEEF-owned work:
+
+1. Constitution: define or confirm governing project principles.
+2. Specify: capture requirements, user value, non-goals, and acceptance criteria without implementation detail.
+3. Clarify: resolve open questions or record explicit assumptions before dependent planning.
+4. Plan: choose architecture, technology, data/API contracts, risks, and validation strategy.
+5. Tasks: create ordered work with dependencies, evidence, and safe parallelization boundaries.
+6. Checklist and analyze: check completeness, contradiction, ambiguity, traceability, and acceptance coverage before implementation.
+7. Implement: execute only tasks that trace to the current spec or approved goal update.
+8. Converge: compare spec, plan, tasks, implementation, tests, and final claims; append remaining work instead of hiding drift.
+9. Task-to-issue export: optional planning output only; creating external issues requires explicit user authorization.
+
+Spec Kit slash commands or skills are external interface names. Inside UEEF, phases are enforced through local artifacts, validators, evidence, and completion audits.
+
 ## Quality Gate
 
 Passes when implementation, tests, and final claims trace to a current specification, and no material ambiguity, contradiction, or uncovered requirement remains hidden.

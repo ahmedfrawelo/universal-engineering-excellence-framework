@@ -86,7 +86,7 @@ Run:
 .\scripts\ueef-status.ps1
 ```
 
-See docs/verify-ueef-is-active.md.
+See `docs/verify-ueef-is-active.md`.
 
 ## Project Context Map
 
@@ -105,12 +105,13 @@ sh ./scripts/project-context-map.sh . 40
 UEEF can be synchronized into Codex home as a self-contained runtime:
 
 ```powershell
-.\scripts\sync-runtime.ps1
-.\scripts\check-runtime-drift.ps1
-.\scripts\write-active-state.ps1
+.\scripts\sync-runtime.ps1 -CodexHome "D:\shared folder\codex-home" -Agent codex -BackupRoot "D:\shared folder\codex-home-backups"
+& "D:\shared folder\codex-home\ueef\codex\scripts\ueef-status.ps1"
 ```
 
-The managed runtime is active only when `scripts\ueef-status.ps1` reports `Overall: ACTIVE`. A source checkout may report `SOURCE_VALIDATED`; that proves repository integrity but does not claim that Codex is using the installed runtime.
+The managed runtime is active only when the installed status reports `Overall: ACTIVE`, `Runtime drift: PASS`, and `Runtime source revision: PASS`. A source checkout may report `SOURCE_VALIDATED`; that proves repository integrity but does not claim that Codex is using the installed runtime.
+
+The active repository graph lives under `.ueef\repository-graph`. Check it with `.\scripts\repository-intelligence.ps1 -Command status -Root . -Json`, refresh it with `.\scripts\repository-intelligence.ps1 -Command build -Root . -Json`, and use bounded queries before broad repository work. Legacy graph-like outputs are not the canonical UEEF graph unless a task explicitly selects them.
 
 ## Product UI Standard
 

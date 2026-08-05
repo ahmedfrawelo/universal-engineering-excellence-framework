@@ -135,6 +135,13 @@ $cases = @(
     UIUX = 'NO'
     Modules = @('framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md', 'framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md')
     Gates = @('framework/27-quality-gates/performance-gate.md', 'framework/27-quality-gates/security-gate.md', 'framework/27-quality-gates/34-project-modernization-and-runtime-gate.md')
+  },
+  @{
+    Name = 'spec-kit-refresh-vocabulary'
+    Task = 'Run a Spec Kit style converge analyze checklist taskstoissues extension preset bundle workflow'
+    UIUX = 'NO'
+    Gates = @('framework/27-quality-gates/33-spec-driven-development-gate.md')
+    Modules = @('framework/60-spec-driven-development/00-spec-driven-development-system.md')
   }
 )
 
