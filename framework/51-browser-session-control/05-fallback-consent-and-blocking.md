@@ -3,6 +3,8 @@
 Missing access is not permission to improvise a new session. A failed control channel must use deterministic same-target failover for the dedicated task tab.
 
 - Automatically prove the existing Chrome window/profile/session, then create a dedicated task tab through that binding. Ask only when Chrome or same-window tab creation is independently unavailable.
+- Do not ask for routine approval to control the dedicated task tab selected by the browser gate. Ask only for a real user-owned missing condition or a policy exception: sign-in, exposing the existing browser/tab when provenance cannot be proven, taking over the user's working tab, window-state changes, isolated/synthetic testing, or `AUTHORIZED_LOOPBACK_LAST_RESORT`.
+- All in-policy recovery is automatic: retry through the documented Chrome binding, repair stale ownership, reacquire the same dedicated target, seek same-target `VERIFIED_HANDOFF`, use verified Windows-visible control only when eligible, serve local file artifacts over `127.0.0.1` when file navigation is blocked, and finalize claimed tabs. Do not convert these recoverable stages into approval questions.
 - Do not use an isolated browser, alternate profile, or unauthenticated session as a recovery fallback. A separately requested isolated test is a different task.
 - Do not ask the user to share credentials or session secrets.
 - Report the failed stage, a human-readable reason category, the evidence observed, and the next allowed action. Do not repeat a generic "connection/channel failed" message and do not expose raw stack traces, secrets, cookies, storage, or retry counts.

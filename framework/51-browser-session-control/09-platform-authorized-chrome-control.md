@@ -1,6 +1,6 @@
 # Platform-Authorized Chrome Control
 
-When a user asks to inspect, test, navigate, or operate a website in Chrome, select the installed Chrome family explicitly, prove the existing user-owned window/profile/session, and create a dedicated task tab inside it. Do not claim or navigate the user's working tab unless explicitly requested. Visible Windows control is available only on Windows if the plugin is unavailable; on macOS/Linux skip it and continue only to an eligible `AUTHORIZED_LOOPBACK_LAST_RESORT`, otherwise stop instead of creating a substitute surface.
+When a user asks to inspect, test, navigate, or operate a website in Chrome, select the installed Chrome family explicitly, prove the existing user-owned window/profile/session, and create a dedicated task tab inside it. This selected Chrome route is not routine chat-consent gated: do not ask the user to approve opening or controlling the dedicated task tab. Do not claim or navigate the user's working tab unless explicitly requested. Visible Windows control is available only on Windows if the plugin is unavailable; on macOS/Linux skip it and continue only to an eligible `AUTHORIZED_LOOPBACK_LAST_RESORT`, otherwise stop instead of creating a substitute surface.
 
 ## Default Flow
 

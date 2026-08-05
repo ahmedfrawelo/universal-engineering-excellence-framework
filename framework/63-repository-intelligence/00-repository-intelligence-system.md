@@ -3,11 +3,11 @@
 Version: 1.0
 Pack: 63-repository-intelligence
 Status: Stable
-Applies To: broad or unfamiliar repositories, architecture discovery, dependency tracing, and impact analysis
+Applies To: every repository-scoped UEEF task, broad or unfamiliar repositories, architecture discovery, dependency tracing, and impact analysis
 
 ## Purpose
 
-Provide a selectively mandatory local knowledge graph as fresh repository evidence. It
+Provide an automatically selected local knowledge graph as fresh repository evidence. It
 supplements source inspection; it never replaces inspection of the owning files
 or direct behavioral verification.
 
@@ -15,17 +15,21 @@ or direct behavioral verification.
 
 Select this pack when a task needs one or more of:
 
+- any repository-scoped task or chat where a project root is available;
 - broad orientation in an unfamiliar repository;
 - architecture or ownership mapping across multiple files;
 - dependency-path or affected-code analysis;
 - a durable, incrementally refreshed repository graph.
 
-Do not select it for a self-contained answer or a narrow edit whose owner and
-behavior are already known.
+Do not select it only when no repository root is in scope or the answer is
+truly non-repository. Narrow repository edits still start with graph status and
+a bounded query so the first source inspection is informed by current project
+context.
 
-Once selected by task preflight, use is mandatory: preflight builds the graph
-when missing, refreshes it when stale, and runs one bounded task query before
-other substantial repository work continues. A failed selected graph gate makes
+For repository-scoped tasks, task preflight selects this pack automatically.
+Use is mandatory: preflight checks graph status, builds the graph when missing,
+refreshes it when stale, and runs one bounded task query before other
+substantial repository work continues. A failed selected graph gate makes
 preflight non-ready instead of silently falling back to prose-only orientation.
 
 ## Commands
@@ -72,8 +76,9 @@ upstream general-purpose CLI.
 
 ## Evidence use
 
-1. Run task preflight; when this pack is selected it automatically checks,
-   builds or refreshes, and performs one bounded query.
+1. Run task preflight; for repository-scoped work this pack is selected
+   automatically and checks, builds or refreshes, and performs one bounded
+   query without asking the user.
 2. Use additional `query`, `path`, `explain`, or `affected` calls when the
    initial bounded query does not answer the repository question.
 3. Open the cited owning files and confirm the relevant implementation.

@@ -11,12 +11,14 @@ Chrome control failures must be resolved through a deterministic readiness path 
 
 Before using Chrome for navigation, inspection, screenshots, clicking, typing, upload, or authenticated verification, complete this Chrome readiness flow:
 
+The readiness and recovery flow is automatic once the task route or browser gate requires Chrome work. Do not ask the user for routine approval to open or control the dedicated task tab, repair ownership, seek same-target handoff, recover local-file navigation through `127.0.0.1`, or finalize the tab. Explicit user authorization is reserved for working-tab takeover, authentication, window-state changes, isolated/synthetic testing, emergency loopback, or independently proven missing external access.
+
 1. Read the installed Chrome `control-chrome/SKILL.md` and use its supported `browser-client.mjs` bootstrap through `mcp__node_repl__js`.
 2. Select Chrome explicitly with `agent.browsers.get("chrome")` or the current skill-documented Chrome-family selector. Do not call `getDefault()`, `getForUrl()`, `get("iab")`, a directly exposed browser MCP, or a connector-created browser.
 3. Read the selected Chrome binding documentation in full before using its tab API.
 4. Enumerate `user.openTabs()` to prove the existing user-owned Chrome window/profile/session and record the active working tab. Do not claim or navigate that working tab by default.
 5. Create one dedicated task tab through the documented API on the same Chrome binding. Verify that no window, profile, session, context, panel, or internal browser was created; prefer background creation and preserve the user's active tab.
-6. Run `claimTab()` on the exact created tab object. Reuse an existing tab only when the user explicitly requested it. A platform permission prompt is normal authorization, not permission to create another surface.
+6. Run `claimTab()` on the exact created tab object. Reuse an existing tab only when the user explicitly requested it. A platform permission prompt is normal external authorization UI, not an agent permission question and not permission to create another surface.
 7. If `claimTab()` reports a stale browser-session owner, run `scripts/repair-chrome-tab-ownership.ps1`, reset only the task tab binding, rebootstrap the same Chrome binding, and reclaim the exact dedicated tab once.
 8. If the local bridge remains degraded after documented troubleshooting, classify it as `THREAD_CONTROL_CHANNEL_DEGRADED`, report the structured stage/reason/next diagnosis, automatically seek or accept a current `VERIFIED_HANDOFF` for the same dedicated tab and current code state, and continue non-browser work.
 9. If no trusted coordinator channel can supply current same-target evidence, use verified visible Windows control only on Windows when the Chrome plugin itself is independently unavailable and the same user-owned window can be identified. On macOS/Linux skip visible control and continue only to an eligible authorized loopback stage.

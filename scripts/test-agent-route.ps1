@@ -81,6 +81,9 @@ $capabilityRouting = Get-Content -LiteralPath (Join-Path $root 'framework\58-age
 if ($capabilityRouting -notmatch 'economical default, not a hard ceiling') {
   throw 'Model capability routing does not document proportional reasoning.'
 }
+foreach($term in @('Model used: UNVERIFIED','picker label','screenshot','assistant self-report','do not claim completion')) {
+  if ($capabilityRouting -notmatch [regex]::Escape($term)) { throw "Model anti-hallucination routing term missing: $term" }
+}
 
 $integrationRoot = Join-Path ([IO.Path]::GetTempPath()) ('ueef-route-integration-' + [guid]::NewGuid().ToString('N'))
 try {

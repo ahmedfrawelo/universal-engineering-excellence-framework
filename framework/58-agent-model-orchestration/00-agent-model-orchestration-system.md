@@ -20,6 +20,7 @@ Route every task to the smallest capable model class and agent topology while pr
 
 - Every task passes the router, including conversational and trivial work.
 - `medium` is the economical default, not a hard ceiling. Resolve every route through `config/model-routing-policy.json` and execute the task in the emitted named model and reasoning level; T3/T4 deliberately request higher reasoning.
+- Every UEEF task must disclose the selected/actual model with the full technical model identifier and host-provided effort before execution. Do not abbreviate, translate, infer, or hallucinate model names. A picker label, screenshot, subagent prose self-report, or assistant self-identification is not execution evidence. If host dispatch evidence cannot prove the actual pair, report `Model used: UNVERIFIED` and keep completion unproven.
 - Every non-trivial task executes the route selector or records an equivalent classification before substantial work.
 - T1 code changes default to a single lead agent. Spawn a bounded child only when an independent sidecar materially improves the result or latency; T2–T4 use the same benefit test, with T4 retaining independent verification.
 - Before the first project command or edit, publish one Visible pre-command route line: `Agent route: <tier> | Agent: spawned <id or nickname>` or `Agent route: <tier> | Agent: not spawned - <reason>`.
@@ -27,7 +28,7 @@ Route every task to the smallest capable model class and agent topology while pr
 - A final UEEF pass claim is invalid when the route line is missing, or when a route that actually spawned a child lacks that child’s bounded-result evidence. A single-agent T1 route with `NO_INDEPENDENT_WORK` needs no child-agent evidence.
 - Routing does not imply spawning. The lead agent is the single-agent topology.
 - The versioned model-routing policy owns capability classes, effort quantiles, execution mode, the `high` ceiling, and one capacity fallback. It never owns concrete Codex names or translated effort labels. The live host catalog supplies those values and the host-agent creation result verifies availability; the original conversation must not pretend its own dropdown changed.
-- Before each routed work unit, show the selected live model and host-provided effort label. If the model or effort changes, publish the changed route before dispatch. Do not silently retain the highest route for simpler work.
+- Before each routed work unit, show the selected live model and host-provided effort label from verifiable host/catalog evidence. If the model or effort changes, publish the changed route before dispatch. Do not silently retain the highest route for simpler work, and do not substitute picker labels or guessed model names for execution evidence.
 - On `Selected model is at capacity`, attempt only the route's declared fallback once. Do not rotate accounts, cookies, profiles, or credentials; if that fallback is unavailable, keep the task active and report provider capacity.
 - Security, authorization, production, destructive operations, data migrations, architecture, and incident response have mandatory capability floors.
 - Delegation may reduce elapsed time or context size, but never transfers final accountability from the lead agent.

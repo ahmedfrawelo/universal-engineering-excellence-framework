@@ -4,6 +4,10 @@
 
 `THREAD_CONTROL_CHANNEL_DEGRADED` is an internal transport condition. It must never be surfaced as only a generic connection/channel failure, a failed-attempt count, a stopped-verification notice, a Chrome-unavailable claim, or a `BLOCKED` status.
 
+A browser-required route must not be surfaced as a routine approval request. Do not ask the user to approve opening or controlling the dedicated Chrome task tab. A host/platform permission prompt is external authorization UI; report it only when it is the current platform state, and do not convert it into a chat question.
+
+In-policy recovery is automatic. Ownership repair, same-target handoff, local-file-to-`127.0.0.1` navigation recovery, and tab finalization are normal browser-task work. They must be attempted without asking the user to approve them. User action is reserved only for independently missing external access, authentication, working-tab takeover, window-state changes, isolated/synthetic testing, or emergency loopback authorization.
+
 ## Required Action
 
 On the first local bridge failure, the task must stop repeating local bootstrap attempts in the same turn, preserve the user-owned Chrome surface, and automatically seek a `VERIFIED_HANDOFF` from a trusted coordinator. It continues all non-browser work while the handoff is obtained. It does not ask the user to acknowledge the transfer, restart Chrome, or open another browser.

@@ -86,7 +86,7 @@ Write-Output "Project Context Map"
 Write-Output "Root: $Root"
 Write-Output "Generated: $(Get-Date -Format s)"
 $graphStatePath = Join-Path $Root '.ueef\repository-graph\state.json'
-Write-Output "Repository intelligence: $(if (Test-Path -LiteralPath $graphStatePath) { 'BUILT - run scripts/repository-intelligence.ps1 -Command status -Root <path> -Json to verify freshness' } else { 'NOT_BUILT - select pack 63 and build only when cross-file graph evidence materially helps' })"
+Write-Output "Repository intelligence: $(if (Test-Path -LiteralPath $graphStatePath) { 'BUILT - run scripts/repository-intelligence.ps1 -Command status -Root <path> -Json before repository-scoped work to verify freshness' } else { 'NOT_BUILT - repository-scoped UEEF work should build it automatically before substantial work' })"
 Write-Section "Manifests" @($manifests | Sort-Object -Unique)
 Write-Section "Shared candidates" @($sharedDirs | Sort-Object -Unique)
 Write-Section "Feature/module candidates" @($featureDirs | Sort-Object -Unique)

@@ -72,13 +72,13 @@ if ($classification.values.taskTags -contains 'browser') {
   }
 }
 $repositoryArabicSignals = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2YXYs9iq2YjYr9i5fNmF2LnZhdin2LF82YXZhNmD2YrYqXzYp9i52KrZhdin2K982KrYqNi52YrYp9iqfNiq2KPYq9mK2LF82KfZhNmF2KrYo9ir2LF82KzYsdin2YF82LHYs9mFINio2YrYp9mG2Yo='))
-$repositorySignals = $Task -match ('(?i)\b(unfamiliar|broad|repository|architecture|ownership|dependency|dependencies|dependency path|impact analysis|affected code|knowledge graph|call graph)\b|' + $repositoryArabicSignals)
-$repositorySelected = $repositorySignals -and ([int]$classification.values.scope -ge 1 -or [string]$classification.values.riskFloor -eq 'Architecture')
 $repositoryRoot = if (Test-Path -LiteralPath $ProjectRoot -PathType Container) { (Resolve-Path -LiteralPath $ProjectRoot).Path } else { [IO.Path]::GetFullPath($ProjectRoot) }
+$repositorySignals = $Task -match ('(?i)\b(unfamiliar|broad|repository|architecture|ownership|dependency|dependencies|dependency path|impact analysis|affected code|knowledge graph|call graph)\b|' + $repositoryArabicSignals)
+$repositorySelected = Test-Path -LiteralPath $ProjectRoot -PathType Container
 $repositoryDecision = [ordered]@{
   selected = $repositorySelected
   enforced = $false
-  reason = if ($repositorySelected) { 'Cross-file repository evidence materially helps this task.' } else { 'Task is narrow or does not require cross-file graph evidence.' }
+  reason = if ($repositorySelected) { if ($repositorySignals -or [int]$classification.values.scope -ge 1 -or [string]$classification.values.riskFloor -eq 'Architecture') { 'Repository-scoped task starts with graph status/build/query before substantial work.' } else { 'Repository-scoped task starts with graph status and bounded query by default.' } } else { 'No valid repository root was supplied.' }
   projectRoot = $repositoryRoot
   status = 'NOT_SELECTED'
   action = 'NONE'
