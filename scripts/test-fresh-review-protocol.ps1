@@ -21,28 +21,28 @@ function Write-Fixture([string]$Name, [hashtable]$Override = @{}) {
 
 try {
   $valid = Write-Fixture 'valid'
-  & $validator -Path $valid | Out-Null
+  & $validator -Path $valid -Quiet | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Valid fresh review evidence did not pass.' }
 
   $changed = Get-Content -LiteralPath $valid -Raw | ConvertFrom-Json
   $changed.reviewedChange.postReviewDiffSha256 = 'b' * 64
   $changedPath = Join-Path $fixtureRoot 'changed-after-review.json'
   $changed | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $changedPath -Encoding utf8
-  & $validator -Path $changedPath 2>$null | Out-Null
+  & $validator -Path $changedPath -Quiet | Out-Null
   if ($LASTEXITCODE -eq 0) { throw 'Changed-after-review evidence was accepted.' }
 
   $notFresh = Get-Content -LiteralPath $valid -Raw | ConvertFrom-Json
   $notFresh.review.freshContext = $false
   $notFreshPath = Join-Path $fixtureRoot 'not-fresh-t4.json'
   $notFresh | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $notFreshPath -Encoding utf8
-  & $validator -Path $notFreshPath 2>$null | Out-Null
+  & $validator -Path $notFreshPath -Quiet | Out-Null
   if ($LASTEXITCODE -eq 0) { throw 'Non-fresh T4 evidence was accepted.' }
 
   $fallback = Get-Content -LiteralPath $valid -Raw | ConvertFrom-Json
   $fallback.tier = 'T3'; $fallback.review.mode = 'DIRECT_REVIEW_FALLBACK'; $fallback.review.freshContext = $false; $fallback.fallback.used = $true; $fallback.fallback.reason = 'No eligible independent review lane was exposed by the host.'
   $fallbackPath = Join-Path $fixtureRoot 'fallback-t3.json'
   $fallback | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $fallbackPath -Encoding utf8
-  & $validator -Path $fallbackPath | Out-Null
+  & $validator -Path $fallbackPath -Quiet | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Documented T3 fallback did not pass.' }
   Write-Host 'Fresh review protocol tests passed'
 } finally {

@@ -6,7 +6,8 @@ param(
   [string]$ManagedRequirementsPath = '',
   [switch]$TestFailAfterState,
   [switch]$InstallOpenDesignSkills,
-  [switch]$SkipOpenDesignSkills
+  [switch]$SkipOpenDesignSkills,
+  [switch]$Quiet
 )
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot 'resolve-codex-home.ps1')
@@ -24,6 +25,25 @@ $arabicStrict2 = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2L
 function Write-Utf8File {
   param([string]$Path, [string[]]$Lines)
   [System.IO.File]::WriteAllLines($Path, $Lines, [System.Text.UTF8Encoding]::new($false))
+}
+
+function Invoke-FrameworkValidation {
+  param([string]$Root, [switch]$QuietMode)
+  if ($QuietMode) {
+    $previousQuietValidation = $env:UEEF_QUIET_VALIDATION
+    try {
+      $env:UEEF_QUIET_VALIDATION = '1'
+      & (Join-Path $Root 'scripts\validate-framework.ps1') -Root $Root -SkipNestedTests -Quiet *> $null
+    } finally {
+      if ($null -eq $previousQuietValidation) {
+        Remove-Item Env:\UEEF_QUIET_VALIDATION -ErrorAction SilentlyContinue
+      } else {
+        $env:UEEF_QUIET_VALIDATION = $previousQuietValidation
+      }
+    }
+  } else {
+    & (Join-Path $Root 'scripts\validate-framework.ps1') -Root $Root -SkipNestedTests | Out-Null
+  }
 }
 
 function Clear-StaleRuntimeTransactions {
@@ -94,7 +114,7 @@ if (Test-Path -LiteralPath $runtimePath) {
     throw "Refusing to update unsafe runtime path: $resolvedRuntime"
   }
 }
-& (Join-Path $SourcePath 'scripts\validate-framework.ps1') -Root $SourcePath -SkipNestedTests | Out-Null
+Invoke-FrameworkValidation -Root $SourcePath -QuietMode:$Quiet
 $stagingPath = Join-Path $resolvedRuntimeRoot ('.s' + [guid]::NewGuid().ToString('N').Substring(0,8))
 $rollbackPath = Join-Path $resolvedRuntimeRoot ('.r' + [guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $resolvedRuntimeRoot -Force | Out-Null
@@ -288,7 +308,7 @@ Write-Utf8File $stagingLoader @(
   "When status is BLOCKED, do not edit project files."
 )
 
-& (Join-Path $stagingPath 'scripts\validate-framework.ps1') -Root $stagingPath -SkipNestedTests | Out-Null
+Invoke-FrameworkValidation -Root $stagingPath -QuietMode:$Quiet
 $runtimeSwapped = $false
 $agentsBackup = $null
 $agents = Join-Path $CodexHome 'AGENTS.md'
@@ -384,6 +404,7 @@ if ($requireManagedEnforcement) {
   $stateParameters.ManagedHooksPath = $managedInstall.hooksPath
   $stateParameters.ManagedNodePath = $managedInstall.nodePath
 }
+if ($Quiet) { $stateParameters.Quiet = $true }
 & (Join-Path $runtimePath "scripts\write-active-state.ps1") @stateParameters | Out-Null
 if ($TestFailAfterState) { throw 'Injected test failure after active-state write.' }
 if (Test-Path -LiteralPath $rollbackPath) { Remove-Item -LiteralPath $rollbackPath -Recurse -Force }

@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
   [Parameter(Mandatory)][string]$Path,
-  [switch]$Json
+  [switch]$Json,
+  [switch]$Quiet
 )
 
 $ErrorActionPreference = 'Stop'
@@ -56,10 +57,12 @@ try {
   }
 
   $result = [ordered]@{ schemaVersion=1; status='PASS'; taskId=$evidence.taskId; tier=$evidence.tier; mode=$review.mode; verdict=$review.verdict; evidencePath=(Resolve-Path -LiteralPath $Path).Path }
-  if ($Json) { $result | ConvertTo-Json -Depth 4 } else { [pscustomobject]$result | Format-List | Out-String | Write-Host }
-  Write-Host 'FRESH_REVIEW_EVIDENCE: PASS'
+  if (!$Quiet) {
+    if ($Json) { $result | ConvertTo-Json -Depth 4 } else { [pscustomobject]$result | Format-List | Out-String | Write-Host }
+    Write-Host 'FRESH_REVIEW_EVIDENCE: PASS'
+  }
   exit 0
 } catch {
-  [Console]::Error.WriteLine($_.Exception.Message)
+  if (!$Quiet) { [Console]::Error.WriteLine($_.Exception.Message) }
   exit 1
 }

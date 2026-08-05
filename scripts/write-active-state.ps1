@@ -9,7 +9,8 @@ param(
   [string]$ManagedHooksPath = '',
   [string]$ManagedNodePath = '',
   [string]$SourceRepositoryPath = $RepositoryPath,
-  [string]$SourceCommit = ""
+  [string]$SourceCommit = "",
+  [switch]$Quiet
 )
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot 'resolve-codex-home.ps1')
@@ -62,7 +63,21 @@ if (!$checksPass) {
 }
 $validator = Join-Path $RepositoryPath 'scripts\validate-framework.ps1'
 if (!(Test-Path -LiteralPath $validator -PathType Leaf)) { throw "Refusing to write ACTIVE state without validator: $validator" }
-& $validator -Root $RepositoryPath -SkipNestedTests | Out-Null
+if ($Quiet) {
+  $previousQuietValidation = $env:UEEF_QUIET_VALIDATION
+  try {
+    $env:UEEF_QUIET_VALIDATION = '1'
+    & $validator -Root $RepositoryPath -SkipNestedTests -Quiet *> $null
+  } finally {
+    if ($null -eq $previousQuietValidation) {
+      Remove-Item Env:\UEEF_QUIET_VALIDATION -ErrorAction SilentlyContinue
+    } else {
+      $env:UEEF_QUIET_VALIDATION = $previousQuietValidation
+    }
+  }
+} else {
+  & $validator -Root $RepositoryPath -SkipNestedTests | Out-Null
+}
 
 $state = [ordered]@{
   active = $checksPass

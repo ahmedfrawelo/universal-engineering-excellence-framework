@@ -1,8 +1,10 @@
 param(
   [string]$Root = (Split-Path -Parent $PSScriptRoot),
-  [switch]$SkipNestedTests
+  [switch]$SkipNestedTests,
+  [switch]$Quiet
 )
 $ErrorActionPreference = "Stop"
+if ($env:UEEF_QUIET_VALIDATION -eq '1') { $Quiet = $true }
 
 function Invoke-NodeChecked {
   param([Parameter(Mandatory)][string[]]$Arguments)
@@ -657,8 +659,10 @@ $specAttributionText = Get-Content (Join-Path $Root "docs/third-party/spec-kit-a
 foreach ($term in @("Spec Kit","MIT License","fd101d531eaec8a1e709db2f37632bc93b6ce4d6","https://github.com/github/spec-kit","https://github.github.io/spec-kit/")) { if ($specAttributionText -notmatch [regex]::Escape($term)) { throw "Spec Kit attribution missing required term: $term" } }
 $unixAudit = Get-Content (Join-Path $Root "scripts/ueef-audit.sh") -Raw
 if ($unixAudit -match '\[0-9\.\]\*') { throw "Unix audit uses an unsafe broad version pattern" }
+if (!$Quiet) {
 Write-Host "UEEF validation passed"
 Write-Host "Markdown file count: $($md.Count)"
 Write-Host "Framework pack count: $($packs.Count)"
 $totalFileCount = @(Get-ChildItem $Root -File -Recurse -Force | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' }).Count
 Write-Host "Total file count: $totalFileCount"
+}

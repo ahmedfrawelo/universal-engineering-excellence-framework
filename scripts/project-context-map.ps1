@@ -28,7 +28,7 @@ function Write-Section {
 }
 
 $MetadataSkipDirs = @(".git")
-$GeneratedSkipDirs = @(".ueef","node_modules","dist","build","out","coverage",".next",".angular","bin","obj",".venv","graphifyy.egg-info","__pycache__",".pytest_cache",".hypothesis",".ruff_cache",".mypy_cache")
+$GeneratedSkipDirs = @(".ueef","vendor","node_modules","dist","build","out","coverage",".next",".angular","bin","obj",".venv","graphifyy.egg-info","__pycache__",".pytest_cache",".hypothesis",".ruff_cache",".mypy_cache")
 $AllFiles = New-Object System.Collections.Generic.List[object]
 $AllDirs = New-Object System.Collections.Generic.List[object]
 $queue = New-Object System.Collections.Generic.Queue[string]
@@ -80,7 +80,7 @@ $designDirs = Find-DirsByName @("tokens","theme","themes","styles","scss","css",
 $testDirs = Find-DirsByName @("test","tests","e2e","spec","specs","__tests__","playwright","cypress")
 $testFiles = Find-FilesByPattern @("test-*","*.test.*","*.spec.*","*_test.*","*Tests.*")
 $ciDirs = Find-DirsByName @(".github",".gitlab","ci","deploy","deployment","infra","infrastructure","terraform","k8s","helm")
-$generatedDirs = Find-DirsByName @("dist","build","out","coverage",".next",".angular","node_modules","bin","obj","logs","screenshots","artifacts",".venv","graphifyy.egg-info","__pycache__",".pytest_cache",".hypothesis",".ruff_cache",".mypy_cache")
+$generatedDirs = Find-DirsByName @("vendor","dist","build","out","coverage",".next",".angular","node_modules","bin","obj","logs","screenshots","artifacts",".venv","graphifyy.egg-info","__pycache__",".pytest_cache",".hypothesis",".ruff_cache",".mypy_cache")
 
 Write-Output "Project Context Map"
 Write-Output "Root: $Root"
