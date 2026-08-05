@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.8`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.9`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.25.9 - 2026-08-05
+
+- Reduced token-heavy project context maps by pruning vendored repository-intelligence internals while retaining `vendor` as a generated/output candidate.
+- Added quiet nested validation support across runtime sync, active-state writing, framework validation, and fresh-review evidence validation.
+- Added regression coverage and ADR-009 for the public sync/runtime validation boundary change.
 
 ## 2.25.8 - 2026-08-04
 
