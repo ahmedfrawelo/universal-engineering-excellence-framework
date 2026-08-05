@@ -126,7 +126,7 @@ $master = Join-Path $runtimePath "framework\01-core\01-master-loader.md"
 $index = Join-Path $runtimePath "framework\01-core\02-master-index.md"
 $masterIndex = Join-Path $runtimePath "framework\MASTER_INDEX.md"
 $preflight = Join-Path $runtimePath "framework\01-core\12-ueef-required-preflight.md"
-$activationGate = Join-Path $runtimePath "framework\27-quality-gates\16-ueef-activation-gate.md"
+$activationGate = Join-Path $runtimePath "framework\12-delivery-quality/04-quality-gates\16-ueef-activation-gate.md"
 $loader = Join-Path $runtimePath "UEEF-LOADER.md"
 $stagingLoader = Join-Path $stagingPath "UEEF-LOADER.md"
 $statusScript = Join-Path $runtimePath "scripts\ueef-status.ps1"
@@ -143,7 +143,7 @@ Write-Utf8File $stagingLoader @(
   "Skill/display icon: assets/ueef-skill-icon.svg",
   "",
   "Before every engineering task:",
-  "0. Route every task through framework/58-agent-model-orchestration before substantial work.",
+  "0. Route every task through framework/19-agent-workflow/01-model-orchestration before substantial work.",
   "1. Load only these always-loaded modules: boot-loader, core-system.",
   "2. Reading UEEF-LOADER.md, AGENTS.md, status output, Master Loader, or Master Index does not make them Loaded modules.",
   "3. Use UEEF Master Loader from $master only to select relevant modules.",
@@ -156,7 +156,7 @@ Write-Utf8File $stagingLoader @(
   "Managed Codex hooks refresh current runtime context at prompt boundaries and mechanically guard supported local tools and Stop. A hook denial must be resolved, never bypassed through another surface.",
   "6. Select relevant UEEF modules for the task.",
   "7. Check MCPs, tools, connectors, scripts, and installed skills.",
-  "8. Route UI/UX work through Quick, Build, or Audit in framework/10-frontend/01-frontend-task-modes.md; select design skills only when their independent triggers apply.",
+  "8. Route UI/UX work through Quick, Build, or Audit in framework/10-frontend/01-engineering/01-frontend-task-modes.md; select design skills only when their independent triggers apply.",
   "9. Plan before editing non-trivial work.",
   "10. Apply UEEF Quality Gates before final answer.",
   "For T2+ work, map every selected quality gate through config/enforcement-registry.json, generate the domain skeleton with scripts/new-task-evidence.ps1, and validate the completed artifact with scripts/validate-task-evidence.ps1. Selecting Architecture also selects file-organization. Instruction-only, checklist-only, placeholder, or qualitative performance claims cannot pass.",

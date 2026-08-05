@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "sourceExtensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"],
-  "ignoredSegments": [".git", ".ueef", "node_modules", "dist", "build", "coverage", "bin", "obj", "vendor"],
+  "ignoredSegments": [".git", ".ueef", "node_modules", "dist", "build", "coverage", "bin", "obj", "vendor", "engines", "graphify-out", ".hypothesis"],
   "owners": [
     { "id": "core", "paths": ["UEEF-LOADER.md", "release-manifest.json", "config/", "framework/01-core/"] },
     { "id": "framework", "paths": ["framework/"] },

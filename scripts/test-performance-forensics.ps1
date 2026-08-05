@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$pack = Join-Path $root 'framework/62-performance-forensics'
+$pack = Join-Path $root 'framework/20-repository-evolution/02-performance-forensics'
 $required = @(
   'README.md',
   '00-performance-forensics-system.md',
@@ -26,5 +26,5 @@ foreach ($term in @('Audit mode is report-only','Every recommendation must cite'
 foreach ($term in @('Complete checklist results','Approval gate','Additional techniques discovered','Completeness statement')) {
   if ($template -notmatch [regex]::Escape($term)) { throw "Performance report template missing section: $term" }
 }
-if ($loader -notmatch 'framework/62-performance-forensics/') { throw 'Master loader does not route performance forensics tasks.' }
+if ($loader -notmatch 'framework/20-repository-evolution/02-performance-forensics/') { throw 'Master loader does not route performance forensics tasks.' }
 Write-Host 'Performance forensics tests passed'

@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.25.9
+## Current: 2.25.10
 
-UEEF now has intent-first proportional routing, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, and native repository intelligence. Release 2.25.9 reduces token-heavy context discovery and nested validation output while preserving attributed repository intelligence, managed enforcement hooks, activation diagnostics, and runtime drift/source-revision proof. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, and native repository intelligence. Release 2.25.10 completes the native repository-intelligence engine placement, complete project file-tree graph coverage, and clean runtime handoff metadata while preserving attributed repository intelligence, managed enforcement hooks, activation diagnostics, and runtime drift/source-revision proof. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 

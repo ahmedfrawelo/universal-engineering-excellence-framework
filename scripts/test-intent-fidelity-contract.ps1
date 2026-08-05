@@ -10,9 +10,9 @@ foreach ($relative in @('UEEF-LOADER.md', 'framework/01-core/00-core-system.md',
   Require-Term $relative 'Scope wins'
 }
 Require-Term 'framework/01-core/14-delivery-continuation-policy.md' 'Stop When Done'
-Require-Term 'framework/58-agent-model-orchestration/02-model-capability-routing.md' 'economical default, not a hard ceiling'
-Require-Term 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' 'economical default, not a hard ceiling'
-Require-Term 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' 'A single-agent T1 route with `NO_INDEPENDENT_WORK` needs no child-agent evidence.'
+Require-Term 'framework/19-agent-workflow/01-model-orchestration/02-model-capability-routing.md' 'economical default, not a hard ceiling'
+Require-Term 'framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md' 'economical default, not a hard ceiling'
+Require-Term 'framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md' 'A single-agent T1 route with `NO_INDEPENDENT_WORK` needs no child-agent evidence.'
 Require-Term 'framework/01-core/01-master-loader.md' '`medium` is the economical reasoning default.'
 Require-Term 'UEEF-LOADER.md' 'Never turn a T0/T1 request into an autonomous inventory or upgrade.'
 Require-Term 'framework/01-core/00-core-system.md' 'Do not turn T0/T1 work into an autonomous upgrade or inventory.'
@@ -40,8 +40,8 @@ Require-Term 'QUICK_START.md' 'test-intent-fidelity-contract.sh'
 $activeContracts = @(
   'UEEF-LOADER.md',
   'framework/01-core/01-master-loader.md',
-  'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md',
-  'framework/27-quality-gates/31-agent-model-routing-gate.md',
+  'framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md',
+  'framework/12-delivery-quality/04-quality-gates/31-agent-model-routing-gate.md',
   'scripts/select-agent-route.ps1',
   'scripts/select-agent-route.sh'
 ) | ForEach-Object { Get-Content -LiteralPath (Join-Path $root $_) -Raw }

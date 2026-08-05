@@ -80,7 +80,7 @@ for route in \
 do
   printf '%s' "$route" | grep -Eq '"reasoning":"(low|medium|high)"' || { echo "Ordinary route exceeded the low/medium/high ceiling in $route" >&2; exit 1; }
 done
-capability_routing="$ROOT/framework/58-agent-model-orchestration/02-model-capability-routing.md"
+capability_routing="$ROOT/framework/19-agent-workflow/01-model-orchestration/02-model-capability-routing.md"
 if ! grep -Fq 'economical default, not a hard ceiling' "$capability_routing"; then
   echo 'Model capability routing does not document proportional reasoning.' >&2
   exit 1

@@ -85,25 +85,29 @@ The completion audit is now an executable gate. Validate it with:
 
 | Path | Ownership and purpose |
 |---|---|
-| `framework/00-foundation`–`44-future` | Foundational engineering, architecture, code quality, security, performance, frontend/backend, AI, scorecards, checklists, templates, examples, scripts, and references. |
-| `framework/45-identity-access-application-models` | Identity, permissions, tenancy, and access-aware application rules. |
-| `framework/46-design-system-consistency-reuse` | Design-system ownership, token reuse, and shared component consistency. |
-| `framework/47-theme-responsive-interaction-security-performance` | Theme, responsive, interaction, security, and performance UI gates. |
-| `framework/48-design-governance` | Search-first design governance and reuse decisions. |
-| `framework/49-engineering-guardian` | Prevents regressions from becoming false completion or release claims. |
-| `framework/50-environment-bootstrap` | Environment, capability, runtime, and workspace readiness. |
-| `framework/51-browser-session-control` | Existing-Chrome control, tab ownership, recovery, and visual evidence. |
-| `framework/52-workspace-hygiene` | File boundaries, cleanup, artifacts, and workspace safety. |
-| `framework/53-skeleton-loading` | Shared loading/skeleton behavior. |
-| `framework/54-design-intelligence` | UI design intelligence and searchable references. |
-| `framework/55-continuous-assurance` | Repeated assurance and failure propagation. |
-| `framework/56-data-grid-platform` | Data-grid contract, scale, accessibility, and live refresh. |
-| `framework/57-application-shell-design` | App-shell structure and responsive shell behavior. |
-| `framework/58-agent-model-orchestration` | Tier, capability, model, delegation, and escalation routing. |
-| `framework/59-skill-invocation-protocol` | Skill trigger, selection, and verification discipline. |
-| `framework/60-spec-driven-development` | Requirements, acceptance criteria, traceability, and convergence. |
-| `framework/61-project-modernization` | Baselines, migration slices, compatibility, rollback, and freshness. |
-| `framework/62-performance-forensics` | Evidence-first performance investigations. |
+| `framework/_domains` | Physical fast-navigation layer. Start here to pick the right domain before opening numbered packs. |
+| `framework/DOMAIN_MAP.md` | Compatibility entrypoint that points to the `_domains` organization folder. |
+| `framework/MASTER_INDEX.md` | Generated exact inventory of every framework Markdown module by stable numbered pack. |
+| `framework/00-*`-`61-*` | Stable numbered pack paths. Keep these paths stable unless the loader, validators, release manifest, and runtime sync are updated together. |
+| `framework/00-foundation`–`21-framework-resources/07-future` | Foundational engineering, architecture, code quality, security, performance, frontend/backend, AI, scorecards, checklists, templates, examples, scripts, and references. |
+| `framework/17-product-platform/01-identity-access-application-models` | Identity, permissions, tenancy, and access-aware application rules. |
+| `framework/16-design-system/01-consistency-reuse` | Design-system ownership, token reuse, and shared component consistency. |
+| `framework/16-design-system/02-theme-responsive-interaction-security-performance` | Theme, responsive, interaction, security, and performance UI gates. |
+| `framework/16-design-system/03-governance` | Search-first design governance and reuse decisions. |
+| `framework/12-delivery-quality/08-engineering-guardian` | Prevents regressions from becoming false completion or release claims. |
+| `framework/18-runtime-operations/01-environment-bootstrap` | Environment, capability, runtime, and workspace readiness. |
+| `framework/18-runtime-operations/02-browser-session-control` | Existing-Chrome control, tab ownership, recovery, and visual evidence. |
+| `framework/18-runtime-operations/03-workspace-hygiene` | File boundaries, cleanup, artifacts, and workspace safety. |
+| `framework/17-product-platform/02-skeleton-loading` | Shared loading/skeleton behavior. |
+| `framework/16-design-system/04-intelligence` | UI design intelligence and searchable references. |
+| `framework/18-runtime-operations/04-continuous-assurance` | Repeated assurance and failure propagation. |
+| `framework/17-product-platform/03-data-grid-platform` | Data-grid contract, scale, accessibility, and live refresh. |
+| `framework/17-product-platform/04-application-shell-design` | App-shell structure and responsive shell behavior. |
+| `framework/19-agent-workflow/01-model-orchestration` | Tier, capability, model, delegation, and escalation routing. |
+| `framework/19-agent-workflow/02-skill-invocation-protocol` | Skill trigger, selection, and verification discipline. |
+| `framework/19-agent-workflow/03-spec-driven-development` | Requirements, acceptance criteria, traceability, and convergence. |
+| `framework/20-repository-evolution/01-project-modernization` | Baselines, migration slices, compatibility, rollback, and freshness. |
+| `framework/20-repository-evolution/02-performance-forensics` | Evidence-first performance investigations. |
 | `scripts` | Installers, sync/update, preflight, reports, validators, tests, adapters, and recovery utilities. |
 | `config` | Release metadata, enforcement registry, adapters, preferred skills/capabilities, and browser emergency policy. |
 | `docs` | Installation, verification, architecture decisions, release notes, governance, and this handoff. |
@@ -117,7 +121,7 @@ The completion audit is now an executable gate. Validate it with:
 - `framework/01-core/00-core-system.md`: always-loaded core contract.
 - `framework/01-core/01-master-loader.md`: module selector; it is not itself a loaded module.
 - `framework/03-runtime/00-runtime-sequence.md`: runtime sequence and evidence fields.
-- `framework/27-quality-gates/final-gate.md`: final completion/release gate.
+- `framework/12-delivery-quality/04-quality-gates/final-gate.md`: final completion/release gate.
 - `config/enforcement-registry.json`: T2+ domain/gate mapping and required fields.
 - `release-manifest.json`: version, tracked Markdown count, pack count, entrypoints, and release notes.
 - `docs/releases/v2.25.0.md`: current release notes.
@@ -128,7 +132,7 @@ The completion audit is now an executable gate. Validate it with:
 
 Release `2.25.0` includes:
 
-- `framework/38-templates/completion-audit-template.json`;
+- `framework/21-framework-resources/01-templates/completion-audit-template.json`;
 - `scripts/validate-completion-audit.ps1`;
 - `scripts/validate-completion-audit.mjs` and its Unix wrapper;
 - `scripts/test-completion-audit.ps1`;

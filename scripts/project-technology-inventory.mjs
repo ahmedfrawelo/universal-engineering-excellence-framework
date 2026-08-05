@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 
 const root = resolve(process.argv[2] || process.cwd());
-const ignored = new Set(['.git', 'node_modules', 'vendor', 'dist', 'build', 'coverage', '.next', '.nuxt', 'bin', 'obj']);
+const ignored = new Set(['.git', 'node_modules', 'vendor', 'engines', 'graphify-out', '.hypothesis', 'dist', 'build', 'coverage', '.next', '.nuxt', 'bin', 'obj']);
 const manifestPatterns = [
   /^release-manifest\.json$/,
   /^package\.json$/, /^package-lock\.json$/, /^pnpm-lock\.yaml$/, /^yarn\.lock$/, /^bun\.lockb?$/,

@@ -15,7 +15,7 @@ fi
 for f in README.md INSTALL.md QUICK_START.md VERSION.md CHANGELOG.md LICENSE CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md ROADMAP.md BUILD_PROGRESS.md UEEF-LOADER.md; do
   [ -e "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
-for d in framework scripts docs examples tools config vendor; do
+for d in framework scripts docs examples tools config engines; do
   [ -d "$ROOT/$d" ] || { echo "Missing $d" >&2; exit 1; }
 done
 [ -f "$ROOT/scripts/new-spec-workflow.ps1" ] || { echo "Missing spec workflow generator" >&2; exit 1; }
@@ -61,7 +61,7 @@ done
 [ -f "$ROOT/scripts/test-module-specificity.mjs" ] || { echo "Missing module specificity tests" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/13-autonomy-and-confirmation-policy.md" ] || { echo "Missing autonomy policy" >&2; exit 1; }
 [ -f "$ROOT/framework/01-core/14-delivery-continuation-policy.md" ] || { echo "Missing delivery continuation policy" >&2; exit 1; }
-required_acceptance="docs/token-efficiency.md framework/01-core/00-boot-loader.md docs/runtime-hardening.md scripts/write-active-state.ps1 scripts/select-quality-gates.ps1 scripts/check-runtime-drift.ps1 scripts/sync-runtime.ps1 scripts/ueef-status.ps1 scripts/ueef-status.sh docs/verify-ueef-is-active.md framework/01-core/10-runtime-activation-proof.md framework/27-quality-gates/16-ueef-activation-gate.md examples/generic-ai/runtime-check-example.md framework/38-templates/feature-implementation-template.md framework/38-templates/component-creation-template.md framework/38-templates/api-creation-template.md framework/38-templates/database-change-template.md framework/38-templates/adr-template.md framework/38-templates/pull-request-template.md framework/38-templates/security-review-template.md framework/38-templates/performance-review-template.md framework/38-templates/risk-assessment-template.md framework/38-templates/incident-report-template.md framework/38-templates/engineering-review-template.md framework/26-decision-graphs/component-decision-graph.md framework/26-decision-graphs/file-folder-decision-graph.md framework/26-decision-graphs/dependency-decision-graph.md framework/26-decision-graphs/api-decision-graph.md framework/26-decision-graphs/database-decision-graph.md framework/26-decision-graphs/state-management-decision-graph.md framework/26-decision-graphs/caching-decision-graph.md framework/26-decision-graphs/security-decision-graph.md framework/26-decision-graphs/performance-decision-graph.md framework/26-decision-graphs/refactoring-decision-graph.md framework/26-decision-graphs/ui-decision-graph.md framework/26-decision-graphs/architecture-decision-graph.md framework/27-quality-gates/requirements-gate.md framework/27-quality-gates/architecture-gate.md framework/27-quality-gates/code-quality-gate.md framework/27-quality-gates/security-gate.md framework/27-quality-gates/performance-gate.md framework/27-quality-gates/database-gate.md framework/27-quality-gates/api-gate.md framework/27-quality-gates/ui-gate.md framework/27-quality-gates/ux-gate.md framework/27-quality-gates/accessibility-gate.md framework/27-quality-gates/testing-gate.md framework/27-quality-gates/documentation-gate.md framework/27-quality-gates/production-gate.md framework/27-quality-gates/enterprise-gate.md framework/27-quality-gates/final-gate.md framework/28-scorecards/engineering-scorecard.md framework/28-scorecards/architecture-scorecard.md framework/28-scorecards/code-quality-scorecard.md framework/28-scorecards/security-scorecard.md framework/28-scorecards/performance-scorecard.md framework/28-scorecards/scalability-scorecard.md framework/28-scorecards/maintainability-scorecard.md framework/28-scorecards/ui-scorecard.md framework/28-scorecards/ux-scorecard.md framework/28-scorecards/accessibility-scorecard.md framework/28-scorecards/production-readiness-scorecard.md framework/28-scorecards/enterprise-readiness-scorecard.md framework/28-scorecards/final-review-scorecard.md"
+required_acceptance="docs/token-efficiency.md framework/01-core/00-boot-loader.md docs/runtime-hardening.md scripts/write-active-state.ps1 scripts/select-quality-gates.ps1 scripts/check-runtime-drift.ps1 scripts/sync-runtime.ps1 scripts/ueef-status.ps1 scripts/ueef-status.sh docs/verify-ueef-is-active.md framework/01-core/10-runtime-activation-proof.md framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md examples/generic-ai/runtime-check-example.md framework/21-framework-resources/01-templates/feature-implementation-template.md framework/21-framework-resources/01-templates/component-creation-template.md framework/21-framework-resources/01-templates/api-creation-template.md framework/21-framework-resources/01-templates/database-change-template.md framework/21-framework-resources/01-templates/adr-template.md framework/21-framework-resources/01-templates/pull-request-template.md framework/21-framework-resources/01-templates/security-review-template.md framework/21-framework-resources/01-templates/performance-review-template.md framework/21-framework-resources/01-templates/risk-assessment-template.md framework/21-framework-resources/01-templates/incident-report-template.md framework/21-framework-resources/01-templates/engineering-review-template.md framework/14-decision/02-graphs/component-decision-graph.md framework/14-decision/02-graphs/file-folder-decision-graph.md framework/14-decision/02-graphs/dependency-decision-graph.md framework/14-decision/02-graphs/api-decision-graph.md framework/14-decision/02-graphs/database-decision-graph.md framework/14-decision/02-graphs/state-management-decision-graph.md framework/14-decision/02-graphs/caching-decision-graph.md framework/14-decision/02-graphs/security-decision-graph.md framework/14-decision/02-graphs/performance-decision-graph.md framework/14-decision/02-graphs/refactoring-decision-graph.md framework/14-decision/02-graphs/ui-decision-graph.md framework/14-decision/02-graphs/architecture-decision-graph.md framework/12-delivery-quality/04-quality-gates/requirements-gate.md framework/12-delivery-quality/04-quality-gates/architecture-gate.md framework/12-delivery-quality/04-quality-gates/code-quality-gate.md framework/12-delivery-quality/04-quality-gates/security-gate.md framework/12-delivery-quality/04-quality-gates/performance-gate.md framework/12-delivery-quality/04-quality-gates/database-gate.md framework/12-delivery-quality/04-quality-gates/api-gate.md framework/12-delivery-quality/04-quality-gates/ui-gate.md framework/12-delivery-quality/04-quality-gates/ux-gate.md framework/12-delivery-quality/04-quality-gates/accessibility-gate.md framework/12-delivery-quality/04-quality-gates/testing-gate.md framework/12-delivery-quality/04-quality-gates/documentation-gate.md framework/12-delivery-quality/04-quality-gates/production-gate.md framework/12-delivery-quality/04-quality-gates/enterprise-gate.md framework/12-delivery-quality/04-quality-gates/final-gate.md framework/12-delivery-quality/05-scorecards/engineering-scorecard.md framework/12-delivery-quality/05-scorecards/architecture-scorecard.md framework/12-delivery-quality/05-scorecards/code-quality-scorecard.md framework/12-delivery-quality/05-scorecards/security-scorecard.md framework/12-delivery-quality/05-scorecards/performance-scorecard.md framework/12-delivery-quality/05-scorecards/scalability-scorecard.md framework/12-delivery-quality/05-scorecards/maintainability-scorecard.md framework/12-delivery-quality/05-scorecards/ui-scorecard.md framework/12-delivery-quality/05-scorecards/ux-scorecard.md framework/12-delivery-quality/05-scorecards/accessibility-scorecard.md framework/12-delivery-quality/05-scorecards/production-readiness-scorecard.md framework/12-delivery-quality/05-scorecards/enterprise-readiness-scorecard.md framework/12-delivery-quality/05-scorecards/final-review-scorecard.md"
 for f in $required_acceptance; do
   [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
@@ -69,60 +69,63 @@ for p in "$ROOT"/framework/[0-9][0-9]-*; do
   [ -f "$p/README.md" ] || { echo "Missing $p/README.md" >&2; exit 1; }
   [ -f "$p/INDEX.md" ] || { echo "Missing $p/INDEX.md" >&2; exit 1; }
 done
-count="$(find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.venv" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/build" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/graphifyy.egg-info" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/__pycache__" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.pytest_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.hypothesis" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.ruff_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.mypy_cache" -prune -o -name '*.md' -type f -print | wc -l)"
+count="$(find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -path "$ROOT/engines/repository-intelligence/.venv" -prune -o -path "$ROOT/engines/repository-intelligence/build" -prune -o -path "$ROOT/engines/repository-intelligence/graphifyy.egg-info" -prune -o -path "$ROOT/engines/repository-intelligence/__pycache__" -prune -o -path "$ROOT/engines/repository-intelligence/.pytest_cache" -prune -o -path "$ROOT/engines/repository-intelligence/.hypothesis" -prune -o -path "$ROOT/engines/repository-intelligence/.ruff_cache" -prune -o -path "$ROOT/engines/repository-intelligence/.mypy_cache" -prune -o -name '*.md' -type f -print | wc -l)"
 manifest_counts=$(node -e 'const m=require(process.argv[1]); process.stdout.write(`${m.minimumMarkdownFiles || 0}\n${m.trackedMarkdownFiles || 0}\n`)' "$ROOT/release-manifest.json")
 minimum_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '1p')
 tracked_markdown=$(printf '%s\n' "$manifest_counts" | sed -n '2p')
 [ "$count" -ge "$minimum_markdown" ] || { echo "Markdown count below minimum: $count < $minimum_markdown" >&2; exit 1; }
 [ "$tracked_markdown" -gt 0 ] && [ "$count" -eq "$tracked_markdown" ] || { echo "Markdown inventory mismatch: actual $count, manifest $tracked_markdown" >&2; exit 1; }
-if find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.venv" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/build" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/graphifyy.egg-info" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/__pycache__" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.pytest_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.hypothesis" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.ruff_cache" -prune -o -path "$ROOT/vendor/repository-intelligence-engine/.mypy_cache" -prune -o -name '*.md' -type f -size 0c -print | grep .; then echo "Empty Markdown files found" >&2; exit 1; fi
+if find "$ROOT" -path "$ROOT/.git" -prune -o -path "$ROOT/.ueef" -prune -o -path "$ROOT/engines/repository-intelligence/.venv" -prune -o -path "$ROOT/engines/repository-intelligence/build" -prune -o -path "$ROOT/engines/repository-intelligence/graphifyy.egg-info" -prune -o -path "$ROOT/engines/repository-intelligence/__pycache__" -prune -o -path "$ROOT/engines/repository-intelligence/.pytest_cache" -prune -o -path "$ROOT/engines/repository-intelligence/.hypothesis" -prune -o -path "$ROOT/engines/repository-intelligence/.ruff_cache" -prune -o -path "$ROOT/engines/repository-intelligence/.mypy_cache" -prune -o -name '*.md' -type f -size 0c -print | grep .; then echo "Empty Markdown files found" >&2; exit 1; fi
 grep -q "00-foundation" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "27-quality-gates" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "38-templates" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "45-identity-access-application-models" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "46-design-system-consistency-reuse" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "47-theme-responsive-interaction-security-performance" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "48-design-governance" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "49-engineering-guardian" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "50-environment-bootstrap" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "51-browser-session-control" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "52-workspace-hygiene" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "53-skeleton-loading" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "58-agent-model-orchestration" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "59-skill-invocation-protocol" "$ROOT/framework/MASTER_INDEX.md"
-grep -q "60-spec-driven-development" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "_domains/README.md" "$ROOT/framework/DOMAIN_MAP.md"
+[ -f "$ROOT/framework/_domains/README.md" ] || { echo "Missing framework/_domains/README.md" >&2; exit 1; }
+[ -f "$ROOT/framework/_domains/INVENTORY.md" ] || { echo "Missing framework/_domains/INVENTORY.md" >&2; exit 1; }
+grep -q "12-delivery-quality/04-quality-gates" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "21-framework-resources/01-templates" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "17-product-platform/01-identity-access-application-models" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "16-design-system/01-consistency-reuse" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "16-design-system/02-theme-responsive-interaction-security-performance" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "16-design-system/03-governance" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "12-delivery-quality/08-engineering-guardian" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "18-runtime-operations/01-environment-bootstrap" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "18-runtime-operations/02-browser-session-control" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "18-runtime-operations/03-workspace-hygiene" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "17-product-platform/02-skeleton-loading" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "16-design-system/04-intelligence" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "19-agent-workflow/01-model-orchestration" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "19-agent-workflow/02-skill-invocation-protocol" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "19-agent-workflow/03-spec-driven-development" "$ROOT/framework/MASTER_INDEX.md"
 for f in \
-  framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
-  framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
-  framework/26-decision-graphs/19-theme-architecture-decision-graph.md \
-  framework/26-decision-graphs/20-responsive-component-decision-graph.md \
-  framework/26-decision-graphs/21-overlay-behavior-decision-graph.md \
-  framework/26-decision-graphs/22-security-hardening-decision-graph.md \
-  framework/26-decision-graphs/23-performance-optimization-decision-graph.md \
-  framework/29-checklists/23-theme-review-checklist.md \
-  framework/29-checklists/24-dark-mode-review-checklist.md \
-  framework/29-checklists/25-responsive-first-checklist.md \
-  framework/29-checklists/26-dropdown-panel-overlay-checklist.md \
-  framework/29-checklists/27-security-hardening-checklist.md \
-  framework/29-checklists/28-extreme-performance-checklist.md \
-  framework/38-templates/16-theme-definition-template.md \
-  framework/38-templates/17-responsive-component-contract-template.md \
-  framework/38-templates/18-overlay-interaction-contract-template.md \
-  framework/38-templates/19-security-review-report-template.md \
-  framework/38-templates/20-performance-budget-template.md \
-  framework/27-quality-gates/20-design-governance-gate.md \
-  framework/28-scorecards/16-design-governance-scorecard.md \
-  framework/29-checklists/29-design-governance-checklist.md \
-  framework/38-templates/21-design-governance-review-template.md \
-  framework/27-quality-gates/21-engineering-guardian-gate.md \
-  framework/28-scorecards/17-engineering-health-scorecard.md \
-  framework/29-checklists/30-engineering-guardian-checklist.md \
+  framework/12-delivery-quality/04-quality-gates/19-theme-responsive-interaction-security-performance-gate.md \
+  framework/12-delivery-quality/05-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md \
+  framework/14-decision/02-graphs/19-theme-architecture-decision-graph.md \
+  framework/14-decision/02-graphs/20-responsive-component-decision-graph.md \
+  framework/14-decision/02-graphs/21-overlay-behavior-decision-graph.md \
+  framework/14-decision/02-graphs/22-security-hardening-decision-graph.md \
+  framework/14-decision/02-graphs/23-performance-optimization-decision-graph.md \
+  framework/12-delivery-quality/06-checklists/23-theme-review-checklist.md \
+  framework/12-delivery-quality/06-checklists/24-dark-mode-review-checklist.md \
+  framework/12-delivery-quality/06-checklists/25-responsive-first-checklist.md \
+  framework/12-delivery-quality/06-checklists/26-dropdown-panel-overlay-checklist.md \
+  framework/12-delivery-quality/06-checklists/27-security-hardening-checklist.md \
+  framework/12-delivery-quality/06-checklists/28-extreme-performance-checklist.md \
+  framework/21-framework-resources/01-templates/16-theme-definition-template.md \
+  framework/21-framework-resources/01-templates/17-responsive-component-contract-template.md \
+  framework/21-framework-resources/01-templates/18-overlay-interaction-contract-template.md \
+  framework/21-framework-resources/01-templates/19-security-review-report-template.md \
+  framework/21-framework-resources/01-templates/20-performance-budget-template.md \
+  framework/12-delivery-quality/04-quality-gates/20-design-governance-gate.md \
+  framework/12-delivery-quality/05-scorecards/16-design-governance-scorecard.md \
+  framework/12-delivery-quality/06-checklists/29-design-governance-checklist.md \
+  framework/21-framework-resources/01-templates/21-design-governance-review-template.md \
+  framework/12-delivery-quality/04-quality-gates/21-engineering-guardian-gate.md \
+  framework/12-delivery-quality/05-scorecards/17-engineering-health-scorecard.md \
+  framework/12-delivery-quality/06-checklists/30-engineering-guardian-checklist.md \
   scripts/environment-bootstrap.ps1 scripts/environment-bootstrap.sh \
   scripts/test-environment-bootstrap.ps1 \
-  framework/27-quality-gates/22-environment-bootstrap-gate.md \
-  framework/28-scorecards/18-environment-readiness-scorecard.md \
-  framework/29-checklists/31-environment-bootstrap-checklist.md \
+  framework/12-delivery-quality/04-quality-gates/22-environment-bootstrap-gate.md \
+  framework/12-delivery-quality/05-scorecards/18-environment-readiness-scorecard.md \
+  framework/12-delivery-quality/06-checklists/31-environment-bootstrap-checklist.md \
   release-manifest.json docs/releases/v1.4.0.md docs/releases/v1.4.1.md docs/releases/v1.4.2.md docs/releases/v1.4.3.md docs/releases/v1.4.4.md; do
   [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
@@ -176,12 +179,12 @@ grep -q "SSR/hydration parity verified:" "$ROOT/framework/03-runtime/00-runtime-
 grep -q "Shared skeleton API contract verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Skeleton family owner and canonical public import verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Cancellation and refresh behavior verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "54-design-intelligence" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "16-design-system/04-intelligence" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "Design source of truth identified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Design intelligence gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "55-continuous-assurance" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "18-runtime-operations/04-continuous-assurance" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "Continuous assurance audit run:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-grep -q "56-data-grid-platform" "$ROOT/framework/MASTER_INDEX.md"
+grep -q "17-product-platform/03-data-grid-platform" "$ROOT/framework/MASTER_INDEX.md"
 grep -q "Existing table baseline inspected:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Data grid platform gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Advanced grid capabilities verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -196,32 +199,32 @@ grep -q "Agent route tier:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Independent workstreams:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Named model availability verified:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
 grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
-[ -f "$ROOT/framework/27-quality-gates/28-data-grid-platform-gate.md" ] || { echo "Missing data-grid gate" >&2; exit 1; }
-[ -f "$ROOT/framework/29-checklists/37-data-grid-platform-checklist.md" ] || { echo "Missing data-grid checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/28-data-grid-platform-gate.md" ] || { echo "Missing data-grid gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/06-checklists/37-data-grid-platform-checklist.md" ] || { echo "Missing data-grid checklist" >&2; exit 1; }
 [ -f "$ROOT/scripts/ueef-audit.ps1" ] || { echo "Missing audit runner" >&2; exit 1; }
 [ -f "$ROOT/scripts/ueef-audit.sh" ] || { echo "Missing Unix audit runner" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/27-continuous-assurance-gate.md" ] || { echo "Missing assurance gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/27-continuous-assurance-gate.md" ] || { echo "Missing assurance gate" >&2; exit 1; }
 [ -f "$ROOT/scripts/extract-design-system.mjs" ] || { echo "Missing design extractor" >&2; exit 1; }
 [ -f "$ROOT/scripts/recommend-design-system.mjs" ] || { echo "Missing design recommendation analyzer" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/26-design-intelligence-gate.md" ] || { echo "Missing design intelligence gate" >&2; exit 1; }
-[ -f "$ROOT/framework/29-checklists/35-design-intelligence-checklist.md" ] || { echo "Missing design intelligence checklist" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/23-browser-session-control-gate.md" ] || { echo "Missing browser session gate" >&2; exit 1; }
-[ -f "$ROOT/framework/29-checklists/32-browser-session-control-checklist.md" ] || { echo "Missing browser session checklist" >&2; exit 1; }
-[ -f "$ROOT/framework/51-browser-session-control/09-platform-authorized-chrome-control.md" ] || { echo "Missing platform-authorized Chrome-control module" >&2; exit 1; }
-[ -f "$ROOT/framework/51-browser-session-control/10-window-state-preservation.md" ] || { echo "Missing browser window-state-preservation module" >&2; exit 1; }
-[ -f "$ROOT/framework/51-browser-session-control/11-control-surface-selection.md" ] || { echo "Missing browser control-surface-selection module" >&2; exit 1; }
-[ -f "$ROOT/framework/51-browser-session-control/12-cross-session-evidence-handoff.md" ] || { echo "Missing cross-session browser-evidence handoff module" >&2; exit 1; }
-[ -f "$ROOT/framework/51-browser-session-control/13-user-facing-recovery-protocol.md" ] || { echo "Missing user-facing browser recovery module" >&2; exit 1; }
-[ -f "$ROOT/framework/51-browser-session-control/14-automatic-tab-ownership-recovery.md" ] || { echo "Missing automatic tab ownership recovery module" >&2; exit 1; }
-[ -f "$ROOT/framework/51-browser-session-control/15-chrome-control-readiness.md" ] || { echo "Missing Chrome control readiness module" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/26-design-intelligence-gate.md" ] || { echo "Missing design intelligence gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/06-checklists/35-design-intelligence-checklist.md" ] || { echo "Missing design intelligence checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/23-browser-session-control-gate.md" ] || { echo "Missing browser session gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/06-checklists/32-browser-session-control-checklist.md" ] || { echo "Missing browser session checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/18-runtime-operations/02-browser-session-control/09-platform-authorized-chrome-control.md" ] || { echo "Missing platform-authorized Chrome-control module" >&2; exit 1; }
+[ -f "$ROOT/framework/18-runtime-operations/02-browser-session-control/10-window-state-preservation.md" ] || { echo "Missing browser window-state-preservation module" >&2; exit 1; }
+[ -f "$ROOT/framework/18-runtime-operations/02-browser-session-control/11-control-surface-selection.md" ] || { echo "Missing browser control-surface-selection module" >&2; exit 1; }
+[ -f "$ROOT/framework/18-runtime-operations/02-browser-session-control/12-cross-session-evidence-handoff.md" ] || { echo "Missing cross-session browser-evidence handoff module" >&2; exit 1; }
+[ -f "$ROOT/framework/18-runtime-operations/02-browser-session-control/13-user-facing-recovery-protocol.md" ] || { echo "Missing user-facing browser recovery module" >&2; exit 1; }
+[ -f "$ROOT/framework/18-runtime-operations/02-browser-session-control/14-automatic-tab-ownership-recovery.md" ] || { echo "Missing automatic tab ownership recovery module" >&2; exit 1; }
+[ -f "$ROOT/framework/18-runtime-operations/02-browser-session-control/15-chrome-control-readiness.md" ] || { echo "Missing Chrome control readiness module" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.5.0.md" ] || { echo "Missing browser session release notes" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.ps1" ] || { echo "Missing cleanup script" >&2; exit 1; }
 [ -f "$ROOT/scripts/cleanup-workspace.sh" ] || { echo "Missing cleanup script" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/24-workspace-hygiene-gate.md" ] || { echo "Missing hygiene gate" >&2; exit 1; }
-[ -f "$ROOT/framework/29-checklists/33-workspace-hygiene-checklist.md" ] || { echo "Missing hygiene checklist" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/25-skeleton-loading-gate.md" ] || { echo "Missing skeleton gate" >&2; exit 1; }
-[ -f "$ROOT/framework/29-checklists/34-skeleton-loading-checklist.md" ] || { echo "Missing skeleton checklist" >&2; exit 1; }
-[ -f "$ROOT/framework/38-templates/22-skeleton-loading-contract-template.md" ] || { echo "Missing skeleton template" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/24-workspace-hygiene-gate.md" ] || { echo "Missing hygiene gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/06-checklists/33-workspace-hygiene-checklist.md" ] || { echo "Missing hygiene checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/25-skeleton-loading-gate.md" ] || { echo "Missing skeleton gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/06-checklists/34-skeleton-loading-checklist.md" ] || { echo "Missing skeleton checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/21-framework-resources/01-templates/22-skeleton-loading-contract-template.md" ] || { echo "Missing skeleton template" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.7.0.md" ] || { echo "Missing skeleton release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.8.0.md" ] || { echo "Missing design intelligence release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v1.8.1.md" ] || { echo "Missing design review release notes" >&2; exit 1; }
@@ -269,17 +272,17 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.8.17.md" ] || { echo "Missing project-context release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.18.md" ] || { echo "Missing skill invocation protocol release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/third-party/superpowers-attribution.md" ] || { echo "Missing Superpowers attribution" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/README.md" ] || { echo "Missing skill invocation protocol README" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/INDEX.md" ] || { echo "Missing skill invocation protocol index" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md" ] || { echo "Missing skill invocation protocol system" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/01-skill-discovery-and-routing.md" ] || { echo "Missing skill discovery module" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/02-red-flag-detection.md" ] || { echo "Missing red flag module" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/03-spec-plan-execution-chain.md" ] || { echo "Missing spec-plan module" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/04-tdd-and-evidence-loop.md" ] || { echo "Missing TDD evidence module" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/05-subagent-review-chain.md" ] || { echo "Missing subagent review module" >&2; exit 1; }
-[ -f "$ROOT/framework/59-skill-invocation-protocol/06-skill-authoring-quality.md" ] || { echo "Missing skill authoring module" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/32-skill-invocation-protocol-gate.md" ] || { echo "Missing skill invocation protocol gate" >&2; exit 1; }
-[ -f "$ROOT/framework/29-checklists/41-skill-invocation-protocol-checklist.md" ] || { echo "Missing skill invocation protocol checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/README.md" ] || { echo "Missing skill invocation protocol README" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/INDEX.md" ] || { echo "Missing skill invocation protocol index" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/00-skill-invocation-protocol-system.md" ] || { echo "Missing skill invocation protocol system" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/01-skill-discovery-and-routing.md" ] || { echo "Missing skill discovery module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/02-red-flag-detection.md" ] || { echo "Missing red flag module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/03-spec-plan-execution-chain.md" ] || { echo "Missing spec-plan module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/04-tdd-and-evidence-loop.md" ] || { echo "Missing TDD evidence module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/05-subagent-review-chain.md" ] || { echo "Missing subagent review module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/06-skill-authoring-quality.md" ] || { echo "Missing skill authoring module" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/32-skill-invocation-protocol-gate.md" ] || { echo "Missing skill invocation protocol gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/06-checklists/41-skill-invocation-protocol-checklist.md" ] || { echo "Missing skill invocation protocol checklist" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.19.md" ] || { echo "Missing spec-driven release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.20.md" ] || { echo "Missing runtime hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.8.21.md" ] || { echo "Missing mixed-direction response release notes" >&2; exit 1; }
@@ -290,41 +293,41 @@ grep -q "Agent model routing gate:" "$ROOT/framework/03-runtime/00-runtime-seque
 [ -f "$ROOT/docs/releases/v2.9.1.md" ] || { echo "Missing component-family organization release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.9.2.md" ] || { echo "Missing release-consistency hardening release notes" >&2; exit 1; }
 [ -f "$ROOT/docs/releases/v2.10.0.md" ] || { echo "Missing project-modernization release notes" >&2; exit 1; }
-[ -f "$ROOT/framework/61-project-modernization/00-project-modernization-system.md" ] || { echo "Missing project modernization system" >&2; exit 1; }
-[ -f "$ROOT/framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md" ] || { echo "Missing application lazy-loading contract" >&2; exit 1; }
-[ -f "$ROOT/framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md" ] || { echo "Missing global live-refresh contract" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/34-project-modernization-and-runtime-gate.md" ] || { echo "Missing project modernization gate" >&2; exit 1; }
+[ -f "$ROOT/framework/20-repository-evolution/01-project-modernization/00-project-modernization-system.md" ] || { echo "Missing project modernization system" >&2; exit 1; }
+[ -f "$ROOT/framework/16-design-system/02-theme-responsive-interaction-security-performance/50-application-lazy-loading.md" ] || { echo "Missing application lazy-loading contract" >&2; exit 1; }
+[ -f "$ROOT/framework/16-design-system/02-theme-responsive-interaction-security-performance/51-global-live-refresh.md" ] || { echo "Missing global live-refresh contract" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/34-project-modernization-and-runtime-gate.md" ] || { echo "Missing project modernization gate" >&2; exit 1; }
 [ -f "$ROOT/docs/third-party/spec-kit-attribution.md" ] || { echo "Missing Spec Kit attribution" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/README.md" ] || { echo "Missing spec-driven README" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/INDEX.md" ] || { echo "Missing spec-driven index" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/00-spec-driven-development-system.md" ] || { echo "Missing spec-driven system" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/01-constitution-and-principles.md" ] || { echo "Missing spec constitution module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/02-specification-artifact.md" ] || { echo "Missing spec artifact module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/03-clarification-and-ambiguity.md" ] || { echo "Missing spec clarification module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/04-technical-plan-translation.md" ] || { echo "Missing spec plan module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/05-task-breakdown-and-parallelization.md" ] || { echo "Missing spec task breakdown module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/06-consistency-analysis-and-checklists.md" ] || { echo "Missing spec consistency module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/07-implementation-and-convergence.md" ] || { echo "Missing spec convergence module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/08-extension-preset-bundle-governance.md" ] || { echo "Missing spec extension governance module" >&2; exit 1; }
-[ -f "$ROOT/framework/60-spec-driven-development/09-third-party-attribution.md" ] || { echo "Missing spec third-party attribution module" >&2; exit 1; }
-[ -f "$ROOT/framework/63-repository-intelligence/README.md" ] || { echo "Missing repository intelligence README" >&2; exit 1; }
-[ -f "$ROOT/framework/63-repository-intelligence/INDEX.md" ] || { echo "Missing repository intelligence index" >&2; exit 1; }
-[ -f "$ROOT/framework/63-repository-intelligence/00-repository-intelligence-system.md" ] || { echo "Missing repository intelligence system" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/README.md" ] || { echo "Missing spec-driven README" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/INDEX.md" ] || { echo "Missing spec-driven index" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/00-spec-driven-development-system.md" ] || { echo "Missing spec-driven system" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/01-constitution-and-principles.md" ] || { echo "Missing spec constitution module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/02-specification-artifact.md" ] || { echo "Missing spec artifact module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/03-clarification-and-ambiguity.md" ] || { echo "Missing spec clarification module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/04-technical-plan-translation.md" ] || { echo "Missing spec plan module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/05-task-breakdown-and-parallelization.md" ] || { echo "Missing spec task breakdown module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/06-consistency-analysis-and-checklists.md" ] || { echo "Missing spec consistency module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/07-implementation-and-convergence.md" ] || { echo "Missing spec convergence module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/08-extension-preset-bundle-governance.md" ] || { echo "Missing spec extension governance module" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/03-spec-driven-development/09-third-party-attribution.md" ] || { echo "Missing spec third-party attribution module" >&2; exit 1; }
+[ -f "$ROOT/framework/20-repository-evolution/03-repository-intelligence/README.md" ] || { echo "Missing repository intelligence README" >&2; exit 1; }
+[ -f "$ROOT/framework/20-repository-evolution/03-repository-intelligence/INDEX.md" ] || { echo "Missing repository intelligence index" >&2; exit 1; }
+[ -f "$ROOT/framework/20-repository-evolution/03-repository-intelligence/00-repository-intelligence-system.md" ] || { echo "Missing repository intelligence system" >&2; exit 1; }
 [ -f "$ROOT/scripts/repository-intelligence.ps1" ] || { echo "Missing repository intelligence PowerShell entrypoint" >&2; exit 1; }
 [ -f "$ROOT/scripts/repository-intelligence.sh" ] || { echo "Missing repository intelligence Unix entrypoint" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-repository-intelligence.ps1" ] || { echo "Missing repository intelligence PowerShell tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-repository-intelligence.sh" ] || { echo "Missing repository intelligence Unix tests" >&2; exit 1; }
-[ -f "$ROOT/scripts/verify-repository-intelligence-vendor.mjs" ] || { echo "Missing repository intelligence vendor verifier" >&2; exit 1; }
+[ -f "$ROOT/scripts/verify-repository-intelligence-engine.mjs" ] || { echo "Missing repository intelligence engine verifier" >&2; exit 1; }
 [ -f "$ROOT/config/repository-intelligence-policy.json" ] || { echo "Missing repository intelligence policy" >&2; exit 1; }
-[ -f "$ROOT/vendor/repository-intelligence-engine/UEEF-VENDOR.json" ] || { echo "Missing repository intelligence vendor manifest" >&2; exit 1; }
-[ -f "$ROOT/vendor/repository-intelligence-engine/MODIFICATIONS.md" ] || { echo "Missing repository intelligence modification log" >&2; exit 1; }
-[ -f "$ROOT/vendor/repository-intelligence-engine/UPSTREAM-FILES.json" ] || { echo "Missing repository intelligence upstream inventory" >&2; exit 1; }
-[ -f "$ROOT/vendor/repository-intelligence-engine/LICENSE" ] || { echo "Missing repository intelligence Apache license" >&2; exit 1; }
-[ -f "$ROOT/vendor/repository-intelligence-engine/LICENSE-MIT" ] || { echo "Missing repository intelligence MIT license" >&2; exit 1; }
-[ -f "$ROOT/vendor/repository-intelligence-engine/NOTICE" ] || { echo "Missing repository intelligence notice" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/33-spec-driven-development-gate.md" ] || { echo "Missing spec-driven gate" >&2; exit 1; }
-[ -f "$ROOT/framework/29-checklists/42-spec-driven-development-checklist.md" ] || { echo "Missing spec-driven checklist" >&2; exit 1; }
-[ -f "$ROOT/framework/38-templates/29-spec-driven-development-template.md" ] || { echo "Missing spec-driven template" >&2; exit 1; }
+[ -f "$ROOT/engines/repository-intelligence/UEEF-UPSTREAM.json" ] || { echo "Missing repository intelligence upstream manifest" >&2; exit 1; }
+[ -f "$ROOT/engines/repository-intelligence/MODIFICATIONS.md" ] || { echo "Missing repository intelligence modification log" >&2; exit 1; }
+[ -f "$ROOT/engines/repository-intelligence/UPSTREAM-FILES.json" ] || { echo "Missing repository intelligence upstream inventory" >&2; exit 1; }
+[ -f "$ROOT/engines/repository-intelligence/LICENSE" ] || { echo "Missing repository intelligence Apache license" >&2; exit 1; }
+[ -f "$ROOT/engines/repository-intelligence/LICENSE-MIT" ] || { echo "Missing repository intelligence MIT license" >&2; exit 1; }
+[ -f "$ROOT/engines/repository-intelligence/NOTICE" ] || { echo "Missing repository intelligence notice" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/33-spec-driven-development-gate.md" ] || { echo "Missing spec-driven gate" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/06-checklists/42-spec-driven-development-checklist.md" ] || { echo "Missing spec-driven checklist" >&2; exit 1; }
+[ -f "$ROOT/framework/21-framework-resources/01-templates/29-spec-driven-development-template.md" ] || { echo "Missing spec-driven template" >&2; exit 1; }
 [ -f "$ROOT/assets/ueef-display.json" ] || { echo "Missing UEEF display metadata" >&2; exit 1; }
 [ -f "$ROOT/assets/ueef-skill-icon.svg" ] || { echo "Missing UEEF skill icon asset" >&2; exit 1; }
 [ -f "$ROOT/scripts/project-context-map.ps1" ] || { echo "Missing project context map script" >&2; exit 1; }
@@ -369,37 +372,37 @@ grep -q 'Before creating custom UI or custom behavior' "$ROOT/framework/01-core/
 grep -q 'Large Project Reuse Requirements' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing large-project reuse section" >&2; exit 1; }
 grep -q 'Record the reuse decision' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing reuse-decision rule" >&2; exit 1; }
 grep -q 'scripts/project-context-map.ps1' "$ROOT/framework/01-core/00-core-system.md" || { echo "Core missing project context map rule" >&2; exit 1; }
-grep -q 'Identify the owning folder before creating a file' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing owner rule" >&2; exit 1; }
-grep -q 'Determine whether the behavior will be reused in multiple places' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared-owner decision" >&2; exit 1; }
-grep -q 'shared/common/library owner' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared owner rule" >&2; exit 1; }
-grep -q 'standalone file becomes a hidden subsystem' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing hidden-subsystem rule" >&2; exit 1; }
-grep -q 'oversized mixed files' "$ROOT/framework/26-decision-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing oversized-file rule" >&2; exit 1; }
-grep -q 'SSR, SSG, streaming' "$ROOT/framework/10-frontend/00-frontend-engineering.md" || { echo "Frontend missing SSR evaluation rule" >&2; exit 1; }
-grep -q 'Split large frontend files' "$ROOT/framework/10-frontend/00-frontend-engineering.md" || { echo "Frontend missing large-file split rule" >&2; exit 1; }
-grep -q 'Prevent over-rendering' "$ROOT/framework/10-frontend/00-frontend-engineering.md" || { echo "Frontend missing over-render rule" >&2; exit 1; }
-grep -q 'Animations must use transform and opacity' "$ROOT/framework/10-frontend/00-frontend-engineering.md" || { echo "Frontend missing animation performance rule" >&2; exit 1; }
-grep -q 'pagination, filtering, sorting, aggregation, projection' "$ROOT/framework/11-backend/00-backend-engineering.md" || { echo "Backend missing server-side data-shaping rule" >&2; exit 1; }
-grep -q 'Split large backend files' "$ROOT/framework/11-backend/00-backend-engineering.md" || { echo "Backend missing large-file split rule" >&2; exit 1; }
-grep -q 'Prevent backend-driven over-render' "$ROOT/framework/11-backend/00-backend-engineering.md" || { echo "Backend missing over-render rule" >&2; exit 1; }
-grep -q 'publish minimal scoped events' "$ROOT/framework/11-backend/00-backend-engineering.md" || { echo "Backend missing scoped-events rule" >&2; exit 1; }
-grep -q 'limited to the requested feature' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing requested-scope rule" >&2; exit 1; }
-grep -q 'Unrelated pre-existing errors were not repaired' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing unrelated-error rule" >&2; exit 1; }
-grep -q 'Reusable behavior was placed in the existing shared/common/library owner' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing shared-placement rule" >&2; exit 1; }
-grep -q 'Existing shared components, tokens, services' "$ROOT/framework/27-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing shared-search rule" >&2; exit 1; }
-grep -q 'Reusable UI must live in the appropriate shared design-system owner' "$ROOT/framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md" || { echo "Reuse pack missing shared UI owner rule" >&2; exit 1; }
-grep -q 'Before creating custom UI' "$ROOT/framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md" || { echo "Reuse pack missing design-system-first rule" >&2; exit 1; }
-grep -q 'Place repeated hooks, stores, formatters, validators' "$ROOT/framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md" || { echo "Reuse pack missing shared services rule" >&2; exit 1; }
-grep -q 'Feature code should import shared services' "$ROOT/framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md" || { echo "Reuse pack missing import services rule" >&2; exit 1; }
+grep -q 'Identify the owning folder before creating a file' "$ROOT/framework/14-decision/02-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing owner rule" >&2; exit 1; }
+grep -q 'Determine whether the behavior will be reused in multiple places' "$ROOT/framework/14-decision/02-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared-owner decision" >&2; exit 1; }
+grep -q 'shared/common/library owner' "$ROOT/framework/14-decision/02-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing shared owner rule" >&2; exit 1; }
+grep -q 'standalone file becomes a hidden subsystem' "$ROOT/framework/14-decision/02-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing hidden-subsystem rule" >&2; exit 1; }
+grep -q 'oversized mixed files' "$ROOT/framework/14-decision/02-graphs/file-folder-decision-graph.md" || { echo "File-folder graph missing oversized-file rule" >&2; exit 1; }
+grep -q 'SSR, SSG, streaming' "$ROOT/framework/10-frontend/01-engineering/00-frontend-engineering.md" || { echo "Frontend missing SSR evaluation rule" >&2; exit 1; }
+grep -q 'Split large frontend files' "$ROOT/framework/10-frontend/01-engineering/00-frontend-engineering.md" || { echo "Frontend missing large-file split rule" >&2; exit 1; }
+grep -q 'Prevent over-rendering' "$ROOT/framework/10-frontend/01-engineering/00-frontend-engineering.md" || { echo "Frontend missing over-render rule" >&2; exit 1; }
+grep -q 'Animations must use transform and opacity' "$ROOT/framework/10-frontend/01-engineering/00-frontend-engineering.md" || { echo "Frontend missing animation performance rule" >&2; exit 1; }
+grep -q 'pagination, filtering, sorting, aggregation, projection' "$ROOT/framework/11-server-side/02-backend/00-backend-engineering.md" || { echo "Backend missing server-side data-shaping rule" >&2; exit 1; }
+grep -q 'Split large backend files' "$ROOT/framework/11-server-side/02-backend/00-backend-engineering.md" || { echo "Backend missing large-file split rule" >&2; exit 1; }
+grep -q 'Prevent backend-driven over-render' "$ROOT/framework/11-server-side/02-backend/00-backend-engineering.md" || { echo "Backend missing over-render rule" >&2; exit 1; }
+grep -q 'publish minimal scoped events' "$ROOT/framework/11-server-side/02-backend/00-backend-engineering.md" || { echo "Backend missing scoped-events rule" >&2; exit 1; }
+grep -q 'limited to the requested feature' "$ROOT/framework/12-delivery-quality/04-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing requested-scope rule" >&2; exit 1; }
+grep -q 'Unrelated pre-existing errors were not repaired' "$ROOT/framework/12-delivery-quality/04-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing unrelated-error rule" >&2; exit 1; }
+grep -q 'Reusable behavior was placed in the existing shared/common/library owner' "$ROOT/framework/12-delivery-quality/04-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing shared-placement rule" >&2; exit 1; }
+grep -q 'Existing shared components, tokens, services' "$ROOT/framework/12-delivery-quality/04-quality-gates/code-quality-gate.md" || { echo "Code quality gate missing shared-search rule" >&2; exit 1; }
+grep -q 'Reusable UI must live in the appropriate shared design-system owner' "$ROOT/framework/16-design-system/01-consistency-reuse/00-unified-design-system-architecture.md" || { echo "Reuse pack missing shared UI owner rule" >&2; exit 1; }
+grep -q 'Before creating custom UI' "$ROOT/framework/16-design-system/01-consistency-reuse/00-unified-design-system-architecture.md" || { echo "Reuse pack missing design-system-first rule" >&2; exit 1; }
+grep -q 'Place repeated hooks, stores, formatters, validators' "$ROOT/framework/16-design-system/01-consistency-reuse/06-shared-frontend-services-validation-api.md" || { echo "Reuse pack missing shared services rule" >&2; exit 1; }
+grep -q 'Feature code should import shared services' "$ROOT/framework/16-design-system/01-consistency-reuse/06-shared-frontend-services-validation-api.md" || { echo "Reuse pack missing import services rule" >&2; exit 1; }
 grep -q "Answer the user's direct question first" "$ROOT/framework/03-runtime/10-final-response-format.md" || { echo "Final response format missing direct-answer rule" >&2; exit 1; }
 grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-format.md" || { echo "Final response format missing overclaim rule" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.ps1" ] || { echo "Missing design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-design-engineering-skills.sh" ] || { echo "Missing Unix design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-open-design-skills.ps1" ] || { echo "Missing Open Design skills installer" >&2; exit 1; }
 [ -f "$ROOT/scripts/install-open-design-skills.sh" ] || { echo "Missing Unix Open Design skills installer" >&2; exit 1; }
-[ -f "$ROOT/framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
-[ -f "$ROOT/framework/58-agent-model-orchestration/06-fresh-context-review-protocol.md" ] || { echo "Missing fresh review protocol" >&2; exit 1; }
-[ -f "$ROOT/framework/27-quality-gates/31-agent-model-routing-gate.md" ] || { echo "Missing agent routing gate" >&2; exit 1; }
-[ -f "$ROOT/framework/38-templates/33-fresh-review-evidence-template.json" ] || { echo "Missing fresh review template" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md" ] || { echo "Missing agent orchestration system" >&2; exit 1; }
+[ -f "$ROOT/framework/19-agent-workflow/01-model-orchestration/06-fresh-context-review-protocol.md" ] || { echo "Missing fresh review protocol" >&2; exit 1; }
+[ -f "$ROOT/framework/12-delivery-quality/04-quality-gates/31-agent-model-routing-gate.md" ] || { echo "Missing agent routing gate" >&2; exit 1; }
+[ -f "$ROOT/framework/21-framework-resources/01-templates/33-fresh-review-evidence-template.json" ] || { echo "Missing fresh review template" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-agent-route.ps1" ] || { echo "Missing agent route selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/select-agent-route.sh" ] || { echo "Missing Unix agent route selector" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-agent-route.ps1" ] || { echo "Missing agent route tests" >&2; exit 1; }
@@ -422,7 +425,7 @@ grep -q 'Do not claim "perfect"' "$ROOT/framework/03-runtime/10-final-response-f
 [ -f "$ROOT/scripts/validate-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-goal-lifecycle.ps1" ] || { echo "Missing goal lifecycle tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-goal-lifecycle.sh" ] || { echo "Missing Unix goal lifecycle tests" >&2; exit 1; }
-! grep -Rqi 'must stop the task' "$ROOT/framework/49-engineering-guardian" || { echo "Engineering Guardian still stops implementation work" >&2; exit 1; }
+! grep -Rqi 'must stop the task' "$ROOT/framework/12-delivery-quality/08-engineering-guardian" || { echo "Engineering Guardian still stops implementation work" >&2; exit 1; }
 grep -q 'BLOCKED_ALLOWED' "$ROOT/framework/01-core/14-delivery-continuation-policy.md" || { echo "Missing canonical goal transition contract" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-runtime-hardening.ps1" ] || { echo "Missing runtime hardening tests" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-installers.ps1" ] || { echo "Missing installer tests" >&2; exit 1; }
@@ -495,7 +498,7 @@ grep -q 'UEEF skill icon' "$ROOT/assets/ueef-skill-icon.svg" || { echo "Skill ic
 grep -q '"icon": "assets/ueef-skill-icon.svg"' "$ROOT/assets/ueef-display.json" || { echo "Display metadata missing icon path" >&2; exit 1; }
 grep -q 'Project Context Map' "$ROOT/scripts/project-context-map.sh" || { echo "Unix project context map missing header" >&2; exit 1; }
 sh "$ROOT/scripts/project-context-map.sh" "$ROOT" 5 >/dev/null || { echo "Unix project context map failed" >&2; exit 1; }
-for f in framework/50-environment-bootstrap/README.md framework/50-environment-bootstrap/INDEX.md framework/50-environment-bootstrap/00-environment-bootstrap.md framework/50-environment-bootstrap/01-profile-selection.md framework/50-environment-bootstrap/02-core-profile.md framework/50-environment-bootstrap/03-frontend-profile.md framework/50-environment-bootstrap/04-backend-profile.md framework/50-environment-bootstrap/05-database-profile.md framework/50-environment-bootstrap/06-uiux-profile.md framework/50-environment-bootstrap/07-devops-profile.md framework/50-environment-bootstrap/08-ai-profile.md framework/50-environment-bootstrap/09-optional-profile.md framework/50-environment-bootstrap/10-dependency-levels.md framework/50-environment-bootstrap/11-detection-and-installation.md framework/50-environment-bootstrap/12-mcp-detection.md framework/50-environment-bootstrap/13-runtime-bootstrap-sequence.md; do
+for f in framework/18-runtime-operations/01-environment-bootstrap/README.md framework/18-runtime-operations/01-environment-bootstrap/INDEX.md framework/18-runtime-operations/01-environment-bootstrap/00-environment-bootstrap.md framework/18-runtime-operations/01-environment-bootstrap/01-profile-selection.md framework/18-runtime-operations/01-environment-bootstrap/02-core-profile.md framework/18-runtime-operations/01-environment-bootstrap/03-frontend-profile.md framework/18-runtime-operations/01-environment-bootstrap/04-backend-profile.md framework/18-runtime-operations/01-environment-bootstrap/05-database-profile.md framework/18-runtime-operations/01-environment-bootstrap/06-uiux-profile.md framework/18-runtime-operations/01-environment-bootstrap/07-devops-profile.md framework/18-runtime-operations/01-environment-bootstrap/08-ai-profile.md framework/18-runtime-operations/01-environment-bootstrap/09-optional-profile.md framework/18-runtime-operations/01-environment-bootstrap/10-dependency-levels.md framework/18-runtime-operations/01-environment-bootstrap/11-detection-and-installation.md framework/18-runtime-operations/01-environment-bootstrap/12-mcp-detection.md framework/18-runtime-operations/01-environment-bootstrap/13-runtime-bootstrap-sequence.md; do
   [ -f "$ROOT/$f" ] || { echo "Missing $f" >&2; exit 1; }
 done
 echo "UEEF validation passed"

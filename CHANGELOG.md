@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.9`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.10`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.25.10 - 2026-08-05
+
+- Completed native repository-intelligence engine placement under `engines/repository-intelligence` with attribution artifacts retained.
+- Added complete safe project file-tree coverage to the generated repository graph while preserving AST relationship search.
+- Updated runtime/release metadata and validation coverage for the clean Codex runtime handoff.
 
 ## 2.25.9 - 2026-08-05
 
@@ -156,7 +162,7 @@ This file is a high-level changelog. Individual release notes are available in [
 
 ## 2.19.1 - 2026-07-29
 
-- Added `framework/62-performance-forensics/` as an evidence-first workflow for slow tables, grids, dashboards, APIs, SQL queries, cache paths, frontend rendering, and end-to-end bottleneck audits.
+- Added `framework/20-repository-evolution/02-performance-forensics/` as an evidence-first workflow for slow tables, grids, dashboards, APIs, SQL queries, cache paths, frontend rendering, and end-to-end bottleneck audits.
 - Added quick triage, full forensic audit, and approved-implementation modes.
 - Added report-only audit safeguards: no code, index, cache, migration, package, Redis, SQL, or infrastructure changes before explicit approval.
 - Added report templates, checklist domains, version/runtime checks, hidden duplicate-work discovery, correctness/security/cost gates, rollback requirements, and direct validation coverage.
@@ -590,7 +596,7 @@ This file is a high-level changelog. Individual release notes are available in [
 
 - Added application-model, identity, authorization, entitlement, and tenant-isolation pack 45.
 - Added unified design-system consistency and reuse pack 46.
-- Added the 52-file theme, responsive, interaction, security, and performance pack 47.
+- Added the 49-file theme, responsive, interaction, security, and performance pack 47.
 - Added light, dark, and system themes, semantic tokens, responsive contracts, deterministic overlays, security verification, and performance budgets.
 - Added decision graphs, a release-blocking gate, scorecard, checklists, templates, smoke tests, and expanded validation.
 - Updated core selection, runtime preflight, runtime synchronization, installation guidance, and release metadata.

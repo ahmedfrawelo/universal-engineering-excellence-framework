@@ -1,6 +1,6 @@
 # Build Progress
 
-Current release: 2.25.9 (2026-08-05)
+Current release: 2.25.10 (2026-08-05)
 
 ## Delivered baseline
 
@@ -19,7 +19,7 @@ Current release: 2.25.9 (2026-08-05)
 - 2.22.0 adds a unified preferred-capability manifest and reconciler for 27 user skills, 15 Codex plugins, and the runtime-managed Node REPL MCP.
 - 2.23.0 adds executable progress, architecture, file-organization, semantic evidence, and provenance validation across all registered quality gates.
 - 2.24.0 adds literal completion convergence, routed goal updates, dedicated same-profile browser tabs, guarded same-target emergency control, and project-owned local-service reuse.
-- 2.25.9 reduces token-heavy project context discovery and nested validation output while preserving managed Codex runtime evidence.
+- 2.25.10 completes the native repository-intelligence engine placement, complete project file-tree graph coverage, and clean runtime handoff metadata.
 - 2.19.5 moves Codex runtime backups outside `CODEX_HOME`, makes the external location configurable, and rejects unsafe internal backup roots.
 - 2.19.4 hardens Codex activation and status integrity, truthful bootstrap/capability evidence, PowerShell 5.1 text handling, and full CI assurance.
 - 2.19.3 fixes release-consistency documentation parity so clean GitHub Actions checkouts pass the framework validation gate.
@@ -29,8 +29,8 @@ Current release: 2.25.9 (2026-08-05)
 
 ## Evidence
 
-- Source validation and nested deterministic tests pass for 2.25.9.
-- Codex, Cursor, generic, rollback, and staged-runtime installer tests include and validate the complete 2.25.9 payload.
+- Source validation and nested deterministic tests pass for 2.25.10.
+- Codex, Cursor, generic, rollback, and staged-runtime installer tests include and validate the complete 2.25.10 payload.
 - The source checkout passes validation and reports `SOURCE_VALIDATED`; the managed runtime must be synchronized before it can claim `ACTIVE_RUNTIME`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 

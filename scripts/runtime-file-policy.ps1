@@ -1,4 +1,4 @@
-$script:UeefOwnedDirectories = @('framework','scripts','docs','examples','tools','assets','config','vendor')
+$script:UeefOwnedDirectories = @('framework','scripts','docs','examples','tools','assets','config','engines')
 $script:UeefOwnedRootFiles = @(
   '.gitattributes','.gitignore','BUILD_PROGRESS.md','CHANGELOG.md','CODE_OF_CONDUCT.md',
   'CONTRIBUTING.md','INSTALL.md','LICENSE','QUICK_START.md','README.md','ROADMAP.md',
@@ -9,7 +9,7 @@ $script:UeefRuntimeGeneratedSegments = @('.venv','build','graphifyy.egg-info','_
 function Test-UeefRuntimeGeneratedRelativePath {
   param([Parameter(Mandatory)][string]$RelativePath)
   $segments = $RelativePath.Replace('\','/').TrimStart('/').Split('/')
-  return $segments.Count -ge 3 -and $segments[0] -ceq 'vendor' -and $segments[1] -ceq 'repository-intelligence-engine' -and
+  return $segments.Count -ge 3 -and $segments[0] -ceq 'engines' -and $segments[1] -ceq 'repository-intelligence' -and
     @($segments | Where-Object { $_ -in $script:UeefRuntimeGeneratedSegments }).Count -gt 0
 }
 

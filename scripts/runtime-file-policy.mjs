@@ -2,13 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-export const ownedDirectories = new Set(['framework','scripts','docs','examples','tools','assets','config','vendor']);
+export const ownedDirectories = new Set(['framework','scripts','docs','examples','tools','assets','config','engines']);
 export const ownedRootFiles = new Set(['.gitattributes','.gitignore','BUILD_PROGRESS.md','CHANGELOG.md','CODE_OF_CONDUCT.md','CONTRIBUTING.md','INSTALL.md','LICENSE','QUICK_START.md','README.md','ROADMAP.md','SECURITY.md','VERSION.md','release-manifest.json']);
 const runtimeGeneratedSegments = new Set(['.venv','build','graphifyy.egg-info','__pycache__','.pytest_cache','.hypothesis','.ruff_cache','.mypy_cache']);
 
 export const isRuntimeGenerated = (relative) => {
   const segments = relative.replaceAll('\\', '/').split('/');
-  return segments.length >= 3 && segments[0] === 'vendor' && segments[1] === 'repository-intelligence-engine' && segments.some((segment) => runtimeGeneratedSegments.has(segment));
+  return segments.length >= 3 && segments[0] === 'engines' && segments[1] === 'repository-intelligence' && segments.some((segment) => runtimeGeneratedSegments.has(segment));
 };
 
 export const isOwned = (relative, includeLoader = false) => {

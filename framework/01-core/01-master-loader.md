@@ -23,11 +23,11 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 - Keep runtime and final verification compact.
 - Select `framework/01-core/13-autonomy-and-confirmation-policy.md` for any task where execution autonomy, confirmation behavior, or platform approvals matter.
 - Select `framework/01-core/14-delivery-continuation-policy.md` when scope expands, a migration/rebuild is requested, or release readiness could be confused with implementation progress.
-- Route every task through `framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md` and `01-task-complexity-classifier.md`. Select the remaining pack modules when delegation, model override, parallel agents, token economy, escalation, or independent verification applies.
-- Select `framework/59-skill-invocation-protocol/` for named skill requests, skill routing, workflow protocols, Superpowers-inspired workflow work, TDD/evidence-loop hardening, subagent review chains, red-flag detection, or skill-authoring work.
-- Select `framework/60-spec-driven-development/` for Spec Kit-inspired work, specifications, requirements, acceptance criteria, project principles, clarification, technical plans, task breakdown, cross-artifact analysis, convergence, extension/preset/bundle governance, or third-party attribution.
-- Select `framework/63-repository-intelligence/` for broad repository orientation, architecture/ownership mapping, dependency paths, affected-code analysis, or incremental local knowledge graphs. Treat graph results as bounded evidence and confirm them against owning source and behavior.
-- Select `framework/64-frontend-design-production/` for material frontend design creation, expressive visual direction, measured design review, `DESIGN.md`, Styleseed, Taste, Penpot, or design-canvas work. Keep one primary director, restrict Taste to expressive surfaces, and require live health evidence before claiming Penpot use.
+- Route every task through `framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md` and `01-task-complexity-classifier.md`. Select the remaining pack modules when delegation, model override, parallel agents, token economy, escalation, or independent verification applies.
+- Select `framework/19-agent-workflow/02-skill-invocation-protocol/` for named skill requests, skill routing, workflow protocols, Superpowers-inspired workflow work, TDD/evidence-loop hardening, subagent review chains, red-flag detection, or skill-authoring work.
+- Select `framework/19-agent-workflow/03-spec-driven-development/` for Spec Kit-inspired work, specifications, requirements, acceptance criteria, project principles, clarification, technical plans, task breakdown, cross-artifact analysis, convergence, extension/preset/bundle governance, or third-party attribution.
+- Select `framework/20-repository-evolution/03-repository-intelligence/` for broad repository orientation, architecture/ownership mapping, dependency paths, affected-code analysis, or incremental local knowledge graphs. Treat graph results as bounded evidence and confirm them against owning source and behavior.
+- Select `framework/10-frontend/02-production-design/` for material frontend design creation, expressive visual direction, measured design review, `DESIGN.md`, Styleseed, Taste, Penpot, or design-canvas work. Keep one primary director, restrict Taste to expressive surfaces, and require live health evidence before claiming Penpot use.
 
 ## Agent and Model Routing
 
@@ -42,7 +42,7 @@ The Master Loader chooses the minimum useful UEEF module set for the current tas
 
 ## Frontend UI Tasks
 
-Select `framework/10-frontend/01-frontend-task-modes.md` and choose exactly one mode: `Quick`, `Build`, or `Audit`. The mode controls the module, skill, and gate budget; a generic frontend keyword never justifies the full UI suite.
+Select `framework/10-frontend/01-engineering/01-frontend-task-modes.md` and choose exactly one mode: `Quick`, `Build`, or `Audit`. The mode controls the module, skill, and gate budget; a generic frontend keyword never justifies the full UI suite.
 
 - `Quick`: load the frontend foundation plus only the focused UI, accessibility, code, and test checks touched by a bounded existing-owner change.
 - `Build`: load the frontend, UI, UX, accessibility, and performance foundations relevant to a new or materially extended production surface.
@@ -79,7 +79,7 @@ Use the frontend mode first, then add only the installed skill whose trigger mat
 
 Do not load all specialist skills by default. Multiple skills are selected together only when their triggers independently apply.
 
-Inspect `framework/46-design-system-consistency-reuse/` and select relevant pack 47 modules when a `Build` or `Audit` task creates, extends, compares, or governs a reusable UI capability. For `Quick`, inspect only the current component family and direct shared owner unless the change introduces reuse, theme, responsive, overlay, security, or performance behavior.
+Inspect `framework/16-design-system/01-consistency-reuse/` and select relevant pack 47 modules when a `Build` or `Audit` task creates, extends, compares, or governs a reusable UI capability. For `Quick`, inspect only the current component family and direct shared owner unless the change introduces reuse, theme, responsive, overlay, security, or performance behavior.
 
 For large repositories, shared components, reusable services, validators, API clients, state utilities, tokens, and pattern libraries must be inspected before creating a custom implementation. If the behavior can be reused across more than one place, implement or extend it in the shared owner and import it into the target feature.
 Related primitives, recipes, stories, tests, styles, documentation, and exports belong under one component-family owner folder. Do not create another shared folder for an existing semantic capability; extend the existing family and preserve one canonical public import.
@@ -105,13 +105,13 @@ Select pack 47 modules `36` through `40` plus pack 45 application-model and tena
 
 Select pack 47 modules `41` through `46` and the relevant frontend, backend, API, database, React, Angular, .NET, SQL Server, or cloud technology module.
 
-For slow table, slow grid, slow dashboard, slow API, collection-query latency, cache-versus-query, SQL performance investigation, frontend render performance, or explicit performance audit tasks, select `framework/62-performance-forensics/`. Use quick triage for narrow diagnosis and the full forensic report template when the user asks for an audit, evidence-backed plan, or end-to-end bottleneck analysis. Audit mode is report-only until the user explicitly approves implementation.
+For slow table, slow grid, slow dashboard, slow API, collection-query latency, cache-versus-query, SQL performance investigation, frontend render performance, or explicit performance audit tasks, select `framework/20-repository-evolution/02-performance-forensics/`. Use quick triage for narrow diagnosis and the full forensic report template when the user asks for an audit, evidence-backed plan, or end-to-end bottleneck analysis. Audit mode is report-only until the user explicitly approves implementation.
 
-All applicable UI work includes `framework/27-quality-gates/19-theme-responsive-interaction-security-performance-gate.md` and `framework/28-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md`.
+All applicable UI work includes `framework/12-delivery-quality/04-quality-gates/19-theme-responsive-interaction-security-performance-gate.md` and `framework/12-delivery-quality/05-scorecards/15-theme-responsive-interaction-security-performance-scorecard.md`.
 
 ## Design Governance Tasks
 
-Select `framework/48-design-governance/` for design language, tokens, color, typography, iconography, spacing, sizing, radius, borders, shadows, elevation, motion, components, registry, patterns, layouts, templates, themes, responsive rules, interaction rules, overlays, drift, or no-reinvention work. Include `framework/46-design-system-consistency-reuse/` for reuse ownership and `framework/47-theme-responsive-interaction-security-performance/` for theme, responsive, overlay, accessibility, security, and performance contracts.
+Select `framework/16-design-system/03-governance/` for design language, tokens, color, typography, iconography, spacing, sizing, radius, borders, shadows, elevation, motion, components, registry, patterns, layouts, templates, themes, responsive rules, interaction rules, overlays, drift, or no-reinvention work. Include `framework/16-design-system/01-consistency-reuse/` for reuse ownership and `framework/16-design-system/02-theme-responsive-interaction-security-performance/` for theme, responsive, overlay, accessibility, security, and performance contracts.
 
 ## Backend API Tasks
 
@@ -121,13 +121,13 @@ Load only:
 - `framework/07-security/00-security-by-default.md`
 - `framework/07-security/00-security-by-default.md`
 - `framework/08-performance/00-performance-philosophy.md`
-- `framework/11-backend/00-backend-engineering.md`
-- `framework/13-api/00-api-engineering.md`
-- `framework/27-quality-gates/security-gate.md`
-- `framework/27-quality-gates/performance-gate.md`
-- `framework/27-quality-gates/api-gate.md`
-- `framework/27-quality-gates/testing-gate.md`
-- `framework/27-quality-gates/16-ueef-activation-gate.md`
+- `framework/11-server-side/02-backend/00-backend-engineering.md`
+- `framework/11-server-side/01-api/00-api-engineering.md`
+- `framework/12-delivery-quality/04-quality-gates/security-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/performance-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/api-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/testing-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md`
 
 Add database modules only when schema, query, persistence, migration, or transaction behavior is involved.
 
@@ -135,9 +135,9 @@ Backend performance checks include server-side pagination, filtering, sorting, a
 
 ## File Organization Tasks
 
-For any task that creates files, selects output paths, scaffolds modules, generates artifacts, or reorganizes source, select `framework/26-decision-graphs/file-folder-decision-graph.md` and `framework/27-quality-gates/code-quality-gate.md`. New files must have an owner folder and lifecycle; root-level or standalone files require repository-standard justification.
+For any task that creates files, selects output paths, scaffolds modules, generates artifacts, or reorganizes source, select `framework/14-decision/02-graphs/file-folder-decision-graph.md` and `framework/12-delivery-quality/04-quality-gates/code-quality-gate.md`. New files must have an owner folder and lifecycle; root-level or standalone files require repository-standard justification.
 
-For any task that creates a reusable component, service, validation rule, data mapper, API client, hook, store, directive, pipe, utility, layout, token, or pattern, select `framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md` and `framework/46-design-system-consistency-reuse/06-shared-frontend-services-validation-api.md` when applicable. Shared-first placement and import-based consumption are required unless the behavior is truly single-use.
+For any task that creates a reusable component, service, validation rule, data mapper, API client, hook, store, directive, pipe, utility, layout, token, or pattern, select `framework/16-design-system/01-consistency-reuse/00-unified-design-system-architecture.md` and `framework/16-design-system/01-consistency-reuse/06-shared-frontend-services-validation-api.md` when applicable. Shared-first placement and import-based consumption are required unless the behavior is truly single-use.
 
 ## Database Tasks
 
@@ -147,10 +147,10 @@ Load only database, security, performance, migration, testing, and activation ga
 
 Load only:
 
-- `framework/18-documentation/00-documentation-system.md`
-- `framework/24-ai-review/00-ai-review-system.md` when review quality matters
-- `framework/27-quality-gates/documentation-gate.md`
-- `framework/27-quality-gates/16-ueef-activation-gate.md`
+- `framework/12-delivery-quality/02-documentation/00-documentation-system.md`
+- `framework/13-ai/04-review/00-ai-review-system.md` when review quality matters
+- `framework/12-delivery-quality/04-quality-gates/documentation-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md`
 
 ## UEEF Maintenance Tasks
 
@@ -166,41 +166,41 @@ For non-trivial repository work or capability uncertainty, run `scripts/environm
 
 ## Browser Tasks
 
-Select `framework/51-browser-session-control/` only when the user explicitly asks for browser/site/visual work or an existing user session is directly required to verify the requested outcome. A mere mention of a browser is not a trigger. For Chrome, read the installed skill, select the Chrome family explicitly, read the binding documentation, prove the existing window/profile/session with `user.openTabs()`, then create a dedicated task tab in that same Chrome binding and pass its exact returned object to `claimTab()`. Preserve the user's working tab; reuse it only by explicit request. Never use `getDefault()`, `getForUrl()`, `get("iab")`, directly exposed Playwright/DevTools, an in-app browser, another window/browser/profile/session/context/panel, or connector-created surface as fallback. After failure, report stage/reason/next and follow the authorized same-target recovery path.
+Select `framework/18-runtime-operations/02-browser-session-control/` only when the user explicitly asks for browser/site/visual work or an existing user session is directly required to verify the requested outcome. A mere mention of a browser is not a trigger. For Chrome, read the installed skill, select the Chrome family explicitly, read the binding documentation, prove the existing window/profile/session with `user.openTabs()`, then create a dedicated task tab in that same Chrome binding and pass its exact returned object to `claimTab()`. Preserve the user's working tab; reuse it only by explicit request. Never use `getDefault()`, `getForUrl()`, `get("iab")`, directly exposed Playwright/DevTools, an in-app browser, another window/browser/profile/session/context/panel, or connector-created surface as fallback. After failure, report stage/reason/next and follow the authorized same-target recovery path.
 
 ## Skeleton Loading
 
-Select `framework/53-skeleton-loading/` only when the task creates or materially changes a skeleton, loading placeholder, async reveal policy, or the final structure paired with an existing skeleton. Receiving data alone is not a trigger. Load only the applicable structure, state, theme/accessibility, performance, reuse, verification, timing, SSR/hydration, or shared-API modules. Never add a duplicate loader for the same region. Reusable skeleton primitives and proven recipes belong in the existing shared design-system owner, public API, and component registry.
+Select `framework/17-product-platform/02-skeleton-loading/` only when the task creates or materially changes a skeleton, loading placeholder, async reveal policy, or the final structure paired with an existing skeleton. Receiving data alone is not a trigger. Load only the applicable structure, state, theme/accessibility, performance, reuse, verification, timing, SSR/hydration, or shared-API modules. Never add a duplicate loader for the same region. Reusable skeleton primitives and proven recipes belong in the existing shared design-system owner, public API, and component registry.
 
 ## Design Intelligence
 
-For any UI audit, redesign, new visual system, or recommendation about fonts, colors, icons, strokes, outlines, radii, typography, spacing, motion, theme, or responsive behavior, select `framework/54-design-intelligence/` and run the repository design extractor before recommending new values. Classify every finding as extracted, inferred, or proposed.
+For any UI audit, redesign, new visual system, or recommendation about fonts, colors, icons, strokes, outlines, radii, typography, spacing, motion, theme, or responsive behavior, select `framework/16-design-system/04-intelligence/` and run the repository design extractor before recommending new values. Classify every finding as extracted, inferred, or proposed.
 
-For UEEF audits, releases, installer/runtime changes, security hardening, or broad quality work, select `framework/55-continuous-assurance/` and run the repository audit before and after edits.
+For UEEF audits, releases, installer/runtime changes, security hardening, or broad quality work, select `framework/18-runtime-operations/04-continuous-assurance/` and run the repository audit before and after edits.
 
-For any table, data grid, collection list, dashboard data view, backend collection query, aggregate, export, or bulk data feature, select `framework/56-data-grid-platform/` and apply its frontend, backend, performance, security, and data-query contracts.
+For any table, data grid, collection list, dashboard data view, backend collection query, aggregate, export, or bulk data feature, select `framework/17-product-platform/03-data-grid-platform/` and apply its frontend, backend, performance, security, and data-query contracts.
 
-If that table, grid, collection, dashboard, query, or export is slow or being performance-audited, also select `framework/62-performance-forensics/` and keep the work evidence-first.
+If that table, grid, collection, dashboard, query, or export is slow or being performance-audited, also select `framework/20-repository-evolution/02-performance-forensics/` and keep the work evidence-first.
 
-For any mutable remote state, live refresh, collaboration, notifications, counters, workflow state, background-job progress, or auto-refresh behavior, select `framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md`. Add `framework/56-data-grid-platform/12-live-refresh-hardening.md` when query, collection, table, list, dashboard, or data-view semantics apply. Full page reload is not a normal synchronization strategy.
+For any mutable remote state, live refresh, collaboration, notifications, counters, workflow state, background-job progress, or auto-refresh behavior, select `framework/16-design-system/02-theme-responsive-interaction-security-performance/51-global-live-refresh.md`. Add `framework/17-product-platform/03-data-grid-platform/12-live-refresh-hardening.md` when query, collection, table, list, dashboard, or data-view semantics apply. Full page reload is not a normal synchronization strategy.
 
-For any non-trivial route, feature, component, asset, locale, integration, worker, editor, chart, map, or optional backend capability, select `framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md` and the applicable frontend, backend, network, measurement, skeleton, accessibility, and security modules. Require a measured eager/lazy decision rather than mechanically splitting everything.
+For any non-trivial route, feature, component, asset, locale, integration, worker, editor, chart, map, or optional backend capability, select `framework/16-design-system/02-theme-responsive-interaction-security-performance/50-application-lazy-loading.md` and the applicable frontend, backend, network, measurement, skeleton, accessibility, and security modules. Require a measured eager/lazy decision rather than mechanically splitting everything.
 
-For any sidebar, header, navigation, application shell, route transition, page chrome, global animation, or shared loading-state work, select `framework/57-application-shell-design/` and apply its extraction, interaction, motion, responsive, accessibility, performance, and visual-QA contracts.
+For any sidebar, header, navigation, application shell, route transition, page chrome, global animation, or shared loading-state work, select `framework/17-product-platform/04-application-shell-design/` and apply its extraction, interaction, motion, responsive, accessibility, performance, and visual-QA contracts.
 
-For `Build`, select `framework/27-quality-gates/30-visual-composition-gate.md` when creating or materially changing a page, form, dashboard, landing view, or responsive layout. For `Audit`, select it when making visual-composition claims. A `Quick` task does not receive this gate unless the exact visual result is the requested acceptance criterion.
+For `Build`, select `framework/12-delivery-quality/04-quality-gates/30-visual-composition-gate.md` when creating or materially changing a page, form, dashboard, landing view, or responsive layout. For `Audit`, select it when making visual-composition claims. A `Quick` task does not receive this gate unless the exact visual result is the requested acceptance criterion.
 
 ## Skill Invocation Protocol
 
-For any task that names a skill, asks about agent workflows, asks to reuse external skill methodology, or changes UEEF's runtime behavior, select `framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md`, the relevant child modules, and `framework/27-quality-gates/32-skill-invocation-protocol-gate.md`. The assistant must identify the skill candidates, choose the minimal skill chain, check red flags, and use fresh evidence before completion.
+For any task that names a skill, asks about agent workflows, asks to reuse external skill methodology, or changes UEEF's runtime behavior, select `framework/19-agent-workflow/02-skill-invocation-protocol/00-skill-invocation-protocol-system.md`, the relevant child modules, and `framework/12-delivery-quality/04-quality-gates/32-skill-invocation-protocol-gate.md`. The assistant must identify the skill candidates, choose the minimal skill chain, check red flags, and use fresh evidence before completion.
 
 ## Spec-Driven Development
 
-For any broad, ambiguous, multi-file, high-impact, or durable feature, redesign, migration, integration, platform workflow, or agent-runtime change, select `framework/60-spec-driven-development/00-spec-driven-development-system.md`, the relevant child modules, and `framework/27-quality-gates/33-spec-driven-development-gate.md`. The assistant must keep requirements, plan, tasks, code, tests, and final claims traceable to the current specification or explicitly documented assumptions.
+For any broad, ambiguous, multi-file, high-impact, or durable feature, redesign, migration, integration, platform workflow, or agent-runtime change, select `framework/19-agent-workflow/03-spec-driven-development/00-spec-driven-development-system.md`, the relevant child modules, and `framework/12-delivery-quality/04-quality-gates/33-spec-driven-development-gate.md`. The assistant must keep requirements, plan, tasks, code, tests, and final claims traceable to the current specification or explicitly documented assumptions.
 
 ## Project Modernization
 
-For broad refactoring, legacy cleanup, dead or obsolete code, architecture modernization, dependency or runtime upgrades, end-of-life technology, or whole-project improvement, select `framework/61-project-modernization/`, `framework/27-quality-gates/34-project-modernization-and-runtime-gate.md`, and the applicable architecture, code-quality, security, performance, testing, migration, Guardian, and continuous-assurance modules. Run `scripts/project-technology-inventory.mjs` before upgrade recommendations. Safe compatible upgrades may proceed with evidence; major or high-risk upgrades require an explicit user decision before mutation.
+For broad refactoring, legacy cleanup, dead or obsolete code, architecture modernization, dependency or runtime upgrades, end-of-life technology, or whole-project improvement, select `framework/20-repository-evolution/01-project-modernization/`, `framework/12-delivery-quality/04-quality-gates/34-project-modernization-and-runtime-gate.md`, and the applicable architecture, code-quality, security, performance, testing, migration, Guardian, and continuous-assurance modules. Run `scripts/project-technology-inventory.mjs` before upgrade recommendations. Safe compatible upgrades may proceed with evidence; major or high-risk upgrades require an explicit user decision before mutation.
 
 ## Compact Verification Format
 

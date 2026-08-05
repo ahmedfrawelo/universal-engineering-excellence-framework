@@ -28,4 +28,4 @@ UEEF did not copy Spec Kit templates, slash commands, or source files. It adapte
 
 ## Integration Boundary
 
-Spec Kit remains an external project. UEEF's `framework/60-spec-driven-development/` is independently written and validated against UEEF runtime, file ownership, skill invocation, quality-gate, and delivery-continuation rules. Installing the external Spec Kit CLI, templates, skills, commands, presets, extensions, or bundles is not automatic and requires explicit task scope.
+Spec Kit remains an external project. UEEF's `framework/19-agent-workflow/03-spec-driven-development/` is independently written and validated against UEEF runtime, file ownership, skill invocation, quality-gate, and delivery-continuation rules. Installing the external Spec Kit CLI, templates, skills, commands, presets, extensions, or bundles is not automatic and requires explicit task scope.

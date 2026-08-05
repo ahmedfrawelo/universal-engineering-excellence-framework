@@ -56,92 +56,92 @@ $cases = @(
     Name = 'frontend'
     Task = 'Build a frontend React dashboard'
     UIUX = 'YES'
-    Modules = @('framework/10-frontend/00-frontend-engineering.md', 'framework/31-react/00-react-pack.md')
-    Gates = @('framework/27-quality-gates/ui-gate.md')
+    Modules = @('framework/10-frontend/01-engineering/00-frontend-engineering.md', 'framework/15-tech-stacks/02-react/00-react-pack.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/ui-gate.md')
   },
   @{
     Name = 'backend'
     Task = 'Implement a backend API endpoint'
     UIUX = 'NO'
-    Modules = @('framework/05-architecture/00-clean-architecture.md', 'framework/11-backend/00-backend-engineering.md', 'framework/13-api/00-api-engineering.md')
-    Gates = @('framework/27-quality-gates/security-gate.md', 'framework/27-quality-gates/api-gate.md', 'framework/27-quality-gates/testing-gate.md')
+    Modules = @('framework/05-architecture/00-clean-architecture.md', 'framework/11-server-side/02-backend/00-backend-engineering.md', 'framework/11-server-side/01-api/00-api-engineering.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/security-gate.md', 'framework/12-delivery-quality/04-quality-gates/api-gate.md', 'framework/12-delivery-quality/04-quality-gates/testing-gate.md')
   },
   @{
     Name = 'security'
     Task = 'Harden authentication and authorization security'
     UIUX = 'NO'
     Modules = @('framework/07-security/01-owasp-review.md', 'framework/07-security/02-authentication.md', 'framework/07-security/03-authorization.md', 'framework/07-security/04-input-validation.md')
-    Gates = @('framework/27-quality-gates/security-gate.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/security-gate.md')
   },
   @{
     Name = 'database'
     Task = 'Create a SQL schema migration'
     UIUX = 'NO'
-    Modules = @('framework/07-security/09-database-security.md', 'framework/08-performance/00-performance-philosophy.md', 'framework/12-database/00-database-engineering.md')
-    Gates = @('framework/27-quality-gates/database-gate.md')
+    Modules = @('framework/07-security/09-database-security.md', 'framework/08-performance/00-performance-philosophy.md', 'framework/11-server-side/03-database/00-database-engineering.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/database-gate.md')
   },
   @{
     Name = 'devops'
     Task = 'Deploy a production CI pipeline'
     UIUX = 'NO'
-    Modules = @('framework/19-devops/00-devops-system.md', 'framework/20-enterprise/00-enterprise-system.md', 'framework/09-scalability/00-scalability-by-default.md')
-    Gates = @('framework/27-quality-gates/production-gate.md', 'framework/27-quality-gates/enterprise-gate.md')
+    Modules = @('framework/12-delivery-quality/03-devops/00-devops-system.md', 'framework/17-product-platform/05-enterprise/00-enterprise-system.md', 'framework/09-scalability/00-scalability-by-default.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/production-gate.md', 'framework/12-delivery-quality/04-quality-gates/enterprise-gate.md')
   },
   @{
     Name = 'ui'
     Task = 'Polish a UI component layout'
     UIUX = 'YES'
-    Modules = @('framework/10-frontend/00-frontend-engineering.md')
-    Gates = @('framework/27-quality-gates/ui-gate.md')
+    Modules = @('framework/10-frontend/01-engineering/00-frontend-engineering.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/ui-gate.md')
   },
   @{
     Name = 'motion'
     Task = 'Implement a motion transition with easing and animation polish'
     UIUX = 'YES'
-    Modules = @('framework/10-frontend/00-frontend-engineering.md')
-    Gates = @('framework/27-quality-gates/ui-gate.md')
+    Modules = @('framework/10-frontend/01-engineering/00-frontend-engineering.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/ui-gate.md')
   },
   @{
     Name = 'chrome-visual'
     Task = 'Inspect the frontend page visually in the existing Chrome tab on localhost'
     UIUX = 'YES'
-    Modules = @('framework/51-browser-session-control/00-browser-session-first.md')
-    Gates = @('framework/27-quality-gates/23-browser-session-control-gate.md', 'framework/27-quality-gates/30-visual-composition-gate.md')
+    Modules = @('framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/23-browser-session-control-gate.md', 'framework/12-delivery-quality/04-quality-gates/30-visual-composition-gate.md')
   },
   @{
     Name = 'skill-protocol'
     Task = 'Add a Superpowers inspired skill invocation protocol with TDD red flags and subagent review'
     UIUX = 'NO'
-    Modules = @('framework/59-skill-invocation-protocol/00-skill-invocation-protocol-system.md')
-    Gates = @('framework/27-quality-gates/32-skill-invocation-protocol-gate.md')
+    Modules = @('framework/19-agent-workflow/02-skill-invocation-protocol/00-skill-invocation-protocol-system.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/32-skill-invocation-protocol-gate.md')
   },
   @{
     Name = 'spec-driven'
     Task = 'Use Spec Kit style specification-driven development with acceptance criteria, technical plan, task breakdown, and convergence'
     UIUX = 'NO'
-    Modules = @('framework/60-spec-driven-development/00-spec-driven-development-system.md')
-    Gates = @('framework/27-quality-gates/33-spec-driven-development-gate.md')
+    Modules = @('framework/19-agent-workflow/03-spec-driven-development/00-spec-driven-development-system.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/33-spec-driven-development-gate.md')
   },
   @{
     Name = 'modernization'
     Task = 'Refactor a legacy project, remove proven dead code, and plan outdated dependency upgrades'
     UIUX = 'NO'
-    Modules = @('framework/61-project-modernization/00-project-modernization-system.md', 'framework/61-project-modernization/02-behavior-preserving-refactoring.md', 'framework/61-project-modernization/05-technology-currency-assessment.md')
-    Gates = @('framework/27-quality-gates/architecture-gate.md', 'framework/27-quality-gates/code-quality-gate.md', 'framework/27-quality-gates/34-project-modernization-and-runtime-gate.md')
+    Modules = @('framework/20-repository-evolution/01-project-modernization/00-project-modernization-system.md', 'framework/20-repository-evolution/01-project-modernization/02-behavior-preserving-refactoring.md', 'framework/20-repository-evolution/01-project-modernization/05-technology-currency-assessment.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/architecture-gate.md', 'framework/12-delivery-quality/04-quality-gates/code-quality-gate.md', 'framework/12-delivery-quality/04-quality-gates/34-project-modernization-and-runtime-gate.md')
   },
   @{
     Name = 'live-lazy-performance'
     Task = 'Add realtime live refresh without reload and lazy loading with backend performance'
     UIUX = 'NO'
-    Modules = @('framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md', 'framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md')
-    Gates = @('framework/27-quality-gates/performance-gate.md', 'framework/27-quality-gates/security-gate.md', 'framework/27-quality-gates/34-project-modernization-and-runtime-gate.md')
+    Modules = @('framework/16-design-system/02-theme-responsive-interaction-security-performance/50-application-lazy-loading.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/51-global-live-refresh.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/performance-gate.md', 'framework/12-delivery-quality/04-quality-gates/security-gate.md', 'framework/12-delivery-quality/04-quality-gates/34-project-modernization-and-runtime-gate.md')
   },
   @{
     Name = 'spec-kit-refresh-vocabulary'
     Task = 'Run a Spec Kit style converge analyze checklist taskstoissues extension preset bundle workflow'
     UIUX = 'NO'
-    Gates = @('framework/27-quality-gates/33-spec-driven-development-gate.md')
-    Modules = @('framework/60-spec-driven-development/00-spec-driven-development-system.md')
+    Gates = @('framework/12-delivery-quality/04-quality-gates/33-spec-driven-development-gate.md')
+    Modules = @('framework/19-agent-workflow/03-spec-driven-development/00-spec-driven-development-system.md')
   }
 )
 
@@ -152,17 +152,17 @@ foreach ($case in $cases) {
   }
 
   Assert-Contains -Actual $selection.Modules -Expected @('framework/01-core/00-boot-loader.md', 'framework/01-core/00-core-system.md') -Context $case.Name
-  Assert-Contains -Actual $selection.Modules -Expected @('framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md') -Context $case.Name
-  Assert-Contains -Actual $selection.Gates -Expected @('framework/27-quality-gates/16-ueef-activation-gate.md', 'framework/27-quality-gates/31-agent-model-routing-gate.md') -Context $case.Name
+  Assert-Contains -Actual $selection.Modules -Expected @('framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md') -Context $case.Name
+  Assert-Contains -Actual $selection.Gates -Expected @('framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md', 'framework/12-delivery-quality/04-quality-gates/31-agent-model-routing-gate.md') -Context $case.Name
   if ($selection.Tier -in @('T2','T3','T4')) {
-    Assert-Contains -Actual $selection.Modules -Expected @('framework/49-engineering-guardian/00-engineering-guardian.md', 'framework/50-environment-bootstrap/00-environment-bootstrap.md') -Context "$($case.Name) elevated"
-    Assert-Contains -Actual $selection.Gates -Expected @('framework/27-quality-gates/21-engineering-guardian-gate.md', 'framework/27-quality-gates/22-environment-bootstrap-gate.md') -Context "$($case.Name) elevated"
+    Assert-Contains -Actual $selection.Modules -Expected @('framework/12-delivery-quality/08-engineering-guardian/00-engineering-guardian.md', 'framework/18-runtime-operations/01-environment-bootstrap/00-environment-bootstrap.md') -Context "$($case.Name) elevated"
+    Assert-Contains -Actual $selection.Gates -Expected @('framework/12-delivery-quality/04-quality-gates/21-engineering-guardian-gate.md', 'framework/12-delivery-quality/04-quality-gates/22-environment-bootstrap-gate.md') -Context "$($case.Name) elevated"
   } else {
-    foreach ($forbidden in @('framework/49-engineering-guardian/00-engineering-guardian.md','framework/50-environment-bootstrap/00-environment-bootstrap.md')) {
+    foreach ($forbidden in @('framework/12-delivery-quality/08-engineering-guardian/00-engineering-guardian.md','framework/18-runtime-operations/01-environment-bootstrap/00-environment-bootstrap.md')) {
       if ($selection.Modules -contains $forbidden) { throw "$($case.Name) low-tier task selected broad module '$forbidden'." }
     }
     if ($case.Task -match '\b(build|implement|add|change|refactor|fix|create|update|remove|delete|harden|polish|upgrade|write|edit|deploy|release)\b') {
-      Assert-Contains -Actual $selection.Gates -Expected @('framework/27-quality-gates/code-quality-gate.md', 'framework/27-quality-gates/testing-gate.md') -Context "$($case.Name) code-change"
+      Assert-Contains -Actual $selection.Gates -Expected @('framework/12-delivery-quality/04-quality-gates/code-quality-gate.md', 'framework/12-delivery-quality/04-quality-gates/testing-gate.md') -Context "$($case.Name) code-change"
     }
   }
   Assert-Contains -Actual $selection.Modules -Expected $case.Modules -Context $case.Name
@@ -171,10 +171,10 @@ foreach ($case in $cases) {
 }
 
 $negativeCases = @(
-  @{ Task = 'Audit framework documentation'; ForbiddenModules = @('framework/10-frontend/00-frontend-engineering.md','framework/12-database/00-database-engineering.md','framework/51-browser-session-control/00-browser-session-first.md') },
-  @{ Task = 'Review documentation index'; ForbiddenModules = @('framework/12-database/00-database-engineering.md') },
-  @{ Task = 'Review release index'; ForbiddenModules = @('framework/12-database/00-database-engineering.md') },
-  @{ Task = 'Build backend API'; ForbiddenModules = @('framework/10-frontend/00-frontend-engineering.md') }
+  @{ Task = 'Audit framework documentation'; ForbiddenModules = @('framework/10-frontend/01-engineering/00-frontend-engineering.md','framework/11-server-side/03-database/00-database-engineering.md','framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md') },
+  @{ Task = 'Review documentation index'; ForbiddenModules = @('framework/11-server-side/03-database/00-database-engineering.md') },
+  @{ Task = 'Review release index'; ForbiddenModules = @('framework/11-server-side/03-database/00-database-engineering.md') },
+  @{ Task = 'Build backend API'; ForbiddenModules = @('framework/10-frontend/01-engineering/00-frontend-engineering.md') }
 )
 foreach ($case in $negativeCases) {
   $selection = Get-QualityGateSelection -Task $case.Task
@@ -191,7 +191,7 @@ foreach ($case in $negativeCases) {
 $coreOnly = Get-QualityGateSelection -Task 'Explain dependency injection'
 if ($coreOnly.Tier -ne 'T0') { throw "A self-contained explanation must remain T0, got $($coreOnly.Tier)." }
 if ($coreOnly.FrontendMode -ne 'NA') { throw "A non-UI explanation must use frontend mode NA, got $($coreOnly.FrontendMode)." }
-foreach ($forbidden in @('framework/49-engineering-guardian/00-engineering-guardian.md','framework/50-environment-bootstrap/00-environment-bootstrap.md','framework/27-quality-gates/code-quality-gate.md','framework/27-quality-gates/testing-gate.md')) {
+foreach ($forbidden in @('framework/12-delivery-quality/08-engineering-guardian/00-engineering-guardian.md','framework/18-runtime-operations/01-environment-bootstrap/00-environment-bootstrap.md','framework/12-delivery-quality/04-quality-gates/code-quality-gate.md','framework/12-delivery-quality/04-quality-gates/testing-gate.md')) {
   if ($coreOnly.Modules -contains $forbidden -or $coreOnly.Gates -contains $forbidden) {
     throw "T0 core-only selection included '$forbidden'."
   }
@@ -199,27 +199,27 @@ foreach ($forbidden in @('framework/49-engineering-guardian/00-engineering-guard
 
 $quick = Get-QualityGateSelection -Task 'Fix spacing in an existing CSS component'
 if ($quick.FrontendMode -ne 'Quick') { throw "A bounded CSS fix must select Quick, got $($quick.FrontendMode)." }
-Assert-Contains -Actual $quick.Modules -Expected @('framework/10-frontend/01-frontend-task-modes.md') -Context 'frontend quick'
-Assert-Contains -Actual $quick.Gates -Expected @('framework/27-quality-gates/ui-gate.md') -Context 'frontend quick'
+Assert-Contains -Actual $quick.Modules -Expected @('framework/10-frontend/01-engineering/01-frontend-task-modes.md') -Context 'frontend quick'
+Assert-Contains -Actual $quick.Gates -Expected @('framework/12-delivery-quality/04-quality-gates/ui-gate.md') -Context 'frontend quick'
 Assert-Contains -Actual $quick.Skills -Expected @('typeui-fundamentals') -Context 'frontend quick skills'
-foreach ($forbidden in @('framework/15-ux/00-ux-system.md','framework/08-performance/00-performance-philosophy.md','framework/54-design-intelligence/00-design-intelligence-system.md')) {
+foreach ($forbidden in @('framework/10-frontend/04-ux/00-ux-system.md','framework/08-performance/00-performance-philosophy.md','framework/16-design-system/04-intelligence/00-design-intelligence-system.md')) {
   if ($quick.Modules -contains $forbidden) { throw "Frontend Quick selected broad module '$forbidden'." }
 }
-foreach ($forbidden in @('framework/27-quality-gates/ux-gate.md','framework/27-quality-gates/performance-gate.md','framework/27-quality-gates/30-visual-composition-gate.md')) {
+foreach ($forbidden in @('framework/12-delivery-quality/04-quality-gates/ux-gate.md','framework/12-delivery-quality/04-quality-gates/performance-gate.md','framework/12-delivery-quality/04-quality-gates/30-visual-composition-gate.md')) {
   if ($quick.Gates -contains $forbidden) { throw "Frontend Quick selected broad gate '$forbidden'." }
 }
 
 $build = Get-QualityGateSelection -Task 'Build a new React dashboard'
 if ($build.FrontendMode -ne 'Build') { throw "A new dashboard must select Build, got $($build.FrontendMode)." }
-Assert-Contains -Actual $build.Modules -Expected @('framework/31-react/00-react-pack.md') -Context 'frontend build'
-Assert-Contains -Actual $build.Gates -Expected @('framework/27-quality-gates/ui-gate.md','framework/27-quality-gates/30-visual-composition-gate.md') -Context 'frontend build'
+Assert-Contains -Actual $build.Modules -Expected @('framework/15-tech-stacks/02-react/00-react-pack.md') -Context 'frontend build'
+Assert-Contains -Actual $build.Gates -Expected @('framework/12-delivery-quality/04-quality-gates/ui-gate.md','framework/12-delivery-quality/04-quality-gates/30-visual-composition-gate.md') -Context 'frontend build'
 Assert-Contains -Actual $build.Skills -Expected @('typeui-fundamentals','interface-design','frontend-ui-engineering') -Context 'frontend build skills'
 if ($build.Skills -contains 'impeccable' -or $build.Skills -contains 'ui-ux-pro-max' -or $build.Skills -contains 'frontend-design') { throw 'Frontend Build stacked competing design directors without their triggers.' }
 
 $audit = Get-QualityGateSelection -Task 'Audit and polish the frontend visual design'
 if ($audit.FrontendMode -ne 'Audit') { throw "A frontend audit must select Audit, got $($audit.FrontendMode)." }
-Assert-Contains -Actual $audit.Modules -Expected @('framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md','framework/48-design-governance/00-design-governance.md') -Context 'frontend audit'
-Assert-Contains -Actual $audit.Gates -Expected @('framework/27-quality-gates/30-visual-composition-gate.md') -Context 'frontend audit'
+Assert-Contains -Actual $audit.Modules -Expected @('framework/16-design-system/01-consistency-reuse/00-unified-design-system-architecture.md','framework/16-design-system/03-governance/00-design-governance.md') -Context 'frontend audit'
+Assert-Contains -Actual $audit.Gates -Expected @('framework/12-delivery-quality/04-quality-gates/30-visual-composition-gate.md') -Context 'frontend audit'
 Assert-Contains -Actual $audit.Skills -Expected @('typeui-fundamentals','impeccable') -Context 'frontend audit skills'
 if ($audit.Skills -contains 'frontend-design' -or $audit.Skills -contains 'ui-ux-pro-max') { throw 'Frontend Audit stacked build or intelligence skills without their triggers.' }
 
@@ -227,11 +227,11 @@ $explicitQuick = Get-QualityGateSelection -Task 'Build a UI component using the 
 if ($explicitQuick.FrontendMode -ne 'Quick') { throw 'An explicit frontend mode must override automatic inference.' }
 
 $loading = Get-QualityGateSelection -Task 'Add a skeleton loading state to a React card'
-Assert-Contains -Actual $loading.Modules -Expected @('framework/53-skeleton-loading/00-skeleton-loading-system.md','framework/53-skeleton-loading/01-structure-and-content-parity.md','framework/53-skeleton-loading/02-state-contract.md') -Context 'explicit skeleton route'
-Assert-Contains -Actual $loading.Gates -Expected @('framework/27-quality-gates/25-skeleton-loading-gate.md') -Context 'explicit skeleton route'
+Assert-Contains -Actual $loading.Modules -Expected @('framework/17-product-platform/02-skeleton-loading/00-skeleton-loading-system.md','framework/17-product-platform/02-skeleton-loading/01-structure-and-content-parity.md','framework/17-product-platform/02-skeleton-loading/02-state-contract.md') -Context 'explicit skeleton route'
+Assert-Contains -Actual $loading.Gates -Expected @('framework/12-delivery-quality/04-quality-gates/25-skeleton-loading-gate.md') -Context 'explicit skeleton route'
 
 $dataOnly = Get-QualityGateSelection -Task 'Fix spacing in a data-backed React card'
-if ($dataOnly.Modules -contains 'framework/53-skeleton-loading/00-skeleton-loading-system.md' -or $dataOnly.Gates -contains 'framework/27-quality-gates/25-skeleton-loading-gate.md') {
+if ($dataOnly.Modules -contains 'framework/17-product-platform/02-skeleton-loading/00-skeleton-loading-system.md' -or $dataOnly.Gates -contains 'framework/12-delivery-quality/04-quality-gates/25-skeleton-loading-gate.md') {
   throw 'A data-backed component selected skeleton workflow without a loading-behavior trigger.'
 }
 

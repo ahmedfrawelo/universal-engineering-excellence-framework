@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.25.9; it reduces token-heavy repository discovery and nested validation output while preserving managed runtime evidence.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.25.10; it finalizes the native repository-intelligence engine placement, complete project file-tree graph coverage, and clean runtime handoff metadata.
 
 ## Why UEEF Exists
 
@@ -41,16 +41,20 @@ Use the scripts in scripts/ to install UEEF for Codex, Cursor, or generic AI age
 
 ## Folder Structure
 
-- framework/: sequential engineering packs from foundation through future expansion.
-- scripts/: installers, backup helpers, agent detection, update, and validation scripts.
-- docs/: architecture, usage, installation, governance, and contribution documentation.
-- examples/: assistant and project usage examples.
-- tools/: validation, generation, and maintenance support areas.
-- assets/: display metadata and assets such as the UEEF skill icon.
+- `framework/`: stable numbered packs plus `framework/_domains/` as the physical fast-navigation layer. Start with `framework/_domains/README.md`, then use `framework/MASTER_INDEX.md` for exact file lookup.
+- `scripts/`: owned automation for install, status, repository intelligence, evidence, generation, validation, runtime sync, release, and tests.
+- `docs/`: architecture, usage, installation, governance, release notes, third-party attribution, and specifications.
+- `examples/`: assistant and project usage examples for supported and guidance-only adapters.
+- `config/`: routing, enforcement, adapter, and runtime policy configuration.
+- `engines/`: embedded local engines used by UEEF, including repository intelligence.
+- `tools/`: validation, generation, and maintenance support areas.
+- `assets/`: display metadata and assets such as the UEEF skill icon.
+
+The numbered framework packs are intentionally kept as stable runtime paths. The actual navigation organization lives under `framework/_domains/`; `framework/DOMAIN_MAP.md` is the compatibility entrypoint that points there.
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.25.9. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.25.10. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 

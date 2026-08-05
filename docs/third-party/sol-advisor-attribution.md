@@ -10,7 +10,7 @@ UEEF reviewed [DannyMac180/sol-advisor](https://github.com/DannyMac180/sol-advis
 
 ## What UEEF Adapted
 
-UEEF did not vendor the plugin, custom-agent TOML files, shell installer, or skill text. It independently implemented these general ideas in `framework/58-agent-model-orchestration/06-fresh-context-review-protocol.md`:
+UEEF did not vendor the plugin, custom-agent TOML files, shell installer, or skill text. It independently implemented these general ideas in `framework/19-agent-workflow/01-model-orchestration/06-fresh-context-review-protocol.md`:
 
 - an implementation packet with bounded ownership and concrete verification;
 - a fresh-context review at an appropriate commitment boundary;

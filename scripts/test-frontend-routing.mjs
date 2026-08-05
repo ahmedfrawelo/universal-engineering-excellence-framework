@@ -6,31 +6,31 @@ import path from 'node:path';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const route = (task) => JSON.parse(execFileSync(process.execPath, [path.join(root, 'scripts/select-frontend-route.mjs'), '--task', task], { encoding: 'utf8' }));
 const cases = [
-  ['Create a modal with focus restoration', 'Build', 'overlay', '/47-theme-responsive-interaction-security-performance/24-'],
-  ['Fix dropdown focus', 'Quick', 'overlay', '/47-theme-responsive-interaction-security-performance/22-'],
-  ['Add dark theme', 'Build', 'theme', '/47-theme-responsive-interaction-security-performance/01-'],
-  ['Build responsive layout', 'Build', 'responsive', '/47-theme-responsive-interaction-security-performance/10-'],
-  ['Implement loading state', 'Build', 'loading', '/53-skeleton-loading/00-'],
-  ['Recommend a color palette and font pairing', 'Audit', 'design', '/48-design-governance/00-'],
-  ['Redesign dashboard', 'Build', null, '/10-frontend/00-'],
-  ['Optimize frontend rendering', 'Build', 'performance', '/62-performance-forensics/00-'],
-  ['Build a data grid', 'Build', 'data-grid', '/56-data-grid-platform/00-'],
-  ['Fix sidebar navigation', 'Quick', 'app-shell', '/57-application-shell-design/00-'],
-  ['Implement role-based navigation', 'Build', 'identity', '/45-identity-access-application-models/08-'],
-  ['Refactor React component internals', 'Quick', null, '/31-react/00-'],
-  ['Audit accessibility of a React form', 'Audit', 'accessibility', '/16-accessibility/00-'],
-  ['Audit CSS bundle size', 'Audit', 'performance', '/62-performance-forensics/00-'],
-  ['Audit design system', 'Audit', 'design', '/46-design-system-consistency-reuse/00-'],
-  ['Create Angular sidebar', 'Build', 'app-shell', '/36-angular/00-'],
-  ['Fix tooltip escape key', 'Quick', 'overlay', '/47-theme-responsive-interaction-security-performance/29-'],
-  ['Add skeleton shimmer', 'Build', 'loading', '/53-skeleton-loading/00-'],
-  ['Audit LCP and CLS', 'Audit', 'performance', '/62-performance-forensics/00-'],
-  ['Implement permission-aware button', 'Build', 'identity', '/45-identity-access-application-models/08-'],
-  ['Recommend typography', 'Audit', 'design', '/48-design-governance/00-'],
-  ['Build mobile dashboard', 'Build', 'responsive', '/47-theme-responsive-interaction-security-performance/10-'],
-  ['Fix navbar', 'Quick', 'app-shell', '/57-application-shell-design/00-'],
-  ['Audit aria focus management', 'Audit', 'accessibility', '/16-accessibility/00-'],
-  ['راجع واجهة المستخدم وأصلح القائمة المنسدلة', 'Quick', 'overlay', '/47-theme-responsive-interaction-security-performance/22-'],
+  ['Create a modal with focus restoration', 'Build', 'overlay', '/16-design-system/02-theme-responsive-interaction-security-performance/24-'],
+  ['Fix dropdown focus', 'Quick', 'overlay', '/16-design-system/02-theme-responsive-interaction-security-performance/22-'],
+  ['Add dark theme', 'Build', 'theme', '/16-design-system/02-theme-responsive-interaction-security-performance/01-'],
+  ['Build responsive layout', 'Build', 'responsive', '/16-design-system/02-theme-responsive-interaction-security-performance/10-'],
+  ['Implement loading state', 'Build', 'loading', '/17-product-platform/02-skeleton-loading/00-'],
+  ['Recommend a color palette and font pairing', 'Audit', 'design', '/16-design-system/03-governance/00-'],
+  ['Redesign dashboard', 'Build', null, '/10-frontend/01-engineering/00-'],
+  ['Optimize frontend rendering', 'Build', 'performance', '/20-repository-evolution/02-performance-forensics/00-'],
+  ['Build a data grid', 'Build', 'data-grid', '/17-product-platform/03-data-grid-platform/00-'],
+  ['Fix sidebar navigation', 'Quick', 'app-shell', '/17-product-platform/04-application-shell-design/00-'],
+  ['Implement role-based navigation', 'Build', 'identity', '/17-product-platform/01-identity-access-application-models/08-'],
+  ['Refactor React component internals', 'Quick', null, '/15-tech-stacks/02-react/00-'],
+  ['Audit accessibility of a React form', 'Audit', 'accessibility', '/12-delivery-quality/07-accessibility/00-'],
+  ['Audit CSS bundle size', 'Audit', 'performance', '/20-repository-evolution/02-performance-forensics/00-'],
+  ['Audit design system', 'Audit', 'design', '/16-design-system/01-consistency-reuse/00-'],
+  ['Create Angular sidebar', 'Build', 'app-shell', '/15-tech-stacks/07-angular/00-'],
+  ['Fix tooltip escape key', 'Quick', 'overlay', '/16-design-system/02-theme-responsive-interaction-security-performance/29-'],
+  ['Add skeleton shimmer', 'Build', 'loading', '/17-product-platform/02-skeleton-loading/00-'],
+  ['Audit LCP and CLS', 'Audit', 'performance', '/20-repository-evolution/02-performance-forensics/00-'],
+  ['Implement permission-aware button', 'Build', 'identity', '/17-product-platform/01-identity-access-application-models/08-'],
+  ['Recommend typography', 'Audit', 'design', '/16-design-system/03-governance/00-'],
+  ['Build mobile dashboard', 'Build', 'responsive', '/16-design-system/02-theme-responsive-interaction-security-performance/10-'],
+  ['Fix navbar', 'Quick', 'app-shell', '/17-product-platform/04-application-shell-design/00-'],
+  ['Audit aria focus management', 'Audit', 'accessibility', '/12-delivery-quality/07-accessibility/00-'],
+  ['راجع واجهة المستخدم وأصلح القائمة المنسدلة', 'Quick', 'overlay', '/16-design-system/02-theme-responsive-interaction-security-performance/22-'],
 ];
 for (const [task, mode, domain, modulePart] of cases) {
   const result = route(task);
@@ -48,7 +48,7 @@ for (const task of ['Harden authorization security', 'Audit backend performance'
 const accessibility = route('Audit accessibility of a React form');
 if (accessibility.gates.some((item) => item.includes('performance')) || accessibility.skills.includes('impeccable')) throw new Error('Accessibility audit over-selected unrelated routes.');
 const refactor = route('Refactor React component internals');
-if (refactor.modules.some((item) => item.includes('/61-project-modernization/'))) throw new Error('Focused refactor selected modernization.');
+if (refactor.modules.some((item) => item.includes('/20-repository-evolution/01-project-modernization/'))) throw new Error('Focused refactor selected modernization.');
 const skillCases = [
   ['Build an Angular data grid dashboard', ['angular-developer', 'company-data-table', 'interface-design']],
   ['Build a responsive landing page', ['responsive-craft', 'frontend-design', 'frontend-ui-engineering']],

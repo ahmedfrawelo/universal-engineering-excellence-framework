@@ -20,12 +20,12 @@ Change tenant-aware permissions and prove no cross-tenant data exposure is possi
 ## Relevant modules
 
 - `framework/07-security/00-security-by-default.md`
-- `framework/11-backend/00-backend-engineering.md`
-- `framework/12-database/00-database-engineering.md`
-- `framework/20-enterprise/00-enterprise-system.md`
-- `framework/45-identity-access-application-models`
-- `framework/17-testing/00-testing-and-qa.md`
-- `framework/27-quality-gates/final-gate.md`
+- `framework/11-server-side/02-backend/00-backend-engineering.md`
+- `framework/11-server-side/03-database/00-database-engineering.md`
+- `framework/17-product-platform/05-enterprise/00-enterprise-system.md`
+- `framework/17-product-platform/01-identity-access-application-models`
+- `framework/12-delivery-quality/01-testing/00-testing-and-qa.md`
+- `framework/12-delivery-quality/04-quality-gates/final-gate.md`
 
 ## Implementation checklist
 

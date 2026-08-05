@@ -5,5 +5,3 @@
 This is the canonical file inventory for this pack. Use README.md for pack guidance.
 
 - [`README.md`](README.md)
-- [`00-frontend-engineering.md`](00-frontend-engineering.md)
-- [`01-frontend-task-modes.md`](01-frontend-task-modes.md)

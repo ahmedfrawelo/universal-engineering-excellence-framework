@@ -21,4 +21,4 @@ UEEF did not copy Superpowers skill files into the framework. It adapted general
 
 ## Integration Boundary
 
-Superpowers remains an external project. UEEF's `framework/59-skill-invocation-protocol/` is independently written and validated against UEEF runtime, file ownership, browser, security, and delivery-continuation rules.
+Superpowers remains an external project. UEEF's `framework/19-agent-workflow/02-skill-invocation-protocol/` is independently written and validated against UEEF runtime, file ownership, browser, security, and delivery-continuation rules.

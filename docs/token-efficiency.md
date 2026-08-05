@@ -35,15 +35,15 @@ Then select task modules through:
 Selected modules:
 
 - `framework/08-performance/00-performance-philosophy.md`
-- `framework/10-frontend/00-frontend-engineering.md`
-- `framework/14-ui/00-ui-system.md`
-- `framework/15-ux/00-ux-system.md`
-- `framework/16-accessibility/00-accessibility-system.md`
-- `framework/27-quality-gates/ui-gate.md`
-- `framework/27-quality-gates/ux-gate.md`
-- `framework/27-quality-gates/accessibility-gate.md`
-- `framework/27-quality-gates/performance-gate.md`
-- `framework/27-quality-gates/16-ueef-activation-gate.md`
+- `framework/10-frontend/01-engineering/00-frontend-engineering.md`
+- `framework/10-frontend/03-ui/00-ui-system.md`
+- `framework/10-frontend/04-ux/00-ux-system.md`
+- `framework/12-delivery-quality/07-accessibility/00-accessibility-system.md`
+- `framework/12-delivery-quality/04-quality-gates/ui-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/ux-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/accessibility-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/performance-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md`
 
 ## Backend API Example
 
@@ -52,13 +52,13 @@ Selected modules:
 - `framework/05-architecture/00-clean-architecture.md`
 - `framework/07-security/00-security-by-default.md`
 - `framework/08-performance/00-performance-philosophy.md`
-- `framework/11-backend/00-backend-engineering.md`
-- `framework/13-api/00-api-engineering.md`
-- `framework/27-quality-gates/security-gate.md`
-- `framework/27-quality-gates/performance-gate.md`
-- `framework/27-quality-gates/api-gate.md`
-- `framework/27-quality-gates/testing-gate.md`
-- `framework/27-quality-gates/16-ueef-activation-gate.md`
+- `framework/11-server-side/02-backend/00-backend-engineering.md`
+- `framework/11-server-side/01-api/00-api-engineering.md`
+- `framework/12-delivery-quality/04-quality-gates/security-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/performance-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/api-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/testing-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md`
 
 ## How This Reduces Token Usage
 

@@ -1,11 +1,12 @@
-# 10-frontend
+# Frontend
 
-## Version 1.2 Design Governance Integration
+Frontend is the parent family for UEEF interface implementation, production design, UI rules, and UX rules.
 
-Design-system changes must select framework/48-design-governance and apply its no-reinvention rule, governed token families, component registry, pattern library, design-language review, and scorecard. Combine it with framework/46-design-system-consistency-reuse for ownership and reuse, and framework/47-theme-responsive-interaction-security-performance for theme, responsive, accessibility, interaction, security, and performance evidence.
-## Version 1.1 Integration
+## Child packs
 
-Apply this pack together with framework/46-design-system-consistency-reuse and the relevant modules in framework/47-theme-responsive-interaction-security-performance. When identity, authorization, entitlement, or tenancy is involved, also select framework/45-identity-access-application-models. The pack 47 release gate requires direct security, accessibility, interaction, responsive, and performance evidence where applicable.
-Pack purpose: frontend guidance for UEEF Enterprise Edition.
+- [`01-engineering`](01-engineering/) - frontend implementation ownership.
+- [`02-production-design`](02-production-design/) - production visual quality and design execution.
+- [`03-ui`](03-ui/) - user interface components, states, and interaction patterns.
+- [`04-ux`](04-ux/) - user experience flows, friction, journeys, and information architecture.
 
-Use this pack when project inspection or task risk indicates the subject is relevant. Load only necessary modules to keep assistant context focused.
+Use this parent folder when a task is broadly frontend-scoped, then load only the child packs required by the requested outcome.

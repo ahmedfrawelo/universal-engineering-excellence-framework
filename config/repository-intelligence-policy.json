@@ -10,7 +10,7 @@
   "maxItems": 500,
   "ignoredDirectories": [
     ".git", ".hg", ".svn", ".ueef", ".venv", "venv", "env",
-    "node_modules", "vendor", "dist", "build", "coverage", "target",
+    "node_modules", "vendor", "engines", "graphify-out", "dist", "build", "coverage", "target",
     "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"
   ],
   "blockedCapabilities": [

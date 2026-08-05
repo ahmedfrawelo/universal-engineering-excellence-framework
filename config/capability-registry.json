@@ -9,7 +9,7 @@
       "versionOrPin": "runtime-managed",
       "installEvidence": "skills/.system/skill-installer/SKILL.md",
       "fallback": "Report the missing installer and continue only with already installed skills.",
-      "consumerPacks": ["01-core", "59-skill-invocation-protocol"]
+      "consumerPacks": ["01-core", "54-skill-invocation-protocol"]
     },
     {
       "type": "skill",
@@ -29,7 +29,7 @@
       "versionOrPin": "runtime-managed",
       "installEvidence": "skills/.system/skill-creator/SKILL.md",
       "fallback": "Do not claim a new skill was created; use existing documented workflow only.",
-      "consumerPacks": ["01-core", "59-skill-invocation-protocol"]
+      "consumerPacks": ["01-core", "54-skill-invocation-protocol"]
     },
     {
       "type": "mcp",
@@ -39,7 +39,7 @@
       "versionOrPin": "runtime-managed",
       "configKey": "mcp_servers.node_repl",
       "fallback": "Use non-browser local verification when browser session control is not selected.",
-      "consumerPacks": ["51-browser-session-control"]
+      "consumerPacks": ["46-browser-session-control"]
     },
     {
       "type": "skill",
@@ -49,8 +49,8 @@
       "versionOrPin": "4857a2c5ef989794751a0f66b8545a4a49566286",
       "installEvidence": "skills/ui-ux-pro-max/SKILL.md",
       "fallback": "Use the existing repository design system and record that UI/UX Pro Max is unavailable.",
-      "consumerPacks": ["14-ui", "15-ux", "46-design-system-consistency-reuse", "47-theme-responsive-interaction-security-performance"],
-      "governance": {"selection":"conditional","trigger":"product or style intelligence, palette, typography pairing, or broad UI/UX recommendation","policyRefs":["framework/10-frontend/01-frontend-task-modes.md"]},
+      "consumerPacks": ["10-frontend/03-ui", "10-frontend/04-ux", "16-design-system/01-consistency-reuse", "16-design-system/02-theme-responsive-interaction-security-performance"],
+      "governance": {"selection":"conditional","trigger":"product or style intelligence, palette, typography pairing, or broad UI/UX recommendation","policyRefs":["framework/10-frontend/01-engineering/01-frontend-task-modes.md"]},
       "provenance": {"kind":"pinned-github","repository":"nextlevelbuilder/ui-ux-pro-max-skill","ref":"4857a2c5ef989794751a0f66b8545a4a49566286","installer":"scripts/install-preferred-skills.ps1"}
     },
     {
@@ -61,8 +61,8 @@
       "versionOrPin": "adf7d706fa7cc4155ddceca241748e3de021ec8e",
       "installEvidence": "skills/impeccable/SKILL.md",
       "fallback": "Use the existing repository design system and record that Impeccable is unavailable.",
-      "consumerPacks": ["14-ui", "15-ux", "46-design-system-consistency-reuse", "47-theme-responsive-interaction-security-performance"],
-      "governance": {"selection":"conditional","trigger":"frontend critique, redesign, visual polish, or interface audit","policyRefs":["framework/10-frontend/01-frontend-task-modes.md"]},
+      "consumerPacks": ["10-frontend/03-ui", "10-frontend/04-ux", "16-design-system/01-consistency-reuse", "16-design-system/02-theme-responsive-interaction-security-performance"],
+      "governance": {"selection":"conditional","trigger":"frontend critique, redesign, visual polish, or interface audit","policyRefs":["framework/10-frontend/01-engineering/01-frontend-task-modes.md"]},
       "provenance": {"kind":"pinned-github","repository":"pbakaus/impeccable","ref":"adf7d706fa7cc4155ddceca241748e3de021ec8e","installer":"scripts/install-preferred-skills.ps1"}
     },
     {
@@ -73,7 +73,7 @@
       "versionOrPin": "034c3895d127743038c18c09a38eab9c7d6a7641",
       "installEvidence": "skills/design-brief/SKILL.md",
       "fallback": "Use explicit local design constraints and record the missing design-brief skill.",
-      "consumerPacks": ["14-ui", "59-skill-invocation-protocol"],
+      "consumerPacks": ["10-frontend/03-ui", "54-skill-invocation-protocol"],
       "governance": {"selection":"conditional","trigger":"ambiguous visual request requiring explicit design specification","policyRefs":["framework/01-core/01-master-loader.md"]},
       "provenance": {"kind":"pinned-github","repository":"nexu-io/open-design","ref":"034c3895d127743038c18c09a38eab9c7d6a7641","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -85,7 +85,7 @@
       "versionOrPin": "034c3895d127743038c18c09a38eab9c7d6a7641",
       "installEvidence": "skills/frontend-design/SKILL.md",
       "fallback": "Use the repository frontend architecture and design system without the optional specialist.",
-      "consumerPacks": ["10-frontend", "14-ui", "15-ux"],
+      "consumerPacks": ["10-frontend/01-engineering", "10-frontend/03-ui", "10-frontend/04-ux"],
       "governance": {"selection":"conditional","trigger":"production frontend creation or material interface extension","policyRefs":["framework/01-core/01-master-loader.md"]},
       "provenance": {"kind":"pinned-github","repository":"nexu-io/open-design","ref":"034c3895d127743038c18c09a38eab9c7d6a7641","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -98,7 +98,7 @@
       "versionOrPin": "2a977f1f6616ae8a5ea84a478ca35601c67f4322",
       "installEvidence": "skills/typeui-fundamentals/SKILL.md",
       "fallback": "Use UEEF UI, UX, accessibility, spacing, and typography rules without the optional TypeUI reference.",
-      "consumerPacks": ["10-frontend", "14-ui", "15-ux", "16-accessibility"],
+      "consumerPacks": ["10-frontend/01-engineering", "10-frontend/03-ui", "10-frontend/04-ux", "12-delivery-quality/07-accessibility"],
       "governance": {"selection":"recommended-for-profile","trigger":"UI fundamentals, UX fundamentals, spacing, typography, accessibility, or design consistency","policyRefs":["config/preferred-skills.json"]},
       "provenance": {"kind":"pinned-github","repository":"bergside/typeui","ref":"2a977f1f6616ae8a5ea84a478ca35601c67f4322","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -111,7 +111,7 @@
       "versionOrPin": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
       "installEvidence": "skills/emil-design-eng/SKILL.md",
       "fallback": "Use the repository motion system and direct reduced-motion and performance checks.",
-      "consumerPacks": ["14-ui", "15-ux", "47-theme-responsive-interaction-security-performance"],
+      "consumerPacks": ["10-frontend/03-ui", "10-frontend/04-ux", "16-design-system/02-theme-responsive-interaction-security-performance"],
       "governance": {"selection":"recommended-for-profile","trigger":"motion implementation, interaction polish, easing, or transition timing","policyRefs":["framework/01-core/01-master-loader.md"]},
       "provenance": {"kind":"pinned-github","repository":"emilkowalski/skills","ref":"6bf24434f7730ad169077756cf9c7cd7bd675fc6","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -123,7 +123,7 @@
       "versionOrPin": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
       "installEvidence": "skills/review-animations/SKILL.md",
       "fallback": "Review motion changes against repository timing, reduced-motion, interruptibility, and performance rules.",
-      "consumerPacks": ["15-ux", "47-theme-responsive-interaction-security-performance"],
+      "consumerPacks": ["10-frontend/04-ux", "16-design-system/02-theme-responsive-interaction-security-performance"],
       "governance": {"selection":"conditional","trigger":"animation diff review or motion acceptance decision","policyRefs":["framework/01-core/01-master-loader.md"]},
       "provenance": {"kind":"pinned-github","repository":"emilkowalski/skills","ref":"6bf24434f7730ad169077756cf9c7cd7bd675fc6","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -135,7 +135,7 @@
       "versionOrPin": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
       "installEvidence": "skills/improve-animations/SKILL.md",
       "fallback": "Perform a read-only motion audit and produce an implementation plan without the specialist.",
-      "consumerPacks": ["15-ux", "47-theme-responsive-interaction-security-performance"],
+      "consumerPacks": ["10-frontend/04-ux", "16-design-system/02-theme-responsive-interaction-security-performance"],
       "governance": {"selection":"conditional","trigger":"read-only motion audit or animation improvement plan","policyRefs":["framework/01-core/01-master-loader.md"]},
       "provenance": {"kind":"pinned-github","repository":"emilkowalski/skills","ref":"6bf24434f7730ad169077756cf9c7cd7bd675fc6","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -147,7 +147,7 @@
       "versionOrPin": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
       "installEvidence": "skills/animation-vocabulary/SKILL.md",
       "fallback": "Describe the motion behavior directly when a specialist effect name is unnecessary.",
-      "consumerPacks": ["15-ux", "47-theme-responsive-interaction-security-performance"],
+      "consumerPacks": ["10-frontend/04-ux", "16-design-system/02-theme-responsive-interaction-security-performance"],
       "governance": {"selection":"conditional","trigger":"name or disambiguate a motion effect","policyRefs":["framework/01-core/01-master-loader.md"]},
       "provenance": {"kind":"pinned-github","repository":"emilkowalski/skills","ref":"6bf24434f7730ad169077756cf9c7cd7bd675fc6","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -159,7 +159,7 @@
       "versionOrPin": "6bf24434f7730ad169077756cf9c7cd7bd675fc6",
       "installEvidence": "skills/apple-design/SKILL.md",
       "fallback": "Apply explicit gesture, spring, momentum, interruption, and accessibility contracts from the repository.",
-      "consumerPacks": ["15-ux", "47-theme-responsive-interaction-security-performance"],
+      "consumerPacks": ["10-frontend/04-ux", "16-design-system/02-theme-responsive-interaction-security-performance"],
       "governance": {"selection":"conditional","trigger":"gesture-driven UI, springs, momentum, or Apple-style interaction","policyRefs":["framework/01-core/01-master-loader.md"]},
       "provenance": {"kind":"pinned-github","repository":"emilkowalski/skills","ref":"6bf24434f7730ad169077756cf9c7cd7bd675fc6","installer":"scripts/install-preferred-skills.ps1"}
     },
@@ -171,7 +171,7 @@
       "versionOrPin": "49f948faa9258a0c61caceaf225e179651397431",
       "installEvidence": "skills/hatch-pet/SKILL.md",
       "fallback": "Skip pet generation and retain the installed system image-generation capability.",
-      "consumerPacks": ["54-design-intelligence"],
+      "consumerPacks": ["49-design-intelligence"],
       "governance": {"selection":"conditional","trigger":"Codex pet, animated pet, or pet spritesheet work","policyRefs":["config/preferred-skills.json"]},
       "provenance": {"kind":"pinned-github","repository":"openai/skills","ref":"49f948faa9258a0c61caceaf225e179651397431","installer":"scripts/install-preferred-skills.ps1"}
     }

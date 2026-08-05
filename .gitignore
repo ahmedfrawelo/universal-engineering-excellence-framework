@@ -4,6 +4,14 @@ Thumbs.db
 *.tmp
 .ueef-local/
 .ueef/
+graphify-out/
 node_modules/
 dist/
 build/
+.venv/
+.pytest_cache/
+.hypothesis/
+.ruff_cache/
+.mypy_cache/
+__pycache__/
+*.egg-info/

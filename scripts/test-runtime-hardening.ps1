@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ("ueef-rt-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
 $codexHome = Join-Path $sandbox 'codex-home'
@@ -121,15 +121,15 @@ try {
   if (!$staleDetected) { throw 'Runtime drift check accepted a stale file inside an owned runtime folder.' }
   & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -Quiet | Out-Null
   if (Test-Path -LiteralPath $staleRuntimeFile) { throw 'Runtime sync left a stale file inside an owned runtime folder.' }
-  $generatedRuntimeCache = Join-Path $runtime 'vendor\repository-intelligence-engine\.venv\cache.bin'
+  $generatedRuntimeCache = Join-Path $runtime 'engines\repository-intelligence\.venv\cache.bin'
   New-Item -ItemType Directory -Path (Split-Path -Parent $generatedRuntimeCache) -Force | Out-Null
   Set-Content -LiteralPath $generatedRuntimeCache -Value 'generated environment cache'
-  $generatedRuntimeMetadata = Join-Path $runtime 'vendor\repository-intelligence-engine\graphifyy.egg-info\PKG-INFO'
+  $generatedRuntimeMetadata = Join-Path $runtime 'engines\repository-intelligence\graphifyy.egg-info\PKG-INFO'
   New-Item -ItemType Directory -Path (Split-Path -Parent $generatedRuntimeMetadata) -Force | Out-Null
   Set-Content -LiteralPath $generatedRuntimeMetadata -Value 'generated package metadata'
   $generatedCacheMismatches = @(Get-UeefRuntimeDriftMismatches -SourcePath $root -RuntimePath $runtime)
-  if ($generatedCacheMismatches | Where-Object { $_ -like '*vendor/repository-intelligence-engine/.venv*' }) { throw 'Runtime drift rejected the bounded generated repository-intelligence environment.' }
-  if ($generatedCacheMismatches | Where-Object { $_ -like '*vendor/repository-intelligence-engine/graphifyy.egg-info*' }) { throw 'Runtime drift rejected bounded generated repository-intelligence package metadata.' }
+  if ($generatedCacheMismatches | Where-Object { $_ -like '*engines/repository-intelligence/.venv*' }) { throw 'Runtime drift rejected the bounded generated repository-intelligence environment.' }
+  if ($generatedCacheMismatches | Where-Object { $_ -like '*engines/repository-intelligence/graphifyy.egg-info*' }) { throw 'Runtime drift rejected bounded generated repository-intelligence package metadata.' }
   $runtimeLinkTarget = Join-Path $sandbox 'runtime-link-target'
   $runtimeLink = Join-Path $runtime 'framework\runtime-link'
   New-Item -ItemType Directory -Path $runtimeLinkTarget -Force | Out-Null

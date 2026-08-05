@@ -62,7 +62,7 @@ This module passes when the final implementation is understandable, maintainable
 
 - ../01-core/01-master-loader.md
 - ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
+- ../12-delivery-quality/04-quality-gates/00-quality-gate-system.md
 
 ## Success Criteria
 
@@ -81,8 +81,8 @@ Before every non-trivial engineering task, UEEF requires a preflight check. The 
 - `framework/01-core/11-ueef-status-check.md`
 - `framework/01-core/12-ueef-required-preflight.md`
 - `framework/03-runtime/00-runtime-sequence.md`
-- `framework/27-quality-gates/16-ueef-activation-gate.md`
+- `framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md`
 
 ## Runtime Selection Rule
 
-Use the canonical index to select exact modules for the task before implementation. UI and frontend tasks must select `Quick`, `Build`, or `Audit` through `framework/10-frontend/01-frontend-task-modes.md`, then include only the skills, foundations, and gates independently triggered by the requested outcome.
+Use the canonical index to select exact modules for the task before implementation. UI and frontend tasks must select `Quick`, `Build`, or `Audit` through `framework/10-frontend/01-engineering/01-frontend-task-modes.md`, then include only the skills, foundations, and gates independently triggered by the requested outcome.

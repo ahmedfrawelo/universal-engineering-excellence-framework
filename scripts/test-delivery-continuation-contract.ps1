@@ -12,7 +12,7 @@ foreach ($relative in $required.Keys) {
     if ($text -notmatch [regex]::Escape($term)) { throw "Delivery continuation term '$term' missing from $relative." }
   }
 }
-$guardianText = (Get-ChildItem -LiteralPath (Join-Path $root 'framework/49-engineering-guardian') -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
+$guardianText = (Get-ChildItem -LiteralPath (Join-Path $root 'framework/12-delivery-quality/08-engineering-guardian') -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
 if ($guardianText -match 'must stop the task') { throw 'Engineering Guardian still allows regressions to stop implementation work.' }
 if ($guardianText -notmatch 'must block completion and release claims') { throw 'Engineering Guardian continuation wording is missing.' }
 Write-Host 'Delivery continuation contract tests passed'

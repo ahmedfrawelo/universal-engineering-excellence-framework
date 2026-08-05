@@ -9,7 +9,7 @@ UEEF already routes frontend implementation and design skills, but it had no sin
 
 ## Decision
 
-- Add `framework/64-frontend-design-production/` as the semantic owner.
+- Add `framework/10-frontend/02-production-design/` as the semantic owner.
 - Make repository `DESIGN.md` the durable design identity and token contract.
 - Keep exactly one primary director: `interface-design` for dense product UI and `frontend-design` for expressive/general frontend.
 - Select `design-taste-frontend` only for expressive surfaces.

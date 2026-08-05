@@ -1,6 +1,6 @@
 # Version
 
-UEEF Enterprise Edition version: 2.25.9.
+UEEF Enterprise Edition version: 2.25.10.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
@@ -115,6 +115,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](
 - 2.24.0: dedicated same-profile browser task tabs, fail-closed last-resort loopback control, literal completion audits, routed goal updates, implementation convergence, and project-owned local-service reuse.
 - 2.25.8: managed Codex enforcement and native repository intelligence with a complete attributed Graphify engine, cross-platform wrappers, runtime drift proof, and focused activation diagnostics.
 - 2.25.9: reduced token-heavy repository context discovery and nested validation output while preserving runtime sync and hardening evidence.
+- 2.25.10: completed native repository-intelligence engine placement, full safe project file-tree graph coverage, and clean runtime handoff metadata.
 
 
 

@@ -81,21 +81,21 @@ $corePass = $repoExists -and !(($coreFiles | Where-Object { !(Test-Item (Join-Pa
 $masterLoaderPass = Test-Item (Join-Path $RepositoryPath "framework/01-core/01-master-loader.md")
 $masterIndexPass = (Test-Item (Join-Path $RepositoryPath "framework/01-core/02-master-index.md")) -or (Test-Item (Join-Path $RepositoryPath "framework/MASTER_INDEX.md"))
 $activationProofPass = Test-Item (Join-Path $RepositoryPath "framework/01-core/10-runtime-activation-proof.md")
-$activationGatePass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates/16-ueef-activation-gate.md")
-$qualityGatesPass = Test-Item (Join-Path $RepositoryPath "framework/27-quality-gates")
+$activationGatePass = Test-Item (Join-Path $RepositoryPath "framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md")
+$qualityGatesPass = Test-Item (Join-Path $RepositoryPath "framework/12-delivery-quality/04-quality-gates")
 $validationPass = Test-Item (Join-Path $RepositoryPath "scripts/validate-framework.ps1")
 $repositoryIntelligenceFiles = @(
-  'framework/63-repository-intelligence/00-repository-intelligence-system.md',
+  'framework/20-repository-evolution/03-repository-intelligence/00-repository-intelligence-system.md',
   'scripts/repository-intelligence.ps1',
   'scripts/repository-intelligence.sh',
   'config/repository-intelligence-policy.json',
-  'vendor/repository-intelligence-engine/UEEF-VENDOR.json',
-  'vendor/repository-intelligence-engine/UPSTREAM-FILES.json'
+  'engines/repository-intelligence/UEEF-UPSTREAM.json',
+  'engines/repository-intelligence/UPSTREAM-FILES.json'
 )
 $repositoryIntelligencePass = !(($repositoryIntelligenceFiles | Where-Object { !(Test-Item (Join-Path $RepositoryPath $_)) }).Count)
 $routePs = Join-Path $RepositoryPath 'scripts/select-agent-route.ps1'
 $routeSh = Join-Path $RepositoryPath 'scripts/select-agent-route.sh'
-$contractFiles = @($routePs, $routeSh, (Join-Path $RepositoryPath 'UEEF-LOADER.md'), (Join-Path $RepositoryPath 'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md'), (Join-Path $RepositoryPath 'framework/27-quality-gates/31-agent-model-routing-gate.md'))
+$contractFiles = @($routePs, $routeSh, (Join-Path $RepositoryPath 'UEEF-LOADER.md'), (Join-Path $RepositoryPath 'framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md'), (Join-Path $RepositoryPath 'framework/12-delivery-quality/04-quality-gates/31-agent-model-routing-gate.md'))
 $contractFilesPass = !(($contractFiles | Where-Object { !(Test-Item $_) }).Count)
 $routingText = if ($contractFilesPass) { ($contractFiles | ForEach-Object { Get-Content -LiteralPath $_ -Raw }) -join "`n" } else { '' }
 $agentRoutingPass = $contractFilesPass -and $routingText -match 'reasoningCeiling' -and $routingText -match 'TOOL_UNAVAILABLE' -and $routingText -match 'Visible pre-command route line|Before the first project command or edit' -and $routingText -match 'routeEvidenceRequired' -and $routingText -match 'noSpawnReason' -and $routingText -match 'proportional'
@@ -186,8 +186,8 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
     $runtimeDriftStatus = "FAIL"
   }
 }
-$vendorGeneratedPattern = '[\\/]vendor[\\/]repository-intelligence-engine[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
-$markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $vendorGeneratedPattern }).Count } else { 0 }
+$engineGeneratedPattern = '[\\/]engines[\\/]repository-intelligence[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
+$markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $engineGeneratedPattern }).Count } else { 0 }
 $globalExists = Test-Item $GlobalPath
 $loaderCandidates = @()
 if ($globalExists) {

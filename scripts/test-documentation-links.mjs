@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = process.argv[2] ? path.resolve(process.argv[2]) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const markdown = [];
-const opaqueDirectories = new Set(['.git', '.ueef', 'vendor', 'node_modules', 'dist', 'build']);
+const opaqueDirectories = new Set(['.git', '.ueef', 'vendor', 'engines', 'graphify-out', '.hypothesis', 'node_modules', 'dist', 'build']);
 const walk = (directory) => {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
     if (entry.isDirectory() && opaqueDirectories.has(entry.name)) continue;

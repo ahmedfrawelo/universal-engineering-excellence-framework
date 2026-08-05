@@ -23,11 +23,11 @@ Load only modules that affect the task:
 
 - `framework/05-architecture/00-clean-architecture.md`
 - `framework/08-performance/00-performance-philosophy.md`
-- `framework/10-frontend/01-frontend-task-modes.md`
-- `framework/11-backend/00-backend-engineering.md`
-- `framework/12-database/00-database-engineering.md`
-- `framework/13-api/00-api-engineering.md`
-- `framework/17-testing/00-testing-and-qa.md`
+- `framework/10-frontend/01-engineering/01-frontend-task-modes.md`
+- `framework/11-server-side/02-backend/00-backend-engineering.md`
+- `framework/11-server-side/03-database/00-database-engineering.md`
+- `framework/11-server-side/01-api/00-api-engineering.md`
+- `framework/12-delivery-quality/01-testing/00-testing-and-qa.md`
 
 ## Implementation checklist
 

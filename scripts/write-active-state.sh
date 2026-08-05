@@ -21,7 +21,7 @@ loader_path="$runtime_path/UEEF-LOADER.md"
 agents_path="$CODEX_HOME/AGENTS.md"
 agents_ok=true
 [ "$REQUIRE_AGENTS" = 1 ] && [ ! -f "$agents_path" ] && agents_ok=false
-for required in "$loader_path" "$runtime_path/framework/01-core/00-core-system.md" "$runtime_path/framework/01-core/01-master-loader.md" "$runtime_path/framework/01-core/02-master-index.md" "$runtime_path/framework/27-quality-gates/16-ueef-activation-gate.md" "$runtime_path/scripts/ueef-status.sh"; do
+for required in "$loader_path" "$runtime_path/framework/01-core/00-core-system.md" "$runtime_path/framework/01-core/01-master-loader.md" "$runtime_path/framework/01-core/02-master-index.md" "$runtime_path/framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md" "$runtime_path/scripts/ueef-status.sh"; do
   [ -f "$required" ] || { echo "Required runtime file missing: $required" >&2; exit 1; }
 done
 mkdir -p "$RUNTIME_ROOT"

@@ -6,12 +6,12 @@ $gates=[Collections.Generic.List[string]]::new();$packs=[Collections.Generic.Lis
 function Add-Unique($list,[string]$value){if(!$list.Contains($value)){$list.Add($value)}}
 foreach($file in $files){
   $owner=($file -split '[\\/]')[0];if($owner){Add-Unique $owners $owner}
-  if($file -match '\.(tsx|jsx|css|scss|html)$'){Add-Unique $packs '14-ui';Add-Unique $packs '15-ux';Add-Unique $gates 'ui-gate';Add-Unique $gates 'accessibility-gate';Add-Unique $reasons "UI-related file: $file"}
+  if($file -match '\.(tsx|jsx|css|scss|html)$'){Add-Unique $packs '10-frontend/03-ui';Add-Unique $packs '10-frontend/04-ux';Add-Unique $gates 'ui-gate';Add-Unique $gates 'accessibility-gate';Add-Unique $reasons "UI-related file: $file"}
   if($file -match '\.(ps1|sh|mjs|js)$'){Add-Unique $gates 'testing-gate';Add-Unique $gates 'code-quality-gate';Add-Unique $reasons "Executable script: $file"}
   if($file -match '(?i)(auth|security|credential|token)'){Add-Unique $gates 'security-gate';Add-Unique $reasons "Security-sensitive path: $file"}
-  if($file -match '(?i)(api|controller|route)'){Add-Unique $packs '13-api';Add-Unique $gates 'api-gate';Add-Unique $reasons "API-related path: $file"}
+  if($file -match '(?i)(api|controller|route)'){Add-Unique $packs '11-server-side/01-api';Add-Unique $gates 'api-gate';Add-Unique $reasons "API-related path: $file"}
   if($file -match '(?i)(migration|schema|database|sql)'){Add-Unique $gates 'database-gate';Add-Unique $reasons "Data contract path: $file"}
-  if($file -match '^config/(capability-registry|assistant-adapters|team-policy-profiles)\.json$'){Add-Unique $packs '59-skill-invocation-protocol';Add-Unique $gates 'documentation-gate';Add-Unique $reasons "Governed capability contract: $file"}
+  if($file -match '^config/(capability-registry|assistant-adapters|team-policy-profiles)\.json$'){Add-Unique $packs '19-agent-workflow/02-skill-invocation-protocol';Add-Unique $gates 'documentation-gate';Add-Unique $reasons "Governed capability contract: $file"}
   if($file -match '^(VERSION\.md|release-manifest\.json|CHANGELOG\.md|docs/releases/)'){Add-Unique $gates 'documentation-gate';Add-Unique $reasons "Release contract: $file"}
   $path=Join-Path $RepositoryPath $file;if(Test-Path -LiteralPath $path -PathType Leaf){$text=Get-Content -LiteralPath $path -Raw;if($text -match '(?m)\b(import|require)\b'){$signals.Add([pscustomobject]@{file=$file;kind='import-or-require';detail='Source contains an import/require signal; inspect dependency reachability.'})}}
 }

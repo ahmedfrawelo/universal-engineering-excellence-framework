@@ -1,0 +1,5 @@
+# 21-framework-resources/02-examples
+
+Pack purpose: examples guidance for UEEF Enterprise Edition.
+
+Use this pack when project inspection or task risk indicates the subject is relevant. Load only necessary modules to keep assistant context focused.

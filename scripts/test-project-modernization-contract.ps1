@@ -3,16 +3,16 @@ $ErrorActionPreference = 'Stop'
 
 $required = @(
   'docs/specifications/application-evolution-runtime-performance.md',
-  'framework/61-project-modernization/00-project-modernization-system.md',
-  'framework/61-project-modernization/01-discovery-and-baseline.md',
-  'framework/61-project-modernization/02-behavior-preserving-refactoring.md',
-  'framework/61-project-modernization/03-dead-and-obsolete-code.md',
-  'framework/61-project-modernization/05-technology-currency-assessment.md',
-  'framework/61-project-modernization/06-upgrade-decision-and-execution.md',
-  'framework/61-project-modernization/07-performance-freshness-and-lazy-loading.md',
-  'framework/27-quality-gates/34-project-modernization-and-runtime-gate.md',
-  'framework/29-checklists/43-project-modernization-and-runtime-checklist.md',
-  'framework/38-templates/30-project-modernization-plan-template.md',
+  'framework/20-repository-evolution/01-project-modernization/00-project-modernization-system.md',
+  'framework/20-repository-evolution/01-project-modernization/01-discovery-and-baseline.md',
+  'framework/20-repository-evolution/01-project-modernization/02-behavior-preserving-refactoring.md',
+  'framework/20-repository-evolution/01-project-modernization/03-dead-and-obsolete-code.md',
+  'framework/20-repository-evolution/01-project-modernization/05-technology-currency-assessment.md',
+  'framework/20-repository-evolution/01-project-modernization/06-upgrade-decision-and-execution.md',
+  'framework/20-repository-evolution/01-project-modernization/07-performance-freshness-and-lazy-loading.md',
+  'framework/12-delivery-quality/04-quality-gates/34-project-modernization-and-runtime-gate.md',
+  'framework/12-delivery-quality/06-checklists/43-project-modernization-and-runtime-checklist.md',
+  'framework/21-framework-resources/01-templates/30-project-modernization-plan-template.md',
   'scripts/project-technology-inventory.mjs'
 )
 foreach ($file in $required) { if (!(Test-Path -LiteralPath (Join-Path $Root $file))) { throw "Missing modernization contract: $file" } }
@@ -21,11 +21,11 @@ $text = ($required | ForEach-Object { Get-Content -LiteralPath (Join-Path $Root 
 foreach ($term in @('characterization tests','dynamic imports','current and target versions','explicit user decision','without page reload','lazy','rollback','authoritative')) {
   if ($text -notmatch [regex]::Escape($term)) { throw "Modernization contract missing: $term" }
 }
-$liveRefresh = Get-Content -LiteralPath (Join-Path $Root 'framework/47-theme-responsive-interaction-security-performance/51-global-live-refresh.md') -Raw
+$liveRefresh = Get-Content -LiteralPath (Join-Path $Root 'framework/16-design-system/02-theme-responsive-interaction-security-performance/51-global-live-refresh.md') -Raw
 foreach ($term in @('WebSocket','Origin','SSE','Retry-After','one retry owner','backpressure','no-page-reload evidence')) {
   if ($liveRefresh -notmatch [regex]::Escape($term)) { throw "Global live-refresh contract missing: $term" }
 }
-$lazyLoading = Get-Content -LiteralPath (Join-Path $Root 'framework/47-theme-responsive-interaction-security-performance/50-application-lazy-loading.md') -Raw
+$lazyLoading = Get-Content -LiteralPath (Join-Path $Root 'framework/16-design-system/02-theme-responsive-interaction-security-performance/50-application-lazy-loading.md') -Raw
 foreach ($term in @('request waterfalls','duplicate vendor chunks','reserved layout','first user request','measured before/after evidence')) {
   if ($lazyLoading -notmatch [regex]::Escape($term)) { throw "Application lazy-loading contract missing: $term" }
 }

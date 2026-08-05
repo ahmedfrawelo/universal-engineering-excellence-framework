@@ -1,0 +1,5 @@
+# 21-framework-resources/03-scripts
+
+Pack purpose: scripts guidance for UEEF Enterprise Edition.
+
+Use this pack when project inspection or task risk indicates the subject is relevant. Load only necessary modules to keep assistant context focused.

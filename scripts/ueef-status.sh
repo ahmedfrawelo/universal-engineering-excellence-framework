@@ -47,13 +47,13 @@ done
 master_loader=0; exists "$REPOSITORY_PATH/framework/01-core/01-master-loader.md" && master_loader=1
 master_index=0; { exists "$REPOSITORY_PATH/framework/01-core/02-master-index.md" || exists "$REPOSITORY_PATH/framework/MASTER_INDEX.md"; } && master_index=1
 activation_proof=0; exists "$REPOSITORY_PATH/framework/01-core/10-runtime-activation-proof.md" && activation_proof=1
-activation_gate=0; exists "$REPOSITORY_PATH/framework/27-quality-gates/16-ueef-activation-gate.md" && activation_gate=1
-quality_gates=0; exists "$REPOSITORY_PATH/framework/27-quality-gates" && quality_gates=1
+activation_gate=0; exists "$REPOSITORY_PATH/framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md" && activation_gate=1
+quality_gates=0; exists "$REPOSITORY_PATH/framework/12-delivery-quality/04-quality-gates" && quality_gates=1
 validation=0; exists "$REPOSITORY_PATH/scripts/validate-framework.sh" && validation=1
 agent_routing=0
 if [ -f "$REPOSITORY_PATH/scripts/select-agent-route.ps1" ] && [ -f "$REPOSITORY_PATH/scripts/select-agent-route.sh" ] && [ -f "$REPOSITORY_PATH/UEEF-LOADER.md" ] && grep -q 'reasoningCeiling' "$REPOSITORY_PATH/scripts/select-agent-route.ps1" && grep -q 'noSpawnReason' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'routeEvidenceRequired' "$REPOSITORY_PATH/scripts/select-agent-route.sh" && grep -q 'TOOL_UNAVAILABLE' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'Agent route:' "$REPOSITORY_PATH/UEEF-LOADER.md" && grep -q 'proportional' "$REPOSITORY_PATH/scripts/select-agent-route.ps1"; then agent_routing=1; fi
 repository_intelligence=1
-for f in framework/63-repository-intelligence/00-repository-intelligence-system.md scripts/repository-intelligence.ps1 scripts/repository-intelligence.sh config/repository-intelligence-policy.json vendor/repository-intelligence-engine/UEEF-VENDOR.json vendor/repository-intelligence-engine/UPSTREAM-FILES.json; do
+for f in framework/20-repository-evolution/03-repository-intelligence/00-repository-intelligence-system.md scripts/repository-intelligence.ps1 scripts/repository-intelligence.sh config/repository-intelligence-policy.json engines/repository-intelligence/UEEF-UPSTREAM.json engines/repository-intelligence/UPSTREAM-FILES.json; do
   exists "$REPOSITORY_PATH/$f" || repository_intelligence=0
 done
 
@@ -123,7 +123,7 @@ if [ "$managed_runtime" = "1" ]; then
   if [ -d "$REPOSITORY_PATH" ] && [ -d "$GLOBAL_PATH" ] && [ "$global_loader" = "PASS" ]; then installed="YES"; fi
 fi
 
-markdown_count=$(find "$REPOSITORY_PATH" -path "$REPOSITORY_PATH/.git" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.venv" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/__pycache__" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.pytest_cache" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.hypothesis" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.ruff_cache" -prune -o -path "$REPOSITORY_PATH/vendor/repository-intelligence-engine/.mypy_cache" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')
+markdown_count=$(find "$REPOSITORY_PATH" -path "$REPOSITORY_PATH/.git" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.venv" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/__pycache__" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.pytest_cache" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.hypothesis" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.ruff_cache" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.mypy_cache" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')
 overall="SOURCE_INVALID"
 mode="source-checkout"
 agents_status="NOT_APPLICABLE"

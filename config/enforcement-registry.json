@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "policy": {
     "validator": "scripts/validate-task-evidence.ps1",
-    "template": "framework/38-templates/task-evidence-template.json",
+    "template": "framework/21-framework-resources/01-templates/task-evidence-template.json",
     "selectedGateRequiresEvidence": true,
     "instructionOnlyCannotClaimPass": true,
     "appliesToTiers": ["T2", "T3", "T4"]

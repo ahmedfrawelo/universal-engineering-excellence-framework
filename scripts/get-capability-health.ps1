@@ -38,7 +38,7 @@ if (Test-Path -LiteralPath $preferredPath -PathType Leaf) {
       type = 'skill'; id = [string]$entry.id; required = $false; source = $sourceName; versionOrPin = $versionOrPin
       installEvidence = [string]$entry.installEvidence
       fallback = "Continue with the matching UEEF pack and report that $($entry.id) is unavailable."
-      consumerPacks = @('10-frontend','59-skill-invocation-protocol')
+      consumerPacks = @('10-frontend/01-engineering','19-agent-workflow/02-skill-invocation-protocol')
       governance = [pscustomobject]@{ selection=[string]$entry.level; trigger=(@($entry.triggers) -join ', '); policyRefs=@('config/preferred-skills.json') }
       provenance = [pscustomobject]@{ kind=$kind; repository=[string]$entry.source.repository; ref=[string]$entry.source.ref; path=[string]$entry.source.path; installer='scripts/install-preferred-skills.ps1' }
     }
@@ -63,7 +63,7 @@ if (Test-Path -LiteralPath $preferredCapabilitiesPath -PathType Leaf) {
       source = "Preferred capability managed by $($entry.management)"
       versionOrPin = [string]$entry.management
       fallback = [string]$entry.fallback
-      consumerPacks = @('50-environment-bootstrap','59-skill-invocation-protocol')
+      consumerPacks = @('18-runtime-operations/01-environment-bootstrap','19-agent-workflow/02-skill-invocation-protocol')
       governance = [pscustomobject]@{
         selection = [string]$entry.level
         trigger = (@($entry.triggers) -join ', ')

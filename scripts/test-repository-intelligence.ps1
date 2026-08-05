@@ -3,15 +3,15 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $entrypoint = Join-Path $root 'scripts\repository-intelligence.ps1'
 $shellEntrypoint = Join-Path $root 'scripts\repository-intelligence.sh'
-$vendorRoot = Join-Path $root 'vendor\repository-intelligence-engine'
+$engineRoot = Join-Path $root 'engines\repository-intelligence'
 
-foreach ($required in @($entrypoint, $shellEntrypoint, $vendorRoot)) {
+foreach ($required in @($entrypoint, $shellEntrypoint, $engineRoot)) {
   if (!(Test-Path -LiteralPath $required)) { throw "Repository intelligence requirement missing: $required" }
 }
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) "ueef repository intelligence $([guid]::NewGuid().ToString('N'))"
 try {
-  New-Item -ItemType Directory -Path (Join-Path $fixture 'src'), (Join-Path $fixture 'docs'), (Join-Path $fixture 'vendor\ignored-package') -Force | Out-Null
+  New-Item -ItemType Directory -Path (Join-Path $fixture 'src'), (Join-Path $fixture 'docs'), (Join-Path $fixture 'assets'), (Join-Path $fixture 'vendor\ignored-package') -Force | Out-Null
   Set-Content -LiteralPath (Join-Path $fixture 'src\service.py') -Encoding utf8 -Value @'
 from src.worker import run
 
@@ -23,6 +23,7 @@ def run():
     return "ready"
 '@
   Set-Content -LiteralPath (Join-Path $fixture 'docs\architecture.md') -Encoding utf8 -Value '# Architecture'
+  Set-Content -LiteralPath (Join-Path $fixture 'assets\logo.bin') -Encoding utf8 -Value 'UEEF_TEST_NON_AST_FILE'
   Set-Content -LiteralPath (Join-Path $fixture '.env') -Encoding utf8 -Value 'api_key=UEEF_TEST_SECRET_DO_NOT_INDEX'
   Set-Content -LiteralPath (Join-Path $fixture 'vendor\ignored-package\ignored.py') -Encoding utf8 -Value 'def must_not_be_indexed(): return "ignored"'
 
@@ -56,6 +57,8 @@ def run():
   $fullNodeRecords = $fullNodeRecordMatch.Groups[1].Value | ConvertFrom-Json
   $fullEdgeRecords = $fullEdgeRecordMatch.Groups[1].Value | ConvertFrom-Json
   if (@($viewerGraphNodes | Where-Object { [string]$_.source_file -like 'vendor/*' }).Count -ne 0) { throw 'Ignored vendor sources leaked into the repository graph.' }
+  if (@($viewerGraphNodes | Where-Object { [string]$_.source_file -eq 'assets/logo.bin' -and [string]$_._origin -eq 'ueef-file-tree' }).Count -lt 1) { throw 'Complete project file tree did not include a non-AST project file.' }
+  if (@($viewerGraphEdges | Where-Object { [string]$_.target -like 'ueef_file_assets_logo_bin' -and [string]$_.relation -eq 'contains' }).Count -lt 1) { throw 'Complete project file tree did not connect the non-AST file to its folder.' }
   if ($viewer -match '\u00C2|\u00C3') { throw 'Interactive graph viewer contains mojibake.' }
   if ($fullNodeRecords.Count -lt $viewerGraphNodes.Count) { throw "Full graph search index dropped graph nodes: $($fullNodeRecords.Count) < $($viewerGraphNodes.Count)." }
   if ($fullEdgeRecords.Count -ne $viewerGraphEdges.Count) { throw "Full graph search index dropped graph edges: $($fullEdgeRecords.Count) != $($viewerGraphEdges.Count)." }
@@ -65,7 +68,7 @@ def run():
   }
   $viewerAssetHash = (Get-FileHash -Algorithm SHA384 -LiteralPath (Join-Path $viewerAssetRoot 'vis-network.min.js')).Hash
   if ($viewerAssetHash -ne '531EA986273D3C41C9DFC62DAE28E1933C89F324251FC8BFF9BB8147CB3798064E26B3F5830CAF01C218977196B695F5') { throw 'Offline viewer asset does not match Graphify upstream pinned SRI.' }
-  $paletteDistance = & (Join-Path $vendorRoot '.venv\Scripts\python.exe') -c 'from graphify.ueef_adapter import UEEF_COMMUNITY_COLORS, UEEF_MIN_PALETTE_DISTANCE, _minimum_palette_distance; print(_minimum_palette_distance(UEEF_COMMUNITY_COLORS)); assert _minimum_palette_distance(UEEF_COMMUNITY_COLORS) >= UEEF_MIN_PALETTE_DISTANCE'
+  $paletteDistance = & (Join-Path $engineRoot '.venv\Scripts\python.exe') -c 'from graphify.ueef_adapter import UEEF_COMMUNITY_COLORS, UEEF_MIN_PALETTE_DISTANCE, _minimum_palette_distance; print(_minimum_palette_distance(UEEF_COMMUNITY_COLORS)); assert _minimum_palette_distance(UEEF_COMMUNITY_COLORS) >= UEEF_MIN_PALETTE_DISTANCE'
   if ($LASTEXITCODE -ne 0 -or [double]$paletteDistance -lt 35) { throw 'Repository graph palette contains perceptually similar community colors.' }
   $viewerRuntimeTest = Join-Path $root 'scripts\test-repository-intelligence-viewer.mjs'
   $viewerRuntimeResult = & node $viewerRuntimeTest (Join-Path $outputRoot 'graph.html') execute | ConvertFrom-Json
@@ -90,7 +93,8 @@ def run():
   if ($status.status -ne 'PASS' -or $doctor.status -ne 'PASS') { throw 'Status or doctor did not pass after a successful build.' }
 
   $firstState = Get-Content -LiteralPath (Join-Path $outputRoot 'state.json') -Raw | ConvertFrom-Json
-  if ($firstState.viewerVersion -ne '4.6.1') { throw 'Interactive graph viewer version was not persisted.' }
+  if ($firstState.viewerVersion -ne '4.7.0') { throw 'Interactive graph viewer version was not persisted.' }
+  if ($firstState.counts.files -le $firstState.counts.indexableFiles) { throw 'Project file-tree count did not exceed the analysis-only inventory count in the fixture.' }
   $firstGraph = Get-Content -LiteralPath (Join-Path $outputRoot 'graph.json') -Raw | ConvertFrom-Json
   $firstEdgeCount = @($(if ($firstGraph.edges) { $firstGraph.edges } else { $firstGraph.links })).Count
   Start-Sleep -Milliseconds 50
@@ -102,7 +106,7 @@ def run():
   if ($warmEdgeCount -ne $firstEdgeCount) { throw 'Warm build duplicated graph edges.' }
 
   $warmWrapperOutput = (& $entrypoint -Command status -Root $fixture -Json 2>&1 | Out-String)
-  if ($warmWrapperOutput -match '(?i)Installed 1 package|Uninstalled 1 package') { throw 'Warm repository-intelligence wrapper redundantly reinstalled the vendored package.' }
+  if ($warmWrapperOutput -match '(?i)Installed 1 package|Uninstalled 1 package') { throw 'Warm repository-intelligence wrapper redundantly reinstalled the embedded package.' }
 
   $portableArtifacts = Get-ChildItem -LiteralPath $outputRoot -File -Force | Where-Object { $_.Extension -in @('.json', '.md') -or $_.Name.StartsWith('.') } | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }
   foreach ($artifactText in $portableArtifacts) {
@@ -116,12 +120,12 @@ def run():
   if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }
 }
 
-$nestedGit = Get-ChildItem -LiteralPath $vendorRoot -Directory -Filter '.git' -Recurse -Force -ErrorAction SilentlyContinue
-if ($nestedGit) { throw 'Nested upstream .git metadata must not be vendored.' }
-foreach ($notice in @('LICENSE', 'LICENSE-MIT', 'NOTICE', 'UEEF-VENDOR.json', 'MODIFICATIONS.md')) {
-  if (!(Test-Path -LiteralPath (Join-Path $vendorRoot $notice))) { throw "Vendor attribution artifact missing: $notice" }
+$nestedGit = Get-ChildItem -LiteralPath $engineRoot -Directory -Filter '.git' -Recurse -Force -ErrorAction SilentlyContinue
+if ($nestedGit) { throw 'Nested upstream .git metadata must not be embedded.' }
+foreach ($notice in @('LICENSE', 'LICENSE-MIT', 'NOTICE', 'UEEF-UPSTREAM.json', 'MODIFICATIONS.md')) {
+  if (!(Test-Path -LiteralPath (Join-Path $engineRoot $notice))) { throw "Engine attribution artifact missing: $notice" }
 }
-$vendorEvidence = & node (Join-Path $root 'scripts\verify-repository-intelligence-vendor.mjs') $root | ConvertFrom-Json
-if ($vendorEvidence.status -ne 'PASS' -or $vendorEvidence.upstreamFiles -ne 776 -or $vendorEvidence.nestedGit) { throw 'Vendor inventory verification failed.' }
+$engineEvidence = & node (Join-Path $root 'scripts\verify-repository-intelligence-engine.mjs') $root | ConvertFrom-Json
+if ($engineEvidence.status -ne 'PASS' -or $engineEvidence.upstreamFiles -ne 776 -or $engineEvidence.nestedGit) { throw 'Engine inventory verification failed.' }
 
 Write-Output 'Repository intelligence tests passed'

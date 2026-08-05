@@ -46,9 +46,9 @@ $expectedNotes = "docs/releases/v$version.md"
 if ([string]$manifest.releaseNotes -ne $expectedNotes) { throw "Manifest releaseNotes must be $expectedNotes" }
 Assert-ContainsLiteral $expectedNotes "# UEEF $version"
 Assert-ContainsLiteral $expectedNotes "Release date: $releaseDate"
-$vendorGeneratedPattern = '[\\/]vendor[\\/]repository-intelligence-engine[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
+$engineGeneratedPattern = '[\\/]engines[\\/]repository-intelligence[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
 $markdownCount = @(Get-ChildItem -LiteralPath $rootPath -Recurse -File -Filter '*.md' | Where-Object {
-  $_.FullName -notmatch '[\\/](\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $vendorGeneratedPattern
+  $_.FullName -notmatch '[\\/](\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $engineGeneratedPattern
 }).Count
 if ([int]$manifest.trackedMarkdownFiles -ne $markdownCount) { throw "Manifest Markdown inventory mismatch: $($manifest.trackedMarkdownFiles) != $markdownCount" }
 

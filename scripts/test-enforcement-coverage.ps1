@@ -14,7 +14,7 @@ foreach ($domain in @($registry.domains)) {
     $mapped.Add([string]$gate)
   }
 }
-$gateRoot = Join-Path $root 'framework\27-quality-gates'
+$gateRoot = Join-Path $root 'framework\12-delivery-quality/04-quality-gates'
 $expected = @(Get-ChildItem -LiteralPath $gateRoot -File -Filter '*.md' | Where-Object { $_.Name -notin @($registry.ignoredGateFiles) } | Select-Object -ExpandProperty Name)
 $missing = @($expected | Where-Object { $_ -notin $mapped })
 $extra = @($mapped | Where-Object { $_ -notin $expected })
@@ -31,9 +31,9 @@ function Assert-Rejected([hashtable]$Arguments) {
 }
 & $validator -Tier T1 -SelectedDomain architecture | Out-Null
 Assert-Rejected @{Tier='T2';SelectedDomain='architecture'}
-Assert-Rejected @{Tier='T2';SelectedGate='framework/27-quality-gates/architecture-gate.md';EvidencePath=(Join-Path $root 'framework\38-templates\task-evidence-template.json')}
+Assert-Rejected @{Tier='T2';SelectedGate='framework/12-delivery-quality/04-quality-gates/architecture-gate.md';EvidencePath=(Join-Path $root 'framework\21-framework-resources/01-templates\task-evidence-template.json')}
 
-$fixture = Get-Content -LiteralPath (Join-Path $root 'framework\38-templates\task-evidence-template.json') -Raw | ConvertFrom-Json
+$fixture = Get-Content -LiteralPath (Join-Path $root 'framework\21-framework-resources/01-templates\task-evidence-template.json') -Raw | ConvertFrom-Json
 $fixture.taskId = 'enforcement-test'
 $fixture.repositoryRoot = $root
 $fixture.domains.architecture.evidence[0].kind = 'command'
@@ -55,7 +55,7 @@ try {
   $fixture.domains.architecture.fields.automatedReport = $architectureReportTemp
   $fixture.domains.'file-organization'.fields.automatedReport = $reportTemp
   $fixture | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $temp -Encoding utf8
-  $pass = & $validator -Tier T3 -SelectedGate 'framework/27-quality-gates/architecture-gate.md' -SelectedDomain file-organization -EvidencePath $temp -Json | ConvertFrom-Json
+  $pass = & $validator -Tier T3 -SelectedGate 'framework/12-delivery-quality/04-quality-gates/architecture-gate.md' -SelectedDomain file-organization -EvidencePath $temp -Json | ConvertFrom-Json
   if ($pass.status -ne 'PASS' -or @($pass.domains).Count -ne 2) { throw 'Architecture and file organization evidence did not pass.' }
   $fixture.domains.architecture.fields.dependencyDirection = ''
   $fixture | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $temp -Encoding utf8

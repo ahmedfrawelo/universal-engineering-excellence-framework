@@ -3,7 +3,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 framework_root="$(cd "$script_dir/.." && pwd)"
-vendor_root="$framework_root/vendor/repository-intelligence-engine"
+engine_root="$framework_root/engines/repository-intelligence"
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: repository-intelligence.sh <build|query|path|explain|affected|status|doctor> [--root PATH] [options]" >&2
@@ -17,17 +17,17 @@ if ! command -v uv >/dev/null 2>&1; then
   echo "uv is required to run repository intelligence." >&2
   exit 1
 fi
-if [[ ! -f "$vendor_root/UEEF-VENDOR.json" ]]; then
-  echo "Vendored repository intelligence engine is incomplete: $vendor_root" >&2
+if [[ ! -f "$engine_root/UEEF-UPSTREAM.json" ]]; then
+  echo "Embedded repository intelligence engine is incomplete: $engine_root" >&2
   exit 1
 fi
 
 export UV_LINK_MODE=copy
-venv_root="$vendor_root/.venv"
+venv_root="$engine_root/.venv"
 sync_marker="$venv_root/.ueef-sync-signature.sh"
 entry_executable="$venv_root/bin/ueef-repository-intelligence"
-dependency_signature="$(cksum "$vendor_root/pyproject.toml" "$vendor_root/uv.lock" | cksum | awk '{print $1 ":" $2}')"
-lock_key="$(printf '%s' "$vendor_root" | cksum | awk '{print $1}')"
+dependency_signature="$({ printf '%s\n' "engine-root=$engine_root"; cksum "$engine_root/pyproject.toml" "$engine_root/uv.lock"; } | cksum | awk '{print $1 ":" $2}')"
+lock_key="$(printf '%s' "$engine_root" | cksum | awk '{print $1}')"
 lock_dir="${TMPDIR:-/tmp}/ueef-repository-intelligence-$lock_key.lock.d"
 lock_acquired=false
 for _ in $(seq 1 450); do
@@ -41,7 +41,7 @@ fi
 trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
 installed_signature="$(cat "$sync_marker" 2>/dev/null || true)"
 if [[ ! -x "$entry_executable" || "$installed_signature" != "$dependency_signature" ]]; then
-  uv sync --frozen --no-dev --project "$vendor_root"
+  uv sync --frozen --no-dev --project "$engine_root"
   printf '%s\n' "$dependency_signature" > "$sync_marker"
 fi
 rmdir "$lock_dir"

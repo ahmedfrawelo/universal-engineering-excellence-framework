@@ -22,11 +22,11 @@ Make the project dashboard load faster and keep the layout stable.
 Load only modules that affect the task:
 
 - `framework/08-performance/00-performance-philosophy.md`
-- `framework/10-frontend/01-frontend-task-modes.md`
-- `framework/14-ui/00-ui-system.md`
-- `framework/15-ux/00-ux-system.md`
-- `framework/16-accessibility/00-accessibility-system.md`
-- `framework/17-testing/00-testing-and-qa.md`
+- `framework/10-frontend/01-engineering/01-frontend-task-modes.md`
+- `framework/10-frontend/03-ui/00-ui-system.md`
+- `framework/10-frontend/04-ux/00-ux-system.md`
+- `framework/12-delivery-quality/07-accessibility/00-accessibility-system.md`
+- `framework/12-delivery-quality/01-testing/00-testing-and-qa.md`
 
 ## Implementation checklist
 

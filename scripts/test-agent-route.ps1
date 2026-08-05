@@ -39,11 +39,11 @@ if (!$criticalRejected) { throw 'Risk 3 without RiskFloor must be rejected.' }
 $root = Split-Path -Parent $PSScriptRoot
 $contractChecks = @{
   'UEEF-LOADER.md' = @('Agent route:', 'NO_INDEPENDENT_WORK')
-  'framework/58-agent-model-orchestration/00-agent-model-orchestration-system.md' = @('Visible pre-command route line', 'TOOL_UNAVAILABLE', 'fresh-context review')
-  'framework/58-agent-model-orchestration/06-fresh-context-review-protocol.md' = @('FRESH_CONTEXT_REQUIRED', 'reviewed diff SHA-256', 'validate-fresh-review-evidence.ps1')
-  'framework/27-quality-gates/31-agent-model-routing-gate.md' = @('TOOL_UNAVAILABLE', 'child-agent record')
-  'framework/29-checklists/40-agent-model-routing-checklist.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
-  'framework/38-templates/28-agent-routing-decision-template.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
+  'framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md' = @('Visible pre-command route line', 'TOOL_UNAVAILABLE', 'fresh-context review')
+  'framework/19-agent-workflow/01-model-orchestration/06-fresh-context-review-protocol.md' = @('FRESH_CONTEXT_REQUIRED', 'reviewed diff SHA-256', 'validate-fresh-review-evidence.ps1')
+  'framework/12-delivery-quality/04-quality-gates/31-agent-model-routing-gate.md' = @('TOOL_UNAVAILABLE', 'child-agent record')
+  'framework/12-delivery-quality/06-checklists/40-agent-model-routing-checklist.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
+  'framework/21-framework-resources/01-templates/28-agent-routing-decision-template.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
   'scripts/sync-runtime.ps1' = @('Agent route:', 'TOOL_UNAVAILABLE')
 }
 foreach ($relativePath in $contractChecks.Keys) {
@@ -52,9 +52,9 @@ foreach ($relativePath in $contractChecks.Keys) {
     if ($content -notmatch [regex]::Escape($term)) { throw "Agent contract term '$term' missing from $relativePath." }
   }
 }
-$topologyText = Get-Content -LiteralPath (Join-Path $root 'framework/58-agent-model-orchestration/03-agent-topologies.md') -Raw
+$topologyText = Get-Content -LiteralPath (Join-Path $root 'framework/19-agent-workflow/01-model-orchestration/03-agent-topologies.md') -Raw
 if ($topologyText -notmatch 'T1 defaults to single-agent') { throw 'Topology policy does not preserve the single-agent T1 default.' }
-$freshReviewText = Get-Content -LiteralPath (Join-Path $root 'framework\58-agent-model-orchestration\06-fresh-context-review-protocol.md') -Raw
+$freshReviewText = Get-Content -LiteralPath (Join-Path $root 'framework\19-agent-workflow/01-model-orchestration\06-fresh-context-review-protocol.md') -Raw
 if ($freshReviewText -notmatch 'T4' -or $freshReviewText -notmatch 'fresh-context') { throw 'Fresh review protocol is incomplete.' }
 
 foreach ($routeArgs in @(@{}, @{Scope=1;Ambiguity=1;Coupling=1;Risk=1;Verification=1}, @{RiskFloor='Authentication'}, @{RiskFloor='Privacy'})) {
@@ -77,7 +77,7 @@ if ($bashPath) {
   }
 }
 
-$capabilityRouting = Get-Content -LiteralPath (Join-Path $root 'framework\58-agent-model-orchestration\02-model-capability-routing.md') -Raw
+$capabilityRouting = Get-Content -LiteralPath (Join-Path $root 'framework\19-agent-workflow/01-model-orchestration\02-model-capability-routing.md') -Raw
 if ($capabilityRouting -notmatch 'economical default, not a hard ceiling') {
   throw 'Model capability routing does not document proportional reasoning.'
 }

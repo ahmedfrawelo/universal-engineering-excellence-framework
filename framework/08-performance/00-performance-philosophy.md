@@ -73,7 +73,7 @@ For a performance-related change, evidence must include:
 
 - ../01-core/01-master-loader.md
 - ../03-runtime/00-runtime-sequence.md
-- ../27-quality-gates/00-quality-gate-system.md
+- ../12-delivery-quality/04-quality-gates/00-quality-gate-system.md
 
 ## Completion Contract
 

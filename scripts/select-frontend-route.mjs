@@ -43,8 +43,7 @@ const augmentArabicSignals = (input) => {
   add(/مشكل[ةه]|خط[أا]|عطل|مكسور|مختل|بط[ءي]|كفا[ءئ][ةه]|فشل|بيكرر/, 'bug broken error slow performance failure debugging');
   add(/سريع|[اأ]داء|تحسين/, 'performance optimize');
   return signals.length ? `${input} ${signals.join(' ')}` : input;
-};
-const text = augmentArabicSignals(task.toLowerCase());
+};const text = augmentArabicSignals(task.toLowerCase());
 const has = (pattern) => pattern.test(text);
 const unique = (items) => [...new Set(items)];
 const signals = {
@@ -72,9 +71,9 @@ const signals = {
   sourceDriven: has(/\b(official docs|official documentation|current angular|latest angular|source.cited)\b/),
   codeReview: has(/\b(code review|review (?:the )?(?:pr|diff)|pull request review)\b/),
   visualQa: has(/\b(visual qa|visual regression|screenshot diff|browser verification|responsive verification)\b/),
-  expressive: has(/\b(landing page|portfolio|marketing site|expressive|visual redesign)\b|صفحة هبوط|بورتفوليو|تسويق|إعادة تصميم/),
-  designReview: has(/\b(design score|styleseed|post-build design review|visual quality floor)\b|تقييم التصميم|مراجعة بصرية/),
-  penpot: has(/\b(penpot|design canvas|code-to-design|design-to-code)\b|بنبوت|لوحة تصميم/),
+  expressive: has(/\b(landing page|portfolio|marketing site|expressive|visual redesign)\b|Ã˜ÂµÃ™ÂÃ˜Â­Ã˜Â© Ã™â€¡Ã˜Â¨Ã™Ë†Ã˜Â·|Ã˜Â¨Ã™Ë†Ã˜Â±Ã˜ÂªÃ™ÂÃ™Ë†Ã™â€žÃ™Å Ã™Ë†|Ã˜ÂªÃ˜Â³Ã™Ë†Ã™Å Ã™â€š|Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜ÂªÃ˜ÂµÃ™â€¦Ã™Å Ã™â€¦/),
+  designReview: has(/\b(design score|styleseed|post-build design review|visual quality floor)\b|Ã˜ÂªÃ™â€šÃ™Å Ã™Å Ã™â€¦ Ã˜Â§Ã™â€žÃ˜ÂªÃ˜ÂµÃ™â€¦Ã™Å Ã™â€¦|Ã™â€¦Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹Ã˜Â© Ã˜Â¨Ã˜ÂµÃ˜Â±Ã™Å Ã˜Â©/),
+  penpot: has(/\b(penpot|design canvas|code-to-design|design-to-code)\b|Ã˜Â¨Ã™â€ Ã˜Â¨Ã™Ë†Ã˜Âª|Ã™â€žÃ™Ë†Ã˜Â­Ã˜Â© Ã˜ÂªÃ˜ÂµÃ™â€¦Ã™Å Ã™â€¦/),
 };
 
 const domains = Object.entries(signals)
@@ -105,60 +104,60 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const designProductionPolicy = JSON.parse(fs.readFileSync(path.join(root, 'config/frontend-design-production-policy.json'), 'utf8'));
 const add = (target, ...items) => target.push(...items);
 if (applies) {
-  add(modules, 'framework/10-frontend/00-frontend-engineering.md', 'framework/10-frontend/01-frontend-task-modes.md');
-  add(gates, 'framework/27-quality-gates/ui-gate.md');
+  add(modules, 'framework/10-frontend/01-engineering/00-frontend-engineering.md', 'framework/10-frontend/01-engineering/01-frontend-task-modes.md');
+  add(gates, 'framework/12-delivery-quality/04-quality-gates/ui-gate.md');
   add(skills, 'typeui-fundamentals');
   reasons.push(`frontend ${intent.toLowerCase()} with ${scope.toLowerCase()} scope`);
   if (forceFrontend) reasons.push('explicit frontend tag');
 }
 if (applies && signals.accessibility) {
-  add(modules, 'framework/16-accessibility/00-accessibility-system.md');
-  add(gates, 'framework/27-quality-gates/accessibility-gate.md');
+  add(modules, 'framework/12-delivery-quality/07-accessibility/00-accessibility-system.md');
+  add(gates, 'framework/12-delivery-quality/04-quality-gates/accessibility-gate.md');
   reasons.push('accessibility contract detected');
 }
 if (applies && signals.overlay) {
-  add(modules, 'framework/46-design-system-consistency-reuse/04-form-table-modal-notification-systems.md', 'framework/47-theme-responsive-interaction-security-performance/21-overlay-interaction-contract.md');
-  if (has(/modal|dialog/)) add(modules, 'framework/47-theme-responsive-interaction-security-performance/24-modal-dialog-contract.md');
-  if (has(/dropdown|menu|popover/)) add(modules, 'framework/47-theme-responsive-interaction-security-performance/22-dropdown-menu-popover-contract.md');
-  if (has(/focus|keyboard|escape/)) add(modules, 'framework/47-theme-responsive-interaction-security-performance/29-escape-focus-and-keyboard-behavior.md', 'framework/47-theme-responsive-interaction-security-performance/30-scroll-lock-and-focus-restoration.md');
+  add(modules, 'framework/16-design-system/01-consistency-reuse/04-form-table-modal-notification-systems.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/21-overlay-interaction-contract.md');
+  if (has(/modal|dialog/)) add(modules, 'framework/16-design-system/02-theme-responsive-interaction-security-performance/24-modal-dialog-contract.md');
+  if (has(/dropdown|menu|popover/)) add(modules, 'framework/16-design-system/02-theme-responsive-interaction-security-performance/22-dropdown-menu-popover-contract.md');
+  if (has(/focus|keyboard|escape/)) add(modules, 'framework/16-design-system/02-theme-responsive-interaction-security-performance/29-escape-focus-and-keyboard-behavior.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/30-scroll-lock-and-focus-restoration.md');
   reasons.push('overlay interaction detected');
 }
 if (applies && signals.theme) {
-  add(modules, 'framework/47-theme-responsive-interaction-security-performance/01-theme-architecture.md', 'framework/47-theme-responsive-interaction-security-performance/04-design-token-enforcement.md', 'framework/47-theme-responsive-interaction-security-performance/05-semantic-color-system.md');
+  add(modules, 'framework/16-design-system/02-theme-responsive-interaction-security-performance/01-theme-architecture.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/04-design-token-enforcement.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/05-semantic-color-system.md');
   reasons.push('theme and color system detected');
 }
 if (applies && signals.responsive) {
-  add(modules, 'framework/47-theme-responsive-interaction-security-performance/10-responsive-first-architecture.md', 'framework/47-theme-responsive-interaction-security-performance/11-breakpoint-and-container-system.md', 'framework/47-theme-responsive-interaction-security-performance/14-responsive-components.md');
+  add(modules, 'framework/16-design-system/02-theme-responsive-interaction-security-performance/10-responsive-first-architecture.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/11-breakpoint-and-container-system.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/14-responsive-components.md');
   reasons.push('responsive behavior detected');
   add(skills, 'responsive-craft');
 }
 if (applies && signals.dataGrid) {
-  add(modules, 'framework/56-data-grid-platform/00-data-grid-platform-system.md', 'framework/56-data-grid-platform/02-frontend-query-and-state-contract.md', 'framework/56-data-grid-platform/03-pagination-filter-sort-and-aggregation.md');
+  add(modules, 'framework/17-product-platform/03-data-grid-platform/00-data-grid-platform-system.md', 'framework/17-product-platform/03-data-grid-platform/02-frontend-query-and-state-contract.md', 'framework/17-product-platform/03-data-grid-platform/03-pagination-filter-sort-and-aggregation.md');
   reasons.push('data-grid contract detected');
   add(skills, 'company-data-table');
 }
 if (applies && signals.appShell) {
-  add(modules, 'framework/57-application-shell-design/00-application-shell-system.md', 'framework/57-application-shell-design/02-sidebar-navigation-contract.md', 'framework/57-application-shell-design/03-header-and-page-chrome-contract.md');
+  add(modules, 'framework/17-product-platform/04-application-shell-design/00-application-shell-system.md', 'framework/17-product-platform/04-application-shell-design/02-sidebar-navigation-contract.md', 'framework/17-product-platform/04-application-shell-design/03-header-and-page-chrome-contract.md');
   reasons.push('application-shell surface detected');
 }
 if (applies && signals.loading) {
-  add(modules, 'framework/53-skeleton-loading/00-skeleton-loading-system.md', 'framework/53-skeleton-loading/02-state-contract.md', 'framework/53-skeleton-loading/04-performance-and-layout-stability.md');
-  add(gates, 'framework/27-quality-gates/25-skeleton-loading-gate.md');
+  add(modules, 'framework/17-product-platform/02-skeleton-loading/00-skeleton-loading-system.md', 'framework/17-product-platform/02-skeleton-loading/02-state-contract.md', 'framework/17-product-platform/02-skeleton-loading/04-performance-and-layout-stability.md');
+  add(gates, 'framework/12-delivery-quality/04-quality-gates/25-skeleton-loading-gate.md');
   reasons.push('loading-state contract detected');
 }
 if (applies && signals.identity) {
-  add(modules, 'framework/45-identity-access-application-models/02-authorization-entitlement-contract.md', 'framework/45-identity-access-application-models/08-access-aware-ui-and-audit.md');
-  add(gates, 'framework/27-quality-gates/security-gate.md');
+  add(modules, 'framework/17-product-platform/01-identity-access-application-models/02-authorization-entitlement-contract.md', 'framework/17-product-platform/01-identity-access-application-models/08-access-aware-ui-and-audit.md');
+  add(gates, 'framework/12-delivery-quality/04-quality-gates/security-gate.md');
   reasons.push('access-aware UI detected');
 }
 if (applies && signals.performance) {
-  add(modules, 'framework/47-theme-responsive-interaction-security-performance/42-frontend-rendering-performance.md', 'framework/47-theme-responsive-interaction-security-performance/46-performance-budgets-and-measurement.md', 'framework/62-performance-forensics/00-performance-forensics-system.md');
-  add(gates, 'framework/27-quality-gates/performance-gate.md');
+  add(modules, 'framework/16-design-system/02-theme-responsive-interaction-security-performance/42-frontend-rendering-performance.md', 'framework/16-design-system/02-theme-responsive-interaction-security-performance/46-performance-budgets-and-measurement.md', 'framework/20-repository-evolution/02-performance-forensics/00-performance-forensics-system.md');
+  add(gates, 'framework/12-delivery-quality/04-quality-gates/performance-gate.md');
   reasons.push('frontend performance evidence required');
   add(skills, 'performance-optimization');
 }
 if (applies && signals.design) {
-  add(modules, 'framework/46-design-system-consistency-reuse/00-unified-design-system-architecture.md', 'framework/46-design-system-consistency-reuse/09-reuse-decision-engine.md', 'framework/48-design-governance/00-design-governance.md', 'framework/48-design-governance/02-design-token-system.md');
+  add(modules, 'framework/16-design-system/01-consistency-reuse/00-unified-design-system-architecture.md', 'framework/16-design-system/01-consistency-reuse/09-reuse-decision-engine.md', 'framework/16-design-system/03-governance/00-design-governance.md', 'framework/16-design-system/03-governance/02-design-token-system.md');
   if (intent === 'Recommend') add(skills, 'ui-ux-pro-max');
   if (intent === 'Audit') add(skills, 'impeccable');
   reasons.push('design-system decision detected');
@@ -167,8 +166,8 @@ if (applies && signals.design) {
 const designProductionApplies = applies && (signals.expressive || signals.designReview || signals.penpot || signals.design || (mutation === 'Implement' && scope !== 'Quick'));
 const designProduction = designProductionApplies ? selectDesignProductionRoute(task, designProductionPolicy, {mutation, frontendMode}) : null;
 if (designProductionApplies) {
-  add(modules, 'framework/64-frontend-design-production/00-frontend-design-production-system.md');
-  add(gates, 'framework/27-quality-gates/35-frontend-design-production-gate.md');
+  add(modules, 'framework/10-frontend/02-production-design/00-frontend-design-production-system.md');
+  add(gates, 'framework/12-delivery-quality/04-quality-gates/35-frontend-design-production-gate.md');
   add(skills, ...designProduction.skills);
   reasons.push('mandatory frontend design-production execution contract selected');
 }
@@ -189,8 +188,8 @@ if (applies && mutation === 'Implement' && scope !== 'Quick') {
   if (signals.dataGrid || signals.appShell || has(/\b(dashboard|admin|saas|settings|product ui)\b/)) add(skills, 'interface-design');
   else add(skills, 'frontend-design');
 }
-if (applies && signals.react) { add(modules, 'framework/31-react/00-react-pack.md'); reasons.push('React stack detected'); }
-if (applies && signals.angular) { add(modules, 'framework/36-angular/00-angular-pack.md'); add(skills, 'angular-developer'); reasons.push('Angular stack detected'); }
+if (applies && signals.react) { add(modules, 'framework/15-tech-stacks/02-react/00-react-pack.md'); reasons.push('React stack detected'); }
+if (applies && signals.angular) { add(modules, 'framework/15-tech-stacks/07-angular/00-angular-pack.md'); add(skills, 'angular-developer'); reasons.push('Angular stack detected'); }
 if (applies && signals.harness) { add(skills, 'angular-table-harness'); reasons.push('stable Angular harness API requested'); }
 if (applies && signals.prototype) { add(skills, 'prototype'); if (has(/\b(dashboard|admin|saas|settings|product ui)\b/)) add(skills, 'interface-design'); reasons.push('explicit divergent prototype requested'); }
 if (applies && signals.extractDesign) { add(skills, 'extract-design-system'); reasons.push('public design-system extraction requested'); }
@@ -199,7 +198,7 @@ if (applies && signals.codeReview) { add(skills, 'code-review-and-quality'); rea
 if (applies && signals.visualQa) { add(skills, 'frontend-visual-qa'); reasons.push('deterministic visual verification requested'); }
 if (applies && intent === 'Audit' && has(/\b(frontend design review|design review|ui code review)\b/)) add(skills, 'frontend-design-review');
 if (applies && intent === 'Audit' && has(/\b(web guidelines|interface guidelines|best practices)\b/)) add(skills, 'web-design-guidelines');
-if (applies && intent === 'Audit' && signals.design) add(gates, 'framework/27-quality-gates/30-visual-composition-gate.md');
+if (applies && intent === 'Audit' && signals.design) add(gates, 'framework/12-delivery-quality/04-quality-gates/30-visual-composition-gate.md');
 
 const matchedSignals = Object.entries(signals).filter(([, matched]) => matched).map(([name]) => name);
 const confidence = !applies ? 0 : Math.min(0.99, Number((0.62 + Math.min(0.32, matchedSignals.length * 0.04)).toFixed(2)));

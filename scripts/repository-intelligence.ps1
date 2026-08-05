@@ -1,4 +1,4 @@
-param(
+﻿param(
   [Parameter(Mandatory = $true)]
   [ValidateSet('build', 'query', 'path', 'explain', 'affected', 'status', 'doctor')]
   [string]$Command,
@@ -13,20 +13,23 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $frameworkRoot = Split-Path -Parent $PSScriptRoot
-$vendorRoot = Join-Path $frameworkRoot 'vendor\repository-intelligence-engine'
+$engineRoot = Join-Path $frameworkRoot 'engines\repository-intelligence'
 
 if (!(Test-Path -LiteralPath $Root -PathType Container)) { throw "Repository root does not exist: $Root" }
-if (!(Test-Path -LiteralPath (Join-Path $vendorRoot 'UEEF-VENDOR.json') -PathType Leaf)) { throw "Vendored repository intelligence engine is incomplete: $vendorRoot" }
+if (!(Test-Path -LiteralPath (Join-Path $engineRoot 'UEEF-UPSTREAM.json') -PathType Leaf)) { throw "Embedded repository intelligence engine is incomplete: $engineRoot" }
 if (!(Get-Command uv -ErrorAction SilentlyContinue)) { throw "uv is required to run repository intelligence. Install uv and retry." }
 
 $resolvedRoot = (Resolve-Path -LiteralPath $Root).Path
-$venvRoot = Join-Path $vendorRoot '.venv'
+$venvRoot = Join-Path $engineRoot '.venv'
 $syncMarker = Join-Path $venvRoot '.ueef-sync-signature.ps1'
 $entryExecutable = Join-Path $venvRoot 'Scripts\ueef-repository-intelligence.exe'
-$dependencyFiles = @('pyproject.toml', 'uv.lock') | ForEach-Object { Join-Path $vendorRoot $_ }
-$dependencySignature = (@($dependencyFiles | ForEach-Object { (Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash }) -join ':')
+$dependencyFiles = @('pyproject.toml', 'uv.lock') | ForEach-Object { Join-Path $engineRoot $_ }
+$dependencySignature = (@(
+  "engine-root=$engineRoot"
+  $dependencyFiles | ForEach-Object { (Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash }
+) -join ':')
 $lockHasher = [Security.Cryptography.SHA256]::Create()
-try { $lockKey = ([BitConverter]::ToString($lockHasher.ComputeHash([Text.Encoding]::UTF8.GetBytes($vendorRoot))).Replace('-', '').Substring(0,16)) } finally { $lockHasher.Dispose() }
+try { $lockKey = ([BitConverter]::ToString($lockHasher.ComputeHash([Text.Encoding]::UTF8.GetBytes($engineRoot))).Replace('-', '').Substring(0,16)) } finally { $lockHasher.Dispose() }
 $syncLockPath = Join-Path ([IO.Path]::GetTempPath()) "ueef-repository-intelligence-$lockKey.lock"
 $syncLock = $null
 $lockDeadline = [DateTime]::UtcNow.AddSeconds(45)
@@ -45,7 +48,7 @@ try {
     $previousErrorAction = $ErrorActionPreference
     try {
       $ErrorActionPreference = 'Continue'
-      $syncOutput = & uv sync --frozen --no-dev --project $vendorRoot 2>&1 | Out-String
+      $syncOutput = & uv sync --frozen --no-dev --project $engineRoot 2>&1 | Out-String
       $syncExitCode = $LASTEXITCODE
     } finally {
       $ErrorActionPreference = $previousErrorAction
