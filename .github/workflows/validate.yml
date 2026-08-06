@@ -44,7 +44,11 @@ jobs:
               Write-Host "Running assurance check: $Name"
               $watch = [Diagnostics.Stopwatch]::StartNew()
               & $Action
-              if ($LASTEXITCODE -ne 0) { throw "$Name failed with exit code $LASTEXITCODE" }
+              $succeeded = $?
+              if (!$succeeded) { throw "$Name failed." }
+              if ($null -ne $LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+                throw "$Name failed with exit code $LASTEXITCODE"
+              }
               $watch.Stop()
               $checks.Add([pscustomobject]@{
                 name = $Name
