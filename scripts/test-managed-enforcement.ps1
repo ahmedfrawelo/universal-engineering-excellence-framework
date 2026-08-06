@@ -379,8 +379,33 @@ try {
   Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='UserPromptSubmit';prompt='Create a new task for the separate requested work'}) | Out-Null
   Record-UeefRoute $nodePath $recorder $modelCatalog $newTaskSession $newTaskTurn T1 'explicit new task' 'explicit-new-task' $newTaskTranscript | Out-Null
   $newTaskState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-explicit-new-task.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  $t1LeadRead = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='t1-lead-read';tool_input=@{command='Get-Content .\docs\PROJECT-HANDOFF.md';workdir=$root;timeout_ms=10000}})
+  if ([string]$t1LeadRead.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'T1 lead-agent allowlisted read-only intake was denied before model dispatch.' }
+  $t1RuntimeRead = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='t1-runtime-read';tool_input=@{command="& 'D:\shared folder\codex-home\ueef\codex\scripts\ueef-status.ps1'";workdir=$root;timeout_ms=10000}})
+  if ([string]$t1RuntimeRead.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'T1 quoted Windows runtime status read was denied before model dispatch.' }
+  $t1LeadMutation = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='t1-lead-mutation';tool_input=@{patch='*** Begin Patch'}})
+  if ([string]$t1LeadMutation.hookSpecificOutput.permissionDecision -ne 'deny') { throw 'T1 lead-agent mutation was allowed before model dispatch.' }
   $explicitVisibleTask = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='codex_app__create_thread';tool_use_id='visible-task-explicit';tool_input=@{model=$newTaskState.route.preferredModel;thinking=$newTaskState.route.hostReasoning;prompt='requested task'}})
   if ([string]$explicitVisibleTask.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Explicitly requested user-visible task creation was denied.' }
+
+  $arabicTaskPrompts = @(
+    'سلم المشروع لشات جديد وعرفه كل حاجة',
+    'افتح شات جديد بتاسك جديدة',
+    'اعمل تاسك جديده في نفس المشروع',
+    'حول المشروع لمهمة جديدة'
+  )
+  for ($arabicIndex = 0; $arabicIndex -lt $arabicTaskPrompts.Count; $arabicIndex++) {
+    $arabicTurn = "turn-arabic-new-task-$arabicIndex"
+    $arabicBase = $newTaskBase.Clone(); $arabicBase.turn_id = $arabicTurn
+    Invoke-Hook $nodePath $hook ($arabicBase + @{hook_event_name='UserPromptSubmit';prompt=$arabicTaskPrompts[$arabicIndex]}) | Out-Null
+    $arabicState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter "*.$arabicTurn.json" -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+    if ($arabicState.authorizations.newUserTask -ne $true) { throw "Arabic explicit new-task request was not recognized: $($arabicTaskPrompts[$arabicIndex])" }
+  }
+  $negativeArabicTurn = 'turn-arabic-new-task-negative'
+  $negativeArabicBase = $newTaskBase.Clone(); $negativeArabicBase.turn_id = $negativeArabicTurn
+  Invoke-Hook $nodePath $hook ($negativeArabicBase + @{hook_event_name='UserPromptSubmit';prompt='لا تفتح شات جديد ولا تعمل تاسك جديدة'}) | Out-Null
+  $negativeArabicState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter "*.$negativeArabicTurn.json" -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  if ($negativeArabicState.authorizations.newUserTask -eq $true) { throw 'Negated Arabic new-task request was incorrectly authorized.' }
 
   $authorizedPush = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='Bash';tool_use_id='tool-6';tool_input=@{command='git push origin main'}})
   if ([string]$authorizedPush.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Explicitly authorized push was denied.' }

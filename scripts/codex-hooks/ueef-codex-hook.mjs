@@ -92,6 +92,14 @@ function isIsolatedDirectDispatcher(toolName, event) {
   return /^\s*(?:&\s+)?(?:"[^"]+"|'[^']+'|\S+)\s+(?:"[^"]*codex-app-server-dispatch\.mjs"|'[^']*codex-app-server-dispatch\.mjs'|\S*codex-app-server-dispatch\.mjs)\b/iu.test(command);
 }
 
+function isEconomicalLeadRead(toolName, event, tier) {
+  if (!['T0', 'T1'].includes(String(tier))) return false;
+  if (/(?:^|[._])(?:read|list|get|view|find|search|status)/iu.test(String(toolName))) return true;
+  const command = shellCommandFromTool(toolName, event);
+  if (!command || hasUnquotedShellControl(command)) return false;
+  return /^\s*(?:Get-Content|Get-ChildItem|Test-Path|Resolve-Path|rg\b|git\s+(?:status|log|diff|show|rev-list)\b|(?:&\s+)?(?:"[^"]*ueef-status\.ps1"|'[^']*ueef-status\.ps1'|\S*ueef-status\.ps1)(?:\s|$))/iu.test(command);
+}
+
 function onUserPromptSubmit(event) {
   const state = newTurnState(event.session_id, event.turn_id, event.prompt, event.cwd, event.model);
   writeTurnState(event.session_id, event.turn_id, state);
@@ -111,10 +119,11 @@ function onPreToolUse(event) {
   if (!assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
   const directModelDispatch = /codex-app-server-dispatch\.mjs/iu.test(toolInput);
   const hostModelDispatch = /(send_message_to_thread|create_thread|spawn_agent)/iu.test(toolName);
+  const economicalLeadRead = isEconomicalLeadRead(toolName, event, state.route?.tier);
   if (/(create_thread|fork_thread)/iu.test(toolName) && state.authorizations?.newUserTask !== true) return preToolDeny('Creating a user-visible Codex task requires an explicit current-prompt request for a new task. Use ephemeral routed execution or an internal worker instead.');
   const workerDispatch = state.validations.modelDispatch === true && /(create_thread|spawn_agent)/iu.test(toolName);
   if (workerDispatch && Number(state.workerDispatchCount || 0) >= Number(state.route.tokenEconomy?.maxWorkerCount ?? 0)) return preToolDeny(`Worker dispatch exceeds the ${state.route.tokenEconomy?.maxWorkerCount ?? 0}-worker budget for ${state.route.tier}.`);
-  if (state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch) return preToolDeny('Execute the current validated model route before using other task tools. This applies to T0-T4.');
+  if (state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch && !economicalLeadRead) return preToolDeny('Execute the current validated model route before using mutation or non-read task tools. T0/T1 lead agents may perform allowlisted read-only intake first.');
   if (state.validations.modelDispatch === true && state.route.actualLine && !assistantMessageContains(event.transcript_path, state.route.actualLine)) return preToolDeny(`Publish the verified actual sub-agent execution before continuing: ${state.route.actualLine}`);
   if (directModelDispatch) {
     if (!isIsolatedDirectDispatcher(toolName, event)) return preToolDeny('Direct App Server dispatch must be an isolated dispatcher command with no chained output fabrication.');
