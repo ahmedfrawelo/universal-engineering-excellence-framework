@@ -7,6 +7,7 @@ Tasks convert the plan into executable work while preserving dependency order an
 ## Task Rules
 
 - Each task must have an owner area, input artifact, output artifact, validation command or check, and done condition.
+- Each task must state whether it is lead-owned, sidecar-safe, specialist-safe, or verifier-only.
 - Order tasks by dependency: contracts and tests before implementation where practical; shared foundations before consumers; migrations before dependent code.
 - Mark tasks that are safe to run in parallel only when their write sets do not overlap and their dependencies are satisfied.
 - Do not create task items that are vague verbs such as "improve", "clean", or "finish" without a concrete deliverable.
@@ -19,3 +20,17 @@ Tasks convert the plan into executable work while preserving dependency order an
 - Shared contracts are already defined.
 - No task depends on unmerged output from a parallel task.
 - Validation can be run independently or has a defined integration gate.
+
+## Worker Budget Fields
+
+For tasks that may be delegated, record:
+
+- owner path or domain;
+- allowed write set;
+- forbidden paths;
+- expected evidence;
+- output cap;
+- stop condition;
+- integration point owned by the lead.
+
+If these fields cannot be bounded, the task remains lead-owned.

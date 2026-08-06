@@ -1,5 +1,9 @@
 # UEEF Project Handoff
 
+> **Current handoff:** [`docs/handoffs/2026-08-06-ueef-delivery.md`](handoffs/2026-08-06-ueef-delivery.md) for UEEF `2.25.10` and the current delivery change set.
+>
+> Everything below is the preserved 2026-08-02 legacy snapshot. Use it only for historical context; current command output and the current handoff above are authoritative.
+
 **Purpose:** تسليم المشروع لوكيل أو مطور جديد يستطيع فهمه وتشغيله والتحقق منه بدون الاعتماد على ذاكرة الجلسة السابقة.
 
 **Snapshot date:** 2026-08-02

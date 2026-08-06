@@ -6,8 +6,8 @@ export function resolveCodexExecutable(explicitExecutable = null) {
   const codexHome = process.env.CODEX_HOME || null;
   const executableName = process.platform === 'win32' ? 'codex.exe' : 'codex';
   const bundledCandidates = codexHome ? [
-    path.join(codexHome, '.sandbox-bin', executableName),
-    path.join(codexHome, 'plugins', '.plugin-appserver', executableName)
+    path.join(codexHome, 'plugins', '.plugin-appserver', executableName),
+    path.join(codexHome, '.sandbox-bin', executableName)
   ] : [];
   const executable = explicit || bundledCandidates.find((candidate) => fs.existsSync(candidate)) || 'codex';
   return {

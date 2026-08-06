@@ -15,6 +15,16 @@ Status: DRAFT
 - Ambiguities:
 - Assumptions:
 
+## Token and Worker Budget
+
+- Token budget mode: `minimal | bounded | expanded`
+- Selected tier:
+- Delegation policy: `none | sidecar | parallel-specialists | lead-workers-verifier`
+- Maximum worker count:
+- Worker output cap:
+- Context sources allowed before implementation:
+- Evidence stored as artifacts:
+
 ## Technical Plan
 
 - Requirement mapping: `REQ-001` → decision → owner → verification:
@@ -30,6 +40,9 @@ Status: DRAFT
 
 - [ ] `TASK-001` Task:
   - Owner:
+  - Delegation: `lead-owned | sidecar-safe | specialist-safe | verifier-only`
+  - Allowed write set:
+  - Forbidden paths:
   - Depends on:
   - Requirements: `REQ-001`
   - Evidence:
@@ -44,5 +57,7 @@ Status: DRAFT
 ## Convergence
 
 - Spec/plan/task/code mismatches:
+- Worker results integrated or discarded:
+- Token/worker budget actuals:
 - Evidence gaps:
 - Residual risks:

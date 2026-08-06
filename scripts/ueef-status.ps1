@@ -43,8 +43,10 @@ function Test-ManagedEnforcementState($State, [string]$ExpectedRuntimePath, [str
     $nodePath = [IO.Path]::GetFullPath([string]$managed.nodePath)
     if (!(Test-Path -LiteralPath $nodePath -PathType Leaf) -or (Get-FileHash -LiteralPath $nodePath -Algorithm SHA256).Hash -ne ([string]$managed.nodeSha256).ToUpperInvariant()) { return $false }
     $requirementsText = [IO.File]::ReadAllText($requirementsPath, [Text.Encoding]::UTF8)
-    if (!$requirementsText.StartsWith('# UEEF-MANAGED-REQUIREMENTS', [StringComparison]::Ordinal) -or $requirementsText -notmatch '(?m)^hooks\s*=\s*true\s*$') { return $false }
-    $expectedNames = @('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json')
+    if (!$requirementsText.StartsWith('# UEEF-MANAGED-REQUIREMENTS', [StringComparison]::Ordinal) -or
+        $requirementsText -notmatch '(?m)^hooks\s*=\s*true\s*$' -or
+        $requirementsText -notmatch '(?m)^command_windows\s*=\s*''node\s+"[^"\r\n]+ueef-codex-hook\.mjs"''\s*$') { return $false }
+    $expectedNames = @('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json','model-routing-policy.json','resolve-model-route.mjs','codex-app-server-models.mjs','codex-app-server-client-lib.mjs')
     $files = @($managed.hookFiles)
     if ($files.Count -ne $expectedNames.Count) { return $false }
     foreach ($name in $expectedNames) {
@@ -53,6 +55,29 @@ function Test-ManagedEnforcementState($State, [string]$ExpectedRuntimePath, [str
       $path = Join-Path $hooksPath $name
       if (!(Test-Path -LiteralPath $path -PathType Leaf) -or ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { return $false }
       if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne ([string]$record[0].sha256).ToUpperInvariant()) { return $false }
+    }
+    return $true
+  } catch { return $false }
+}
+
+function Test-EffectiveManagedEnforcement([string]$Executable, [string]$ExpectedHooksPath, [string]$ProbePath) {
+  try {
+    if (!(Test-Path -LiteralPath $Executable -PathType Leaf) -or !(Test-Path -LiteralPath $ProbePath -PathType Leaf)) { return $false }
+    $node = Get-Command node -ErrorAction Stop
+    $json = (& $node.Source $ProbePath --executable $Executable --timeout-ms 15000 | Select-Object -Last 1)
+    if ([string]::IsNullOrWhiteSpace($json)) { return $false }
+    $probe = $json | ConvertFrom-Json
+    $requirements = $probe.data.requirements.requirements
+    if ($probe.provenance.provider -ne 'codex-app-server:configRequirements/read' -or $requirements.featureRequirements.hooks -ne $true) { return $false }
+    $hooks = $requirements.hooks
+    $managedPath = if ($IsWindows -or $env:OS -eq 'Windows_NT') { [string]$hooks.windowsManagedDir } else { [string]$hooks.managedDir }
+    if ([IO.Path]::GetFullPath($managedPath).TrimEnd([IO.Path]::DirectorySeparatorChar) -ne [IO.Path]::GetFullPath($ExpectedHooksPath).TrimEnd([IO.Path]::DirectorySeparatorChar)) { return $false }
+    foreach ($eventName in @('SessionStart','UserPromptSubmit','PreToolUse','PostToolUse','Stop')) {
+      $groups = @($hooks.$eventName)
+      if ($groups.Count -ne 1 -or @($groups[0].hooks).Count -ne 1) { return $false }
+      $handler = @($groups[0].hooks)[0]
+      $command = if ($IsWindows -or $env:OS -eq 'Windows_NT') { [string]$handler.commandWindows } else { [string]$handler.command }
+      if ($command -notmatch '^node\s+"[^"\r\n]+ueef-codex-hook\.mjs"$') { return $false }
     }
     return $true
   } catch { return $false }
@@ -103,6 +128,8 @@ $isManagedRuntime = (Split-Path -Leaf (Split-Path -Parent $RepositoryPath)) -eq 
 $codexHome = if ($isManagedRuntime) { Split-Path -Parent $GlobalPath } elseif ($env:CODEX_HOME) { $env:CODEX_HOME } else { Split-Path -Parent $GlobalPath }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
 $managedEnforcementPass = $true
+$managedEnforcementEffectiveRequired = $false
+$managedEnforcementEffectivePass = $true
 if ($isManagedRuntime) {
   $agentsText = if (Test-Item $agentsPath) { Get-Content -LiteralPath $agentsPath -Raw } else { "" }
   $agentsVersionPattern = '\(version\s+' + [regex]::Escape($version) + '\)'
@@ -127,8 +154,19 @@ if ($isManagedRuntime) {
       if ($state.requireAgents -ne $true -and !$codexRuntime) { $agentsPass = $true }
       $loaderHashPass = ![string]::IsNullOrWhiteSpace([string]$state.runtimeLoaderSha256) -and (Get-FileHash -LiteralPath $expectedLoader -Algorithm SHA256).Hash -ceq ([string]$state.runtimeLoaderSha256).ToUpperInvariant()
       $managedEnforcementPass = !$codexRuntime -or (Test-ManagedEnforcementState $state $expectedRuntime (Join-Path $GlobalPath 'managed-hooks'))
+      if ($codexRuntime) {
+        $appServerCandidates = @(
+          (Join-Path $codexHome 'plugins\.plugin-appserver\codex.exe'),
+          (Join-Path $codexHome '.sandbox-bin\codex.exe')
+        )
+        $appServerExecutable = @($appServerCandidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1)
+        $managedEnforcementEffectiveRequired = $appServerExecutable.Count -eq 1
+        if ($managedEnforcementEffectiveRequired) {
+          $managedEnforcementEffectivePass = Test-EffectiveManagedEnforcement $appServerExecutable[0] (Join-Path $GlobalPath 'managed-hooks') (Join-Path $RepositoryPath 'scripts\codex-app-server-requirements.mjs')
+        }
+      }
       $activeStatePass = $state.active -eq $true -and $state.version -eq $version -and $stateAgent -eq $expectedAgent -and (!$codexRuntime -or $state.requireAgents -eq $true) -and $state.agentRoutingContractVersion -eq 4 -and $state.reasoningCeiling -eq 'proportional' -and $stateRuntime -eq $expectedRuntime -and $stateLoader -eq $expectedLoader -and $loaderHashPass -and $checksPass -and $managedEnforcementPass
-    } catch { $activeStatePass = $false; $managedEnforcementPass = $false }
+    } catch { $activeStatePass = $false; $managedEnforcementPass = $false; $managedEnforcementEffectivePass = $false }
   }
 } else {
   $agentsPass = $true
@@ -196,7 +234,7 @@ if ($globalExists) {
 $globalLoaderStatus = if (!$globalExists) { "UNKNOWN" } elseif ($loaderCandidates.Count -gt 0) { "PASS" } else { "FAIL" }
 $installed = if ($isManagedRuntime -and $repoExists -and $globalExists -and $loaderCandidates.Count -gt 0) { "YES" } else { "NO" }
 $sourceValidationPass = $repoExists -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass -and $repositoryIntelligencePass
-$managedIntegrityPass = $agentsPass -and $activeStatePass -and $managedEnforcementPass -and $oldHomeAbsent -and $runtimeDriftPass
+$managedIntegrityPass = $agentsPass -and $activeStatePass -and $managedEnforcementPass -and $managedEnforcementEffectivePass -and $oldHomeAbsent -and $runtimeDriftPass
 $overall = if ($isManagedRuntime) {
   if ($installed -eq "YES" -and $sourceValidationPass -and $managedIntegrityPass) { "ACTIVE" } else { "INACTIVE" }
 } elseif ($sourceValidationPass) {
@@ -229,6 +267,7 @@ $statusResult = [ordered]@{
     repositoryIntelligence = (PassFail $repositoryIntelligencePass)
     activeState = if ($isManagedRuntime) { (PassFail $activeStatePass) } else { 'NOT_APPLICABLE' }
     managedEnforcement = if ($isManagedRuntime) { (PassFail $managedEnforcementPass) } else { 'NOT_APPLICABLE' }
+    managedEnforcementEffective = if (!$isManagedRuntime -or !$managedEnforcementEffectiveRequired) { 'NOT_APPLICABLE' } else { (PassFail $managedEnforcementEffectivePass) }
     runtimeDrift = if ($isManagedRuntime) { $runtimeDriftStatus } else { 'NOT_APPLICABLE' }
     runtimeDriftMode = if ($isManagedRuntime) { $runtimeDriftMode } else { 'NOT_APPLICABLE' }
     sourceRevision = $sourceRevisionStatus
@@ -257,6 +296,7 @@ Write-Output "Agent routing contract: $(PassFail $agentRoutingPass)"
 Write-Output "Repository intelligence: $(PassFail $repositoryIntelligencePass)"
 Write-Output "Active state: $(if ($isManagedRuntime) { PassFail $activeStatePass } else { 'NOT_APPLICABLE' })"
 Write-Output "Managed enforcement: $(if ($isManagedRuntime) { PassFail $managedEnforcementPass } else { 'NOT_APPLICABLE' })"
+Write-Output "Managed enforcement effective: $(if (!$isManagedRuntime -or !$managedEnforcementEffectiveRequired) { 'NOT_APPLICABLE' } else { PassFail $managedEnforcementEffectivePass })"
 Write-Output "Runtime drift: $(if ($isManagedRuntime) { $runtimeDriftStatus } else { 'NOT_APPLICABLE' })"
 Write-Output "Runtime drift mode: $(if ($isManagedRuntime) { $runtimeDriftMode } else { 'NOT_APPLICABLE' })"
 Write-Output "Runtime source revision: $sourceRevisionStatus"

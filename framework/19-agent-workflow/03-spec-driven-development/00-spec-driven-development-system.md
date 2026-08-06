@@ -7,6 +7,7 @@ This module requires the assistant to convert broad, ambiguous, or durable work 
 ## Core Rules
 
 - Use spec-driven development when the request affects multiple files, user-facing behavior, public APIs, data models, migrations, infrastructure, security, agent behavior, or product workflow.
+- For T2+ work, capture an execution spec before broad inspection, delegation, or implementation. The spec can be lightweight, but it must be explicit enough to constrain token spend and worker scope.
 - Separate what and why from how. The specification records user value, scope, behavior, constraints, exclusions, success criteria, and acceptance scenarios before technology decisions.
 - Do not hide assumptions. Mark ambiguity, ask when necessary, or choose a documented conservative default only when the user has authorized autonomous execution.
 - Convert the approved or inferred specification into a technical plan that records architecture, data, API, UI, test, performance, security, and operational decisions.
@@ -22,6 +23,7 @@ For substantial work, produce or update the project-local equivalent of:
 - plan: technical approach, dependencies, architecture, data contracts, security/performance considerations, and validation strategy.
 - tasks: ordered executable tasks, parallel-safe groups, test gates, and done criteria.
 - convergence notes: mismatches found between spec, plan, tasks, code, and tests.
+- token and worker budget: selected model tier, allowed delegation topology, maximum worker count, output cap, and evidence storage rule.
 
 ## Phase Mapping
 
@@ -38,6 +40,20 @@ Use these phases when translating Spec Kit-style requests into UEEF-owned work:
 9. Task-to-issue export: optional planning output only; creating external issues requires explicit user authorization.
 
 Spec Kit slash commands or skills are external interface names. Inside UEEF, phases are enforced through local artifacts, validators, evidence, and completion audits.
+
+## Token Economy Coupling
+
+The specification owns the budget. A technical plan must not expand model capability, fan-out, source scanning, or evidence volume beyond the recorded budget unless the lead updates the spec or records a goal update route.
+
+For T2+ work, record:
+
+- token budget mode: `minimal`, `bounded`, or `expanded`;
+- delegation policy and maximum worker count;
+- context sources permitted before implementation;
+- worker output cap;
+- evidence that must be artifact-backed rather than pasted into chat.
+
+For managed Codex execution, `record-ueef-route.mjs` creates this lightweight execution spec automatically for T2+ and binds it to the route state. Durable `.ueef/specs/<id>` artifacts remain required when the task's ambiguity, reuse, or lifecycle needs the full workflow; the automatic route spec is the minimum mechanical floor, not a replacement for a substantial product specification.
 
 ## Quality Gate
 

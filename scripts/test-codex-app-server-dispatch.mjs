@@ -21,15 +21,16 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
    if(process.env.FAKE_FALLBACK_THREAD_START_CAPACITY==='1' && message.params.model==='fallback-model') return send({id:message.id,error:{message:'Selected model is at capacity'}});
    return send({id:message.id,result:{thread:{id:'thread-'+message.params.model},model:message.params.model,reasoningEffort:message.params.model==='primary-model'?'medium':'low'}});
  }
- if(message.method==='turn/start') {
+  if(message.method==='turn/start') {
    if(process.env.FAKE_REQUIRE_AR==='1' && !message.params.additionalContext?.['ueef-response-language']?.value?.includes(' ar.')) return send({id:message.id,error:{message:'missing Arabic response-language context'}});
+   if(process.env.FAKE_REQUIRE_EXECUTION_SPEC==='1' && !message.params.additionalContext?.['ueef-execution-spec']?.value?.includes('"maxWords":250')) return send({id:message.id,error:{message:'missing execution spec token budget context'}});
    if(process.env.FAKE_TURN_START_CAPACITY==='1' && message.params.model==='primary-model') return send({id:message.id,error:{message:'Selected model is at capacity'}});
    send({id:message.id,result:{turn:{id:'turn-'+message.params.model}}});
    send({method:'thread/settings/updated',params:{threadId:'thread-'+message.params.model,threadSettings:{model:message.params.model,effort:message.params.effort}}});
    if(message.params.model==='primary-model') return send({method:'turn/completed',params:{turn:{id:'turn-primary',status:'failed',error:{message:'Selected model is at capacity'}}}});
    send({method:'item/completed',params:{item:{type:'agentMessage',text:'OK'}}});
-   return send({method:'turn/completed',params:{turn:{id:'turn-fallback',status:'completed',error:null}}});
- }
+    return send({method:'turn/completed',params:{turn:{id:'turn-fallback',status:'completed',error:null}}});
+  }
 });
 `, 'utf8');
   const catalogCoverage = [
@@ -37,6 +38,8 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
     { model: 'fallback-model', hidden: false, capabilityClass: 'fast', supportedReasoningEfforts: ['low'], defaultReasoningEffort: 'low', upgrade: null }
   ];
   const catalogDigest = crypto.createHash('sha256').update(JSON.stringify(catalogCoverage)).digest('hex');
+  const executionSpec = { schemaVersion: 1, tier: 'T2', workUnitId: 'dispatch-fixture', promptSha256: 'prompt-digest', outcome: 'test dispatch', acceptanceCriteria: 'dispatch passes', ownerPaths: 'scripts', nonGoals: 'unrelated work', tokenEconomy: { specRequired: true, budgetMode: 'bounded', delegationPolicy: 'sidecar', maxWorkerCount: 1, workerOutputCap: { maxBullets: 12, maxWords: 250, longEvidenceStoredInArtifacts: true }, leadOwns: ['planning'], workerMayOwn: ['bounded-read'], forbiddenSavings: ['omit-required-acceptance-evidence'] }, requiredEvidence: ['test'], createdAtUtc: new Date().toISOString() };
+  executionSpec.digest = crypto.createHash('sha256').update(JSON.stringify(executionSpec)).digest('hex');
   const route = {
     accountCatalogVerified: true,
     catalogFresh: true,
@@ -51,9 +54,11 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
     preferredModel: 'primary-model',
     hostReasoning: 'medium',
     fallbackModel: 'fallback-model',
-    fallbackHostReasoning: 'low'
+    fallbackHostReasoning: 'low',
+    tokenEconomy: executionSpec.tokenEconomy,
+    executionSpec
   };
-  route.routeDigest = crypto.createHash('sha256').update(JSON.stringify({ tier: route.tier, workUnitId: route.workUnitId, invocationIndex: route.invocationIndex, preferredModel: route.preferredModel, hostReasoning: route.hostReasoning, fallbackModel: route.fallbackModel, fallbackHostReasoning: route.fallbackHostReasoning, catalogDigest: route.catalogDigest, catalogProvider: route.catalogProvider, catalogDiscoveredAt: route.catalogDiscoveredAt })).digest('hex');
+  route.routeDigest = crypto.createHash('sha256').update(JSON.stringify({ tier: route.tier, workUnitId: route.workUnitId, invocationIndex: route.invocationIndex, preferredModel: route.preferredModel, hostReasoning: route.hostReasoning, fallbackModel: route.fallbackModel, fallbackHostReasoning: route.fallbackHostReasoning, tokenEconomy: route.tokenEconomy, catalogDigest: route.catalogDigest, catalogProvider: route.catalogProvider, catalogDiscoveredAt: route.catalogDiscoveredAt })).digest('hex');
   fs.writeFileSync(routePath, JSON.stringify(route), 'utf8');
   const tamperedRoutePath = path.join(sandbox, 'tampered-route.json');
   fs.writeFileSync(tamperedRoutePath, JSON.stringify({ ...route, fallbackModel: 'tampered-model' }), 'utf8');
@@ -81,7 +86,7 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
     '--timeout-ms', '10000',
     '--executable', process.execPath,
     '--executable-arg', fakeServer
-  ], { encoding: 'utf8', timeout: 20_000, env: { ...process.env, FAKE_REQUIRE_AR: '1' } });
+  ], { encoding: 'utf8', timeout: 20_000, env: { ...process.env, FAKE_REQUIRE_AR: '1', FAKE_REQUIRE_EXECUTION_SPEC: '1' } });
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const result = JSON.parse(run.stdout);
   assert.equal(result.result, 'SUCCESS');
@@ -90,6 +95,8 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
   assert.equal(result.actualModel, 'fallback-model');
   assert.equal(result.actualHostReasoning, 'low');
   assert.equal(result.responseLanguage, 'ar');
+  assert.equal(result.executionSpecDigest, executionSpec.digest);
+  assert.equal(result.tokenEconomy.maxWorkerCount, 1);
   assert.deepEqual(result.attempts.map((attempt) => attempt.result), ['CAPACITY', 'SUCCESS']);
   assert.equal(result.attempts.length, 2);
   const threadStartCapacity = spawnSync(process.execPath, [

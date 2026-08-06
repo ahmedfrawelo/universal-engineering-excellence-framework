@@ -27,7 +27,10 @@ function managedEnforcementValid(state, expectedRuntimePath) {
   if (!fs.existsSync(managed.nodePath) || fs.lstatSync(managed.nodePath).isSymbolicLink() || sha256(managed.nodePath) !== managed.nodeSha256) return false;
   const requirementsText = fs.readFileSync(managed.requirementsPath, 'utf8');
   if (!requirementsText.startsWith('# UEEF-MANAGED-REQUIREMENTS') || !/^hooks\s*=\s*true$/m.test(requirementsText)) return false;
-  const requiredHookFiles = new Set(['ueef-codex-hook.mjs', 'record-ueef-route.mjs', 'ueef-hook-common.mjs', 'codex-enforcement-policy.json']);
+  const requiredHookFiles = new Set([
+    'ueef-codex-hook.mjs', 'record-ueef-route.mjs', 'ueef-hook-common.mjs', 'codex-enforcement-policy.json',
+    'model-routing-policy.json', 'resolve-model-route.mjs', 'codex-app-server-models.mjs', 'codex-app-server-client-lib.mjs'
+  ]);
   if (managed.hookFiles.length !== requiredHookFiles.size || !fs.existsSync(managed.hooksPath) || fs.lstatSync(managed.hooksPath).isSymbolicLink()) return false;
   for (const item of managed.hookFiles) {
     if (!item || typeof item.relativePath !== 'string' || typeof item.sha256 !== 'string' || !requiredHookFiles.delete(item.relativePath)) return false;

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "taskId": "replace-me",
+  "tier": "T2",
+  "outcome": "replace-me",
+  "inScope": [
+    "replace-me"
+  ],
+  "outOfScope": [
+    "replace-me"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "text": "replace-me",
+      "evidenceRequired": "replace-me"
+    }
+  ],
+  "ownerPaths": [
+    "replace-me"
+  ],
+  "tokenEconomy": {
+    "budgetMode": "bounded",
+    "contextSourcesBeforeImplementation": [
+      "repository-intelligence",
+      "selected-module-files"
+    ],
+    "maxWorkerCount": 0,
+    "delegationPolicy": "none",
+    "workerOutputCap": {
+      "maxBullets": 12,
+      "maxWords": 250,
+      "longEvidenceStoredInArtifacts": true
+    },
+    "modelCapabilityRule": "use the smallest capable route that satisfies tier and risk floor"
+  },
+  "workerContracts": [],
+  "evidencePlan": [
+    {
+      "acceptanceCriterion": "AC-001",
+      "commandOrReview": "replace-me",
+      "artifactPath": "replace-me"
+    }
+  ],
+  "convergenceChecks": [
+    "requirements trace to implementation",
+    "worker results integrated or discarded with reason",
+    "acceptance evidence is current",
+    "token-saving shortcuts did not remove required proof"
+  ]
+}

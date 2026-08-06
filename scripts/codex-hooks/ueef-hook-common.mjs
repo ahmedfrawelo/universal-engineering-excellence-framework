@@ -135,9 +135,10 @@ export function loadPolicy() {
 
 export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
   const text = String(prompt || '');
+  const userTaskText = text.replace(/<in-app-browser-context\b[^>]*>[\s\S]*?<\/in-app-browser-context>/giu, ' ');
   const policy = loadPolicy();
   const frontendPolicy = policy.frontendEnforcement || {};
-  const matches = (patterns) => patterns.some((pattern) => new RegExp(String(pattern).replace(/^\(\?i\)/u, ''), 'iu').test(text));
+  const matches = (patterns) => patterns.some((pattern) => new RegExp(String(pattern).replace(/^\(\?i\)/u, ''), 'iu').test(userTaskText));
   const frontendLikely = matches(frontendPolicy.promptPatterns || []) && !matches(frontendPolicy.metaPromptExclusionPatterns || []);
   const promptGoal = /(^|\s)\/goal\b|<objective>|\bgoal\b|الهدف/iu.test(text);
   const previous = readSessionState(sessionId);
@@ -161,6 +162,7 @@ export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
   authorizations.useCurrentModel = explicitlyPositive(/(use|keep|stick to).{0,30}(current|selected|picker).{0,20}model|استخدم.{0,20}(الموديل الحالي|الموديل المختار)|اشتغل.{0,20}(بالموديل الحالي|بالموديل المختار)/iu);
   authorizations.allowModelConstraintOverride = explicitlyPositive(/(allow|permit|authorize).{0,40}(model constraint|override|break constraint)|اسمح.{0,30}(بتجاوز|بكسر).{0,20}(قيد|الموديل)/iu);
   authorizations.allowAboveHigh = explicitlyPositive(/\b(xhigh|max|ultra|extra[ -]?high|above[ -]?high)\b|أعلى من هاي|تجاوز هاي|فوق هاي/iu);
+  authorizations.newUserTask = explicitlyPositive(/(?:\b(?:create|open|start|fork)\b.{0,30}\b(?:new\s+)?(?:task|thread|chat)\b|(?:\u0627\u0641\u062a\u062d|\u0627\u0639\u0645\u0644|\u0627\u0646\u0634\u0626|\u0623\u0646\u0634\u0626).{0,20}(?:\u062a\u0627\u0633\u0643|\u0645\u0647\u0645\u0629|\u062b\u0631\u064a\u062f|\u0634\u0627\u062a).{0,10}(?:\u062c\u062f\u064a\u062f|\u062c\u062f\u064a\u062f\u0629))/iu);
   return {
     schemaVersion: 1,
     sessionId: safeId(sessionId),
@@ -194,7 +196,8 @@ export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
       release: false,
       goalComplete: false,
       goalBlocked: false,
-      modelDispatch: false
+      modelDispatch: false,
+      executionSpec: false
     }
   };
 }

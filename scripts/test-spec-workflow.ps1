@@ -14,6 +14,10 @@ try {
   Get-ChildItem -LiteralPath $created.path -File | ForEach-Object {
     $text = Get-Content -LiteralPath $_.FullName -Raw
     $text = [regex]::Replace($text, '\{\{[A-Z0-9_]+\}\}', 'Completed')
+    $text = $text -replace '- Token budget mode: Completed', '- Token budget mode: bounded'
+    $text = $text -replace '- Delegation policy: Completed', '- Delegation policy: none'
+    $text = $text -replace '- Maximum worker count: Completed', '- Maximum worker count: 0'
+    $text = $text -replace '- Actual worker count: Completed', '- Actual worker count: 0'
     $text = $text -replace '\| AC-001 \| Completed \| Completed \| Completed \|', '| AC-001 | completed review | PASS | 2026-07-23T00:00:00Z |'
     Set-Content -LiteralPath $_.FullName -Value $text -Encoding utf8
   }

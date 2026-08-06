@@ -11,11 +11,11 @@ $workflowPath = (Resolve-Path -LiteralPath $Path).Path
 $required = [ordered]@{
   'constitution.md' = @('# Constitution:', '## Principles', '## Non-negotiable constraints')
   'spec.md' = @('# Specification:', '## Outcome', '## Functional requirements', '## Acceptance criteria')
-  'plan.md' = @('# Technical Plan:', '## Requirement mapping', '## Rollout and rollback')
-  'tasks.md' = @('# Tasks:', '## Ordered work', 'TASK-001', 'Requirements: REQ-001', 'Evidence:', 'Done when:')
-  'evidence.md' = @('# Evidence:', '## Delivery record', '| Acceptance criterion | Evidence command or review | Result | Recorded at |', '| AC-001 |')
+  'plan.md' = @('# Technical Plan:', '## Token and worker budget', 'Token budget mode:', 'Delegation policy:', 'Maximum worker count:', 'Worker output cap:', '## Requirement mapping', '## Rollout and rollback')
+  'tasks.md' = @('# Tasks:', '## Ordered work', 'TASK-001', 'Requirements: REQ-001', 'Delegation:', 'Allowed write set:', 'Forbidden paths:', 'Evidence:', 'Done when:')
+  'evidence.md' = @('# Evidence:', '## Delivery record', '| Acceptance criterion | Evidence command or review | Result | Recorded at |', '| AC-001 |', '## Token economy record', 'Actual worker count:', 'Worker results integrated or discarded:')
   'clarifications.md' = @('# Clarifications:', '## Clarification register', '| ID | Question | Status | Decision or assumption | Owner | Evidence |', 'CLAR-001')
-  'convergence.md' = @('# Convergence:', '## Traceability convergence', '| Requirement or AC | Spec | Plan | Task | Implementation | Evidence | State | Residual risk |', 'REQ-001')
+  'convergence.md' = @('# Convergence:', '## Traceability convergence', '| Requirement or AC | Spec | Plan | Task | Implementation | Evidence | State | Residual risk |', 'REQ-001', '## Token and worker budget convergence', 'Worker outputs within cap:', 'Token-saving shortcuts removed required evidence:')
 }
 $issues = [Collections.Generic.List[string]]::new()
 $spec = Get-Content -LiteralPath (Join-Path $workflowPath 'spec.md') -Raw -ErrorAction SilentlyContinue
@@ -29,9 +29,16 @@ foreach ($item in $required.GetEnumerator()) {
   if ($Mode -eq 'Ready' -and $content -match '\{\{[A-Z0-9_]+\}\}') { $issues.Add("$($item.Key) contains unresolved placeholders") }
 }
 $tasks = Get-Content -LiteralPath (Join-Path $workflowPath 'tasks.md') -Raw -ErrorAction SilentlyContinue
-if ($tasks -and (($tasks -notmatch 'Evidence:') -or ($tasks -notmatch 'Done when:') -or ($tasks -notmatch 'Requirements: REQ-'))) { $issues.Add('tasks.md must link each task to requirements, evidence, and a completion condition') }
+if ($tasks -and (($tasks -notmatch 'Evidence:') -or ($tasks -notmatch 'Done when:') -or ($tasks -notmatch 'Requirements: REQ-') -or ($tasks -notmatch 'Delegation:') -or ($tasks -notmatch 'Allowed write set:') -or ($tasks -notmatch 'Forbidden paths:'))) { $issues.Add('tasks.md must link each task to requirements, delegation scope, write boundaries, evidence, and a completion condition') }
+$plan = Get-Content -LiteralPath (Join-Path $workflowPath 'plan.md') -Raw -ErrorAction SilentlyContinue
+if ($Mode -eq 'Ready' -and $plan) {
+  if ($plan -notmatch '(?m)^-\s*Token budget mode:\s*(minimal|bounded|expanded)\s*$') { $issues.Add('plan.md must record token budget mode as minimal, bounded, or expanded') }
+  if ($plan -notmatch '(?m)^-\s*Delegation policy:\s*(none|sidecar|parallel-specialists|lead-workers-verifier)\s*$') { $issues.Add('plan.md must record a valid delegation policy') }
+  if ($plan -notmatch '(?m)^-\s*Maximum worker count:\s*\d+\s*$') { $issues.Add('plan.md must record a numeric maximum worker count') }
+}
 $evidence = Get-Content -LiteralPath (Join-Path $workflowPath 'evidence.md') -Raw -ErrorAction SilentlyContinue
 if ($Mode -eq 'Ready' -and $evidence -and $evidence -notmatch '\| AC-[0-9]+ \|.+\|\s*(PASS|FAIL|PENDING)\s*\|.+\|') { $issues.Add('evidence.md must record an AC result as PASS, FAIL, or PENDING') }
+if ($Mode -eq 'Ready' -and $evidence -and $evidence -notmatch '(?m)^-\s*Actual worker count:\s*\d+\s*$') { $issues.Add('evidence.md must record a numeric actual worker count') }
 $clarifications = Get-Content -LiteralPath (Join-Path $workflowPath 'clarifications.md') -Raw -ErrorAction SilentlyContinue
 if ($Mode -eq 'Ready' -and $clarifications -and $clarifications -match '(?m)^\|\s*CLAR-[0-9]+\s*\|.*\|\s*OPEN\s*\|') { $issues.Add('clarifications.md cannot contain OPEN items in Ready mode') }
 $convergence = Get-Content -LiteralPath (Join-Path $workflowPath 'convergence.md') -Raw -ErrorAction SilentlyContinue

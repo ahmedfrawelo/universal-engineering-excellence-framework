@@ -11,6 +11,21 @@ const mutationLikely = (toolName, toolInput) => /(apply_patch|write|edit|delete|
   /(Set-Content|Add-Content|Out-File|Remove-Item|Move-Item|Rename-Item|Copy-Item|rm\s|mv\s|cp\s|del\s|erase\s|writeFile|appendFile|unlink|rename\s*\()/iu.test(toolInput);
 const responseFailed = (response) => /(Exit code:\s*[1-9]|Script failed|"isError"\s*:\s*true|permissionDecision"?\s*:\s*"deny")/iu.test(response);
 const containsJsonStringField = (text, name, value) => new RegExp(`"${String(name).replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}"\\s*:\\s*"${String(value).replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}"`, 'u').test(text);
+const completionNegationPattern = /(?:\b(?:not|no|never|without|pending|requires?|before|until|cannot|can't|won't|do\s+not|did\s+not|isn't|wasn't)\b|(?:لا|لن|ليس|ليست|غير|بدون|قبل|حتى|يتطلب|يحتاج))/iu;
+
+function isCompletionClaim(message, policy) {
+  const claim = regex(policy.completionClaimPattern, 'giu');
+  for (const line of String(message).split(/\r?\n/u)) {
+    claim.lastIndex = 0;
+    for (const match of line.matchAll(claim)) {
+      const prefix = line.slice(0, match.index);
+      if (/^\s*(?:Current-step percent|Overall percent|نسبة الخطوة الحالية|النسبة الكلية)\s*:/iu.test(line)) continue;
+      if (completionNegationPattern.test(prefix)) continue;
+      return true;
+    }
+  }
+  return false;
+}
 
 function currentContext(routeCommand = '') {
   let version = 'UNKNOWN';
@@ -30,18 +45,50 @@ function commandArgument(command, name) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
   return String(command).match(new RegExp(`(?:^|\\s)${escaped}\\s+(?:"([^"]+)"|'([^']+)'|([^\\s]+))`, 'iu'))?.slice(1).find(Boolean) || null;
 }
+function shellCommandFromTool(toolName, event) {
+  if (/(?:shell_command|bash|powershell|terminal)/iu.test(toolName)) {
+    return String(event.tool_input?.command || event.tool_input?.cmd || '');
+  }
+  if (!/(?:^|[._])exec$/iu.test(toolName)) return '';
+  const code = typeof event.tool_input === 'string'
+    ? event.tool_input
+    : String(event.tool_input?.code || event.tool_input?.input || '');
+  const wrapper = code.match(/^\s*const\s+([A-Za-z_$][\w$]*)\s*=\s*await\s+tools\.shell_command\(\{\s*command\s*:\s*("(?:\\.|[^"\\])*")\s*,\s*workdir\s*:\s*"(?:\\.|[^"\\])*"\s*,\s*timeout_ms\s*:\s*\d+\s*\}\)\s*;\s*text\(\1\)\s*;?\s*$/u);
+  if (!wrapper) return '';
+  try { return JSON.parse(wrapper[2]); } catch { return ''; }
+}
+function hasUnquotedShellControl(command) {
+  const text = String(command || '');
+  let quote = null;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (character === '\r' || character === '\n') return true;
+    if (quote === "'") {
+      if (character === "'" && text[index + 1] === "'") { index += 1; continue; }
+      if (character === "'") quote = null;
+      continue;
+    }
+    if (quote === '"') {
+      if (character === '`' && index + 1 < text.length) { index += 1; continue; }
+      if (character === '"') quote = null;
+      continue;
+    }
+    if (character === "'" || character === '"') { quote = character; continue; }
+    if (character === ';' || character === '|') return true;
+    if (character === '&' && text[index + 1] === '&') return true;
+  }
+  return quote !== null;
+}
 function isIsolatedRouteRecorder(toolName, event, toolInput) {
-  if (!/(?:shell_command|bash|powershell|terminal)/iu.test(toolName)) return false;
-  const command = String(event.tool_input?.command || event.tool_input?.cmd || '');
-  if (!command || /[\r\n;|]|&&|\|\|/u.test(command)) return false;
+  const command = shellCommandFromTool(toolName, event);
+  if (!command || hasUnquotedShellControl(command)) return false;
   return /^\s*(?:&\s+)?(?:"[^"]+"|'[^']+'|\S+)\s+(?:"[^"]*record-ueef-route\.mjs"|'[^']*record-ueef-route\.mjs'|\S*record-ueef-route\.mjs)/iu.test(command) &&
     /--session-id\s+/iu.test(command) && /--turn-id\s+/iu.test(command) && /--work-unit-id\s+/iu.test(command) && /--tier\s+/iu.test(command) &&
     /record-ueef-route\.mjs/iu.test(toolInput);
 }
 function isIsolatedDirectDispatcher(toolName, event) {
-  if (!/(?:shell_command|bash|powershell|terminal)/iu.test(toolName)) return false;
-  const command = String(event.tool_input?.command || event.tool_input?.cmd || '');
-  if (!command || /[\r\n;|]|&&|\|\|/u.test(command)) return false;
+  const command = shellCommandFromTool(toolName, event);
+  if (!command || hasUnquotedShellControl(command)) return false;
   return /^\s*(?:&\s+)?(?:"[^"]+"|'[^']+'|\S+)\s+(?:"[^"]*codex-app-server-dispatch\.mjs"|'[^']*codex-app-server-dispatch\.mjs'|\S*codex-app-server-dispatch\.mjs)\b/iu.test(command);
 }
 
@@ -49,7 +96,7 @@ function onUserPromptSubmit(event) {
   const state = newTurnState(event.session_id, event.turn_id, event.prompt, event.cwd, event.model);
   writeTurnState(event.session_id, event.turn_id, state);
   const recorder = path.join(hookRoot, 'record-ueef-route.mjs');
-  const command = `& ${quotePowerShell(process.execPath)} ${quotePowerShell(recorder)} --session-id ${quotePowerShell(state.sessionId)} --turn-id ${quotePowerShell(state.turnId)} --work-unit-id '<stable-work-unit-id>' --tier <T0|T1|T2|T3|T4> --intent '<intent>' --agent-route '<route>' --browser-reason '<reason>'`;
+  const command = `& ${quotePowerShell(process.execPath)} ${quotePowerShell(recorder)} --session-id ${quotePowerShell(state.sessionId)} --turn-id ${quotePowerShell(state.turnId)} --work-unit-id '<stable-work-unit-id>' --tier <T0|T1|T2|T3|T4> --intent '<intent>' --agent-route '<route>' --browser-reason '<reason>' --acceptance '<acceptance criteria>' --owner-paths '<owned paths>' --non-goals '<explicit non-goals>'`;
   return {continue:true,hookSpecificOutput:{hookEventName:'UserPromptSubmit',additionalContext:currentContext(command)}};
 }
 
@@ -60,19 +107,23 @@ function onPreToolUse(event) {
   const toolInput = inputText(event.tool_input);
   if (isIsolatedRouteRecorder(toolName, event, toolInput)) return {};
   if (!state.route?.modelRouteVerified) return preToolDeny('UEEF dynamic model route is missing. Publish Intent, Tier, Agent route, Browser reason, model, and effort, then run the injected record-ueef-route.mjs command with a fresh host catalog before using local tools.');
+  if (state.route.tokenEconomy?.specRequired === true && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return preToolDeny('T2+ execution requires the managed execution spec created by the validated route recorder.');
   if (!assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
   const directModelDispatch = /codex-app-server-dispatch\.mjs/iu.test(toolInput);
   const hostModelDispatch = /(send_message_to_thread|create_thread|spawn_agent)/iu.test(toolName);
+  if (/(create_thread|fork_thread)/iu.test(toolName) && state.authorizations?.newUserTask !== true) return preToolDeny('Creating a user-visible Codex task requires an explicit current-prompt request for a new task. Use ephemeral routed execution or an internal worker instead.');
+  const workerDispatch = state.validations.modelDispatch === true && /(create_thread|spawn_agent)/iu.test(toolName);
+  if (workerDispatch && Number(state.workerDispatchCount || 0) >= Number(state.route.tokenEconomy?.maxWorkerCount ?? 0)) return preToolDeny(`Worker dispatch exceeds the ${state.route.tokenEconomy?.maxWorkerCount ?? 0}-worker budget for ${state.route.tier}.`);
   if (state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch) return preToolDeny('Execute the current validated model route before using other task tools. This applies to T0-T4.');
   if (state.validations.modelDispatch === true && state.route.actualLine && !assistantMessageContains(event.transcript_path, state.route.actualLine)) return preToolDeny(`Publish the verified actual sub-agent execution before continuing: ${state.route.actualLine}`);
   if (directModelDispatch) {
     if (!isIsolatedDirectDispatcher(toolName, event)) return preToolDeny('Direct App Server dispatch must be an isolated dispatcher command with no chained output fabrication.');
-    const commandText = String(event.tool_input?.command || event.tool_input?.cmd || toolInput);
+    const commandText = shellCommandFromTool(toolName, event);
     const routePath = commandArgument(commandText, '--route');
     if (!routePath || !fs.existsSync(routePath)) return preToolDeny('Direct App Server dispatch requires the current managed route artifact.');
     let dispatchRoute;
     try { dispatchRoute = JSON.parse(fs.readFileSync(routePath, 'utf8')); } catch { return preToolDeny('Direct App Server dispatch route is unreadable.'); }
-    if (dispatchRoute.routeDigest !== state.route.routeDigest || dispatchRoute.catalogDigest !== state.route.catalogDigest || dispatchRoute.preferredModel !== state.route.preferredModel || dispatchRoute.hostReasoning !== state.route.hostReasoning ||
+    if (dispatchRoute.routeDigest !== state.route.routeDigest || dispatchRoute.executionSpec?.digest !== state.executionSpec?.digest || dispatchRoute.catalogDigest !== state.route.catalogDigest || dispatchRoute.preferredModel !== state.route.preferredModel || dispatchRoute.hostReasoning !== state.route.hostReasoning ||
         (dispatchRoute.fallbackModel || null) !== (state.route.fallbackModel || null) || (dispatchRoute.fallbackHostReasoning || null) !== (state.route.fallbackHostReasoning || null)) {
       return preToolDeny('Direct App Server dispatch route does not match the current validated work-unit route.');
     }
@@ -92,7 +143,16 @@ function onPreToolUse(event) {
   for (const pattern of policy.prohibitedBrowserToolPatterns) if (regex(pattern).test(toolName)) return preToolDeny(`Prohibited browser surface denied by UEEF: ${toolName}`);
   for (const pattern of policy.prohibitedBrowserInputPatterns) if (regex(pattern).test(toolInput)) return preToolDeny('Prohibited browser/window/profile/context path denied by UEEF.');
   if (policy.browserInputPatterns.some((pattern) => regex(pattern).test(toolInput)) && state.validations.browserPreflight !== true) return preToolDeny('Browser control requires a passing UEEF browser preflight before Chrome binding calls.');
+  const patchMutation = /apply_patch/iu.test(toolName) || /tools\.apply_patch\s*\(/u.test(toolInput);
+  const patchText = /apply_patch/iu.test(toolName)
+    ? String(event.tool_input?.command || event.tool_input?.patch || toolInput)
+    : toolInput;
   for (const rule of policy.destructiveCommands) {
+    if (patchMutation) {
+      const fileRemoval = rule.id === 'delete' && /^\s*\*{3}\s+Delete\s+File:/imu.test(patchText);
+      if (fileRemoval && state.authorizations?.[rule.authorization] !== true) return preToolDeny(`Command denied without explicit current-prompt authorization: ${rule.id}`);
+      continue;
+    }
     if (regex(rule.pattern).test(toolInput) && state.authorizations?.[rule.authorization] !== true) return preToolDeny(`Command denied without explicit current-prompt authorization: ${rule.id}`);
   }
   if (toolName === 'update_goal') {
@@ -114,6 +174,7 @@ function onPostToolUse(event) {
   const goalCreated = toolName === 'create_goal' && /"status"\s*:\s*"active"/iu.test(response);
   if (goalCreated) setSessionGoalState(event.session_id, true);
   updateTurnState(event.session_id, event.turn_id, (state) => {
+    const modelDispatchWasAlreadyVerified = state.validations.modelDispatch === true;
     state.toolsUsed = Number(state.toolsUsed || 0) + 1;
     if (goalCreated) state.goalTask = true;
     if (mutation && !responseFailed(response)) state.frontendMutation = state.frontendLikely === true;
@@ -157,6 +218,9 @@ function onPostToolUse(event) {
         state.route.actualLine = `Model execution: ${state.route.workUnitId} | ${dispatchedModel} / ${dispatchedReasoning} (verified: host-dispatch-receipt)`;
         if (!state.route.invocationCommitted) state.route.invocationCommitted = commitWorkUnitInvocation(event.session_id, state.route.workUnitId, state.route.invocationIndex) || state.route.invocationCommitted === true;
       }
+    }
+    if (modelDispatchWasAlreadyVerified && /(create_thread|spawn_agent)/iu.test(toolName) && !responseFailed(response)) {
+      state.workerDispatchCount = Number(state.workerDispatchCount || 0) + 1;
     }
     if (/codex-app-server-dispatch\.mjs/iu.test(toolInput) && state.route?.modelRouteVerified === true && !responseFailed(response)) {
       const primaryPair = containsJsonStringField(response, 'actualModel', state.route.preferredModel) && containsJsonStringField(response, 'actualHostReasoning', state.route.hostReasoning);
@@ -202,12 +266,13 @@ function onStop(event) {
     if (state.route?.modelRouteVerified && (!message.includes(state.route.preferredModel) || !message.includes(state.route.displayReasoning || state.route.hostReasoning))) return stopBlock('UEEF Selected must report the current work-unit model and host-provided reasoning display from the validated route.');
     if (state.validations.modelDispatch === true && state.route?.actualModel && (!message.includes(state.route.actualModel) || !message.includes(state.route.actualHostReasoning))) return stopBlock('UEEF Selected must report the verified actual sub-agent model and reasoning effort.');
   }
-  const completionClaim = regex(policy.completionClaimPattern).test(message);
+  const completionClaim = isCompletionClaim(message, policy);
   if (state.goalTask === true && !completionClaim) {
     const missingProgress = policy.requiredProgressConcepts.filter((pattern) => !new RegExp(`^\\s*(?:${pattern})\\s*:`, 'imu').test(message));
     if (missingProgress.length) return stopBlock('Active long-goal update is missing understanding, phase, current step, both percentages, new evidence, current action, or next gate.');
   }
   if (completionClaim) {
+    if (['T2','T3','T4'].includes(state.route?.tier) && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return stopBlock('T2+ completion requires the managed execution spec bound to the current route.');
     if (state.route?.modelRouteVerified === true && state.validations.modelDispatch !== true) return stopBlock('Completion claim requires a successful host model dispatch matching the validated work-unit route.');
     if (['T2','T3','T4'].includes(state.route?.tier) && state.validations.taskEvidence !== true) return stopBlock('T2+ completion requires passing task evidence in the current turn.');
     if (state.route?.tier === 'T4' && state.validations.freshReview !== true) return stopBlock('T4 completion requires the agent to automatically run the selected fresh-context review lane and pass fresh-review evidence in the current turn. Do not ask the user for a separate reviewer trigger.');

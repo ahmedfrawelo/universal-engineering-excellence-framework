@@ -71,6 +71,16 @@ Status: DRAFT
 
 Status: DRAFT
 
+## Token and worker budget
+
+- Tier: {{TIER}}
+- Token budget mode: {{TOKEN_BUDGET_MODE}}
+- Delegation policy: {{DELEGATION_POLICY}}
+- Maximum worker count: {{MAX_WORKER_COUNT}}
+- Worker output cap: {{WORKER_OUTPUT_CAP}}
+- Context sources allowed before implementation: {{CONTEXT_SOURCES}}
+- Artifact-backed evidence: {{ARTIFACT_EVIDENCE_RULE}}
+
 ## Requirement mapping
 
 | Requirement | Decision | Owner | Verification |
@@ -98,6 +108,9 @@ Status: DRAFT
 
 - [ ] TASK-001 {{TASK}}
   - Requirements: REQ-001
+  - Delegation: {{DELEGATION_MODE}}
+  - Allowed write set: {{ALLOWED_WRITE_SET}}
+  - Forbidden paths: {{FORBIDDEN_PATHS}}
   - Depends on: {{DEPENDENCY}}
   - Evidence: {{EVIDENCE}}
   - Done when: {{DONE_WHEN}}
@@ -116,6 +129,12 @@ Status: DRAFT
 ## Residual risks and follow-up
 
 - {{RESIDUAL_RISK}}
+
+## Token economy record
+
+- Actual worker count: {{ACTUAL_WORKER_COUNT}}
+- Worker results integrated or discarded: {{WORKER_RESULT_STATUS}}
+- Long evidence artifact paths: {{LONG_EVIDENCE_ARTIFACTS}}
 '@
   'clarifications.md' = @'
 # Clarifications: {{TITLE}}
@@ -143,6 +162,13 @@ Status: DRAFT
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | REQ-001 | REQ-001 | {{PLAN_REFERENCE}} | TASK-001 | {{IMPLEMENTATION}} | {{EVIDENCE}} | PENDING | {{RESIDUAL_RISK}} |
 | AC-001 | AC-001 | {{PLAN_REFERENCE}} | TASK-001 | {{IMPLEMENTATION}} | {{EVIDENCE}} | PENDING | {{RESIDUAL_RISK}} |
+
+## Token and worker budget convergence
+
+- Planned budget mode: {{PLANNED_BUDGET_MODE}}
+- Actual budget mode: {{ACTUAL_BUDGET_MODE}}
+- Worker outputs within cap: {{WORKER_OUTPUTS_WITHIN_CAP}}
+- Token-saving shortcuts removed required evidence: {{TOKEN_SHORTCUT_EVIDENCE_LOSS}}
 
 ## Divergences, waivers, and follow-up
 

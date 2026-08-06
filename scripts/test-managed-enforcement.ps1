@@ -67,11 +67,12 @@ function Add-AssistantMessage {
 function Record-UeefRoute {
   param([string]$NodePath,[string]$Recorder,[string]$Catalog,[string]$Session,[string]$Turn,[string]$Tier,[string]$Intent,[string]$WorkUnit,[string]$Transcript,[string]$BrowserReason='not required')
   $routeOutput = Join-Path ([IO.Path]::GetTempPath()) ("ueef-managed-route-" + [guid]::NewGuid().ToString('N') + '.json')
-  $route = & $NodePath $Recorder --session-id $Session --turn-id $Turn --work-unit-id $WorkUnit --tier $Tier --intent $Intent --agent-route 'single primary agent' --browser-reason $BrowserReason --model-catalog $Catalog --allow-test-catalog --route-output $routeOutput | ConvertFrom-Json
+  $route = & $NodePath $Recorder --session-id $Session --turn-id $Turn --work-unit-id $WorkUnit --tier $Tier --intent $Intent --agent-route 'single primary agent' --browser-reason $BrowserReason --acceptance 'Requested behavior is implemented and verified' --owner-paths 'bounded test owner' --non-goals 'unrelated project behavior' --model-catalog $Catalog --allow-test-catalog --route-output $routeOutput | ConvertFrom-Json
   if ($LASTEXITCODE -ne 0) { throw "Node dynamic route recorder failed for $Session/$Turn." }
   if (!(Test-Path -LiteralPath $routeOutput -PathType Leaf)) { throw 'Dynamic route recorder did not create --route-output.' }
   $artifact = Get-Content -LiteralPath $routeOutput -Raw | ConvertFrom-Json
   if ($artifact.routeLine -cne $route.routeLine -or $artifact.routeDigest -cne $route.routeDigest) { throw 'Managed route artifact did not preserve route line and digest.' }
+  if ($Tier -in @('T2','T3','T4') -and (!$artifact.executionSpec.digest -or !$artifact.tokenEconomy.specRequired)) { throw 'Managed route artifact did not bind the required T2+ execution spec and token economy contract.' }
   Remove-Item -LiteralPath $routeOutput -Force
   Add-AssistantMessage $Transcript $route.routeLine
   return $route
@@ -107,10 +108,15 @@ try {
   foreach ($term in @('# UEEF-MANAGED-REQUIREMENTS','hooks = true','SessionStart','UserPromptSubmit','PreToolUse','PostToolUse','Stop','windows_managed_dir')) {
     if (!$requirements.Contains($term)) { throw "Managed requirements missing: $term" }
   }
+  if ($requirements -notmatch '(?m)^command_windows\s*=\s*''node\s+"[^"\r\n]+ueef-codex-hook\.mjs"''\s*$') {
+    throw 'Managed requirements did not use the verified Windows command-hook form.'
+  }
   $hook = Join-Path $install.hooksPath 'ueef-codex-hook.mjs'
   $recorder = Join-Path $install.hooksPath 'record-ueef-route.mjs'
   $nodePath = [string]$install.nodePath
-  foreach ($path in @($hook,$recorder,(Join-Path $install.hooksPath 'ueef-hook-common.mjs'),(Join-Path $install.hooksPath 'codex-enforcement-policy.json'),$nodePath)) {
+  $liveHookTestSource = Get-Content -LiteralPath (Join-Path $root 'scripts\test-live-managed-hooks.mjs') -Raw
+  if ($liveHookTestSource -match '--persist' -or $liveHookTestSource -notmatch 'ephemeral:\s*true') { throw 'Live managed-hook verification must always use an ephemeral App Server thread.' }
+  foreach ($path in @($hook,$recorder,(Join-Path $install.hooksPath 'ueef-hook-common.mjs'),(Join-Path $install.hooksPath 'codex-enforcement-policy.json'),(Join-Path $install.hooksPath 'model-routing-policy.json'),(Join-Path $install.hooksPath 'resolve-model-route.mjs'),(Join-Path $install.hooksPath 'codex-app-server-models.mjs'),(Join-Path $install.hooksPath 'codex-app-server-client-lib.mjs'),$nodePath)) {
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Managed hook payload missing: $path" }
   }
   $modelCatalog = Join-Path $sandbox 'live-host-model-catalog.json'
@@ -142,7 +148,7 @@ try {
 
   $promptText = '/goal implement mandatory enforcement then push and release'
   $promptResult = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='UserPromptSubmit';prompt=$promptText})
-  if ([string]$promptResult.hookSpecificOutput.additionalContext -notmatch 'record-ueef-route.mjs') { throw 'UserPromptSubmit did not inject the route command.' }
+  if ([string]$promptResult.hookSpecificOutput.additionalContext -notmatch 'record-ueef-route.mjs' -or [string]$promptResult.hookSpecificOutput.additionalContext -notmatch '--acceptance' -or [string]$promptResult.hookSpecificOutput.additionalContext -notmatch '--owner-paths' -or [string]$promptResult.hookSpecificOutput.additionalContext -notmatch '--non-goals') { throw 'UserPromptSubmit did not inject the execution-spec-aware route command.' }
   $stateRoot = Join-Path $runtimeRoot 'hook-state'
   $persistedState = (Get-ChildItem -LiteralPath $stateRoot -Filter '*.json' -File | Select-Object -First 1)
   if (!$persistedState) { throw 'UserPromptSubmit did not create turn state.' }
@@ -164,12 +170,41 @@ try {
   $compoundRecorder = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='tool-1c';tool_input=@{command="node record-ueef-route.mjs --session-id $session --turn-id $turn --work-unit-id implementation --tier T4; git reset --hard HEAD"}})
   Assert-Denied $compoundRecorder 'Compound destructive command disguised as route recorder'
 
+  $execRecorderCode = 'const r = await tools.shell_command({command:"node scripts/record-ueef-route.mjs --session-id session --turn-id turn --work-unit-id test --tier T0",workdir:"C:\\repo",timeout_ms:30000}); text(r);'
+  $execRecorder = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='functions.exec';tool_use_id='tool-1d';tool_input=$execRecorderCode})
+  if ([string]$execRecorder.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Isolated functions.exec route-recorder wrapper was denied.' }
+  $execRecorderQuotedSemicolonCode = 'const r = await tools.shell_command({command:"node scripts/record-ueef-route.mjs --session-id session --turn-id turn --work-unit-id test --tier T0 --acceptance ''reviewed; verified'' --non-goals ''no reset; no delete''",workdir:"C:\\repo",timeout_ms:30000}); text(r);'
+  $execRecorderQuotedSemicolon = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='functions.exec';tool_use_id='tool-1d-quoted-semicolon';tool_input=$execRecorderQuotedSemicolonCode})
+  if ([string]$execRecorderQuotedSemicolon.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Quoted punctuation inside functions.exec route metadata was treated as a shell control operator.' }
+  $execRecorderUnquotedSemicolonCode = 'const r = await tools.shell_command({command:"node scripts/record-ueef-route.mjs --session-id session --turn-id turn --work-unit-id test --tier T0; git status",workdir:"C:\\repo",timeout_ms:30000}); text(r);'
+  $execRecorderUnquotedSemicolon = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='functions.exec';tool_use_id='tool-1d-unquoted-semicolon';tool_input=$execRecorderUnquotedSemicolonCode})
+  Assert-Denied $execRecorderUnquotedSemicolon 'Unquoted shell control operator in functions.exec route-recorder wrapper'
+  $execRecorderWithExtra = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='functions.exec';tool_use_id='tool-1e';tool_input=($execRecorderCode + ' tools.apply_patch("unexpected");')})
+  Assert-Denied $execRecorderWithExtra 'functions.exec route-recorder wrapper with extra executable code'
+
   Record-UeefRoute $nodePath $recorder $modelCatalog $session $turn T4 'mandatory enforcement' 'implementation' $baseTranscript | Out-Null
+  $executionSpecState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter "*.$turn.json" -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  if ($executionSpecState.validations.executionSpec -ne $true -or !$executionSpecState.executionSpec.digest -or $executionSpecState.route.tokenEconomy.budgetMode -ne 'expanded') { throw 'T4 route did not persist a verified automatic execution spec and expanded token budget.' }
+  $visibleTaskWithoutRequest = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='codex_app__create_thread';tool_use_id='visible-task-without-request';tool_input=@{model=$executionSpecState.route.preferredModel;thinking=$executionSpecState.route.hostReasoning;prompt='test'}})
+  Assert-Denied $visibleTaskWithoutRequest 'User-visible task creation without an explicit request'
   $beforeDispatchEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-2-before-dispatch';tool_input=@{command='*** Begin Patch'}})
   Assert-Denied $beforeDispatchEdit 'Routed edit before actual model dispatch'
   Complete-HostDispatch $nodePath $hook $stateRoot $base $session $turn $baseTranscript | Out-Null
   $routedEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-2';tool_input=@{command='*** Begin Patch'}})
   if ([string]$routedEdit.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Routed and actually dispatched ordinary edit was denied.' }
+  $documentedCommandPatch = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-2-documented-command';tool_input=@{command="*** Begin Patch`n*** Update File: docs/example.md`n@@`n+pickerModel = documented only`n+Remove-Item is documented only`n*** End Patch"}})
+  if ([string]$documentedCommandPatch.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Command text documented inside a patch was treated as an executed destructive command.' }
+  $fileRemovalPatch = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-2-file-removal';tool_input=@{command="*** Begin Patch`n*** Delete File: docs/example.md`n*** End Patch"}})
+  Assert-Denied $fileRemovalPatch 'File removal patch without explicit authorization'
+  $mainStatePath = (Get-ChildItem -LiteralPath $stateRoot -Filter "*.$turn.json" -File | Select-Object -First 1).FullName
+  $mainState = Get-Content -LiteralPath $mainStatePath -Raw | ConvertFrom-Json
+  for ($workerIndex = 0; $workerIndex -lt $mainState.route.tokenEconomy.maxWorkerCount; $workerIndex++) {
+    $workerTool = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id="worker-$workerIndex";tool_input=@{model=$mainState.route.preferredModel;thinking=$mainState.route.hostReasoning;message='bounded worker'}})
+    if ([string]$workerTool.hookSpecificOutput.permissionDecision -eq 'deny') { throw "Worker $workerIndex was denied inside the T4 worker budget." }
+    Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='spawn_agent';tool_use_id="worker-$workerIndex";tool_input=@{model=$mainState.route.preferredModel;thinking=$mainState.route.hostReasoning;message='bounded worker'};tool_response='{"status":"complete"}'}) | Out-Null
+  }
+  $overBudgetWorker = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='worker-over-budget';tool_input=@{model=$mainState.route.preferredModel;thinking=$mainState.route.hostReasoning;message='extra worker'}})
+  Assert-Denied $overBudgetWorker 'Worker dispatch above the route token budget'
 
   $routeSession = 'session-work-units'
   $routeTurn = 'turn-work-units'
@@ -178,7 +213,10 @@ try {
   $routeBase = @{session_id=$routeSession;turn_id=$routeTurn;cwd=$root;model='picker-model';permission_mode='default';transcript_path=$routeTranscript}
   Invoke-Hook $nodePath $hook ($routeBase + @{hook_event_name='UserPromptSubmit';prompt='Implement the task with automatic routing'}) | Out-Null
   $firstRoute = & $nodePath $recorder --session-id $routeSession --turn-id $routeTurn --work-unit-id inspect --tier T0 --intent inspection --agent-route 'single primary agent' --browser-reason 'not required' --model-catalog $modelCatalog --allow-test-catalog | ConvertFrom-Json
-  $secondRoute = & $nodePath $recorder --session-id $routeSession --turn-id $routeTurn --work-unit-id implementation --tier T2 --intent implementation --agent-route 'single primary agent' --browser-reason 'not required' --model-catalog $modelCatalog --allow-test-catalog | ConvertFrom-Json
+  $secondRoute = & $nodePath $recorder --session-id $routeSession --turn-id $routeTurn --work-unit-id implementation --tier T2 --intent implementation --agent-route 'single primary agent' --browser-reason 'not required' --acceptance 'implementation verified' --owner-paths 'bounded owner' --non-goals 'unrelated work' --model-catalog $modelCatalog --allow-test-catalog | ConvertFrom-Json
+  if (!(Test-Path -LiteralPath $secondRoute.routeOutput -PathType Leaf)) { throw 'Route recorder did not create its automatic protected route artifact.' }
+  $automaticRouteArtifact = Get-Content -LiteralPath $secondRoute.routeOutput -Raw | ConvertFrom-Json
+  if ($automaticRouteArtifact.executionSpec.digest -ne $secondRoute.executionSpec.digest -or $automaticRouteArtifact.tokenEconomy.maxWorkerCount -ne 1) { throw 'Automatic route artifact did not preserve the execution spec and token budget.' }
   if ($firstRoute.routeRevision -ne 1 -or $firstRoute.routeChanged -or $secondRoute.routeRevision -ne 2 -or !$secondRoute.routeChanged -or
       $secondRoute.routeLine -notmatch 'Model route changed' -or $secondRoute.routeLine -notmatch '->' -or
       $secondRoute.routeLine -notmatch [regex]::Escape([string]$firstRoute.preferredModel) -or
@@ -224,10 +262,13 @@ try {
   $directStatePath = (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-direct-dispatch.json' -File | Select-Object -First 1).FullName
   $directState = Get-Content -LiteralPath $directStatePath -Raw | ConvertFrom-Json
   $directRoutePath = Join-Path $sandbox 'direct-route.json'
-  [IO.File]::WriteAllText($directRoutePath, (@{routeDigest=$directState.route.routeDigest;catalogDigest=$directState.route.catalogDigest;preferredModel=$directState.route.preferredModel;hostReasoning=$directState.route.hostReasoning;fallbackModel=$directState.route.fallbackModel;fallbackHostReasoning=$directState.route.fallbackHostReasoning} | ConvertTo-Json), [Text.UTF8Encoding]::new($false))
+  [IO.File]::WriteAllText($directRoutePath, (@{routeDigest=$directState.route.routeDigest;executionSpec=$directState.executionSpec;tokenEconomy=$directState.route.tokenEconomy;catalogDigest=$directState.route.catalogDigest;preferredModel=$directState.route.preferredModel;hostReasoning=$directState.route.hostReasoning;fallbackModel=$directState.route.fallbackModel;fallbackHostReasoning=$directState.route.fallbackHostReasoning} | ConvertTo-Json -Depth 12), [Text.UTF8Encoding]::new($false))
   $directCommand = "node scripts/codex-app-server-dispatch.mjs --route `"$directRoutePath`" --prompt test"
   $directPre = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='direct-dispatch';tool_input=@{command=$directCommand}})
   if ([string]$directPre.hookSpecificOutput.permissionDecision -eq 'deny') { throw "Matching direct App Server dispatch was denied before execution: $($directPre.hookSpecificOutput.permissionDecisionReason)" }
+  $directExecCode = "const r = await tools.shell_command({command:$($directCommand | ConvertTo-Json -Compress),workdir:$($root | ConvertTo-Json -Compress),timeout_ms:30000}); text(r);"
+  $directExecPre = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='functions.exec';tool_use_id='direct-dispatch-exec';tool_input=$directExecCode})
+  if ([string]$directExecPre.hookSpecificOutput.permissionDecision -eq 'deny') { throw "Matching functions.exec App Server dispatcher wrapper was denied: $($directExecPre.hookSpecificOutput.permissionDecisionReason)" }
   $minimalReceipt = [ordered]@{routeDigest=$directState.route.routeDigest;actualModel=$directState.route.preferredModel;actualHostReasoning=$directState.route.hostReasoning;executionVerified=$true;result='SUCCESS'} | ConvertTo-Json
   Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PostToolUse';tool_name='shell_command';tool_use_id='direct-dispatch-minimal';tool_input=@{command=$directCommand};tool_response="Exit code: 0`n$minimalReceipt"}) | Out-Null
   $directState = Get-Content -LiteralPath $directStatePath -Raw | ConvertFrom-Json
@@ -305,6 +346,16 @@ try {
   $metaEdit = Invoke-Hook $nodePath $hook ($metaBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='frontend-meta-1';tool_input=@{command='*** Begin Patch'}})
   if ([string]$metaEdit.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'UEEF frontend meta-policy maintenance was incorrectly routed as a consumer UI mutation.' }
 
+  $ambientSession = 'session-ambient-ui-context'
+  $ambientTurn = 'turn-ambient-ui-context'
+  $ambientTranscript = Join-Path $sandbox 'session-ambient-ui-context.jsonl'
+  [IO.File]::WriteAllText($ambientTranscript, '', [Text.UTF8Encoding]::new($false))
+  $ambientBase = @{session_id=$ambientSession;turn_id=$ambientTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$ambientTranscript}
+  $ambientPrompt = '<in-app-browser-context source="ambient-ui-state">The user has the in-app browser open with a UI graph page.</in-app-browser-context>' + "`nCreate the repository handoff and push the project."
+  Invoke-Hook $nodePath $hook ($ambientBase + @{hook_event_name='UserPromptSubmit';prompt=$ambientPrompt}) | Out-Null
+  $ambientState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-ambient-ui-context.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  if ($ambientState.frontendLikely -eq $true) { throw 'Ambient in-app-browser UI state incorrectly selected frontend enforcement for a non-frontend user request.' }
+
   $session2 = 'session-created-goal'
   $goalTurn = 'turn-goal-create'
   $goalTranscript = Join-Path $sandbox 'session-created-goal.jsonl'
@@ -319,6 +370,17 @@ try {
   Invoke-Hook $nodePath $hook ($goalBase2 + @{hook_event_name='UserPromptSubmit';prompt='continue'}) | Out-Null
   $createdGoalState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-goal-followup.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
   if ($createdGoalState.goalTask -ne $true) { throw 'Goal created through create_goal did not persist to the next prompt.' }
+
+  $newTaskSession = 'session-explicit-new-task'
+  $newTaskTurn = 'turn-explicit-new-task'
+  $newTaskTranscript = Join-Path $sandbox 'session-explicit-new-task.jsonl'
+  [IO.File]::WriteAllText($newTaskTranscript, '', [Text.UTF8Encoding]::new($false))
+  $newTaskBase = @{session_id=$newTaskSession;turn_id=$newTaskTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$newTaskTranscript}
+  Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='UserPromptSubmit';prompt='Create a new task for the separate requested work'}) | Out-Null
+  Record-UeefRoute $nodePath $recorder $modelCatalog $newTaskSession $newTaskTurn T1 'explicit new task' 'explicit-new-task' $newTaskTranscript | Out-Null
+  $newTaskState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-explicit-new-task.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  $explicitVisibleTask = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='codex_app__create_thread';tool_use_id='visible-task-explicit';tool_input=@{model=$newTaskState.route.preferredModel;thinking=$newTaskState.route.hostReasoning;prompt='requested task'}})
+  if ([string]$explicitVisibleTask.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Explicitly requested user-visible task creation was denied.' }
 
   $authorizedPush = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='Bash';tool_use_id='tool-6';tool_input=@{command='git push origin main'}})
   if ([string]$authorizedPush.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Explicitly authorized push was denied.' }
@@ -357,6 +419,9 @@ try {
 
   $completionWithoutAudit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message="Goal COMPLETE.`nUnderstanding: done`nPhase: review`nCurrent step: closure`nCurrent-step percent: 100%`nOverall percent: 100%`nNew evidence: tests`nCurrent action: close`nNext gate: none`nUEEF: ACTIVE`nLoaded: boot-loader, core-system`nSelected: runtime; Model used: test-model / Medium label (host: medium)`nGates: T4`nTools: PowerShell`nSkills: none`nUIUX: NA`nStatus: COMPLETE"})
   Assert-StopBlocked $completionWithoutAudit 'Completion without completion audit'
+
+  $negativeCompletionMention = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message="Understanding: explaining hook behavior`nPhase: diagnosis`nCurrent step: describe why the guard fired`nCurrent-step percent: 100%`nOverall percent: 50%`nNew evidence: stop-hook output`nCurrent action: no completion claim`nNext gate: implementation`nUEEF: ACTIVE`nLoaded: boot-loader, core-system`nSelected: runtime; Model used: test-model / Medium label (host: medium)`nGates: active`nTools: PowerShell`nSkills: none`nUIUX: NA`nStatus: ACTIVE - the goal is not COMPLETE and still requires an audit"})
+  if ($negativeCompletionMention.continue -eq $false -or [string]$negativeCompletionMention.decision -eq 'block') { throw "A negated completion explanation was incorrectly blocked: $($negativeCompletionMention.reason)" }
 
   Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='Bash';tool_use_id='tool-8';tool_input=@{command='.\scripts\validate-completion-audit.ps1 -Path .\.ueef\completion-audit\x.json'};tool_response="Exit code: 0`nstatus : PASS`ntaskId : x"}) | Out-Null
   Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='Bash';tool_use_id='tool-9';tool_input=@{command='.\scripts\validate-goal-lifecycle.ps1 -GoalStatus COMPLETE -CompletionAuditPath .\.ueef\completion-audit\x.json'};tool_response="Exit code: 0`nGoalStatus : COMPLETE`nCompleteAllowed : True`nCompletionAuditPassed : True"}) | Out-Null

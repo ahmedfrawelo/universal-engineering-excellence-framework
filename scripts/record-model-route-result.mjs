@@ -41,6 +41,7 @@ const routeIdentity = {
   hostReasoning: route.hostReasoning,
   fallbackModel: route.fallbackModel || null,
   fallbackHostReasoning: route.fallbackHostReasoning || null,
+  tokenEconomy: route.tokenEconomy || null,
   catalogDigest: route.catalogDigest || null,
   catalogProvider: route.catalogProvider,
   catalogDiscoveredAt: route.catalogDiscoveredAt
@@ -53,6 +54,7 @@ const computedRouteDigest = sha256Object({
   hostReasoning: route.hostReasoning,
   fallbackModel: route.fallbackModel || null,
   fallbackHostReasoning: route.fallbackHostReasoning || null,
+  tokenEconomy: route.tokenEconomy || null,
   catalogDigest: route.catalogDigest || null,
   catalogProvider: route.catalogProvider,
   catalogDiscoveredAt: route.catalogDiscoveredAt

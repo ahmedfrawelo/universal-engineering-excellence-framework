@@ -43,10 +43,17 @@ const computedRouteDigest = crypto.createHash('sha256').update(JSON.stringify({
   hostReasoning: route.hostReasoning,
   fallbackModel: route.fallbackModel || null,
   fallbackHostReasoning: route.fallbackHostReasoning || null,
+  tokenEconomy: route.tokenEconomy || null,
   catalogDigest: route.catalogDigest,
   catalogProvider: route.catalogProvider,
   catalogDiscoveredAt: route.catalogDiscoveredAt
 }), 'utf8').digest('hex');
+if (route.tokenEconomy?.specRequired === true) {
+  if (!route.executionSpec?.digest) throw new Error('Dispatch route is missing its required execution spec.');
+  const { digest, ...executionSpecBody } = route.executionSpec;
+  const computedExecutionSpecDigest = crypto.createHash('sha256').update(JSON.stringify(executionSpecBody), 'utf8').digest('hex');
+  if (digest !== computedExecutionSpecDigest) throw new Error('Dispatch execution spec digest is invalid.');
+}
 if (route.accountCatalogVerified !== true || route.catalogFresh !== true || route.catalogContractValid !== true) throw new Error('Dispatch requires a fresh account-verified App Server route.');
 if (!route.preferredModel || !route.hostReasoning) throw new Error('Dispatch route is missing preferredModel or hostReasoning.');
 if (!route.routeDigest || route.routeDigest !== computedRouteDigest) throw new Error('Dispatch route digest does not bind the complete route identity.');
@@ -55,6 +62,17 @@ if (!Number.isFinite(discoveredAtMs) || Date.now() - discoveredAtMs > 10 * 60 * 
 
 const prompt = promptPath ? fs.readFileSync(promptPath, 'utf8') : promptValue;
 if (!prompt.trim() || Buffer.byteLength(prompt, 'utf8') > 256 * 1024) throw new Error('Prompt must contain 1 to 262144 UTF-8 bytes.');
+const executionContext = {
+  'ueef-execution-spec': {
+    kind: 'application',
+    value: JSON.stringify({
+      executionSpec: route.executionSpec || null,
+      tokenEconomy: route.tokenEconomy,
+      instruction: `Return no more than ${route.tokenEconomy?.workerOutputCap?.maxBullets ?? 12} bullets or ${route.tokenEconomy?.workerOutputCap?.maxWords ?? 250} words. Store long evidence in artifacts.`
+    })
+  }
+};
+if (responseLanguage !== 'auto') executionContext['ueef-response-language'] = { kind: 'application', value: `Respond in the language identified by BCP-47 tag ${responseLanguage}. Keep technical identifiers unchanged.` };
 
 const child = spawn(executable, [...executableArgs, 'app-server'], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, cwd });
 let buffer = '';
@@ -113,6 +131,8 @@ const finish = (error = null) => {
     requestedModel: route.preferredModel,
     requestedHostReasoning: route.hostReasoning,
     routeDigest: route.routeDigest,
+    executionSpecDigest: route.executionSpec?.digest || null,
+    tokenEconomy: route.tokenEconomy,
     attemptId: attempts.at(-1)?.requestId || turnId || null,
     responseLanguage,
     acceptedModel,
@@ -229,9 +249,7 @@ child.stdout.on('data', (chunk) => {
         effort: selectedHostReasoning,
         summary: 'concise',
         personality: 'pragmatic',
-        additionalContext: responseLanguage === 'auto' ? null : {
-          'ueef-response-language': { kind: 'application', value: `Respond in the language identified by BCP-47 tag ${responseLanguage}. Keep technical identifiers unchanged.` }
-        }
+        additionalContext: executionContext
       } });
       continue;
     }

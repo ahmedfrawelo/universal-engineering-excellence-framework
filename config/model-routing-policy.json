@@ -33,5 +33,45 @@
     "hiddenModelsRequireMatchingSpecialistPurpose": true,
     "recordActualExecution": true,
     "executionMode": "ROUTED_LEAD_REQUIRED"
+  },
+  "tokenEconomy": {
+    "specFirstForTiers": ["T2", "T3", "T4"],
+    "budgetModes": ["minimal", "bounded", "expanded"],
+    "defaultBudgetModeByTier": {
+      "T0": "minimal",
+      "T1": "minimal",
+      "T2": "bounded",
+      "T3": "bounded",
+      "T4": "expanded"
+    },
+    "delegationPolicies": ["none", "sidecar", "parallel-specialists", "lead-workers-verifier"],
+    "defaultDelegationPolicyByTier": {
+      "T0": "none",
+      "T1": "none",
+      "T2": "sidecar",
+      "T3": "parallel-specialists",
+      "T4": "lead-workers-verifier"
+    },
+    "requireAutomaticExecutionSpec": true,
+    "maxWorkerCountByTier": {
+      "T0": 0,
+      "T1": 0,
+      "T2": 1,
+      "T3": 3,
+      "T4": 4
+    },
+    "workerOutputCap": {
+      "maxBullets": 12,
+      "maxWords": 250,
+      "longEvidenceStoredInArtifacts": true
+    },
+    "leadOwns": ["planning", "integration", "final-verification", "completion-claim"],
+    "workerMayOwn": ["bounded-read", "bounded-implementation", "bounded-test", "bounded-review"],
+    "forbiddenSavings": [
+      "omit-required-acceptance-evidence",
+      "skip-risk-matched-review",
+      "reuse-stale-drift-prone-state",
+      "delegate-overlapping-write-scopes"
+    ]
   }
 }

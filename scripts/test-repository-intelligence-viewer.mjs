@@ -161,6 +161,32 @@ if (elements.get('routing-toggle').getAttribute('aria-expanded') !== 'false' || 
 const overviewNodeCount = activeNetwork.data.nodes.get().length;
 const overviewEdgeCount = activeNetwork.data.edges.get().length;
 if (overviewNodeCount < 2 || overviewEdgeCount < 1) throw new Error('Architecture overview is empty.');
+const overviewNodes = activeNetwork.data.nodes.get();
+if (!overviewNodes.some((node) => node._display_label && node.label === node._display_label)) {
+  throw new Error('Viewer did not expose display labels for disambiguated graph nodes.');
+}
+const repeatedOwnerLabels = overviewNodes
+  .map((node) => String(node.label || ''))
+  .filter((label) => {
+    const parts = label.split(' · ').map((part) => part.trim().toLowerCase());
+    return parts.length === 2 && parts[0] && parts[0] === parts[1];
+  });
+if (repeatedOwnerLabels.length) {
+  throw new Error(`Overview contains repeated owner labels: ${repeatedOwnerLabels.slice(0, 3).join(', ')}`);
+}
+const summaryDuplicateLabels = overviewNodes
+  .map((node) => String(node.label || ''))
+  .filter((label) => /\b(overview|supporting nodes)\b/i.test(label));
+if (summaryDuplicateLabels.length) {
+  throw new Error(`Overview contains duplicate summary nodes: ${summaryDuplicateLabels.slice(0, 3).join(', ')}`);
+}
+const hiddenOverviewLabels = overviewNodes.filter((node) =>
+  ['architecture-root', 'architecture-owner', 'architecture-cluster'].includes(String(node._file_type || '')) &&
+  (!node.font || Number(node.font.size) <= 0)
+);
+if (hiddenOverviewLabels.length) {
+  throw new Error(`Overview hides architecture labels: ${hiddenOverviewLabels.slice(0, 3).map((node) => node.label).join(', ')}`);
+}
 
 const search = elements.get('search');
 const results = elements.get('search-results');

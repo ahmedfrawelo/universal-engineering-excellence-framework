@@ -54,7 +54,7 @@ $requiredChecks = [ordered]@{
   activationGate = (Test-Path -LiteralPath (Join-Path $RepositoryPath "framework/12-delivery-quality/04-quality-gates/16-ueef-activation-gate.md"))
   statusScript = (Test-Path -LiteralPath (Join-Path $RepositoryPath "scripts/ueef-status.ps1"))
   managedRequirements = (!$RequireManagedEnforcement -or ((Test-Path -LiteralPath $ManagedRequirementsPath -PathType Leaf) -and [IO.File]::ReadAllText($ManagedRequirementsPath, [Text.Encoding]::UTF8).StartsWith('# UEEF-MANAGED-REQUIREMENTS', [StringComparison]::Ordinal)))
-  managedHooks = (!$RequireManagedEnforcement -or ((@('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json') | Where-Object { !(Test-Path -LiteralPath (Join-Path $ManagedHooksPath $_) -PathType Leaf) }).Count -eq 0 -and (Test-Path -LiteralPath $ManagedNodePath -PathType Leaf)))
+  managedHooks = (!$RequireManagedEnforcement -or ((@('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json','model-routing-policy.json','resolve-model-route.mjs','codex-app-server-models.mjs','codex-app-server-client-lib.mjs') | Where-Object { !(Test-Path -LiteralPath (Join-Path $ManagedHooksPath $_) -PathType Leaf) }).Count -eq 0 -and (Test-Path -LiteralPath $ManagedNodePath -PathType Leaf)))
 }
 $checksPass = !(@($requiredChecks.GetEnumerator() | Where-Object { $_.Value -ne $true }).Count)
 if (!$checksPass) {
@@ -105,7 +105,7 @@ $state = [ordered]@{
       hooksPath = [IO.Path]::GetFullPath($ManagedHooksPath)
       nodePath = [IO.Path]::GetFullPath($ManagedNodePath)
       nodeSha256 = (Get-FileHash -LiteralPath $ManagedNodePath -Algorithm SHA256).Hash.ToLowerInvariant()
-      hookFiles = @('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json') | ForEach-Object {
+      hookFiles = @('ueef-codex-hook.mjs','record-ueef-route.mjs','ueef-hook-common.mjs','codex-enforcement-policy.json','model-routing-policy.json','resolve-model-route.mjs','codex-app-server-models.mjs','codex-app-server-client-lib.mjs') | ForEach-Object {
         $hookPath = Join-Path $ManagedHooksPath $_
         [ordered]@{relativePath=$_;sha256=(Get-FileHash -LiteralPath $hookPath -Algorithm SHA256).Hash.ToLowerInvariant()}
       }

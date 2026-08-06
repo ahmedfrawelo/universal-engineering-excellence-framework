@@ -569,7 +569,7 @@ def _visualization_communities(graph: Any) -> tuple[dict[int, list[str]], dict[i
             lead = ranked[0]
             owner = _visual_owner(str(lead), graph.nodes[lead])
             lead_label = str(graph.nodes[lead].get("label") or lead)
-            groups.append((f"{owner} · {lead_label}", list(members)))
+            groups.append((_cluster_display_label(owner, lead_label), list(members)))
             continue
         for node_id in members:
             owner = _visual_owner(str(node_id), graph.nodes[node_id])
@@ -589,6 +589,43 @@ def _visualization_communities(graph: Any) -> tuple[dict[int, list[str]], dict[i
     return communities, labels
 
 
+def _cluster_display_label(owner: str, lead_label: str) -> str:
+    """Human label for an overview cluster without owner/self repetition.
+
+    Large folder clusters often have the owner path and lead label resolve to
+    the same visible word, e.g. owner ``scripts`` and lead label ``scripts``.
+    Rendering that as ``scripts · scripts`` looks like duplicate graph data even
+    though it is one valid cluster. Keep the owner context, but collapse the
+    self-repeat into an explicit overview label.
+    """
+    owner_text = str(owner or "unowned").strip() or "unowned"
+    lead_text = str(lead_label or "").strip()
+    owner_leaf = owner_text.rsplit("/", 1)[-1]
+    if not lead_text or lead_text.casefold() in {owner_text.casefold(), owner_leaf.casefold()}:
+        return f"{owner_text} overview"
+    return f"{owner_text} · {lead_text}"
+
+
+def _cluster_owner_from_label(label: str) -> str:
+    """Recover the ownership path encoded in a visualization cluster label."""
+    label_text = str(label or "").strip()
+    if " · " in label_text:
+        return label_text.split(" · ", 1)[0].strip() or "unowned"
+    if label_text.endswith(" overview"):
+        return label_text[: -len(" overview")].strip() or "unowned"
+    return label_text or "unowned"
+
+
+def _is_owner_summary_cluster(label: str, owner: str) -> bool:
+    """Whether a cluster only repeats its owner and should collapse to the hub."""
+    label_text = str(label or "").strip().casefold()
+    owner_text = str(owner or "").strip().casefold()
+    return label_text in {
+        f"{owner_text} overview",
+        f"{owner_text} · supporting nodes",
+    }
+
+
 def _overview_graph(
     graph: Any,
     communities: dict[int, list[str]],
@@ -600,51 +637,12 @@ def _overview_graph(
     import networkx as nx
 
     overview = nx.DiGraph()
-    node_community = {
-        node_id: community_id
-        for community_id, members in communities.items()
-        for node_id in members
-    }
-    owners: dict[int, str] = {}
-    for community_id, members in communities.items():
-        label = labels[community_id]
-        owner = label.split(" · ", 1)[0]
-        owners[community_id] = owner
-        overview.add_node(
-            f"cluster:{community_id}",
-            label=label,
-            source_file=owner,
-            file_type="architecture-cluster",
-            member_count=len(members),
-        )
-
-    cross_counts: Counter[tuple[int, int]] = Counter()
-    relation_counts: dict[tuple[int, int], Counter[str]] = {}
-    for source, target, data in graph.edges(data=True):
-        source_community = node_community.get(source)
-        target_community = node_community.get(target)
-        if source_community is None or target_community is None or source_community == target_community:
-            continue
-        pair = (source_community, target_community)
-        cross_counts[pair] += 1
-        relation_counts.setdefault(pair, Counter())[str(data.get("relation") or "related")] += 1
-    for (source_community, target_community), count in cross_counts.items():
-        common_relation = relation_counts[(source_community, target_community)].most_common(1)[0][0]
-        overview.add_edge(
-            f"cluster:{source_community}",
-            f"cluster:{target_community}",
-            relation=f"{count} extracted relationships ({common_relation})",
-            confidence="EXTRACTED",
-            weight=count,
-            _src=f"cluster:{source_community}",
-            _tgt=f"cluster:{target_community}",
-        )
-
     root_id = "hub:ueef-project"
     overview.add_node(root_id, label="UEEF project", source_file=".", file_type="architecture-root")
-    for community_id, owner in owners.items():
+
+    def ensure_owner_hub(owner: str) -> str:
         parent = root_id
-        segments = [segment for segment in owner.split("/") if segment]
+        segments = [segment for segment in str(owner or "unowned").split("/") if segment] or ["unowned"]
         for depth in range(1, len(segments) + 1):
             path = "/".join(segments[:depth])
             hub_id = f"hub:{path}"
@@ -661,17 +659,66 @@ def _overview_graph(
                     _tgt=hub_id,
                 )
             parent = hub_id
+        return parent
+
+    node_community = {
+        node_id: community_id
+        for community_id, members in communities.items()
+        for node_id in members
+    }
+    overview_node_for_community: dict[int, str] = {}
+    for community_id, members in communities.items():
+        label = labels[community_id]
+        owner = _cluster_owner_from_label(label)
+        owner_hub = ensure_owner_hub(owner)
+        if _is_owner_summary_cluster(label, owner):
+            overview_node_for_community[community_id] = owner_hub
+            continue
         cluster_id = f"cluster:{community_id}"
-        if not overview.has_edge(parent, cluster_id):
+        overview_node_for_community[community_id] = cluster_id
+        overview.add_node(
+            cluster_id,
+            label=label,
+            source_file=owner,
+            file_type="architecture-cluster",
+            member_count=len(members),
+        )
+        if not overview.has_edge(owner_hub, cluster_id):
             overview.add_edge(
-                parent,
+                owner_hub,
                 cluster_id,
                 relation="contains (graph cluster)",
                 confidence="INFERRED",
                 weight=1,
-                _src=parent,
+                _src=owner_hub,
                 _tgt=cluster_id,
             )
+
+    cross_counts: Counter[tuple[int, int]] = Counter()
+    relation_counts: dict[tuple[int, int], Counter[str]] = {}
+    for source, target, data in graph.edges(data=True):
+        source_community = node_community.get(source)
+        target_community = node_community.get(target)
+        if source_community is None or target_community is None or source_community == target_community:
+            continue
+        pair = (source_community, target_community)
+        cross_counts[pair] += 1
+        relation_counts.setdefault(pair, Counter())[str(data.get("relation") or "related")] += 1
+    for (source_community, target_community), count in cross_counts.items():
+        common_relation = relation_counts[(source_community, target_community)].most_common(1)[0][0]
+        source_node = overview_node_for_community[source_community]
+        target_node = overview_node_for_community[target_community]
+        if source_node == target_node:
+            continue
+        overview.add_edge(
+            source_node,
+            target_node,
+            relation=f"{count} extracted relationships ({common_relation})",
+            confidence="EXTRACTED",
+            weight=count,
+            _src=source_node,
+            _tgt=target_node,
+        )
 
     domain_nodes: dict[str, list[str]] = {}
     for node_id, node in overview.nodes(data=True):
@@ -821,6 +868,30 @@ def _routing_evidence_payload(root: Path) -> list[dict[str, Any]]:
     return payload
 
 
+def _promote_overview_label_fonts(document: str) -> str:
+    """Make UEEF overview labels visible in the generated RAW_NODES payload.
+
+    Upstream Graphify hides most low-degree labels by writing ``font.size = 0``.
+    That is useful for full graphs, but UEEF's architecture overview is already
+    bounded and aggregated; hiding those labels turns the overview into a cloud
+    of unlabeled dots. Keep this as a UEEF adapter post-process so the embedded
+    upstream exporter remains unchanged.
+    """
+    match = re.search(r"const RAW_NODES = (\[.*?\]);\s*const RAW_EDGES", document, re.DOTALL)
+    if not match:
+        raise RuntimeError("Graphify HTML exporter no longer exposes the RAW_NODES marker.")
+    nodes = json.loads(match.group(1))
+    for node in nodes:
+        file_type = str(node.get("file_type") or "")
+        if file_type.startswith("architecture-"):
+            font = node.get("font") if isinstance(node.get("font"), dict) else {}
+            font["size"] = 12
+            font.setdefault("color", "#ffffff")
+            node["font"] = font
+    nodes_json = json.dumps(nodes, ensure_ascii=False).replace("</", "<\\/")
+    return document[:match.start(1)] + nodes_json + document[match.end(1):]
+
+
 def _write_html(graph: dict[str, Any], output: Path, root: Path) -> None:
     """Render Graphify's real interactive network with an offline JS asset."""
     from contextlib import redirect_stdout
@@ -874,6 +945,7 @@ def _write_html(graph: dict[str, Any], output: Path, root: Path) -> None:
     document, replacements = external_script.subn(local_script, document, count=1)
     if replacements != 1:
         raise RuntimeError("Graphify HTML exporter no longer exposes the expected pinned vis-network script.")
+    document = _promote_overview_label_fonts(document)
 
     full_nodes_json = json.dumps(full_nodes, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     full_edges_json = json.dumps(full_edges, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
@@ -900,7 +972,55 @@ const FULL_EDGES = FULL_EDGE_RECORDS.map(([id, from, to, relation, confidence]) 
 }}));
 const ROUTING_EVIDENCE = {routing_evidence_json};
 
+function graphNodeSource(node) {{
+  return String(node._source_file || node.source_file || '').replace(/\\\\/g, '/');
+}}
+
+function graphNodeContext(node) {{
+  const source = graphNodeSource(node);
+  if (source) {{
+    const location = node.source_location || node._source_location || '';
+    return location ? `${{source}}:${{location}}` : source;
+  }}
+  return String(node.id || '');
+}}
+
+function applyDisambiguatedLabels(nodes) {{
+  const counts = new Map();
+  for (const node of nodes) {{
+    const label = String(node.label || node.id || '').trim();
+    const key = label.toLowerCase();
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }}
+  for (const node of nodes) {{
+    const rawLabel = String(node.label || node.id || '').trim();
+    const repeated = counts.get(rawLabel.toLowerCase()) > 1;
+    const context = graphNodeContext(node);
+    node.raw_label = rawLabel;
+    node.display_label = repeated && context ? `${{rawLabel}} — ${{context}}` : rawLabel;
+    node.search_text = `${{node.display_label}} ${{rawLabel}} ${{context}} ${{node.id || ''}}`.toLowerCase();
+    if (!node.title || node.title === rawLabel) node.title = node.display_label;
+    if (['architecture-root', 'architecture-owner', 'architecture-cluster'].includes(String(node.file_type || ''))) {{
+      node.font = {{ ...(node.font || {{}}), size: 12, color: '#ffffff' }};
+    }}
+  }}
+}}
+
+applyDisambiguatedLabels(RAW_NODES);
+applyDisambiguatedLabels(FULL_NODES);
+
 {dataset_marker}""",
+        1,
+    )
+    document = document.replace(
+        "  id: n.id, label: n.label, color: n.color, size: n.size,",
+        "  id: n.id, label: n.display_label || n.label, color: n.color, size: n.size,",
+        1,
+    )
+    document = document.replace(
+        "  _community: n.community, _community_name: n.community_name,\n",
+        "  _community: n.community, _community_name: n.community_name,\n"
+        "  _raw_label: n.raw_label || n.label, _display_label: n.display_label || n.label,\n",
         1,
     )
 
@@ -1078,8 +1198,7 @@ network.on('selectEdge', params => {
     document = document.replace(navigation_marker, navigation_script + navigation_marker, 1)
     document = document.replace(
         "const matches = RAW_NODES.filter(n => n.label.toLowerCase().includes(q)).slice(0, 20);",
-        "const matches = SEARCH_NODES.filter(n => n.label.toLowerCase().includes(q) || "
-        "String(n._source_file || '').toLowerCase().includes(q)).slice(0, 20);",
+        "const matches = SEARCH_NODES.filter(n => (n.search_text || n.label.toLowerCase()).includes(q)).slice(0, 20);",
         1,
     )
     document = document.replace(
@@ -1095,7 +1214,7 @@ network.on('selectEdge', params => {
     )
     document = document.replace(
         "    el.textContent = n.label;",
-        "    el.textContent = n._source_file ? `${n.label} — ${n._source_file}` : n.label;",
+        "    el.textContent = n.display_label || (n._source_file ? `${n.label} — ${n._source_file}` : n.label);",
         1,
     )
     old_search_action = """      network.focus(n.id, { scale: 1.5, animation: true });

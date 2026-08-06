@@ -55,6 +55,32 @@ if (allowExceed && policy.reasoningPolicy.allowAboveMaximumOnlyWithExplicitUserI
 if (useCurrentModel && policy.reasoningPolicy.useCurrentModelOnlyWhenExplicit !== true) throw new Error('Policy does not permit an explicit current-model constraint.');
 if (allowModelConstraintOverride && policy.reasoningPolicy.allowModelConstraintOverrideOnlyWithExplicitUserInstruction !== true) throw new Error('Policy does not permit a model-constraint override.');
 const effort = requestedEffort || null;
+const tokenPolicy = policy.tokenEconomy;
+if (!tokenPolicy || !Array.isArray(tokenPolicy.specFirstForTiers) || !Array.isArray(tokenPolicy.budgetModes) ||
+    !Array.isArray(tokenPolicy.delegationPolicies) || typeof tokenPolicy.defaultBudgetModeByTier?.[tier] !== 'string' ||
+    typeof tokenPolicy.defaultDelegationPolicyByTier?.[tier] !== 'string' || !Number.isInteger(tokenPolicy.maxWorkerCountByTier?.[tier]) ||
+    tokenPolicy.maxWorkerCountByTier[tier] < 0 || !Number.isInteger(tokenPolicy.workerOutputCap?.maxBullets) ||
+    !Number.isInteger(tokenPolicy.workerOutputCap?.maxWords) || tokenPolicy.workerOutputCap.maxBullets < 1 || tokenPolicy.workerOutputCap.maxWords < 1) {
+  throw new Error('Dynamic model routing policy requires a complete tokenEconomy contract for every tier.');
+}
+const budgetMode = tokenPolicy.defaultBudgetModeByTier[tier];
+const delegationPolicy = tokenPolicy.defaultDelegationPolicyByTier[tier];
+if (!tokenPolicy.budgetModes.includes(budgetMode)) throw new Error(`Invalid token budget mode for ${tier}: ${budgetMode}`);
+if (!tokenPolicy.delegationPolicies.includes(delegationPolicy)) throw new Error(`Invalid delegation policy for ${tier}: ${delegationPolicy}`);
+const tokenEconomy = {
+  specRequired: tokenPolicy.requireAutomaticExecutionSpec === true && tokenPolicy.specFirstForTiers.includes(tier),
+  budgetMode,
+  delegationPolicy,
+  maxWorkerCount: tokenPolicy.maxWorkerCountByTier[tier],
+  workerOutputCap: {
+    maxBullets: tokenPolicy.workerOutputCap.maxBullets,
+    maxWords: tokenPolicy.workerOutputCap.maxWords,
+    longEvidenceStoredInArtifacts: tokenPolicy.workerOutputCap.longEvidenceStoredInArtifacts === true
+  },
+  leadOwns: [...(tokenPolicy.leadOwns || [])],
+  workerMayOwn: [...(tokenPolicy.workerMayOwn || [])],
+  forbiddenSavings: [...(tokenPolicy.forbiddenSavings || [])]
+};
 
 const emptyRoute = (modelAvailability, modelSelectionMode, extra = {}) => ({
   schemaVersion: 3,
@@ -78,6 +104,7 @@ const emptyRoute = (modelAvailability, modelSelectionMode, extra = {}) => ({
   requestedCurrentModel: useCurrentModel ? currentModel : null,
   currentModelConstraintApplied: useCurrentModel,
   currentModelConstraintOverridden: false,
+  tokenEconomy,
   ...extra
 });
 
@@ -305,7 +332,8 @@ const resolvedRoute = {
   requestedCurrentModel: useCurrentModel ? currentModel : null,
   currentModelConstraintApplied: useCurrentModel,
   currentModelConstraintOverridden,
-  catalogDiscoveredAt: discoveredAt
+  catalogDiscoveredAt: discoveredAt,
+  tokenEconomy
 };
 if (workUnitId && resolvedRoute.preferredModel && resolvedRoute.hostReasoning) {
   resolvedRoute.workUnitId = workUnitId;
@@ -317,6 +345,7 @@ if (workUnitId && resolvedRoute.preferredModel && resolvedRoute.hostReasoning) {
     hostReasoning: resolvedRoute.hostReasoning,
     fallbackModel: resolvedRoute.fallbackModel || null,
     fallbackHostReasoning: resolvedRoute.fallbackHostReasoning || null,
+    tokenEconomy: resolvedRoute.tokenEconomy,
     catalogDigest: resolvedRoute.catalogDigest,
     catalogProvider: resolvedRoute.catalogProvider,
     catalogDiscoveredAt: resolvedRoute.catalogDiscoveredAt

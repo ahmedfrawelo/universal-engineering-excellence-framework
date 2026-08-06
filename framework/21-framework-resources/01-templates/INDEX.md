@@ -24,6 +24,7 @@ This is the canonical file inventory for this pack. Use README.md for pack guida
 - [`31-design-contract-template.md`](31-design-contract-template.md)
 - [`32-frontend-execution-evidence-template.json`](32-frontend-execution-evidence-template.json)
 - [`33-fresh-review-evidence-template.json`](33-fresh-review-evidence-template.json)
+- [`34-execution-spec-template.json`](34-execution-spec-template.json)
 - [`adr-template.md`](adr-template.md)
 - [`api-creation-template.md`](api-creation-template.md)
 - [`completion-audit-template.json`](completion-audit-template.json)
