@@ -7,6 +7,7 @@ param(
   [switch]$TestFailAfterState,
   [switch]$InstallOpenDesignSkills,
   [switch]$SkipOpenDesignSkills,
+  [switch]$SkipValidation,
   [switch]$Quiet
 )
 $ErrorActionPreference = "Stop"
@@ -114,7 +115,9 @@ if (Test-Path -LiteralPath $runtimePath) {
     throw "Refusing to update unsafe runtime path: $resolvedRuntime"
   }
 }
-Invoke-FrameworkValidation -Root $SourcePath -QuietMode:$Quiet
+if (!$SkipValidation) {
+  Invoke-FrameworkValidation -Root $SourcePath -QuietMode:$Quiet
+}
 $stagingPath = Join-Path $resolvedRuntimeRoot ('.s' + [guid]::NewGuid().ToString('N').Substring(0,8))
 $rollbackPath = Join-Path $resolvedRuntimeRoot ('.r' + [guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $resolvedRuntimeRoot -Force | Out-Null
@@ -308,7 +311,9 @@ Write-Utf8File $stagingLoader @(
   "When status is BLOCKED, do not edit project files."
 )
 
-Invoke-FrameworkValidation -Root $stagingPath -QuietMode:$Quiet
+if (!$SkipValidation) {
+  Invoke-FrameworkValidation -Root $stagingPath -QuietMode:$Quiet
+}
 $runtimeSwapped = $false
 $agentsBackup = $null
 $agents = Join-Path $CodexHome 'AGENTS.md'

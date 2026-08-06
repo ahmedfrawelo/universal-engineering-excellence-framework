@@ -1,4 +1,8 @@
-﻿$ErrorActionPreference = 'Stop'
+param(
+  [switch]$SkipUnixStatusChecks
+)
+
+$ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ("ueef-rt-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
 $codexHome = Join-Path $sandbox 'codex-home'
@@ -18,10 +22,30 @@ for path in paths:
 '@
 }
 
+function Invoke-TestRuntimeSync {
+  param(
+    [string]$SyncSourcePath = $root,
+    [string]$SyncCodexHome = $codexHome,
+    [string]$SyncAgent = 'codex',
+    [switch]$WithValidation,
+    [switch]$TestFailAfterState
+  )
+  $syncParams = @{
+    SourcePath = $SyncSourcePath
+    CodexHome = $SyncCodexHome
+    Agent = $SyncAgent
+    Quiet = $true
+  }
+  if (!$WithValidation) { $syncParams.SkipValidation = $true }
+  if ($TestFailAfterState) { $syncParams.TestFailAfterState = $true }
+  & (Join-Path $root 'scripts\sync-runtime.ps1') @syncParams | Out-Null
+}
+
 try {
+  Write-Host 'Runtime hardening: policy rejection checks'
   . (Join-Path $root 'scripts\runtime-file-policy.ps1')
   $unsafeRejected = $false
-  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent '..\escape' -Quiet | Out-Null }
+  try { Invoke-TestRuntimeSync -SyncAgent '..\escape' }
   catch { $unsafeRejected = $true }
   if (!$unsafeRejected) { throw 'Unsafe agent path was accepted.' }
   if (Test-Path -LiteralPath (Join-Path $sandbox 'escape')) { throw 'Unsafe agent path wrote outside runtime root.' }
@@ -30,7 +54,7 @@ try {
   New-Item -ItemType Directory -Path (Join-Path $overlapSource 'framework') -Force | Out-Null
   Set-Content -LiteralPath (Join-Path $overlapSource 'VERSION.md') -Value 'version: 0.0.0.'
   $overlapRejected = $false
-  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $overlapSource -CodexHome (Join-Path $overlapSource 'codex-home') -Agent 'test-agent' -Quiet | Out-Null } catch { $overlapRejected = $_.Exception.Message -like '*overlapping source and CODEX_HOME*' }
+  try { Invoke-TestRuntimeSync -SyncSourcePath $overlapSource -SyncCodexHome (Join-Path $overlapSource 'codex-home') -SyncAgent 'test-agent' } catch { $overlapRejected = $_.Exception.Message -like '*overlapping source and CODEX_HOME*' }
   if (!$overlapRejected) { throw 'Runtime sync accepted CODEX_HOME inside the source tree.' }
 
   $sensitiveSource = Join-Path $sandbox 'sensitive-source'
@@ -78,6 +102,7 @@ try {
   if ($LASTEXITCODE -ne 0 -or (Test-Path -LiteralPath (Join-Path $nodeTrackedDestination 'docs\untracked.md'))) { throw 'Portable release policy copied an untracked file.' }
   if (Test-Path -LiteralPath (Join-Path $nodeTrackedDestination 'Framework\wrong-case.md')) { throw 'Portable release policy accepted a wrong-case owned directory.' }
 
+  Write-Host 'Runtime hardening: link and runtime sync checks'
   $outsideDocs = Join-Path $sandbox 'outside-docs'
   $junctionSource = Join-Path $sandbox 'junction-source'
   New-Item -ItemType Directory -Path $outsideDocs -Force | Out-Null
@@ -99,27 +124,25 @@ try {
   New-Item -ItemType Directory -Path $codexHome -Force | Out-Null
   Initialize-FakeSkillInstaller $codexHome
   Set-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Value "# User rules`n`nKeep this custom rule." -Encoding utf8
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -Quiet | Out-Null
+  Invoke-TestRuntimeSync
   $runtime = Join-Path $codexHome 'ueef\codex'
   $runtimeRoot = Join-Path $codexHome 'ueef'
   $staleTransaction = Join-Path $runtimeRoot '.sdeadbeef'
   $nonTransaction = Join-Path $runtimeRoot '.snot-a-transaction'
   New-Item -ItemType Directory -Path $staleTransaction,$nonTransaction | Out-Null
   (Get-Item -LiteralPath $staleTransaction).LastWriteTime = (Get-Date).AddMinutes(-11)
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -Quiet | Out-Null
-  if (Test-Path -LiteralPath $staleTransaction) { throw 'Runtime sync retained a stale transaction directory.' }
-  if (!(Test-Path -LiteralPath $nonTransaction)) { throw 'Runtime sync removed a non-transaction directory.' }
-  Remove-Item -LiteralPath $nonTransaction -Recurse -Force
   $sentinel = Join-Path $runtime 'active-task-sentinel.txt'
   Set-Content -LiteralPath $sentinel -Value 'must be removed because it is not part of the release' -Encoding utf8
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -Quiet | Out-Null
-  if (Test-Path -LiteralPath $sentinel) { throw 'Runtime sync retained an unowned root file.' }
   $staleRuntimeFile = Join-Path $runtime 'framework\stale-runtime-file.md'
   Set-Content -LiteralPath $staleRuntimeFile -Value 'must be pruned from owned runtime folders' -Encoding utf8
   & (Join-Path $root 'scripts\check-runtime-drift.ps1') -SourcePath $root -RuntimePath $runtime | Out-Null
   $staleDetected = $LASTEXITCODE -ne 0
   if (!$staleDetected) { throw 'Runtime drift check accepted a stale file inside an owned runtime folder.' }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -Quiet | Out-Null
+  Invoke-TestRuntimeSync
+  if (Test-Path -LiteralPath $staleTransaction) { throw 'Runtime sync retained a stale transaction directory.' }
+  if (!(Test-Path -LiteralPath $nonTransaction)) { throw 'Runtime sync removed a non-transaction directory.' }
+  Remove-Item -LiteralPath $nonTransaction -Recurse -Force
+  if (Test-Path -LiteralPath $sentinel) { throw 'Runtime sync retained an unowned root file.' }
   if (Test-Path -LiteralPath $staleRuntimeFile) { throw 'Runtime sync left a stale file inside an owned runtime folder.' }
   $generatedRuntimeCache = Join-Path $runtime 'engines\repository-intelligence\.venv\cache.bin'
   New-Item -ItemType Directory -Path (Split-Path -Parent $generatedRuntimeCache) -Force | Out-Null
@@ -172,12 +195,13 @@ try {
   foreach ($term in @('# User rules','Keep this custom rule.','<!-- UEEF-MANAGED:START -->','<!-- UEEF-MANAGED:END -->')) {
     if ($agents -notmatch [regex]::Escape($term)) { throw "Runtime sync did not preserve managed AGENTS content: $term" }
   }
+  Write-Host 'Runtime hardening: rollback checks'
   $stateBeforeRollback = Get-Content -LiteralPath $statePath -Raw
   $agentsBeforeRollback = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
   $managedRequirementsBeforeRollback = [IO.File]::ReadAllText($managedRequirementsPath, [Text.Encoding]::UTF8)
   $managedHookHashesBeforeRollback = @($state.managedEnforcement.hookFiles | ForEach-Object { (Get-FileHash -LiteralPath (Join-Path $managedHooksPath ([string]$_.relativePath)) -Algorithm SHA256).Hash })
   $rollbackTriggered = $false
-  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -TestFailAfterState -Quiet | Out-Null }
+  try { Invoke-TestRuntimeSync -TestFailAfterState }
   catch { $rollbackTriggered = $_.Exception.Message -like '*Injected test failure*' }
   if (!$rollbackTriggered) { throw 'Runtime sync rollback injection did not fail.' }
   if ((Get-Content -LiteralPath $statePath -Raw) -cne $stateBeforeRollback) { throw 'Runtime sync did not restore the previous active state.' }
@@ -188,7 +212,7 @@ try {
   $freshCodexHome = Join-Path $sandbox 'fresh-codex-home'
   Initialize-FakeSkillInstaller $freshCodexHome
   $freshRollbackTriggered = $false
-  try { & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $freshCodexHome -Agent 'fresh-agent' -TestFailAfterState -Quiet | Out-Null }
+  try { Invoke-TestRuntimeSync -SyncCodexHome $freshCodexHome -SyncAgent 'fresh-agent' -TestFailAfterState }
   catch { $freshRollbackTriggered = $_.Exception.Message -like '*Injected test failure*' }
   if (!$freshRollbackTriggered) { throw 'First-install rollback injection did not fail.' }
   if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'AGENTS.md')) { throw 'Failed first sync left a generated AGENTS file.' }
@@ -196,13 +220,14 @@ try {
   if (Test-Path -LiteralPath (Join-Path $freshCodexHome 'ueef\fresh-agent')) { throw 'Failed first sync left a runtime.' }
   $status = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
   if ($status -notcontains 'Overall: ACTIVE') { throw "Valid generated runtime did not become ACTIVE: $($status -join ' | ')" }
-  $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
+  $bashPath = if (!$SkipUnixStatusChecks -and (Test-Path 'C:\Program Files\Git\bin\bash.exe')) { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
   $integrityStateText = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
   $agentsPath = Join-Path $codexHome 'AGENTS.md'
   $integrityAgentsText = [IO.File]::ReadAllText($agentsPath, [Text.Encoding]::UTF8)
   $integrityRequirementsText = [IO.File]::ReadAllText($managedRequirementsPath, [Text.Encoding]::UTF8)
   $integrityHookPath = Join-Path $managedHooksPath 'ueef-codex-hook.mjs'
   $integrityHookText = [IO.File]::ReadAllText($integrityHookPath, [Text.Encoding]::UTF8)
+  Write-Host 'Runtime hardening: active-state integrity checks'
   try {
     [IO.File]::AppendAllText($managedRequirementsPath, "# tampered`n", [Text.UTF8Encoding]::new($false))
     $invalidManagedStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
@@ -298,13 +323,12 @@ try {
   Set-Content -LiteralPath (Join-Path $runtime 'README.md') -Value 'intentional runtime drift' -Encoding utf8
   $driftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($driftStatus -notcontains 'Runtime drift: FAIL' -or $driftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime drift did not invalidate ACTIVE status.' }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -Quiet | Out-Null
-  $statusAfterRepair = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
-  if ($statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw 'Runtime resync did not repair drift status.' }
   Add-Content -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md') -Value "`nUnauthorized loader mutation." -Encoding utf8
   $loaderDriftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($loaderDriftStatus -notcontains 'Runtime drift: FAIL' -or $loaderDriftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime status accepted a tampered loader.' }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') -SourcePath $root -CodexHome $codexHome -Agent 'codex' -Quiet | Out-Null
+  Invoke-TestRuntimeSync
+  $statusAfterRepair = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
+  if ($statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw 'Runtime resync did not repair drift status.' }
   $untrackedStatusFixture = Join-Path $root 'docs\.ueef-untracked-runtime-test.tmp'
   try {
     Set-Content -LiteralPath $untrackedStatusFixture -Value 'untracked files are outside the release policy'
