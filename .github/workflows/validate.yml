@@ -34,11 +34,38 @@ jobs:
           ./scripts/test-installers.ps1
       - name: Full assurance including runtime hardening
         shell: pwsh
+        timeout-minutes: 20
         run: |
           $env:CODEX_HOME = Join-Path $env:RUNNER_TEMP 'codex-home'
           New-Item -ItemType Directory -Path $env:CODEX_HOME -Force | Out-Null
           try {
-            ./scripts/measure-assurance.ps1 -Mode Full -Enforce
+            $checks = [System.Collections.Generic.List[object]]::new()
+            function Invoke-AssuranceCheck([string]$Name, [scriptblock]$Action) {
+              Write-Host "Running assurance check: $Name"
+              $watch = [Diagnostics.Stopwatch]::StartNew()
+              & $Action
+              if ($LASTEXITCODE -ne 0) { throw "$Name failed with exit code $LASTEXITCODE" }
+              $watch.Stop()
+              $checks.Add([pscustomobject]@{
+                name = $Name
+                status = 'PASS'
+                durationMs = [int]$watch.ElapsedMilliseconds
+              })
+              Write-Host "Assurance check passed: $Name ($($watch.ElapsedMilliseconds) ms)"
+            }
+            Invoke-AssuranceCheck 'framework-validation' { ./scripts/validate-framework.ps1 -SkipNestedTests }
+            Invoke-AssuranceCheck 'script-syntax' { ./scripts/test-script-syntax.ps1 }
+            Invoke-AssuranceCheck 'runtime-hardening' { ./scripts/test-runtime-hardening.ps1 }
+            $summaryPath = Join-Path $env:RUNNER_TEMP 'ueef-full-assurance-summary.json'
+            [pscustomobject]@{
+              schemaVersion = 1
+              generatedAt = (Get-Date).ToUniversalTime().ToString('o')
+              root = '<project-root>'
+              mode = 'full'
+              checks = @($checks)
+              status = 'PASS'
+            } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $summaryPath -Encoding utf8
+            ./scripts/measure-assurance.ps1 -Mode Full -SummaryPath $summaryPath -Enforce
           } catch {
             Write-Host "::error::$($_.Exception.Message)"
             throw
