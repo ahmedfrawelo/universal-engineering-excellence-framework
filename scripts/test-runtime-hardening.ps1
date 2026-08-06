@@ -1,4 +1,5 @@
 param(
+  [switch]$Fast,
   [switch]$SkipUnixStatusChecks
 )
 
@@ -120,6 +121,11 @@ try {
     $nodeJunctionExit = $LASTEXITCODE
   } finally { $ErrorActionPreference = $previousErrorAction }
   if ($nodeJunctionExit -eq 0 -or $nodeJunctionOutput -notlike '*symbolic link*') { throw 'Portable release policy followed a linked parent.' }
+
+  if ($Fast) {
+    Write-Host 'Runtime hardening fast checks passed'
+    return
+  }
 
   New-Item -ItemType Directory -Path $codexHome -Force | Out-Null
   Initialize-FakeSkillInstaller $codexHome
