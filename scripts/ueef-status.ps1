@@ -224,7 +224,7 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
     $runtimeDriftStatus = "FAIL"
   }
 }
-$engineGeneratedPattern = '[\\/]engines[\\/]repository-intelligence[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
+$engineGeneratedPattern = '[\\/]engines[\\/](?:repository-intelligence|spec-workflow)[\\/](?:\.venv|build|[^\\/]+\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
 $markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $engineGeneratedPattern }).Count } else { 0 }
 $globalExists = Test-Item $GlobalPath
 $loaderCandidates = @()

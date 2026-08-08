@@ -15,3 +15,4 @@ This is the canonical file inventory for this pack. Use README.md for pack guida
 - [`07-implementation-and-convergence.md`](07-implementation-and-convergence.md)
 - [`08-extension-preset-bundle-governance.md`](08-extension-preset-bundle-governance.md)
 - [`09-third-party-attribution.md`](09-third-party-attribution.md)
+- [`10-task-graph-and-dynamic-execution.md`](10-task-graph-and-dynamic-execution.md)

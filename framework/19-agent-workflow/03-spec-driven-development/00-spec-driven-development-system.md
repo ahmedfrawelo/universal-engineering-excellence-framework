@@ -22,6 +22,7 @@ For substantial work, produce or update the project-local equivalent of:
 - specification: user stories, requirements, non-goals, acceptance criteria, risks, and success measures.
 - plan: technical approach, dependencies, architecture, data contracts, security/performance considerations, and validation strategy.
 - tasks: ordered executable tasks, parallel-safe groups, test gates, and done criteria.
+- task graph and execution state: machine-readable dependencies, ownership, dynamic wave policy, resume state, and evidence-backed transitions when the work uses the executable workflow.
 - convergence notes: mismatches found between spec, plan, tasks, code, and tests.
 - token and worker budget: selected model tier, allowed delegation topology, maximum worker count, output cap, and evidence storage rule.
 

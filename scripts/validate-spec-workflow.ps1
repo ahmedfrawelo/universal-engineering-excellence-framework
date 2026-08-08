@@ -16,6 +16,7 @@ $required = [ordered]@{
   'evidence.md' = @('# Evidence:', '## Delivery record', '| Acceptance criterion | Evidence command or review | Result | Recorded at |', '| AC-001 |', '## Token economy record', 'Actual worker count:', 'Worker results integrated or discarded:')
   'clarifications.md' = @('# Clarifications:', '## Clarification register', '| ID | Question | Status | Decision or assumption | Owner | Evidence |', 'CLAR-001')
   'convergence.md' = @('# Convergence:', '## Traceability convergence', '| Requirement or AC | Spec | Plan | Task | Implementation | Evidence | State | Residual risk |', 'REQ-001', '## Token and worker budget convergence', 'Worker outputs within cap:', 'Token-saving shortcuts removed required evidence:')
+  'task-graph.json' = @()
 }
 $issues = [Collections.Generic.List[string]]::new()
 $spec = Get-Content -LiteralPath (Join-Path $workflowPath 'spec.md') -Raw -ErrorAction SilentlyContinue
@@ -30,11 +31,36 @@ foreach ($item in $required.GetEnumerator()) {
 }
 $tasks = Get-Content -LiteralPath (Join-Path $workflowPath 'tasks.md') -Raw -ErrorAction SilentlyContinue
 if ($tasks -and (($tasks -notmatch 'Evidence:') -or ($tasks -notmatch 'Done when:') -or ($tasks -notmatch 'Requirements: REQ-') -or ($tasks -notmatch 'Delegation:') -or ($tasks -notmatch 'Allowed write set:') -or ($tasks -notmatch 'Forbidden paths:'))) { $issues.Add('tasks.md must link each task to requirements, delegation scope, write boundaries, evidence, and a completion condition') }
+$graphPath = Join-Path $workflowPath 'task-graph.json'
+if (Test-Path -LiteralPath $graphPath -PathType Leaf) {
+  $engine = Join-Path (Split-Path -Parent $PSScriptRoot) 'scripts\invoke-spec-workflow-engine.ps1'
+  $graphOutput = & $engine validate --graph $graphPath 2>&1
+  if ($LASTEXITCODE -ne 0) {
+    $issues.Add('task-graph.json failed engine validation: ' + (($graphOutput | Out-String).Trim()))
+  } else {
+    try {
+      $graph = Get-Content -LiteralPath $graphPath -Raw | ConvertFrom-Json
+      if ($graph.workflowId -ne (Split-Path -Leaf $workflowPath)) {
+        $issues.Add('task-graph.json workflowId must match the specification folder name')
+      }
+      if ($Mode -eq 'Ready' -and $tasks) {
+        $markdownTaskIds = @([regex]::Matches($tasks, '(?m)^- \[[ xX]\] (TASK-[A-Za-z0-9._-]+)') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+        $graphTaskIds = @($graph.tasks | ForEach-Object { $_.id } | Sort-Object -Unique)
+        if (($markdownTaskIds -join ',') -ne ($graphTaskIds -join ',')) {
+          $issues.Add('tasks.md and task-graph.json must declare the same task IDs')
+        }
+      }
+    } catch {
+      $issues.Add('task-graph.json could not be parsed for artifact consistency: ' + $_.Exception.Message)
+    }
+  }
+}
 $plan = Get-Content -LiteralPath (Join-Path $workflowPath 'plan.md') -Raw -ErrorAction SilentlyContinue
 if ($Mode -eq 'Ready' -and $plan) {
   if ($plan -notmatch '(?m)^-\s*Token budget mode:\s*(minimal|bounded|expanded)\s*$') { $issues.Add('plan.md must record token budget mode as minimal, bounded, or expanded') }
   if ($plan -notmatch '(?m)^-\s*Delegation policy:\s*(none|sidecar|parallel-specialists|lead-workers-verifier)\s*$') { $issues.Add('plan.md must record a valid delegation policy') }
   if ($plan -notmatch '(?m)^-\s*Maximum worker count:\s*\d+\s*$') { $issues.Add('plan.md must record a numeric maximum worker count') }
+  if ($graph -and $plan -match '(?m)^-\s*Maximum worker count:\s*(\d+)\s*$' -and [int]$Matches[1] -ne [int]$graph.policy.maxWorkers) { $issues.Add('plan.md maximum worker count must match task-graph.json policy.maxWorkers') }
 }
 $evidence = Get-Content -LiteralPath (Join-Path $workflowPath 'evidence.md') -Raw -ErrorAction SilentlyContinue
 if ($Mode -eq 'Ready' -and $evidence -and $evidence -notmatch '\| AC-[0-9]+ \|.+\|\s*(PASS|FAIL|PENDING)\s*\|.+\|') { $issues.Add('evidence.md must record an AC result as PASS, FAIL, or PENDING') }

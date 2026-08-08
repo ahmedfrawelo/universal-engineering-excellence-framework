@@ -123,7 +123,7 @@ if [ "$managed_runtime" = "1" ]; then
   if [ -d "$REPOSITORY_PATH" ] && [ -d "$GLOBAL_PATH" ] && [ "$global_loader" = "PASS" ]; then installed="YES"; fi
 fi
 
-markdown_count=$(find "$REPOSITORY_PATH" -path "$REPOSITORY_PATH/.git" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.venv" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/__pycache__" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.pytest_cache" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.hypothesis" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.ruff_cache" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.mypy_cache" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')
+markdown_count=$(find "$REPOSITORY_PATH" -path "$REPOSITORY_PATH/.git" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.venv" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/__pycache__" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.pytest_cache" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.hypothesis" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.ruff_cache" -prune -o -path "$REPOSITORY_PATH/engines/repository-intelligence/.mypy_cache" -prune -o -path "$REPOSITORY_PATH/engines/spec-workflow/.venv" -prune -o -path "$REPOSITORY_PATH/engines/spec-workflow/.pytest_cache" -prune -o -path "$REPOSITORY_PATH/engines/spec-workflow/.ruff_cache" -prune -o -path "$REPOSITORY_PATH/engines/spec-workflow/ueef/ueef_spec_workflow.egg-info" -prune -o -name '*.md' -type f -print | wc -l | tr -d ' ')
 overall="SOURCE_INVALID"
 mode="source-checkout"
 agents_status="NOT_APPLICABLE"

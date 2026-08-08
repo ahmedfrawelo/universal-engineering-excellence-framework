@@ -1,6 +1,6 @@
 # UEEF Project Handoff
 
-> **Current handoff:** [`docs/handoffs/2026-08-06-ueef-delivery.md`](handoffs/2026-08-06-ueef-delivery.md) for UEEF `2.25.11` and the current delivery change set.
+> **Current handoff:** [`docs/handoffs/2026-08-08-spec-workflow-engine.md`](handoffs/2026-08-08-spec-workflow-engine.md) for UEEF `2.26.0` and the Spec workflow derived-engine delivery.
 >
 > Everything below is the preserved 2026-08-02 legacy snapshot. Use it only for historical context; current command output and the current handoff above are authoritative.
 

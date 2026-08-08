@@ -4,12 +4,12 @@ $script:UeefOwnedRootFiles = @(
   'CONTRIBUTING.md','INSTALL.md','LICENSE','QUICK_START.md','README.md','ROADMAP.md',
   'SECURITY.md','VERSION.md','release-manifest.json'
 )
-$script:UeefRuntimeGeneratedSegments = @('.venv','build','graphifyy.egg-info','__pycache__','.pytest_cache','.hypothesis','.ruff_cache','.mypy_cache')
+$script:UeefRuntimeGeneratedSegments = @('.venv','build','graphifyy.egg-info','ueef_spec_workflow.egg-info','__pycache__','.pytest_cache','.hypothesis','.ruff_cache','.mypy_cache')
 
 function Test-UeefRuntimeGeneratedRelativePath {
   param([Parameter(Mandatory)][string]$RelativePath)
   $segments = $RelativePath.Replace('\','/').TrimStart('/').Split('/')
-  return $segments.Count -ge 3 -and $segments[0] -ceq 'engines' -and $segments[1] -ceq 'repository-intelligence' -and
+  return $segments.Count -ge 3 -and $segments[0] -ceq 'engines' -and $segments[1] -in @('repository-intelligence','spec-workflow') -and
     @($segments | Where-Object { $_ -in $script:UeefRuntimeGeneratedSegments }).Count -gt 0
 }
 

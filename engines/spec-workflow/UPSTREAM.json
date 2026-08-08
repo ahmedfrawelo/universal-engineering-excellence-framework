@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "project": "GitHub Spec Kit",
+  "repository": "https://github.com/github/spec-kit",
+  "release": "v0.16.1",
+  "commit": "ad4104b56c219b0a27bac06547d1a3c7d6a0dbd6",
+  "commitDate": "2026-08-07",
+  "license": "MIT",
+  "snapshotPath": "upstream/spec-kit",
+  "snapshotFileCount": 130,
+  "snapshotAggregateSha256": "ae2282a939ad1680bc72decea5db5e49367ea1ebcb7e608d0e13586cb9efc82b",
+  "aggregateAlgorithm": "sha256(sorted(relative-posix-path + NUL + raw-bytes))",
+  "included": [
+    "LICENSE",
+    "README.upstream.md",
+    "pyproject.upstream.toml",
+    "src/",
+    "workflows/speckit/workflow.yml"
+  ],
+  "ueefModifications": "None inside snapshotPath. UEEF-owned code lives under ueef/."
+}

@@ -16,8 +16,8 @@ It does not replace Codex, install untrusted tools automatically, collect user c
 - The source includes 62 framework packs, task preflight, governed capability registry data, specification clarification/convergence artifacts, and diff impact analysis.
 - Core and AI environment profiles are `READY`.
 - The full audit passes, including runtime hardening.
-- Pack 60 provides UEEF's Spec-Driven Development workflow. It is compatible in intent with Spec Kit, but is not a bundled copy of the upstream project.
-- The upstream references considered for this evolution are GitHub's Spec Kit and obra/Superpowers. Their public ideas will be adapted only through UEEF-owned contracts, attribution, and tests; neither project is copied wholesale or installed automatically.
+- Pack 60 provides UEEF's Spec-Driven Development policy and artifacts. The execution engine now carries a pinned, digest-verified Spec Kit source snapshot while all UEEF behavior remains in a separate owned layer.
+- The upstream references considered for this evolution are GitHub's Spec Kit and obra/Superpowers. Reuse requires explicit attribution, a bounded provenance manifest, owned policy adapters, and tests. No upstream command surface is activated automatically.
 
 ## Product requirements
 
@@ -50,7 +50,7 @@ Each layer has one owner and a narrow contract. The resolver must degrade safely
 
 ### Phase 1 — Spec Kit-strength workflow foundation
 
-Deliver a unified project artifact format for `spec`, `clarifications`, `plan`, `tasks`, and `evidence`; add a generator and validator; map the artifacts to Pack 60 without copying upstream branding or code. Add fixtures for a small, medium, and high-risk task.
+The initial phase delivered a unified project artifact format for `spec`, `clarifications`, `plan`, `tasks`, and `evidence`; it mapped those artifacts to Pack 60 without upstream branding or code. The later derived-engine phase adds the separately owned, provenance-tracked source snapshot and executable task graph described in ADR-011. Add fixtures for a small, medium, and high-risk task.
 
 Success: a task can be created, clarified, planned, implemented, and verified with a traceable artifact chain.
 

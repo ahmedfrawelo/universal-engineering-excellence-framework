@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.11`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.26.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.26.0 - 2026-08-08
+
+- Added a pinned, digest-verified GitHub Spec Kit `v0.16.1` source snapshot with preserved MIT license and an explicit UEEF ownership boundary.
+- Added validated DAG task graphs, atomic resumable state, revision-guarded wave reservation, evidence-backed completion, bounded retries, and graph-drift refusal.
+- Added risk-, budget-, capability-, and write-scope-aware dynamic worker waves plus Codex, Claude, and generic host dispatch contracts.
+- Integrated `task-graph.json` with the existing `.ueef/specs/<id>` generator and validator.
+- Added locked CI coverage for lint, typing, security scanning, unit and concurrency tests, end-to-end CLI behavior, and upstream workflow validation.
 
 ## 2.25.11 - 2026-08-06
 

@@ -174,6 +174,38 @@ Status: DRAFT
 
 - {{FOLLOW_UP}}
 '@
+  'task-graph.json' = @"
+{
+  "schemaVersion": 1,
+  "workflowId": "$Id",
+  "policy": {
+    "tier": "T2",
+    "maxWorkers": 2,
+    "tokenBudgetMode": "bounded",
+    "tokenBudget": 10000,
+    "retryLimit": 1,
+    "shellPolicy": "deny",
+    "allowedShellCommands": []
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "title": "Replace with the first implementation task",
+      "dependsOn": [],
+      "requirements": ["REQ-001"],
+      "acceptance": ["AC-001"],
+      "writeSet": [],
+      "forbiddenPaths": [],
+      "capabilities": [],
+      "effortPoints": 1,
+      "risk": 0,
+      "priority": 0,
+      "parallelSafe": false,
+      "readOnly": false
+    }
+  ]
+}
+"@
 }
 
 foreach ($entry in $files.GetEnumerator()) {
@@ -184,7 +216,7 @@ foreach ($entry in $files.GetEnumerator()) {
 }
 
 [pscustomobject]@{
-  schemaVersion = 1
+  schemaVersion = 2
   workflowId = $Id
   path = $specRoot
   files = @($files.Keys)

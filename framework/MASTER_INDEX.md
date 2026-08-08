@@ -1193,6 +1193,7 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`19-agent-workflow/03-spec-driven-development/07-implementation-and-convergence.md`](19-agent-workflow/03-spec-driven-development/07-implementation-and-convergence.md)
 - [`19-agent-workflow/03-spec-driven-development/08-extension-preset-bundle-governance.md`](19-agent-workflow/03-spec-driven-development/08-extension-preset-bundle-governance.md)
 - [`19-agent-workflow/03-spec-driven-development/09-third-party-attribution.md`](19-agent-workflow/03-spec-driven-development/09-third-party-attribution.md)
+- [`19-agent-workflow/03-spec-driven-development/10-task-graph-and-dynamic-execution.md`](19-agent-workflow/03-spec-driven-development/10-task-graph-and-dynamic-execution.md)
 - [`19-agent-workflow/03-spec-driven-development/INDEX.md`](19-agent-workflow/03-spec-driven-development/INDEX.md)
 - [`19-agent-workflow/03-spec-driven-development/README.md`](19-agent-workflow/03-spec-driven-development/README.md)
 - [`19-agent-workflow/INDEX.md`](19-agent-workflow/INDEX.md)
@@ -1234,6 +1235,7 @@ This index lists every Markdown module in the framework exactly once, grouped by
 - [`19-agent-workflow/03-spec-driven-development/07-implementation-and-convergence.md`](19-agent-workflow/03-spec-driven-development/07-implementation-and-convergence.md)
 - [`19-agent-workflow/03-spec-driven-development/08-extension-preset-bundle-governance.md`](19-agent-workflow/03-spec-driven-development/08-extension-preset-bundle-governance.md)
 - [`19-agent-workflow/03-spec-driven-development/09-third-party-attribution.md`](19-agent-workflow/03-spec-driven-development/09-third-party-attribution.md)
+- [`19-agent-workflow/03-spec-driven-development/10-task-graph-and-dynamic-execution.md`](19-agent-workflow/03-spec-driven-development/10-task-graph-and-dynamic-execution.md)
 - [`19-agent-workflow/03-spec-driven-development/INDEX.md`](19-agent-workflow/03-spec-driven-development/INDEX.md)
 - [`19-agent-workflow/03-spec-driven-development/README.md`](19-agent-workflow/03-spec-driven-development/README.md)
 

@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.25.11
+## Current: 2.26.0
 
-UEEF now has intent-first proportional routing, tier-aware quality gates, optional specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, and native repository intelligence. Release 2.25.11 finalizes token-aware routed execution, adds full embedded-engine CI coverage, and corrects Arabic routing and framework text integrity while preserving attributed repository intelligence, activation diagnostics, and runtime drift/source-revision proof. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, tier-aware quality gates, specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, native repository intelligence, and a persistent task-graph execution engine. Release 2.26.0 adds a provenance-tracked Spec Kit source snapshot, resumable graph-bound state, and conflict-safe dynamic worker waves while keeping host dispatch and UEEF policy explicitly separated. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 

@@ -52,6 +52,12 @@ $requiredAcceptance = @(
   "scripts/new-spec-workflow.ps1",
   "scripts/validate-spec-workflow.ps1",
   "scripts/test-spec-workflow.ps1",
+  "scripts/invoke-spec-workflow-engine.ps1",
+  "scripts/test-spec-workflow-engine.ps1",
+  "engines/spec-workflow/UPSTREAM.json",
+  "engines/spec-workflow/pyproject.toml",
+  "engines/spec-workflow/uv.lock",
+  "engines/spec-workflow/ueef/ueef_spec_workflow/cli.py",
   "scripts/get-capability-health.ps1",
   "scripts/test-capability-health.ps1",
   "scripts/get-ueef-health.ps1",
@@ -243,6 +249,7 @@ $requiredAcceptance = @(
   "framework/19-agent-workflow/03-spec-driven-development/07-implementation-and-convergence.md",
   "framework/19-agent-workflow/03-spec-driven-development/08-extension-preset-bundle-governance.md",
   "framework/19-agent-workflow/03-spec-driven-development/09-third-party-attribution.md",
+  "framework/19-agent-workflow/03-spec-driven-development/10-task-graph-and-dynamic-execution.md",
   "framework/12-delivery-quality/04-quality-gates/33-spec-driven-development-gate.md",
   "framework/12-delivery-quality/06-checklists/42-spec-driven-development-checklist.md",
   "framework/21-framework-resources/01-templates/29-spec-driven-development-template.md",
@@ -460,7 +467,7 @@ foreach ($p in $packs) {
   if (!(Test-Path (Join-Path $p.FullName "INDEX.md"))) { $missing += "$($p.Name)/INDEX.md" }
 }
 if ($missing.Count) { throw "Missing required items: $($missing -join ', ')" }
-$engineGeneratedPattern = '[\\/]engines[\\/]repository-intelligence[\\/](?:\.venv|build|graphifyy\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
+$engineGeneratedPattern = '[\\/]engines[\\/](?:repository-intelligence|spec-workflow)[\\/](?:\.venv|build|[^\\/]+\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
 $md = Get-ChildItem $Root -Filter *.md -Recurse | Where-Object {
   $_.FullName -notmatch '[\\/]\.ueef[\\/]' -and $_.FullName -notmatch $engineGeneratedPattern
 }
@@ -538,6 +545,7 @@ $specDrivenTerms = @("Spec-driven applicability:","Specification artifact:","Ope
 foreach ($term in $specDrivenTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing spec-driven field: $term" } }
 if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/test-spec-workflow.ps1") | Out-Null
+  & (Join-Path $Root "scripts/test-spec-workflow-engine.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-profile.ps1") | Out-Null
   Invoke-NodeChecked @((Join-Path $Root "scripts/test-preferred-skills.mjs"), $Root) | Out-Null

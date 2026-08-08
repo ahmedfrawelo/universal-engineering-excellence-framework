@@ -156,9 +156,17 @@ try {
   $generatedRuntimeMetadata = Join-Path $runtime 'engines\repository-intelligence\graphifyy.egg-info\PKG-INFO'
   New-Item -ItemType Directory -Path (Split-Path -Parent $generatedRuntimeMetadata) -Force | Out-Null
   Set-Content -LiteralPath $generatedRuntimeMetadata -Value 'generated package metadata'
+  $generatedSpecCache = Join-Path $runtime 'engines\spec-workflow\.venv\cache.bin'
+  New-Item -ItemType Directory -Path (Split-Path -Parent $generatedSpecCache) -Force | Out-Null
+  Set-Content -LiteralPath $generatedSpecCache -Value 'generated Spec workflow environment cache'
+  $generatedSpecMetadata = Join-Path $runtime 'engines\spec-workflow\ueef\ueef_spec_workflow.egg-info\PKG-INFO'
+  New-Item -ItemType Directory -Path (Split-Path -Parent $generatedSpecMetadata) -Force | Out-Null
+  Set-Content -LiteralPath $generatedSpecMetadata -Value 'generated Spec workflow package metadata'
   $generatedCacheMismatches = @(Get-UeefRuntimeDriftMismatches -SourcePath $root -RuntimePath $runtime)
   if ($generatedCacheMismatches | Where-Object { $_ -like '*engines/repository-intelligence/.venv*' }) { throw 'Runtime drift rejected the bounded generated repository-intelligence environment.' }
   if ($generatedCacheMismatches | Where-Object { $_ -like '*engines/repository-intelligence/graphifyy.egg-info*' }) { throw 'Runtime drift rejected bounded generated repository-intelligence package metadata.' }
+  if ($generatedCacheMismatches | Where-Object { $_ -like '*engines/spec-workflow/.venv*' }) { throw 'Runtime drift rejected the bounded generated Spec workflow environment.' }
+  if ($generatedCacheMismatches | Where-Object { $_ -like '*engines/spec-workflow/ueef/ueef_spec_workflow.egg-info*' }) { throw 'Runtime drift rejected bounded generated Spec workflow package metadata.' }
   $runtimeLinkTarget = Join-Path $sandbox 'runtime-link-target'
   $runtimeLink = Join-Path $runtime 'framework\runtime-link'
   New-Item -ItemType Directory -Path $runtimeLinkTarget -Force | Out-Null

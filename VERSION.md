@@ -1,11 +1,12 @@
 # Version
 
-UEEF Enterprise Edition version: 2.25.11.
+UEEF Enterprise Edition version: 2.26.0.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
 See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](docs/releases/) for individual release notes.
 
+- 2.26.0: added the provenance-tracked Spec Kit derived engine, persistent task graphs, conflict-safe dynamic execution waves, resumable state, bounded retries and budgets, and host dispatch contracts.
 - 2.25.11: finalized token-aware routed execution, added full embedded-engine CI coverage, corrected Arabic design and task-authorization routing, and removed remaining framework mojibake.
 
 - 1.0.0: Core Enterprise Edition baseline.
