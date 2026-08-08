@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current: 2.26.1
+## Current: 2.26.2
 
-UEEF now has intent-first proportional routing, tier-aware quality gates, specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, native repository intelligence, and a persistent task-graph execution engine. Release 2.26.1 adds safe capability-matched team management, persisted reroute and escalation actions, and verifier and integration phase gates while keeping host dispatch and UEEF policy explicitly separated. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
+UEEF now has intent-first proportional routing, tier-aware quality gates, specification artifacts, capability diagnostics, task preflight, performance forensics, managed Codex enforcement, native repository intelligence, and a persistent task-graph execution engine. Release 2.26.2 fixes goal lifecycle routing before model dispatch while preserving evidence-gated completion and host-dispatch policy. The runtime remains selective: core work is light, while risk triggers add evidence, topology, and higher reasoning only when recorded and justified. Source validation and managed activation are reported separately.
 
 ## Next delivery sequence
 

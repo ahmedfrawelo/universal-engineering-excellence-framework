@@ -2,7 +2,12 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.26.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.26.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.26.2 - 2026-08-08
+
+- Decoupled `create_goal` and `update_goal` lifecycle controls from the pre-dispatch guard without weakening the separate completion-evidence guard.
+- Added regression coverage proving lifecycle updates remain evidence-protected while no longer deadlock before model dispatch.
 
 ## 2.26.1 - 2026-08-08
 

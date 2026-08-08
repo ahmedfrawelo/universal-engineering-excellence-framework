@@ -1,6 +1,6 @@
 # Build Progress
 
-Current release: 2.26.1 (2026-08-08)
+Current release: 2.26.2 (2026-08-08)
 
 ## Delivered baseline
 
@@ -19,7 +19,7 @@ Current release: 2.26.1 (2026-08-08)
 - 2.22.0 adds a unified preferred-capability manifest and reconciler for 27 user skills, 15 Codex plugins, and the runtime-managed Node REPL MCP.
 - 2.23.0 adds executable progress, architecture, file-organization, semantic evidence, and provenance validation across all registered quality gates.
 - 2.24.0 adds literal completion convergence, routed goal updates, dedicated same-profile browser tabs, guarded same-target emergency control, and project-owned local-service reuse.
-- 2.26.1 adds safe capability-matched team management, persisted reroute and escalation actions, workflow phase gates, and hardened host-dispatch coverage.
+- 2.26.2 fixes lifecycle routing before model dispatch while retaining evidence-gated completion.
 - 2.25.11 finalizes routed execution, verifies the complete embedded engine in CI, and corrects Arabic routing and text integrity.
 - 2.25.10 completes the native repository-intelligence engine placement, complete project file-tree graph coverage, and clean runtime handoff metadata.
 - 2.19.5 moves Codex runtime backups outside `CODEX_HOME`, makes the external location configurable, and rejects unsafe internal backup roots.
@@ -31,8 +31,8 @@ Current release: 2.26.1 (2026-08-08)
 
 ## Evidence
 
-- Source validation, nested deterministic tests, the full embedded repository-engine suite, and the Spec workflow engine suite pass for 2.26.1.
-- Codex, Cursor, generic, rollback, and staged-runtime installer tests include and validate the complete 2.26.1 payload.
+- Source validation, nested deterministic tests, the full embedded repository-engine suite, and the Spec workflow engine suite pass for 2.26.2.
+- Codex, Cursor, generic, rollback, and staged-runtime installer tests include and validate the complete 2.26.2 payload.
 - The source checkout passes validation and reports `SOURCE_VALIDATED`; the managed runtime must be synchronized before it can claim `ACTIVE_RUNTIME`.
 - Release work is pushed to `origin/main` after validation under the current autonomous delivery policy.
 

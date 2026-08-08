@@ -212,6 +212,11 @@ try {
   Assert-Denied $visibleTaskWithoutRequest 'User-visible task creation without an explicit request'
   $beforeDispatchEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-2-before-dispatch';tool_input=@{command='*** Begin Patch'}})
   Assert-Denied $beforeDispatchEdit 'Routed edit before actual model dispatch'
+  $beforeDispatchGoalCreate = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='create_goal';tool_use_id='goal-create-before-dispatch';tool_input=@{objective='test goal lifecycle'}})
+  if ([string]$beforeDispatchGoalCreate.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Goal creation was incorrectly coupled to model dispatch.' }
+  $beforeDispatchGoalUpdate = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='update_goal';tool_use_id='goal-update-before-dispatch';tool_input=@{status='complete'}})
+  if ([string]$beforeDispatchGoalUpdate.hookSpecificOutput.permissionDecisionReason -match 'validated model route') { throw 'Goal lifecycle update was incorrectly coupled to model dispatch.' }
+  Assert-Denied $beforeDispatchGoalUpdate 'Goal completion without lifecycle evidence'
   Complete-HostDispatch $nodePath $hook $stateRoot $base $session $turn $baseTranscript | Out-Null
   $routedEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-2';tool_input=@{command='*** Begin Patch'}})
   if ([string]$routedEdit.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Routed and actually dispatched ordinary edit was denied.' }

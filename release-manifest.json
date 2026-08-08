@@ -1,11 +1,11 @@
 {
   "name": "Universal Engineering Excellence Framework",
   "shortName": "UEEF",
-  "version": "2.26.1",
+  "version": "2.26.2",
   "repository": "ahmedfrawelo/universal-engineering-excellence-framework",
   "releaseDate": "2026-08-08",
   "minimumMarkdownFiles": 748,
-  "trackedMarkdownFiles": 1168,
+  "trackedMarkdownFiles": 1169,
   "frameworkPacks": 22,
   "entrypoints": {
     "loaderTemplate": "UEEF-LOADER.md",
@@ -40,5 +40,5 @@
     "framework/20-repository-evolution/03-repository-intelligence",
     "framework/10-frontend/02-production-design"
   ],
-  "releaseNotes": "docs/releases/v2.26.1.md"
+  "releaseNotes": "docs/releases/v2.26.2.md"
 }

@@ -120,11 +120,12 @@ function onPreToolUse(event) {
   if (!freeModeActive && !assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
   const directModelDispatch = /codex-app-server-dispatch\.mjs/iu.test(toolInput);
   const hostModelDispatch = /(send_message_to_thread|create_thread|spawn_agent)/iu.test(toolName);
+  const goalLifecycleTool = /^(?:create_goal|update_goal)$/iu.test(toolName);
   const economicalLeadRead = isEconomicalLeadRead(toolName, event, state.route?.tier);
   if (/(create_thread|fork_thread)/iu.test(toolName) && state.authorizations?.newUserTask !== true) return preToolDeny('Creating a user-visible Codex task requires an explicit current-prompt request for a new task. Use ephemeral routed execution or an internal worker instead.');
   const workerDispatch = state.validations.modelDispatch === true && /(create_thread|spawn_agent)/iu.test(toolName);
   if (!freeModeActive && workerDispatch && Number(state.workerDispatchCount || 0) >= Number(state.route.tokenEconomy?.maxWorkerCount ?? 0)) return preToolDeny(`Worker dispatch exceeds the ${state.route.tokenEconomy?.maxWorkerCount ?? 0}-worker budget for ${state.route.tier}.`);
-  if (!freeModeActive && state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch && !economicalLeadRead) return preToolDeny('Execute the current validated model route before using mutation or non-read task tools. T0/T1 lead agents may perform allowlisted read-only intake first.');
+  if (!freeModeActive && state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch && !goalLifecycleTool && !economicalLeadRead) return preToolDeny('Execute the current validated model route before using mutation or non-read task tools. Goal lifecycle controls and T0/T1 allowlisted read-only intake remain available before dispatch.');
   if (!freeModeActive && state.validations.modelDispatch === true && state.route.actualLine && !assistantMessageContains(event.transcript_path, state.route.actualLine)) return preToolDeny(`Publish the verified actual sub-agent execution before continuing: ${state.route.actualLine}`);
   if (!freeModeActive && directModelDispatch) {
     if (!isIsolatedDirectDispatcher(toolName, event)) return preToolDeny('Direct App Server dispatch must be an isolated dispatcher command with no chained output fabrication.');
