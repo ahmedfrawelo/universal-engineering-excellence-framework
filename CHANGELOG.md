@@ -2,7 +2,14 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.10`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.25.11`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.25.11 - 2026-08-06
+
+- Finalized catalog-backed routing, token-economy execution specs, and managed route receipts delivered after the previous tag.
+- Added locked CI execution of the embedded repository engine's full pytest suite and conservative Ruff checks.
+- Corrected Arabic production-design routing and explicit new-task authorization, with regression coverage.
+- Removed remaining framework mojibake and added a validation guard against recurrence.
 
 ## 2.25.10 - 2026-08-05
 

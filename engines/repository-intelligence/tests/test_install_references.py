@@ -5,17 +5,15 @@ claude and its reuse twins (antigravity, kimi) install progressively: a lean
 SKILL.md plus a references/ sidecar. Every other host whose bundle has not
 shipped yet still installs today's byte-identical monolith.
 
-The plumbing tests below stage a hand-made fake bundle in claude's slot so the
-dir-copy, version-stamp, reinstall, and uninstall flow can be exercised with
-fixed, asserted content. The fixture backs up the real committed bundle and
-restores it on teardown, so the working tree is never disturbed.
+The plumbing tests below stage a hand-made fake bundle in a temporary package
+root so the dir-copy, version-stamp, reinstall, and uninstall flow can be
+exercised with fixed, asserted content without mutating the source tree.
 """
 from __future__ import annotations
 
 import os
 import shutil
 import sys
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -23,31 +21,30 @@ import pytest
 
 import graphify
 import graphify.__main__ as mainmod
+import graphify.install as installmod
 
 
 PKG_DIR = Path(graphify.__file__).parent
 
 
 @pytest.fixture()
-def fake_bundle():
-    """Stage a fake references/ bundle in claude's slot, then restore the real one.
+def fake_bundle(tmp_path, monkeypatch):
+    """Stage a fake references/ bundle under pytest's temporary directory.
 
     Yields the platform name. claude is used because its skill_refs bundle is
-    "claude" and it has no extra plugin wiring. The real committed bundle is
-    moved aside for the duration and put back afterward, so the on-disk package
-    is left exactly as found.
+    "claude" and it has no extra plugin wiring. Package lookup is redirected
+    to the temporary root, leaving the committed bundle untouched on every
+    filesystem.
     """
     platform = "claude"
     bundle = mainmod._PLATFORM_CONFIG[platform]["skill_refs"]
-    skills_root = PKG_DIR / "skills"
-    bundle_dir = skills_root / bundle
+    bundle_dir = tmp_path / "packaged-graphify" / "skills" / bundle
     refs_dir = bundle_dir / "references"
+    def resolve_refs(platform_name):
+        return refs_dir if platform_name == platform else None
 
-    created_root = not skills_root.exists()
-    backup_dir = None
-    if bundle_dir.exists():
-        backup_dir = Path(tempfile.mkdtemp()) / "bundle_backup"
-        shutil.move(str(bundle_dir), str(backup_dir))
+    monkeypatch.setattr(installmod, "_packaged_skill_refs_dir", resolve_refs)
+    monkeypatch.setattr(mainmod, "_packaged_skill_refs_dir", resolve_refs)
 
     refs_dir.mkdir(parents=True, exist_ok=True)
     (refs_dir / "extraction-spec.md").write_text("# extraction spec fragment\n", encoding="utf-8")
@@ -55,13 +52,7 @@ def fake_bundle():
     try:
         yield platform
     finally:
-        if bundle_dir.exists():
-            shutil.rmtree(bundle_dir, ignore_errors=True)
-        if backup_dir is not None:
-            shutil.move(str(backup_dir), str(bundle_dir))
-            shutil.rmtree(backup_dir.parent, ignore_errors=True)
-        elif created_root:
-            shutil.rmtree(skills_root, ignore_errors=True)
+        shutil.rmtree(bundle_dir.parents[1], ignore_errors=True)
 
 
 def _install(tmp_path, platform):
@@ -186,32 +177,20 @@ def test_hard_fail_when_bundle_dir_present_but_references_missing(tmp_path, monk
     ``test_unbuilt_bundle_host_falls_back_to_monolith``.
     """
     platform = "claude"
-    bundle = mainmod._PLATFORM_CONFIG[platform]["skill_refs"]
-    skills_root = PKG_DIR / "skills"
-    bundle_dir = skills_root / bundle
-
-    created_root = not skills_root.exists()
-    backup_dir = None
-    if bundle_dir.exists():
-        backup_dir = Path(tempfile.mkdtemp()) / "bundle_backup"
-        shutil.move(str(bundle_dir), str(backup_dir))
-    # Bundle dir present, but no references/ subdir inside it.
+    bundle_dir = tmp_path / "malformed-package" / "skills" / "claude"
     bundle_dir.mkdir(parents=True, exist_ok=True)
     (bundle_dir / "SKILL.md").write_text("body\n", encoding="utf-8")
-    try:
-        with pytest.raises(SystemExit) as exc:
-            with patch("graphify.__main__.Path.home", return_value=tmp_path):
-                monkeypatch.chdir(tmp_path)
-                mainmod._copy_skill_file("claude")
-        assert exc.value.code == 1
-    finally:
-        if bundle_dir.exists():
-            shutil.rmtree(bundle_dir, ignore_errors=True)
-        if backup_dir is not None:
-            shutil.move(str(backup_dir), str(bundle_dir))
-            shutil.rmtree(backup_dir.parent, ignore_errors=True)
-        elif created_root:
-            shutil.rmtree(skills_root, ignore_errors=True)
+    missing_refs = bundle_dir / "references"
+    def resolve_missing_refs(_platform):
+        return missing_refs
+
+    monkeypatch.setattr(installmod, "_packaged_skill_refs_dir", resolve_missing_refs)
+
+    with pytest.raises(SystemExit) as exc:
+        with patch("graphify.__main__.Path.home", return_value=tmp_path):
+            monkeypatch.chdir(tmp_path)
+            mainmod._copy_skill_file("claude")
+    assert exc.value.code == 1
 
 
 def _first_unbuilt_progressive_host():

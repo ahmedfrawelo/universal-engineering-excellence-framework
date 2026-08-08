@@ -43,6 +43,7 @@
   },
   "modifiedUpstreamPaths": [
     "pyproject.toml",
+    "uv.lock",
     "graphify/build.py",
     "graphify/cache.py",
     "graphify/cli.py",
@@ -64,6 +65,7 @@
     "tests/test_install.py",
     "tests/test_install_references.py",
     "tests/test_install_roundtrip.py",
+    "tests/test_install_strings.py",
     "tests/test_merge_chunks_validation.py",
     "tests/test_ollama_retry_cap.py",
     "tests/test_id_normalization_contract.py",

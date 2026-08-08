@@ -125,6 +125,11 @@ if ($nestedGit) { throw 'Nested upstream .git metadata must not be embedded.' }
 foreach ($notice in @('LICENSE', 'LICENSE-MIT', 'NOTICE', 'UEEF-UPSTREAM.json', 'MODIFICATIONS.md')) {
   if (!(Test-Path -LiteralPath (Join-Path $engineRoot $notice))) { throw "Engine attribution artifact missing: $notice" }
 }
+$workflowPath = Join-Path $root '.github\workflows\validate.yml'
+$workflowText = Get-Content -LiteralPath $workflowPath -Raw
+foreach ($engineCiContract in @('repository-engine', 'uv sync --group dev --locked', 'uv run --frozen pytest', 'uv run --frozen ruff check .')) {
+  if ($workflowText -notmatch [regex]::Escape($engineCiContract)) { throw "Repository engine CI coverage missing: $engineCiContract" }
+}
 $engineEvidence = & node (Join-Path $root 'scripts\verify-repository-intelligence-engine.mjs') $root | ConvertFrom-Json
 if ($engineEvidence.status -ne 'PASS' -or $engineEvidence.upstreamFiles -ne 776 -or $engineEvidence.nestedGit) { throw 'Engine inventory verification failed.' }
 

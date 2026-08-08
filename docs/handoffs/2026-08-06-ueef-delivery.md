@@ -5,7 +5,7 @@
 - Source: `E:\MY DATA\div\universal-engineering-excellence-framework`
 - Upstream: `https://github.com/ahmedfrawelo/universal-engineering-excellence-framework.git`
 - Branch: `main`
-- Version: `2.25.10`
+- Version: `2.25.11`
 - Installed Codex runtime: `D:\shared folder\codex-home\ueef\codex`
 - Runtime mode: `managed-runtime`
 - Authoritative revision: run `git rev-parse HEAD`; live Git output always wins.
@@ -84,7 +84,7 @@ Do not rename or regroup stable packs without changing loaders, indexes, validat
 - `config/enforcement-registry.json`
 - `config/model-routing-policy.json`
 - `release-manifest.json`
-- `docs/releases/v2.25.10.md`
+- `docs/releases/v2.25.11.md`
 
 ## Required sequence
 

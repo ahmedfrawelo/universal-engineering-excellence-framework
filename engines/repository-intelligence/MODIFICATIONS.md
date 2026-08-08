@@ -13,6 +13,16 @@ UEEF changes after import:
   docs, superpowers planning notes, and worked example outputs are excluded
   because UEEF exposes only the bounded local `ueef-repository-intelligence`
   facade.
+- `tests/test_install_strings.py` treats the intentionally excluded upstream
+  `docs/` tree as a governed curated-subset condition instead of failing on a
+  missing documentation file; when the document is present, its original
+  semantic-extraction wording assertions still run unchanged.
+- `tests/test_install_references.py` stages its fake packaged references under
+  pytest's temporary directory and patches only the references resolver instead of moving
+  the committed bundle across filesystems, preventing Windows file-lock and
+  cross-drive corruption during the full suite.
+- `uv.lock` is refreshed from the embedded `pyproject.toml` so locked developer
+  dependencies can install reproducibly for the full CI test suite.
 - Added `UPSTREAM-FILES.json`, a 776-entry path/blob/SHA-256/size inventory used to verify that every unmodified imported file remains byte-exact.
 - Added this modification log.
 - Added `graphify/ueef_adapter.py`, a bounded local-only facade. It exposes build,

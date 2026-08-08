@@ -31,7 +31,7 @@ const augmentArabicSignals = (input) => {
   add(/[اأ]ضف|ضيف/, 'add');
   add(/[اأ]حذف|[اأ]مسح/, 'remove delete');
   add(/ثبت/, 'install');
-  add(/[اأ]عمل|[اأ]بني|[اأ]نشئ/, 'build create new');
+  add(/[اأ]عمل|[اأ]بني|[اأ]نشئ|صمم/, 'build create new');
   add(/[اأ]فحص|راجع|دقق|حلل|[اأ]ختبر|ت[اأ]كد|ات[اأ]كد|شوف|شخص/, 'audit review inspect verify diagnose test');
   add(/كل حاج[ةه]|كل شي[ءئ]|بالكامل|شامل|حرفي[اً]|من ال[اأ]ول لل[اآ]خر/, 'system-wide entire project all issues');
   add(/واجهة المستخدم|الواجه[ةه]|فرونت|فورنت|صفح[ةه]|شاش[ةه]|مكون/, 'ui frontend page screen component');
@@ -71,15 +71,15 @@ const signals = {
   sourceDriven: has(/\b(official docs|official documentation|current angular|latest angular|source.cited)\b/),
   codeReview: has(/\b(code review|review (?:the )?(?:pr|diff)|pull request review)\b/),
   visualQa: has(/\b(visual qa|visual regression|screenshot diff|browser verification|responsive verification)\b/),
-  expressive: has(/\b(landing page|portfolio|marketing site|expressive|visual redesign)\b|Ã˜ÂµÃ™ÂÃ˜Â­Ã˜Â© Ã™â€¡Ã˜Â¨Ã™Ë†Ã˜Â·|Ã˜Â¨Ã™Ë†Ã˜Â±Ã˜ÂªÃ™ÂÃ™Ë†Ã™â€žÃ™Å Ã™Ë†|Ã˜ÂªÃ˜Â³Ã™Ë†Ã™Å Ã™â€š|Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜ÂªÃ˜ÂµÃ™â€¦Ã™Å Ã™â€¦/),
-  designReview: has(/\b(design score|styleseed|post-build design review|visual quality floor)\b|Ã˜ÂªÃ™â€šÃ™Å Ã™Å Ã™â€¦ Ã˜Â§Ã™â€žÃ˜ÂªÃ˜ÂµÃ™â€¦Ã™Å Ã™â€¦|Ã™â€¦Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹Ã˜Â© Ã˜Â¨Ã˜ÂµÃ˜Â±Ã™Å Ã˜Â©/),
-  penpot: has(/\b(penpot|design canvas|code-to-design|design-to-code)\b|Ã˜Â¨Ã™â€ Ã˜Â¨Ã™Ë†Ã˜Âª|Ã™â€žÃ™Ë†Ã˜Â­Ã˜Â© Ã˜ÂªÃ˜ÂµÃ™â€¦Ã™Å Ã™â€¦/),
+  expressive: has(/\b(landing page|portfolio|marketing site|expressive|visual redesign)\b|صفحة هبوط|بورتفوليو|تسويق|إعادة تصميم/),
+  designReview: has(/\b(design score|styleseed|post-build design review|visual quality floor)\b|تقييم التصميم|مراجعة بصرية|راجع التصميم بصري/),
+  penpot: has(/\b(penpot|design canvas|code-to-design|design-to-code)\b|بنبوت|بينبوت|لوحة تصميم/),
 };
 
 const domains = Object.entries(signals)
   .filter(([key, matched]) => matched && !key.startsWith('action') && !['broad', 'frontend', 'react', 'angular'].includes(key))
   .map(([key]) => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`));
-const frontendNativeDomain = signals.overlay || signals.theme || signals.responsive || signals.dataGrid || signals.appShell || signals.accessibility || signals.loading || signals.motion || signals.design || signals.visualQa;
+const frontendNativeDomain = signals.overlay || signals.theme || signals.responsive || signals.dataGrid || signals.appShell || signals.accessibility || signals.loading || signals.motion || signals.design || signals.visualQa || signals.expressive || signals.designReview || signals.penpot;
 const frontendPerformanceNative = has(/\b(lcp|inp|cls|bundle size|re-render|frame rate)\b/);
 const applies = forceFrontend || override !== 'Auto' || signals.frontend || frontendNativeDomain || frontendPerformanceNative || signals.react || signals.angular;
 const auditReviewPhrase = has(/\b(audit|review|critique|assess|evaluate|inspect)\b.*\b(polish|visual design|design system)\b/);

@@ -406,6 +406,11 @@ try {
   Invoke-Hook $nodePath $hook ($negativeArabicBase + @{hook_event_name='UserPromptSubmit';prompt='لا تفتح شات جديد ولا تعمل تاسك جديدة'}) | Out-Null
   $negativeArabicState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter "*.$negativeArabicTurn.json" -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
   if ($negativeArabicState.authorizations.newUserTask -eq $true) { throw 'Negated Arabic new-task request was incorrectly authorized.' }
+  $nonNewArabicTurn = 'turn-arabic-task-quality-not-new'
+  $nonNewArabicBase = $newTaskBase.Clone(); $nonNewArabicBase.turn_id = $nonNewArabicTurn
+  Invoke-Hook $nodePath $hook ($nonNewArabicBase + @{hook_event_name='UserPromptSubmit';prompt='حول المشروع لمهمة جيدة'}) | Out-Null
+  $nonNewArabicState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter "*.$nonNewArabicTurn.json" -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  if ($nonNewArabicState.authorizations.newUserTask -eq $true) { throw 'Arabic task-quality wording without an explicit new-task request was incorrectly authorized.' }
 
   $authorizedPush = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='Bash';tool_use_id='tool-6';tool_input=@{command='git push origin main'}})
   if ([string]$authorizedPush.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Explicitly authorized push was denied.' }

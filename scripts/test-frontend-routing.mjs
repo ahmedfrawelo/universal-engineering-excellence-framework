@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const selectorSource = fs.readFileSync(path.join(root, 'scripts/select-frontend-route.mjs'), 'utf8');
+if (/Ã|Â|â€/.test(selectorSource)) throw new Error('Frontend selector contains mojibake and cannot reliably match Arabic design signals.');
 const route = (task) => JSON.parse(execFileSync(process.execPath, [path.join(root, 'scripts/select-frontend-route.mjs'), '--task', task], { encoding: 'utf8' }));
 const cases = [
   ['Create a modal with focus restoration', 'Build', 'overlay', '/16-design-system/02-theme-responsive-interaction-security-performance/24-'],
@@ -31,6 +34,9 @@ const cases = [
   ['Fix navbar', 'Quick', 'app-shell', '/17-product-platform/04-application-shell-design/00-'],
   ['Audit aria focus management', 'Audit', 'accessibility', '/12-delivery-quality/07-accessibility/00-'],
   ['راجع واجهة المستخدم وأصلح القائمة المنسدلة', 'Quick', 'overlay', '/16-design-system/02-theme-responsive-interaction-security-performance/22-'],
+  ['صمم صفحة هبوط عربية احترافية', 'Build', null, '/10-frontend/02-production-design/00-'],
+  ['راجع التصميم بصريا بالكامل', 'Audit', 'design-review', '/10-frontend/02-production-design/00-'],
+  ['استخدم بنبوت ولوحة تصميم', 'Audit', 'penpot', '/10-frontend/02-production-design/00-'],
 ];
 for (const [task, mode, domain, modulePart] of cases) {
   const result = route(task);
@@ -76,4 +82,10 @@ const forced = JSON.parse(execFileSync(process.execPath, [path.join(root, 'scrip
 if (!forced.applies || !forced.forcedFrontend || !forced.skills.includes('typeui-fundamentals')) throw new Error('An explicit frontend tag must force a valid canonical frontend route.');
 const explanatory = route('Explain this UI component');
 if (explanatory.mutation !== 'ReadOnly' || explanatory.skills.includes('frontend-ui-engineering')) throw new Error('A frontend explanation must not invent implementation work.');
+const arabicLanding = route('صمم صفحة هبوط عربية احترافية');
+if (!arabicLanding.skills.includes('frontend-design') || !arabicLanding.designProductionApplies) throw new Error('Arabic landing-page creation must select frontend design production.');
+const arabicVisualReview = route('راجع التصميم بصريا بالكامل');
+if (arabicVisualReview.intent !== 'Audit' || !arabicVisualReview.designProductionApplies) throw new Error('Arabic visual design review must select a read-only production-design audit.');
+const arabicPenpot = route('استخدم بنبوت ولوحة تصميم');
+if (!arabicPenpot.designProductionApplies || !arabicPenpot.matchedSignals.includes('penpot')) throw new Error('Arabic Penpot request must select the Penpot production-design route.');
 console.log(`Frontend routing tests passed (${cases.length + skillCases.length + 10} assertion groups)`);

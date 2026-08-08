@@ -18,11 +18,11 @@ Model families are runtime mappings. Do not hard-code a vendor, model name, or r
 
 The implementer or lead supplies the reviewer only the bounded packet below:
 
-1. **Objective** â€” observable result and explicit non-goals.
-2. **Ownership and interfaces** â€” exact changed paths, public contracts, and compatibility constraints.
-3. **Final diff identity** â€” reviewed diff SHA-256 and before/after repository state identity.
-4. **Verification evidence** â€” exact commands and observed results.
-5. **Decision request** â€” `ship`, `fix-first`, or `rethink`.
+1. **Objective** — observable result and explicit non-goals.
+2. **Ownership and interfaces** — exact changed paths, public contracts, and compatibility constraints.
+3. **Final diff identity** — reviewed diff SHA-256 and before/after repository state identity.
+4. **Verification evidence** — exact commands and observed results.
+5. **Decision request** — `ship`, `fix-first`, or `rethink`.
 
 The reviewer is behaviorally read-only. If the platform reports an enforced read-only sandbox, record it. If the host broadens the sandbox, capture exact before/after repository state and report behavioral read-only as a residual limitation. A reviewer must not implement a fix.
 

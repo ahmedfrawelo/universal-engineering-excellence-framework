@@ -142,8 +142,16 @@ def test_skill_registration_uses_host_generic_instruction():
 
 
 def test_how_it_works_clarifies_code_only_semantic_extraction():
+    import json
     from pathlib import Path
-    doc = (Path(__file__).parent.parent / "docs" / "how-it-works.md").read_text(encoding="utf-8")
+
+    engine_root = Path(__file__).parent.parent
+    doc_path = engine_root / "docs" / "how-it-works.md"
+    if not doc_path.exists():
+        metadata = json.loads((engine_root / "UEEF-UPSTREAM.json").read_text(encoding="utf-8"))
+        assert "docs/" in metadata["curatedExclusions"]["upstreamPathPrefixes"]
+        return
+    doc = doc_path.read_text(encoding="utf-8")
     assert "Code files are not sent to the LLM semantic extractor" in doc
     assert "code files, Pass 3 is skipped entirely" in doc
     assert "docs, papers, images, and transcripts" in doc

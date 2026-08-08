@@ -472,6 +472,8 @@ $empty = $md | Where-Object { $_.Length -eq 0 }
 if ($empty) { throw "Empty Markdown files: $($empty.FullName -join ', ')" }
 $weak = Select-String -Path $md.FullName -Pattern 'TODO only|lorem ipsum|placeholder only|TBD only' -CaseSensitive:$false -ErrorAction SilentlyContinue
 if ($weak) { throw "Placeholder-like marker found: $($weak[0].Path):$($weak[0].LineNumber)" }
+$mojibake = Select-String -Path $md.FullName -Pattern '\u00E2\u20AC' -CaseSensitive -ErrorAction SilentlyContinue
+if ($mojibake) { throw "Mojibake marker found: $($mojibake[0].Path):$($mojibake[0].LineNumber)" }
 $scriptNames = @("install-codex.ps1","install-codex.sh","install-cursor.ps1","install-cursor.sh","install-generic.ps1","install-generic.sh","validate-framework.ps1","validate-framework.sh","backup-existing-rules.ps1","backup-existing-rules.sh","detect-agent.ps1","detect-agent.sh")
 foreach ($s in $scriptNames) { if (!(Test-Path (Join-Path $Root "scripts/$s"))) { throw "Missing script $s" } }
 $master = Join-Path $Root "framework/MASTER_INDEX.md"

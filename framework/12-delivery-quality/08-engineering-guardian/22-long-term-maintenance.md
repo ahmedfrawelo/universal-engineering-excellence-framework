@@ -6,7 +6,7 @@ Applies to: every engineering task and release decision
 
 ## Purpose
 
-Keeps todayâ€™s change maintainable for future owners and environments.
+Keeps today’s change maintainable for future owners and environments.
 
 ## Guardian Rules
 
