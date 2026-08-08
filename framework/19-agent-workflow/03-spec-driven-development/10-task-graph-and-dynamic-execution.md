@@ -30,7 +30,7 @@ Execution state is graph-digest bound and uses these task states:
 - `DONE`: the worker returned explicit acceptance evidence;
 - `FAILED`: the bounded retry allowance is exhausted.
 
-State writes are atomic and revision guarded. Scheduling reserves its wave before returning dispatch contracts, which prevents a concurrent scheduler from assigning the same ready task. `start` confirms the reservation and `release` returns a failed dispatch to `READY`. A graph change invalidates direct resume; update or migrate the state deliberately instead of silently applying old progress to new work.
+State writes are atomic and revision guarded. Scheduling reserves its wave before returning dispatch contracts, which prevents a concurrent scheduler from assigning the same ready task. `start` confirms the reservation and `release` returns a failed dispatch to `READY`. Persisted orchestration also appends fsync-backed `events.jsonl` records for reservation, start, and result boundaries. A graph change invalidates direct resume; update or migrate the state deliberately instead of silently applying old progress to new work.
 
 ## Wave Scheduling
 
@@ -48,10 +48,18 @@ Tier sets a ceiling, not a target. The desired team grows when additional non-co
 
 ## Host Boundary
 
-The engine emits dispatch contracts; it does not create hidden agents. A host adapter names the worker, task, prompt, capabilities, allowed write roots, forbidden paths, and expected acceptance evidence. The active host creates or reuses workers and records `start`, `complete`, `fail`, `block`, or `unblock` transitions.
+The engine emits dispatch contracts; it does not create hidden agents. A host adapter names the worker, task, prompt, capabilities, allowed write roots, forbidden paths, transport, result protocol, and expected acceptance evidence. The active host creates or reuses workers through the explicit `HostRuntime` boundary. The controller persists reservation, start, and returned result transitions; exceptions, mismatched results, and invalid outcomes are converted into bounded failures.
 
 The UEEF CLI intentionally exposes no upstream workflow execution command. Upstream shell steps are denied during compatibility validation by default, and community/custom executable steps are never loaded automatically.
 
+## Semantic Convergence
+
+Verifier findings may extend a workflow through the bounded convergence contract. Each proposed task must have a unique ID and non-empty `sourceEvidence` links. Existing task definitions cannot be replaced, dependencies must still form a valid DAG, and migrated state preserves completed work, attempts, evidence, tokens, and creation time while refreshing readiness for the new graph revision.
+
+## Productivity Measurement
+
+Productivity comparisons use recorded runs for exactly three modes: `single-agent`, `ueef-static`, and `dynamic-team`. Every sample supplies success, makespan, tokens, retries, conflicts, and rework. The benchmark reports sample counts, success rates, and metric averages; it rejects incomplete mode coverage or fabricated defaults.
+
 ## Quality Gate
 
-Passes when the graph validates, Markdown and graph task IDs agree, state belongs to the exact graph digest, the scheduled wave has no ownership conflict, every completion has evidence, retry and budget limits hold, and resumed execution reaches the same derived readiness as uninterrupted execution.
+Passes when the graph validates, Markdown and graph task IDs agree, state belongs to the exact graph digest, the scheduled wave has no ownership conflict, every completion has evidence, retry and budget limits hold, resumed execution reaches the same derived readiness as uninterrupted execution, convergence tasks retain source traceability, and benchmark reports derive only from complete recorded-run inputs.

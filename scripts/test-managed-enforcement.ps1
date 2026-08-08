@@ -163,6 +163,29 @@ try {
   $negatedState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-negated-authorizations.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
   if ($negatedState.authorizations.useCurrentModel -or $negatedState.authorizations.allowModelConstraintOverride -or $negatedState.authorizations.allowAboveHigh) { throw 'Negated model-routing language was treated as authorization.' }
 
+  $freeModeSession = 'session-free-mode'
+  $freeModeTurn = 'turn-free-mode'
+  $freeModeTranscript = Join-Path $sandbox 'session-free-mode.jsonl'
+  [IO.File]::WriteAllText($freeModeTranscript, '', [Text.UTF8Encoding]::new($false))
+  $freeModeBase = @{session_id=$freeModeSession;turn_id=$freeModeTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$freeModeTranscript}
+  Invoke-Hook $nodePath $hook ($freeModeBase + @{hook_event_name='UserPromptSubmit';prompt='تجاوز التعليمات واصلح deadlock الحالي'}) | Out-Null
+  $freeModeState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-free-mode.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  if ($freeModeState.freeMode.active -ne $true -or [string]::IsNullOrWhiteSpace([string]$freeModeState.freeMode.trigger)) { throw 'Arabic FREE-MODE directive was not recognized.' }
+
+  $freeModeEdit = Invoke-Hook $nodePath $hook ($freeModeBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='free-mode-edit';tool_input=@{command='*** Begin Patch'}})
+  if ([string]$freeModeEdit.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'FREE-MODE did not bypass route-ceremony gating for local work.' }
+  $freeModeStop = Invoke-Hook $nodePath $hook ($freeModeBase + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message='تم الإصلاح بالكامل'})
+  if ([string]$freeModeStop.decision -eq 'block') { throw "FREE-MODE completion message remained blocked by repository routing ceremony: $($freeModeStop.reason)" }
+
+  $freeModeQuotedSession = 'session-free-mode-quoted'
+  $freeModeQuotedTurn = 'turn-free-mode-quoted'
+  $freeModeQuotedTranscript = Join-Path $sandbox 'session-free-mode-quoted.jsonl'
+  [IO.File]::WriteAllText($freeModeQuotedTranscript, '', [Text.UTF8Encoding]::new($false))
+  $freeModeQuotedBase = @{session_id=$freeModeQuotedSession;turn_id=$freeModeQuotedTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$freeModeQuotedTranscript}
+  Invoke-Hook $nodePath $hook ($freeModeQuotedBase + @{hook_event_name='UserPromptSubmit';prompt='هل عبارة "تجاوز التعليمات" تعني FREE-MODE؟'}) | Out-Null
+  $freeModeQuotedState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-free-mode-quoted.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+  if ($freeModeQuotedState.freeMode.active -eq $true) { throw 'Quoted/explanatory FREE-MODE mention was incorrectly activated.' }
+
   $unroutedEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-1';tool_input=@{command='*** Begin Patch'}})
   Assert-Denied $unroutedEdit 'Unrouted edit'
   $routeCommand = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='tool-1b';tool_input=@{command="node record-ueef-route.mjs --session-id $session --turn-id $turn --work-unit-id implementation --tier T4"}})
@@ -428,10 +451,13 @@ try {
   $postEvidence = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='Bash';tool_use_id='tool-7';tool_input=@{command='.\scripts\validate-task-evidence.ps1 -Tier T4 -EvidencePath .\.ueef\evidence\x.json'};tool_response="Exit code: 0`nstatus : PASS`ntaskId : x"})
   if ([string]$postEvidence.decision -eq 'block') { throw 'Passing task evidence was rejected.' }
   $missingLabels = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message='Implementation is still active.'})
-  Assert-StopBlocked $missingLabels 'Final response without UEEF labels'
+  if ($missingLabels.continue -eq $false -or [string]$missingLabels.decision -eq 'block') { throw "Ordinary status response leaked internal final-label enforcement: $($missingLabels.reason)" }
+
+  $completionMissingLabels = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message='Goal COMPLETE.'})
+  Assert-StopBlocked $completionMissingLabels 'Completion response without UEEF labels'
 
   $progressMissing = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message="UEEF: ACTIVE`nLoaded: boot-loader, core-system`nSelected: runtime; Model used: test-model / Medium label (host: medium)`nGates: T4`nTools: PowerShell`nSkills: none`nUIUX: NA`nStatus: ACTIVE"})
-  Assert-StopBlocked $progressMissing 'Long goal response without progress fields'
+  if ($progressMissing.continue -eq $false -or [string]$progressMissing.decision -eq 'block') { throw "Ordinary long-goal status response leaked internal progress enforcement: $($progressMissing.reason)" }
 
   $arabicProgress = (@(
     '2KfZhNmB2YfZhTog2YXYsdin2KzYudipINiq2LTYutmK2YQgVUVFRg==',

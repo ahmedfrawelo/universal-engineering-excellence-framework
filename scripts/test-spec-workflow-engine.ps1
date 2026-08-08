@@ -20,6 +20,11 @@ try {
   $graph = Join-Path $created.path 'task-graph.json'
   $state = Join-Path $created.path 'execution-state.json'
   $engine = Join-Path $root 'scripts\invoke-spec-workflow-engine.ps1'
+  $node = Get-Command node -ErrorAction Stop
+  foreach ($bridge in @('invoke-spec-workflow-codex-host.mjs', 'invoke-spec-workflow-claude-host.mjs')) {
+    & $node.Source --check (Join-Path $root "scripts\$bridge")
+    if ($LASTEXITCODE -ne 0) { throw "Host bridge syntax check failed: $bridge" }
+  }
 
   $upstream = & $engine upstream-status | ConvertFrom-Json
   if (!$upstream.valid -or $upstream.release -ne 'v0.16.1') { throw 'Upstream snapshot verification failed.' }
@@ -43,6 +48,16 @@ try {
 
   $finalWave = & $engine schedule --graph $graph --state $state --adapter codex | ConvertFrom-Json
   if ($finalWave.wave.Count -ne 0 -or $finalWave.team.scaleAction -ne 'SHRINK') { throw 'Engine did not shrink the team after convergence.' }
+
+  $receiptState = Join-Path $created.path 'receipt-state.json'
+  $receiptResults = Join-Path $created.path 'host-results.json'
+  & $engine init --graph $graph --state $receiptState | Out-Null
+  $receiptWave = & $engine schedule --graph $graph --state $receiptState --adapter codex | ConvertFrom-Json
+  $receipt = @{schemaVersion=1;results=@(@{taskId=$receiptWave.dispatchContracts[0].taskId;worker=$receiptWave.dispatchContracts[0].worker;outcome='complete';evidence='host receipt integration test';tokens=11})} | ConvertTo-Json -Depth 5
+  [IO.File]::WriteAllText($receiptResults, $receipt, [Text.UTF8Encoding]::new($false))
+  $applied = & $engine apply-results --graph $graph --state $receiptState --adapter codex --results $receiptResults | ConvertFrom-Json
+  if ($applied.appliedResultCount -ne 1) { throw 'Engine did not apply the reserved host receipt.' }
+  if (!(Test-Path -LiteralPath ($receiptState + '.events.jsonl'))) { throw 'Engine did not write the persisted event log.' }
   Write-Host 'Spec workflow engine integration tests passed'
 } finally {
   if (Test-Path -LiteralPath $sandbox) { Remove-Item -LiteralPath $sandbox -Recurse -Force }

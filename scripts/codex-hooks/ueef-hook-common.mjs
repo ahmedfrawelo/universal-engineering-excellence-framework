@@ -133,6 +133,46 @@ export function loadPolicy() {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
+function normalizeDirectiveText(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .replace(/[\u0640\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/gu, '')
+    .toLowerCase();
+}
+
+const freeModePhrases = [
+  'تجاوز التعليمات',
+  'انسى التعليمات',
+  'تجاوز اليو اي اي اف',
+  'تجاوز ueef',
+  'free-mode',
+  'اشتغل بحرية',
+  'ابتكر خارج الإطار',
+  'اعمل بدون ueef'
+];
+
+const freeModeQuotedContext = /(?:\b(?:phrase|string|quote|quoted|mention|mentioned|saying|means?|meaning|analy[sz]e|analysis)\b|(?:عبارة|اقتباس|اقتبس|اذكر|ذكر|يعني|معنى|تحليل))/iu;
+
+function detectFreeModeDirective(text) {
+  const normalized = normalizeDirectiveText(text);
+  for (const phrase of freeModePhrases) {
+    const needle = normalizeDirectiveText(phrase);
+    let index = normalized.indexOf(needle);
+    while (index >= 0) {
+      const before = normalized.slice(Math.max(0, index - 48), index);
+      const after = normalized.slice(index + needle.length, index + needle.length + 48);
+      const quotedBefore = /["'`]\s*$/u.test(before);
+      const quotedAfter = /^\s*["'`]/u.test(after);
+      const explanatoryQuestion = /[?؟]/u.test(after) && freeModeQuotedContext.test(`${before} ${after}`);
+      if (!quotedBefore && !quotedAfter && !explanatoryQuestion && !freeModeQuotedContext.test(before)) {
+        return { active: true, trigger: phrase };
+      }
+      index = normalized.indexOf(needle, index + needle.length);
+    }
+  }
+  return { active: false, trigger: null };
+}
+
 export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
   const text = String(prompt || '');
   const userTaskText = text.replace(/<in-app-browser-context\b[^>]*>[\s\S]*?<\/in-app-browser-context>/giu, ' ');
@@ -144,6 +184,7 @@ export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
   const previous = readSessionState(sessionId);
   const goalTask = promptGoal || previous?.goalActive === true;
   if (promptGoal) setSessionGoalState(sessionId, true);
+  const freeMode = detectFreeModeDirective(userTaskText);
   const authorizations = {
     delete: /(delete|remove|cleanup|امسح|احذف|نظف)/iu.test(text),
     reset: /(reset|clean|checkout|ريست|كلين)/iu.test(text),
@@ -173,6 +214,7 @@ export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
     pickerModel: String(pickerModel || ''),
     createdAtUtc: new Date().toISOString(),
     goalTask,
+    freeMode,
     engineeringLikely: fs.existsSync(path.join(cwd || '.', '.git')) || /(code|repo|project|build|test|fix|implement|release|push|deploy|browser|كود|مشروع|اختبر|اصلح|نفذ|ارفع|متصفح)/iu.test(text),
     frontendLikely,
     frontendMutation: false,

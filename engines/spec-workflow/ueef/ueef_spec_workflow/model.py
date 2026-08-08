@@ -174,6 +174,7 @@ class TaskSpec:
     parallel_safe: bool = False
     read_only: bool = False
     retry_limit: int | None = None
+    source_evidence: str | None = None
 
     @classmethod
     def from_dict(cls, data: Any, index: int) -> TaskSpec:
@@ -236,6 +237,15 @@ class TaskSpec:
             or not 0 <= retry_limit <= 5
         ):
             raise WorkflowError(f"{task_id}.retryLimit must be an integer from 0 through 5")
+        source_evidence = data.get("sourceEvidence")
+        if source_evidence is not None and (
+            not isinstance(source_evidence, str)
+            or not source_evidence.strip()
+            or len(source_evidence.strip()) > _MAX_TEXT_LENGTH
+        ):
+            raise WorkflowError(
+                f"{task_id}.sourceEvidence must be a non-empty bounded string when supplied"
+            )
         return cls(
             id=task_id,
             title=title.strip(),
@@ -251,6 +261,7 @@ class TaskSpec:
             parallel_safe=parallel_safe,
             read_only=read_only,
             retry_limit=retry_limit,
+            source_evidence=source_evidence.strip() if source_evidence else None,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -271,6 +282,8 @@ class TaskSpec:
         }
         if self.retry_limit is not None:
             result["retryLimit"] = self.retry_limit
+        if self.source_evidence is not None:
+            result["sourceEvidence"] = self.source_evidence
         return result
 
     def effective_retry_limit(self, policy: WorkflowPolicy) -> int:

@@ -19,6 +19,8 @@ class DispatchContract:
     ownership: dict[str, Any]
     required_capabilities: tuple[str, ...]
     acceptance: tuple[str, ...]
+    transport: str
+    result_protocol: str
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -29,11 +31,15 @@ class DispatchContract:
             "ownership": self.ownership,
             "requiredCapabilities": list(self.required_capabilities),
             "acceptance": list(self.acceptance),
+            "transport": self.transport,
+            "resultProtocol": self.result_protocol,
         }
 
 
 class HostAdapter:
     name = "generic"
+    transport = "external"
+    result_protocol = "ueef-host-result/v1"
 
     def build(self, graph: TaskGraph, decision: ScheduleDecision) -> list[DispatchContract]:
         task_map = graph.task_map
@@ -59,6 +65,8 @@ class HostAdapter:
                     ownership=ownership,
                     required_capabilities=task.capabilities,
                     acceptance=task.acceptance,
+                    transport=self.transport,
+                    result_protocol=self.result_protocol,
                 )
             )
         return contracts
@@ -66,10 +74,12 @@ class HostAdapter:
 
 class CodexAdapter(HostAdapter):
     name = "codex"
+    transport = "codex-thread"
 
 
 class ClaudeAdapter(HostAdapter):
     name = "claude"
+    transport = "claude-agent-team"
 
 
 _ADAPTERS: dict[str, type[HostAdapter]] = {

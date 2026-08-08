@@ -2,7 +2,13 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.26.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.26.1`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.26.1 - 2026-08-08
+
+- Added a safe, deterministic team-management cycle that matches catalogued host-worker capabilities without creating, terminating, or inspecting host workers.
+- Added persisted reroute and escalation management actions, verifier and integration phase gates, and the `manage` CLI command for persisted workflow state.
+- Added convergence and benchmark workflows, host bridge scripts, and focused regression coverage across the workflow engine.
 
 ## 2.26.0 - 2026-08-08
 

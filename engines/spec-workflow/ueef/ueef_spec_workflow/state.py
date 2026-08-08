@@ -21,6 +21,7 @@ _MAX_EVIDENCE_ITEMS = 100
 _MAX_EVIDENCE_LENGTH = 4000
 _MAX_ERROR_LENGTH = 4000
 _MAX_WORKER_LENGTH = 128
+_MAX_EVENT_BYTES = 64 * 1024
 
 
 def utc_now() -> str:
@@ -483,6 +484,23 @@ class StateStore:
 
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
+        self.events_path = self.path.with_name(self.path.name + ".events.jsonl")
+
+    def append_event(self, event: dict[str, Any]) -> None:
+        """Append an fsync-backed, bounded audit event beside the state file."""
+
+        if not isinstance(event, dict):
+            raise WorkflowError("execution event must be an object")
+        payload = json.dumps(event, ensure_ascii=False, separators=(",", ":"))
+        if len(payload.encode("utf-8")) > _MAX_EVENT_BYTES:
+            raise WorkflowError("execution event exceeds its size limit")
+        self.events_path.parent.mkdir(parents=True, exist_ok=True)
+        lock_path = self.events_path.with_name(self.events_path.name + ".lock")
+        with _exclusive_file_lock(lock_path):
+            with self.events_path.open("a", encoding="utf-8", newline="\n") as handle:
+                handle.write(payload + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
 
     def load(self, graph: TaskGraph) -> ExecutionState:
         try:

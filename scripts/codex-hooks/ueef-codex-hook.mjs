@@ -113,19 +113,20 @@ function onPreToolUse(event) {
   if (!state) return {};
   const toolName = String(event.tool_name || '');
   const toolInput = inputText(event.tool_input);
+  const freeModeActive = state.freeMode?.active === true;
   if (isIsolatedRouteRecorder(toolName, event, toolInput)) return {};
-  if (!state.route?.modelRouteVerified) return preToolDeny('UEEF dynamic model route is missing. Publish Intent, Tier, Agent route, Browser reason, model, and effort, then run the injected record-ueef-route.mjs command with a fresh host catalog before using local tools.');
-  if (state.route.tokenEconomy?.specRequired === true && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return preToolDeny('T2+ execution requires the managed execution spec created by the validated route recorder.');
-  if (!assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
+  if (!freeModeActive && !state.route?.modelRouteVerified) return preToolDeny('UEEF dynamic model route is missing. Publish Intent, Tier, Agent route, Browser reason, model, and effort, then run the injected record-ueef-route.mjs command with a fresh host catalog before using local tools.');
+  if (!freeModeActive && state.route.tokenEconomy?.specRequired === true && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return preToolDeny('T2+ execution requires the managed execution spec created by the validated route recorder.');
+  if (!freeModeActive && !assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
   const directModelDispatch = /codex-app-server-dispatch\.mjs/iu.test(toolInput);
   const hostModelDispatch = /(send_message_to_thread|create_thread|spawn_agent)/iu.test(toolName);
   const economicalLeadRead = isEconomicalLeadRead(toolName, event, state.route?.tier);
   if (/(create_thread|fork_thread)/iu.test(toolName) && state.authorizations?.newUserTask !== true) return preToolDeny('Creating a user-visible Codex task requires an explicit current-prompt request for a new task. Use ephemeral routed execution or an internal worker instead.');
   const workerDispatch = state.validations.modelDispatch === true && /(create_thread|spawn_agent)/iu.test(toolName);
-  if (workerDispatch && Number(state.workerDispatchCount || 0) >= Number(state.route.tokenEconomy?.maxWorkerCount ?? 0)) return preToolDeny(`Worker dispatch exceeds the ${state.route.tokenEconomy?.maxWorkerCount ?? 0}-worker budget for ${state.route.tier}.`);
-  if (state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch && !economicalLeadRead) return preToolDeny('Execute the current validated model route before using mutation or non-read task tools. T0/T1 lead agents may perform allowlisted read-only intake first.');
-  if (state.validations.modelDispatch === true && state.route.actualLine && !assistantMessageContains(event.transcript_path, state.route.actualLine)) return preToolDeny(`Publish the verified actual sub-agent execution before continuing: ${state.route.actualLine}`);
-  if (directModelDispatch) {
+  if (!freeModeActive && workerDispatch && Number(state.workerDispatchCount || 0) >= Number(state.route.tokenEconomy?.maxWorkerCount ?? 0)) return preToolDeny(`Worker dispatch exceeds the ${state.route.tokenEconomy?.maxWorkerCount ?? 0}-worker budget for ${state.route.tier}.`);
+  if (!freeModeActive && state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch && !economicalLeadRead) return preToolDeny('Execute the current validated model route before using mutation or non-read task tools. T0/T1 lead agents may perform allowlisted read-only intake first.');
+  if (!freeModeActive && state.validations.modelDispatch === true && state.route.actualLine && !assistantMessageContains(event.transcript_path, state.route.actualLine)) return preToolDeny(`Publish the verified actual sub-agent execution before continuing: ${state.route.actualLine}`);
+  if (!freeModeActive && directModelDispatch) {
     if (!isIsolatedDirectDispatcher(toolName, event)) return preToolDeny('Direct App Server dispatch must be an isolated dispatcher command with no chained output fabrication.');
     const commandText = shellCommandFromTool(toolName, event);
     const routePath = commandArgument(commandText, '--route');
@@ -139,7 +140,7 @@ function onPreToolUse(event) {
   }
   const policy = loadPolicy();
   const mutation = mutationLikely(toolName, toolInput);
-  if (hostModelDispatch) {
+  if (!freeModeActive && hostModelDispatch) {
     const dispatchedModel = String(event.tool_input?.model || '');
     const dispatchedReasoning = String(event.tool_input?.thinking || event.tool_input?.reasoning_effort || '');
     if (!dispatchedModel || !dispatchedReasoning) return preToolDeny('Model-aware dispatch requires explicit model and reasoning from the current validated UEEF route.');
@@ -148,7 +149,7 @@ function onPreToolUse(event) {
   for (const fragment of policy.protectedPathFragments) {
     if (mutation && toolInput.toLowerCase().includes(String(fragment).toLowerCase())) return preToolDeny(`UEEF protected enforcement path mutation denied: ${fragment}`);
   }
-  if (state.frontendLikely === true && mutation && state.validations.frontendRouting !== true) return preToolDeny('Frontend mutation requires a passing select-frontend-route.mjs result before editing.');
+  if (!freeModeActive && state.frontendLikely === true && mutation && state.validations.frontendRouting !== true) return preToolDeny('Frontend mutation requires a passing select-frontend-route.mjs result before editing.');
   for (const pattern of policy.prohibitedBrowserToolPatterns) if (regex(pattern).test(toolName)) return preToolDeny(`Prohibited browser surface denied by UEEF: ${toolName}`);
   for (const pattern of policy.prohibitedBrowserInputPatterns) if (regex(pattern).test(toolInput)) return preToolDeny('Prohibited browser/window/profile/context path denied by UEEF.');
   if (policy.browserInputPatterns.some((pattern) => regex(pattern).test(toolInput)) && state.validations.browserPreflight !== true) return preToolDeny('Browser control requires a passing UEEF browser preflight before Chrome binding calls.');
@@ -262,25 +263,24 @@ function onStop(event) {
   if (!state) return {continue:true};
   const message = String(event.last_assistant_message || '');
   const policy = loadPolicy();
-  if (state.frontendLikely === true && Number(state.toolsUsed || 0) > 0 && state.validations.frontendRouting !== true) return stopBlock('Frontend work requires passing frontend route evidence before the turn can end.');
+  const freeModeActive = state.freeMode?.active === true;
+  const completionClaim = isCompletionClaim(message, policy);
+  if (!freeModeActive && state.frontendLikely === true && Number(state.toolsUsed || 0) > 0 && state.validations.frontendRouting !== true) return stopBlock('Frontend work requires passing frontend route evidence before the turn can end.');
   if (state.frontendMutation === true) {
     if (state.validations.tests !== true) return stopBlock('Frontend mutation requires current passing test evidence.');
     if (state.validations.frontendExecutionEvidence !== true) return stopBlock('Frontend mutation requires a passing validate-frontend-execution-evidence.mjs artifact.');
     const uiux = message.match(/^\s*UIUX\s*:\s*(.+)$/imu)?.[1]?.trim() || '';
     if (!uiux || /^(?:NA|N\/A|NO|NONE)$/iu.test(uiux)) return stopBlock('Frontend mutation requires a substantive UIUX verification label; NA is not allowed.');
   }
-  if (state.engineeringLikely === true || Number(state.toolsUsed || 0) > 0) {
+  // Final verification is a completion contract. Enforcing it on ordinary
+  // conversational replies exposes internal workflow guidance as an error.
+  if (!freeModeActive && completionClaim && (state.engineeringLikely === true || Number(state.toolsUsed || 0) > 0)) {
     const missing = policy.requiredFinalLabels.filter((label) => !new RegExp(`^\\s*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`, 'imu').test(message));
     if (missing.length) return stopBlock(`UEEF final verification is missing labels: ${missing.join(', ')}`);
     if (state.route?.modelRouteVerified && (!message.includes(state.route.preferredModel) || !message.includes(state.route.displayReasoning || state.route.hostReasoning))) return stopBlock('UEEF Selected must report the current work-unit model and host-provided reasoning display from the validated route.');
     if (state.validations.modelDispatch === true && state.route?.actualModel && (!message.includes(state.route.actualModel) || !message.includes(state.route.actualHostReasoning))) return stopBlock('UEEF Selected must report the verified actual sub-agent model and reasoning effort.');
   }
-  const completionClaim = isCompletionClaim(message, policy);
-  if (state.goalTask === true && !completionClaim) {
-    const missingProgress = policy.requiredProgressConcepts.filter((pattern) => !new RegExp(`^\\s*(?:${pattern})\\s*:`, 'imu').test(message));
-    if (missingProgress.length) return stopBlock('Active long-goal update is missing understanding, phase, current step, both percentages, new evidence, current action, or next gate.');
-  }
-  if (completionClaim) {
+  if (!freeModeActive && completionClaim) {
     if (['T2','T3','T4'].includes(state.route?.tier) && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return stopBlock('T2+ completion requires the managed execution spec bound to the current route.');
     if (state.route?.modelRouteVerified === true && state.validations.modelDispatch !== true) return stopBlock('Completion claim requires a successful host model dispatch matching the validated work-unit route.');
     if (['T2','T3','T4'].includes(state.route?.tier) && state.validations.taskEvidence !== true) return stopBlock('T2+ completion requires passing task evidence in the current turn.');

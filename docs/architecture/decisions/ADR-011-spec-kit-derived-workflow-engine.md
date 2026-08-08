@@ -28,6 +28,16 @@ Adopt a derived-engine architecture with a strict ownership boundary.
 8. Emit host dispatch contracts for Codex, Claude, or a generic host. The engine does not secretly create agents; the host owns dispatch and returns transition evidence.
 9. Deny upstream shell-step definitions by default. The bridge only validates upstream YAML and exposes no run command. External custom steps, community workflows, and extensions are not loaded automatically.
 10. Extend the existing `.ueef/specs/<id>` generator and validator so Markdown tasks and `task-graph.json` are one consistent workflow.
+11. Provide an explicit `HostRuntime` controller that persists reservation, start, and result boundaries. Codex and Claude adapters publish distinct transport metadata; host failures and malformed results become bounded task failures rather than implicit execution.
+12. Accept verifier findings through a bounded convergence document. Every generated task must link to source evidence, graph changes are additive, and migrated state preserves completed work, tokens, and attempt history.
+13. Measure productivity only from recorded runs. The benchmark compares `single-agent`, `ueef-static`, and `dynamic-team` using success, makespan, tokens, retries, conflicts, and rework; missing modes or metrics fail validation.
+14. Keep host creation explicit while providing a concrete Codex App Server bridge. The bridge accepts one reserved `codex-thread` contract, requires a fresh routed execution record, and returns a contract-matched JSON receipt for durable application; it never permits the engine to create hidden workers.
+15. Provide a Claude Code print-mode bridge with the same receipt boundary. It uses the documented JSON output contract and leaves permissions to the installed Claude configuration; an unavailable Claude CLI is reported as unavailable, never simulated as a successful host.
+16. Add a safe `TeamManager` decision layer. It receives only a bounded,
+   non-executable host worker catalog; capability matching, reroute/escalation
+   actions, verifier gating, and integration gating are deterministic and
+   event-recorded. The manager may reserve contracts but never creates,
+   terminates, inspects, or grants permissions to native host workers.
 
 ## Consequences
 
@@ -35,8 +45,13 @@ Adopt a derived-engine architecture with a strict ownership boundary.
 - Execution can resume deterministically and reject stale or concurrent state updates.
 - Team size follows runnable, non-conflicting work instead of being inferred directly from tier.
 - High-risk or unscoped work is serialized; bounded, disjoint work can form parallel waves.
+- Host execution is inspectable and resumable because every dispatch boundary is persisted through the same revision-guarded state store.
+- Semantic convergence can add traceable corrective work without discarding valid prior progress.
+- Productivity claims require comparable recorded evidence and cannot be synthesized from defaults.
 - Full upstream compatibility validation requires the optional dependencies declared by the engine's `upstream` extra. Core graph scheduling uses only the Python standard library.
 - Updating Spec Kit requires replacing the snapshot, updating provenance and license evidence, rerunning upstream validation, and reviewing the UEEF boundary for new executable surfaces.
+- Dynamic sizing is now actionable through an explicit management cycle, while
+  native worker lifecycle remains owned by the selected host.
 
 ## Rollback
 
