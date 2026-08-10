@@ -19,7 +19,7 @@ jobs:
           version: "0.11.16"
       - name: Install locked Spec workflow dependencies
         working-directory: engines/spec-workflow
-        run: uv sync --group dev --extra upstream --locked
+        run: uv sync --group dev --locked
       - name: Lint UEEF-owned Spec workflow code
         working-directory: engines/spec-workflow
         run: uv run --frozen ruff check ueef tests
@@ -32,9 +32,9 @@ jobs:
       - name: Run Spec workflow engine tests
         working-directory: engines/spec-workflow
         run: uv run --frozen pytest
-      - name: Validate the pinned upstream workflow through vendored code
+      - name: Validate the pinned upstream reference snapshot
         working-directory: engines/spec-workflow
-        run: uv run --frozen python -m ueef_spec_workflow upstream-validate --workflow upstream/spec-kit/workflows/speckit/workflow.yml
+        run: node ../../scripts/verify-spec-workflow-upstream.mjs --engine-root .
 
   repository-engine:
     name: Repository engine tests

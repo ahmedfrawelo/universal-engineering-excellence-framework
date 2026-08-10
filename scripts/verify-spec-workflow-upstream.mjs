@@ -259,11 +259,14 @@ export function calculateAggregate(records) {
 }
 
 export function verifySpecWorkflowUpstream(engineRoot) {
-  const engine = path.resolve(engineRoot);
-  const engineStat = fs.lstatSync(engine, { bigint: true });
+  const requestedEngine = path.resolve(engineRoot);
+  const engineStat = fs.lstatSync(requestedEngine, { bigint: true });
   if (!engineStat.isDirectory() || engineStat.isSymbolicLink()) throw new Error('engine root must be a real directory');
-  const engineRealPath = fs.realpathSync.native(engine);
-  if (!sameResolvedPath(engine, engineRealPath)) throw new Error('engine root must not resolve through a link or reparse point');
+  // Hosted Windows runners may place the checkout below a junction-owned workspace.
+  // Canonicalize that trusted ancestor while still rejecting a linked engine root and
+  // every link, junction, hard link, or path escape inside the engine itself.
+  const engine = fs.realpathSync.native(requestedEngine);
+  const engineRealPath = engine;
   const manifestPath = path.join(engine, 'UPSTREAM.json');
   const initialManifest = readStableFile(manifestPath, engineRealPath, 'manifest');
   const manifest = JSON.parse(initialManifest.content.toString('utf8'));
