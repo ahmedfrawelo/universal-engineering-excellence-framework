@@ -9,6 +9,19 @@ from .helpers import graph, task
 
 
 class SchedulerTests(unittest.TestCase):
+    def test_tier_worker_caps_match_model_routing_policy(self) -> None:
+        expected = {"T2": 1, "T3": 3, "T4": 4}
+        for tier, cap in expected.items():
+            with self.subTest(tier=tier):
+                subject = graph(
+                    *(task(f"TASK-{index:03d}") for index in range(1, 7)),
+                    tier=tier,
+                    maxWorkers=16,
+                )
+                decision = Scheduler(subject).decide(ExecutionState.new(subject))
+                self.assertEqual(decision.worker_cap, cap)
+                self.assertEqual(len(decision.tasks), cap)
+
     def test_independent_scoped_tasks_form_a_parallel_wave(self) -> None:
         subject = graph(task("TASK-001"), task("TASK-002"), task("TASK-003"))
         decision = Scheduler(subject).decide(ExecutionState.new(subject))
@@ -24,6 +37,7 @@ class SchedulerTests(unittest.TestCase):
         state = ExecutionState.new(subject)
         first = Scheduler(subject).decide(state)
         self.assertEqual([item.task_id for item in first.tasks], ["TASK-001"])
+        state.reserve_wave([("TASK-001", "worker-1")], 1)
         state.transition(subject, "TASK-001", "start", worker="worker-1")
         state.transition(subject, "TASK-001", "complete", evidence="tests passed")
         second = Scheduler(subject).decide(state)
@@ -60,9 +74,31 @@ class SchedulerTests(unittest.TestCase):
     def test_budget_can_prevent_a_wave(self) -> None:
         subject = graph(task("TASK-001", effortPoints=3), tokenBudget=1000)
         decision = Scheduler(subject).decide(ExecutionState.new(subject))
-        self.assertEqual(decision.worker_cap, 0)
+        self.assertEqual(decision.worker_cap, 3)
         self.assertEqual(decision.tasks, ())
-        self.assertEqual(decision.deferred[0]["reason"], "worker cap reached")
+        self.assertEqual(decision.deferred[0]["reason"], "token budget would be exceeded")
+
+    def test_active_budget_reservation_is_not_subtracted_from_worker_slots_twice(self) -> None:
+        subject = graph(
+            task("TASK-001", effortPoints=2, priority=10),
+            task("TASK-002", effortPoints=2),
+            task("TASK-003", effortPoints=2),
+            tokenBudget=3000,
+            maxWorkers=3,
+        )
+        state = ExecutionState.new(subject)
+        state.reserve_wave([("TASK-001", "worker-1")], 1)
+        decision = Scheduler(subject).decide(state)
+        self.assertEqual(decision.budget_remaining, 2000)
+        self.assertEqual(decision.current_workers, 1)
+        self.assertEqual([item.task_id for item in decision.tasks], ["TASK-002", "TASK-003"])
+        self.assertEqual(decision.desired_workers, 3)
+
+    def test_generic_schedule_is_explicitly_a_non_capability_verified_preview(self) -> None:
+        subject = graph(task("TASK-001", capabilities=["security"]))
+        decision = Scheduler(subject).decide(ExecutionState.new(subject))
+        self.assertEqual(decision.assignment_mode, "synthetic-preview")
+        self.assertFalse(decision.to_dict()["capabilityVerified"])
 
     def test_team_target_records_grow_then_shrink(self) -> None:
         subject = graph(task("TASK-001"))
@@ -82,6 +118,7 @@ class SchedulerTests(unittest.TestCase):
     def test_running_workers_consume_total_worker_capacity(self) -> None:
         subject = graph(task("TASK-001"), task("TASK-002"), maxWorkers=1)
         state = ExecutionState.new(subject)
+        state.reserve_wave([("TASK-001", "worker-1")], 1)
         state.transition(subject, "TASK-001", "start", worker="worker-1")
         decision = Scheduler(subject).decide(state)
         self.assertEqual(decision.worker_cap, 1)
@@ -135,6 +172,7 @@ class SchedulerTests(unittest.TestCase):
     def test_worker_names_do_not_collide_with_active_assignments(self) -> None:
         subject = graph(task("TASK-001"), task("TASK-002"), maxWorkers=2)
         state = ExecutionState.new(subject)
+        state.reserve_wave([("TASK-001", "worker-2")], 1)
         state.transition(subject, "TASK-001", "start", worker="worker-2")
         decision = Scheduler(subject).decide(state)
         self.assertEqual(decision.tasks[0].worker, "worker-1")

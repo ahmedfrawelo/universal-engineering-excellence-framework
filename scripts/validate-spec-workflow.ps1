@@ -2,6 +2,7 @@
 param(
   [Parameter(Mandatory)][string]$Path,
   [ValidateSet('Draft','Ready')][string]$Mode = 'Ready',
+  [string]$RoutePath = '',
   [switch]$Quiet,
   [switch]$Json
 )
@@ -44,10 +45,25 @@ if (Test-Path -LiteralPath $graphPath -PathType Leaf) {
         $issues.Add('task-graph.json workflowId must match the specification folder name')
       }
       if ($Mode -eq 'Ready' -and $tasks) {
+        if ([int]$graph.schemaVersion -ne 2) {
+          $issues.Add('Ready workflows require a schema-version-2 graph compiled from tasks.md and a validated route')
+        }
         $markdownTaskIds = @([regex]::Matches($tasks, '(?m)^- \[[ xX]\] (TASK-[A-Za-z0-9._-]+)') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
         $graphTaskIds = @($graph.tasks | ForEach-Object { $_.id } | Sort-Object -Unique)
         if (($markdownTaskIds -join ',') -ne ($graphTaskIds -join ',')) {
           $issues.Add('tasks.md and task-graph.json must declare the same task IDs')
+        }
+        if ([int]$graph.schemaVersion -eq 2) {
+          if ([string]::IsNullOrWhiteSpace($RoutePath)) {
+            $issues.Add('schema-version-2 workflows require -RoutePath for deterministic compiler drift validation')
+          } elseif (!(Test-Path -LiteralPath $RoutePath -PathType Leaf)) {
+            $issues.Add("RoutePath does not exist: $RoutePath")
+          } else {
+            $compileOutput = & $engine compile --tasks (Join-Path $workflowPath 'tasks.md') --workflow-id $graph.workflowId --route $RoutePath --output $graphPath --max-workers ([int]$graph.policy.maxWorkers) --check 2>&1
+            if ($LASTEXITCODE -ne 0) {
+              $issues.Add('task-graph.json is not the deterministic compiled form of tasks.md and the validated route: ' + (($compileOutput | Out-String).Trim()))
+            }
+          }
         }
       }
     } catch {

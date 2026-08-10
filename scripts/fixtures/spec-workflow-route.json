@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "tier": "T2",
+  "routeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "tokenEconomy": {
+    "budgetMode": "bounded",
+    "maxWorkerCount": 1
+  },
+  "executionSpec": {
+    "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
+}

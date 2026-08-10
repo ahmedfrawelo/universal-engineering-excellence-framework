@@ -7,7 +7,8 @@ worker lifecycle.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from copy import deepcopy
+from dataclasses import dataclass, replace
 from typing import Any
 
 from .adapters import DispatchContract, get_adapter
@@ -98,8 +99,7 @@ class TeamManager:
         if not isinstance(raw_workers, list) or not raw_workers:
             raise WorkflowError("worker catalog requires a non-empty workers array")
         workers = tuple(
-            WorkerProfile.from_dict(item, index)
-            for index, item in enumerate(raw_workers)
+            WorkerProfile.from_dict(item, index) for index, item in enumerate(raw_workers)
         )
         ids = [worker.worker_id.casefold() for worker in workers]
         if len(set(ids)) != len(ids):
@@ -121,14 +121,14 @@ class TeamManager:
             return True, ""
         if phase == "verifier":
             others = [
-                other for other in self.graph.tasks
+                other
+                for other in self.graph.tasks
                 if other.id != task.id and self._phase(other) == "execution"
             ]
         else:
             others = [other for other in self.graph.tasks if other.id != task.id]
         incomplete = [
-            other.id for other in others
-            if state.tasks[other.id].status != TaskStatus.DONE
+            other.id for other in others if state.tasks[other.id].status != TaskStatus.DONE
         ]
         if incomplete:
             return False, f"{phase} waits for completed tasks: {', '.join(sorted(incomplete))}"
@@ -140,9 +140,7 @@ class TeamManager:
         for task_id, run in sorted(state.tasks.items()):
             if run.status == TaskStatus.BLOCKED and run.block_kind == "manual":
                 actions.append(
-                    ManagementAction(
-                        "ESCALATE_BLOCKER", task_id, run.last_error or "manual block"
-                    )
+                    ManagementAction("ESCALATE_BLOCKER", task_id, run.last_error or "manual block")
                 )
             elif run.status == TaskStatus.READY and run.attempts > 0 and run.last_error:
                 actions.append(ManagementAction("REROUTE", task_id, run.last_error))
@@ -165,7 +163,12 @@ class TeamManager:
             if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING} and run.assigned_worker
         }
         available = [worker for worker in available if worker.worker_id.casefold() not in busy]
-        source_contracts = self.adapter.build(self.graph, decision)
+        preview_state = deepcopy(state)
+        preview_state.reserve_wave(
+            [(item.task_id, item.worker) for item in decision.tasks],
+            decision.desired_workers,
+        )
+        source_contracts = self.adapter.build(self.graph, decision, preview_state)
         contracts: list[DispatchContract] = []
         actions = self._reroute_actions(state)
         for contract in source_contracts:
@@ -202,14 +205,31 @@ class TeamManager:
                     acceptance=contract.acceptance,
                     transport=contract.transport,
                     result_protocol=contract.result_protocol,
+                    workflow_id=contract.workflow_id,
+                    execution_id=contract.execution_id,
+                    graph_digest=contract.graph_digest,
+                    route_digest=contract.route_digest,
+                    execution_spec_digest=contract.execution_spec_digest,
+                    attempt_id=contract.attempt_id,
+                    lease_generation=contract.lease_generation,
+                    fencing_token=contract.fencing_token,
+                    shell_policy=contract.shell_policy,
+                    allowed_shell_commands=contract.allowed_shell_commands,
                 )
             )
             actions.append(
-                ManagementAction(
-                    "DISPATCH", task.id, f"{phase} assigned to {match.worker_id}"
-                )
+                ManagementAction("DISPATCH", task.id, f"{phase} assigned to {match.worker_id}")
             )
-        return ManagementReport(decision, tuple(contracts), tuple(actions))
+        assignment_mode = (
+            "host-catalog-validated"
+            if len(contracts) == len(source_contracts)
+            else "host-catalog-partial"
+        )
+        return ManagementReport(
+            replace(decision, assignment_mode=assignment_mode),
+            tuple(contracts),
+            tuple(actions),
+        )
 
     def manage_persisted(
         self,
@@ -219,23 +239,112 @@ class TeamManager:
         commit: bool = False,
     ) -> ManagementReport:
         state = store.load(self.graph)
+        stolen: list[ManagementAction] = []
+        stolen_task_ids: set[str] = set()
+        if commit:
+            availability = {worker.worker_id.casefold(): worker for worker in workers}
+            busy_workers = {
+                (run.assigned_worker or "").casefold()
+                for run in state.tasks.values()
+                if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING}
+                and run.assigned_worker
+                and availability.get(run.assigned_worker.casefold()) is not None
+                and availability[run.assigned_worker.casefold()].available
+            }
+            replacements = [
+                worker
+                for worker in workers
+                if worker.available and worker.worker_id.casefold() not in busy_workers
+            ]
+            previous = state.revision
+            for task_id, run in sorted(state.tasks.items()):
+                assigned = (run.assigned_worker or "").casefold()
+                owner = availability.get(assigned)
+                if (
+                    run.status != TaskStatus.RESERVED
+                    or run.host_handle
+                    or (owner and owner.available)
+                ):
+                    continue
+                task = self.graph.task_map[task_id]
+                replacement = next(
+                    (
+                        worker
+                        for worker in replacements
+                        if worker.worker_id.casefold() != assigned
+                        and worker.supports(task.capabilities)
+                    ),
+                    None,
+                )
+                if replacement is None:
+                    continue
+                old_worker = run.assigned_worker or ""
+                state.steal_unstarted_reservation(
+                    self.graph,
+                    task_id,
+                    from_worker=old_worker,
+                    to_worker=replacement.worker_id,
+                )
+                replacements.remove(replacement)
+                stolen.append(
+                    ManagementAction(
+                        "WORK_STEAL",
+                        task_id,
+                        f"unstarted reservation moved from {old_worker} to {replacement.worker_id}",
+                    )
+                )
+                stolen_task_ids.add(task_id)
+            if stolen:
+                store.save(state, expected_revision=previous)
         report = self.plan(state, workers)
+        if commit and stolen:
+            stolen_contracts = tuple(
+                contract
+                for contract in self.adapter.build_reserved(self.graph, state)
+                if contract.task_id in stolen_task_ids
+            )
+            report = ManagementReport(
+                report.decision,
+                stolen_contracts + report.contracts,
+                tuple(stolen) + report.actions,
+            )
         if commit and report.contracts:
             previous = state.revision
-            state.reserve_wave(
-                [(contract.task_id, contract.worker) for contract in report.contracts],
-                len({contract.worker for contract in report.contracts}),
-            )
-            store.save(state, expected_revision=previous)
-        store.append_event({
-            "schemaVersion": 1,
-            "timestamp": state.updated_at,
-            "workflowId": self.graph.workflow_id,
-            "graphDigest": self.graph.digest,
-            "revision": state.revision,
-            "kind": "team-management-cycle",
-            "committed": commit,
-            "contracts": [contract.task_id for contract in report.contracts],
-            "actions": [action.to_dict() for action in report.actions],
-        })
+            new_reservations = [
+                (contract.task_id, contract.worker)
+                for contract in report.contracts
+                if state.tasks[contract.task_id].status == TaskStatus.READY
+            ]
+            if new_reservations:
+                state.reserve_wave(
+                    new_reservations,
+                    report.decision.desired_workers,
+                )
+                store.save(state, expected_revision=previous)
+            committed_contracts = []
+            for contract in report.contracts:
+                run = state.tasks[contract.task_id]
+                committed_contracts.append(
+                    replace(
+                        contract,
+                        execution_id=state.execution_id,
+                        attempt_id=run.attempt_id or "",
+                        lease_generation=run.lease_generation,
+                        fencing_token=run.fencing_token or "",
+                    )
+                )
+            report = ManagementReport(report.decision, tuple(committed_contracts), report.actions)
+        store.append_event(
+            {
+                "schemaVersion": 1,
+                "timestamp": state.updated_at,
+                "workflowId": self.graph.workflow_id,
+                "graphDigest": self.graph.digest,
+                "revision": state.revision,
+                "kind": "team-management-cycle",
+                "committed": commit,
+                "contracts": [contract.task_id for contract in report.contracts],
+                "actions": [action.to_dict() for action in report.actions],
+            }
+        )
         return report

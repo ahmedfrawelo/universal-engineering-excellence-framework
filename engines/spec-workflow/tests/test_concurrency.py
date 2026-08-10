@@ -44,9 +44,7 @@ class ConcurrentScheduleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             graph_path = Path(directory) / "graph.json"
             state_path = Path(directory) / "state.json"
-            graph_path.write_text(
-                json.dumps(subject.to_dict()), encoding="utf-8", newline="\n"
-            )
+            graph_path.write_text(json.dumps(subject.to_dict()), encoding="utf-8", newline="\n")
             StateStore(state_path).save(ExecutionState.new(subject))
             context = multiprocessing.get_context("spawn")
             barrier = context.Barrier(2)

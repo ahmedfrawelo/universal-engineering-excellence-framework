@@ -2,7 +2,15 @@
 
 ## Release Notes Index
 
-This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.26.2`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+This file is a high-level changelog. Individual release notes are available in [docs/releases](docs/releases/) for every release from `v1.1.0` through `v2.27.0`; the `v1.0.0` baseline is recorded below but has no separate release-note file. Some intermediate releases are intentionally summarized here, so use the release-notes archive for their complete detail.
+
+## 2.27.0 - 2026-08-10
+
+- Completed an independently owned UEEF Spec workflow runtime with deterministic compilation, fenced leases and receipts, crash-safe persisted control, bounded scheduling, and real Codex App Server production execution.
+- Added cryptographically trusted approvals and package attestations, content-addressed template composition, exact rollback, portfolio orchestration, truthful control-plane status, and governed offline catalog management.
+- Hardened route inheritance, overload retry, SQLite cycle serialization, installed-reference snapshot integrity, token-ledger accounting, live-lease admission, deletion-safe CAS, shell authority, structured REQ/AC evidence, and transactional convergence.
+- Preserved Spec Kit only as an immutable provenance/review snapshot; production code neither imports nor executes it, and unsupported executable formats fail closed.
+- Expanded deterministic coverage to 152 Python tests plus host receipt, generic host, route inheritance, snapshot integrity, host-cycle, framework, Ruff, and Pyright gates.
 
 ## 2.26.2 - 2026-08-08
 

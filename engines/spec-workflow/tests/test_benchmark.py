@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from ueef_spec_workflow.benchmark import compare_runs
+from ueef_spec_workflow.benchmark import compare_runs, record_control_loop_benchmark
 from ueef_spec_workflow.errors import WorkflowError
 
 
@@ -20,6 +20,15 @@ def run(mode: str, success: bool = True, makespan: int = 100) -> dict:
 
 
 class BenchmarkTests(unittest.TestCase):
+    def test_control_loop_benchmark_records_recovery_and_complete_evidence(self) -> None:
+        recorded = record_control_loop_benchmark(samples=2)
+        self.assertEqual(recorded["schemaVersion"], 2)
+        self.assertEqual(len(recorded["runs"]), 6)
+        result = compare_runs(recorded)
+        self.assertEqual(result["summary"]["dynamic-team"]["evidenceCompleteness"], 1.0)
+        self.assertEqual(result["summary"]["dynamic-team"]["retries"], 1.0)
+        self.assertIn("not human", result["limitations"])
+
     def test_three_mode_recorded_comparison(self) -> None:
         result = compare_runs(
             {

@@ -6,7 +6,7 @@ Translate a specification task list into a durable execution graph that can paus
 
 ## Graph Contract
 
-`task-graph.json` is the machine-readable companion to `tasks.md`. It must record:
+`tasks.md` is authoritative. `task-graph.json` is its deterministic route-bound compiled form and must record:
 
 - a stable workflow ID and schema version;
 - policy tier, maximum workers, token budget mode, retry limit, and shell policy;
@@ -30,7 +30,11 @@ Execution state is graph-digest bound and uses these task states:
 - `DONE`: the worker returned explicit acceptance evidence;
 - `FAILED`: the bounded retry allowance is exhausted.
 
-State writes are atomic and revision guarded. Scheduling reserves its wave before returning dispatch contracts, which prevents a concurrent scheduler from assigning the same ready task. `start` confirms the reservation and `release` returns a failed dispatch to `READY`. Persisted orchestration also appends fsync-backed `events.jsonl` records for reservation, start, and result boundaries. A graph change invalidates direct resume; update or migrate the state deliberately instead of silently applying old progress to new work.
+State writes are atomic and revision guarded. Every reservation has an execution-bound attempt ID, monotonic lease generation, fencing token, heartbeat, and expiry. Scheduling persists before dispatch, stale receipts fail before mutation, and expired work is reclaimed under a new generation. Persisted orchestration also appends fsync-backed events. A graph change requires canonical replan or explicit migration.
+
+The workflow also has an explicit operator `PAUSED` state. Pause is idempotent, records a
+bounded reason, prevents new reservations, and preserves execution/attempt/evidence identity.
+Resume removes only the operator pause and recomputes the same graph-derived readiness.
 
 ## Wave Scheduling
 
@@ -46,19 +50,30 @@ The scheduler orders ready tasks by explicit priority and remaining critical-pat
 
 Tier sets a ceiling, not a target. The desired team grows when additional non-conflicting work becomes ready and shrinks after work converges. Tasks with unknown write ownership may run alone but never enter a parallel wave.
 
+Rebalancing may steal only an unstarted `RESERVED` task whose assigned worker is explicitly
+unavailable. The replacement must satisfy declared capabilities and receives a new attempt,
+lease generation, and fence. A dispatched or `RUNNING` attempt is never stolen.
+
 ## Host Boundary
 
-The engine emits dispatch contracts; it does not create hidden agents. A host adapter names the worker, task, prompt, capabilities, allowed write roots, forbidden paths, transport, result protocol, and expected acceptance evidence. The active host creates or reuses workers through the explicit `HostRuntime` boundary. The controller persists reservation, start, and returned result transitions; exceptions, mismatched results, and invalid outcomes are converted into bounded failures.
+The engine emits identity-bound dispatch contracts and advertises truthful capabilities. The active host creates or reuses workers through the explicit lifecycle boundary. The controller persists dispatch handles, polls, renews supported leases, applies matching results, retries bounded failures, cancels only when supported, closes handles, and resumes crash boundaries idempotently.
 
-The UEEF CLI intentionally exposes no upstream workflow execution command. Upstream shell steps are denied during compatibility validation by default, and community/custom executable steps are never loaded automatically.
+The UEEF CLI intentionally exposes no upstream workflow execution command. A safe importer
+may expand bounded declarative conditions, fan-out/fan-in, and loops, but rejects shell,
+command, prompt, unknown, and unbounded steps. Extensions, presets, and bundles require
+versioned provenance, SHA-256, explicit permissions, rollback metadata, deterministic
+precedence, and route-policy clamping.
+
+Parent specification hierarchies are bounded and acyclic. A parent cannot roll up `DONE`
+until every descendant is `DONE` with independent verification.
 
 ## Semantic Convergence
 
-Verifier findings may extend a workflow through the bounded convergence contract. Each proposed task must have a unique ID and non-empty `sourceEvidence` links. Existing task definitions cannot be replaced, dependencies must still form a valid DAG, and migrated state preserves completed work, attempts, evidence, tokens, and creation time while refreshing readiness for the new graph revision.
+Schema-v2 completion requires independent verification against a diff digest. Changed write sets invalidate prior verifier evidence. Failed verification appends traceable gap tasks to canonical Markdown, recompiles, and migrates completed state. Convergence is capped at three rounds and rejects repeated findings with no progress.
 
 ## Productivity Measurement
 
-Productivity comparisons use recorded runs for exactly three modes: `single-agent`, `ueef-static`, and `dynamic-team`. Every sample supplies success, makespan, tokens, retries, conflicts, and rework. The benchmark reports sample counts, success rates, and metric averages; it rejects incomplete mode coverage or fabricated defaults.
+Recorded comparisons cover `single-agent`, `ueef-static`, and `dynamic-team`, including success, makespan, tokens, retries, conflicts, rework, recovery time, and evidence completeness. The local fixture measures durability overhead and recovery only; it is not a general productivity claim.
 
 ## Quality Gate
 

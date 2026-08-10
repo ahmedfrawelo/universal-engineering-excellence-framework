@@ -1,6 +1,6 @@
 # Universal Engineering Excellence Framework
 
-Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.26.2; it fixes goal-lifecycle routing without weakening completion-evidence enforcement.
+Universal Engineering Excellence Framework (UEEF) is an installable engineering operating system for AI coding assistants. Tested adapters are available for Codex, Cursor, and a generic AGENTS-compatible target; see `config/assistant-adapters.json` for the executable compatibility matrix. The current release is 2.27.0; it delivers the independently owned, governed Spec workflow runtime and its production-grade execution, trust, composition, portfolio, and recovery controls.
 
 ## Why UEEF Exists
 
@@ -54,7 +54,7 @@ The numbered framework packs are intentionally kept as stable runtime paths. The
 
 ## Versioning Strategy
 
-UEEF follows Semantic Versioning. The current release is 2.26.2. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
+UEEF follows Semantic Versioning. The current release is 2.27.0. See [VERSION.md](VERSION.md) for version policy and release history, [CHANGELOG.md](CHANGELOG.md) for the summary, and [docs/releases](docs/releases/) for individual release notes.
 
 ## Security Philosophy
 

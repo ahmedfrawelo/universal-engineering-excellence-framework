@@ -212,6 +212,8 @@ try {
   Assert-Denied $visibleTaskWithoutRequest 'User-visible task creation without an explicit request'
   $beforeDispatchEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-2-before-dispatch';tool_input=@{command='*** Begin Patch'}})
   Assert-Denied $beforeDispatchEdit 'Routed edit before actual model dispatch'
+  $workerBeforeLeadDispatch = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='worker-before-lead-dispatch';tool_input=@{model='gpt-5.6-sol';reasoning_effort='medium';message='bounded worker'}})
+  Assert-Denied $workerBeforeLeadDispatch 'Worker dispatch used as a substitute for routed lead execution'
   $beforeDispatchGoalCreate = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='create_goal';tool_use_id='goal-create-before-dispatch';tool_input=@{objective='test goal lifecycle'}})
   if ([string]$beforeDispatchGoalCreate.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Goal creation was incorrectly coupled to model dispatch.' }
   $beforeDispatchGoalUpdate = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='update_goal';tool_use_id='goal-update-before-dispatch';tool_input=@{status='complete'}})
@@ -226,7 +228,10 @@ try {
   Assert-Denied $fileRemovalPatch 'File removal patch without explicit authorization'
   $mainStatePath = (Get-ChildItem -LiteralPath $stateRoot -Filter "*.$turn.json" -File | Select-Object -First 1).FullName
   $mainState = Get-Content -LiteralPath $mainStatePath -Raw | ConvertFrom-Json
-  for ($workerIndex = 0; $workerIndex -lt $mainState.route.tokenEconomy.maxWorkerCount; $workerIndex++) {
+  $channelNativeWorker = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='worker-channel-native-model';tool_input=@{model='gpt-5.6-sol';reasoning_effort='medium';message='bounded worker'}})
+  if ([string]$channelNativeWorker.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Worker dispatch was incorrectly forced to use the App Server host-catalog model.' }
+  Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='spawn_agent';tool_use_id='worker-channel-native-model';tool_input=@{model='gpt-5.6-sol';reasoning_effort='medium';message='bounded worker'};tool_response='{"status":"complete"}'}) | Out-Null
+  for ($workerIndex = 1; $workerIndex -lt $mainState.route.tokenEconomy.maxWorkerCount; $workerIndex++) {
     $workerTool = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id="worker-$workerIndex";tool_input=@{model=$mainState.route.preferredModel;thinking=$mainState.route.hostReasoning;message='bounded worker'}})
     if ([string]$workerTool.hookSpecificOutput.permissionDecision -eq 'deny') { throw "Worker $workerIndex was denied inside the T4 worker budget." }
     Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='spawn_agent';tool_use_id="worker-$workerIndex";tool_input=@{model=$mainState.route.preferredModel;thinking=$mainState.route.hostReasoning;message='bounded worker'};tool_response='{"status":"complete"}'}) | Out-Null

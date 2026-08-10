@@ -1,6 +1,6 @@
 # Spec Kit Attribution
 
-UEEF 2.8.19 reviewed GitHub Spec Kit as an external reference for specification-driven development workflows. UEEF 2.25.9 refreshed that review without copying upstream material. UEEF 2.26.0 includes a provenance-tracked internal snapshot so UEEF can validate against the real workflow engine while keeping all UEEF changes in a separate owned layer.
+UEEF 2.8.19 reviewed GitHub Spec Kit as an external reference for specification-driven development workflows. UEEF 2.25.9 refreshed that review without copying upstream material. UEEF 2.26.0 includes a provenance-tracked internal snapshot solely for manual comparison, update review, attribution, and license preservation. The UEEF runtime is independently implemented and never reads, imports, or executes that snapshot.
 
 ## Source
 
@@ -33,11 +33,11 @@ Before the internal snapshot, UEEF did not copy Spec Kit templates, slash comman
 
 ## Vendored snapshot
 
-The internal snapshot contains the official `src/specify_cli/` source tree, the official `workflows/speckit/workflow.yml`, upstream README and dependency metadata, and the upstream MIT license. Those files are copied without UEEF edits. `UPSTREAM.json` pins the release, commit, file count, and aggregate content digest so drift is detected mechanically.
+The internal snapshot contains the official `src/specify_cli/` source tree, the official `workflows/speckit/workflow.yml`, upstream README and dependency metadata, and the upstream MIT license. Those files are copied without UEEF edits. The schema-v2 `UPSTREAM.json` pins the release, commit, file count, and an unambiguous length-prefixed aggregate content digest. `scripts/verify-spec-workflow-upstream.mjs` mechanically detects path or content drift and rejects links, hardlinks, non-portable paths, incomplete manifest coverage, and concurrent tree changes.
 
-Community workflows and project-local custom steps are not imported automatically. The snapshot is not placed on `PYTHONPATH` by normal UEEF operation. The optional validation bridge loads it only on an explicit `upstream-validate` command and never calls `WorkflowEngine.run`.
+Community workflows and project-local custom steps are not imported automatically. The snapshot is never placed on the runtime `PYTHONPATH`, and no UEEF production command loads it. `scripts/review-spec-kit-update.ps1` performs a separate, explicit, manual review of candidate reference material; it is not a runtime bridge and cannot activate Spec Kit.
 
-## UEEF-owned derived engine
+## UEEF-owned independent engine
 
 UEEF-specific behavior lives under `engines/spec-workflow/ueef/` and remains independently reviewable:
 
@@ -48,6 +48,6 @@ UEEF-specific behavior lives under `engines/spec-workflow/ueef/` and remains ind
 - host-neutral Codex, Claude, and generic dispatch contracts with explicit write ownership and acceptance evidence;
 - a hard default denial for upstream shell-step definitions and no shell execution command.
 
-## Integration boundary
+## Independence boundary
 
-Spec Kit remains an external upstream project. Its snapshot is a derived-engine input, not UEEF policy. UEEF's `framework/19-agent-workflow/03-spec-driven-development/` and `engines/spec-workflow/ueef/` own runtime policy, file ownership, scheduling, quality gates, and convergence. Installing external templates, skills, commands, presets, extensions, bundles, or optional Python dependencies is not automatic.
+Spec Kit remains an external project and its snapshot is not an engine input. UEEF's `framework/19-agent-workflow/03-spec-driven-development/` and `engines/spec-workflow/ueef/` exclusively own runtime policy, file ownership, scheduling, quality gates, and convergence. Installing or importing external templates, skills, commands, presets, extensions, bundles, or Spec Kit Python dependencies is not part of UEEF runtime operation.

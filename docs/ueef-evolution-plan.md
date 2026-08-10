@@ -16,7 +16,7 @@ It does not replace Codex, install untrusted tools automatically, collect user c
 - The source includes 62 framework packs, task preflight, governed capability registry data, specification clarification/convergence artifacts, and diff impact analysis.
 - Core and AI environment profiles are `READY`.
 - The full audit passes, including runtime hardening.
-- Pack 60 provides UEEF's Spec-Driven Development policy and artifacts. The execution engine now carries a pinned, digest-verified Spec Kit source snapshot while all UEEF behavior remains in a separate owned layer.
+- Pack 60 provides UEEF's Spec-Driven Development policy and artifacts. The execution engine is fully UEEF-owned and runtime-independent from Spec Kit. A pinned, digest-verified Spec Kit snapshot is retained only as review, comparison, provenance, and license material; production code never reads or imports it.
 - The upstream references considered for this evolution are GitHub's Spec Kit and obra/Superpowers. Reuse requires explicit attribution, a bounded provenance manifest, owned policy adapters, and tests. No upstream command surface is activated automatically.
 
 ## Product requirements
@@ -50,7 +50,7 @@ Each layer has one owner and a narrow contract. The resolver must degrade safely
 
 ### Phase 1 — Spec Kit-strength workflow foundation
 
-The initial phase delivered a unified project artifact format for `spec`, `clarifications`, `plan`, `tasks`, and `evidence`; it mapped those artifacts to Pack 60 without upstream branding or code. The later derived-engine phase adds the separately owned, provenance-tracked source snapshot and executable task graph described in ADR-011. Add fixtures for a small, medium, and high-risk task.
+The initial phase delivered a unified project artifact format for `spec`, `clarifications`, `plan`, `tasks`, and `evidence`; it mapped those artifacts to Pack 60 without upstream branding or runtime code. The later independent-engine phase adds the UEEF-owned executable task graph described in ADR-011. The separately stored, provenance-tracked Spec Kit snapshot remains manual review and comparison material only. Add fixtures for a small, medium, and high-risk task.
 
 Success: a task can be created, clarified, planned, implemented, and verified with a traceable artifact chain.
 

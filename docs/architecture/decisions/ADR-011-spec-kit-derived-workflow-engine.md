@@ -1,4 +1,4 @@
-# ADR-011: Spec Kit-Derived Workflow Engine
+# ADR-011: Independent UEEF Specification Workflow Engine
 
 ## Status
 
@@ -10,23 +10,23 @@ Accepted.
 
 ## Context
 
-UEEF already had durable specification artifacts, task decomposition rules, worker budgets, and convergence gates. It did not have a persistent task-graph runtime that could compute safe execution waves, resume after interruption, or grow and shrink a host team from actual ready work. Merely invoking an external Spec Kit installation would leave version, policy, security, and update behavior outside UEEF ownership. Reimplementing every upstream workflow concept without preserving the real source would also make compatibility claims difficult to audit.
+UEEF already had durable specification artifacts, task decomposition rules, worker budgets, and convergence gates. It did not have a persistent task-graph runtime that could compute safe execution waves, resume after interruption, or grow and shrink a host team from actual ready work. Invoking or importing an external Spec Kit installation would leave version, policy, security, and update behavior outside UEEF ownership. A reference snapshot can support manual comparison and provenance without becoming a runtime dependency.
 
 Spec Kit's workflow engine is useful upstream code, but its documented shell steps execute with the user's privileges and interpolation is not a security boundary. External custom steps and community workflows are also executable code. Those surfaces cannot become implicit UEEF behavior.
 
 ## Decision
 
-Adopt a derived-engine architecture with a strict ownership boundary.
+Adopt an independently implemented UEEF engine with a strict non-integration boundary.
 
-1. Vendor the official Spec Kit `v0.16.1` source at commit `ad4104b56c219b0a27bac06547d1a3c7d6a0dbd6` under `engines/spec-workflow/upstream/spec-kit/` without UEEF modifications.
+1. Retain the official Spec Kit `v0.16.1` source at commit `ad4104b56c219b0a27bac06547d1a3c7d6a0dbd6` under `engines/spec-workflow/upstream/spec-kit/` without UEEF modifications, solely for manual comparison, update review, provenance, and licensing.
 2. Record release, commit, license, file count, included roots, and an aggregate content digest in `engines/spec-workflow/UPSTREAM.json`.
-3. Keep all UEEF behavior under `engines/spec-workflow/ueef/`; upstream refreshes replace the snapshot rather than mixing patches into it.
+3. Keep all UEEF behavior under `engines/spec-workflow/ueef/`. Production code must not read, import, validate against, or execute the snapshot; reference refreshes replace it only after explicit manual review.
 4. Represent executable work in `task-graph.json` as a validated DAG with explicit dependencies, requirements, acceptance IDs, capabilities, risk, effort, read/write ownership, and retry limits.
 5. Persist graph-bound execution state atomically. Refuse resume after graph drift, require optimistic revision matches for writes, reserve scheduled tasks before returning dispatch contracts, and require evidence before `DONE`.
 6. Derive `READY` and dependency-blocked states mechanically. Bound retries and propagate terminal dependency failures.
 7. Schedule waves by priority and critical-path effort, then constrain them by tier, worker cap, token budget, risk isolation, parallel-safety declaration, and write-scope conflicts.
 8. Emit host dispatch contracts for Codex, Claude, or a generic host. The engine does not secretly create agents; the host owns dispatch and returns transition evidence.
-9. Deny upstream shell-step definitions by default. The bridge only validates upstream YAML and exposes no run command. External custom steps, community workflows, and extensions are not loaded automatically.
+9. Expose no runtime bridge to upstream workflows or YAML. External custom steps, community workflows, and extensions are never loaded by UEEF production execution.
 10. Extend the existing `.ueef/specs/<id>` generator and validator so Markdown tasks and `task-graph.json` are one consistent workflow.
 11. Provide an explicit `HostRuntime` controller that persists reservation, start, and result boundaries. Codex and Claude adapters publish distinct transport metadata; host failures and malformed results become bounded task failures rather than implicit execution.
 12. Accept verifier findings through a bounded convergence document. Every generated task must link to source evidence, graph changes are additive, and migrated state preserves completed work, tokens, and attempt history.
@@ -41,15 +41,15 @@ Adopt a derived-engine architecture with a strict ownership boundary.
 
 ## Consequences
 
-- UEEF can use real upstream code for compatibility checks while policy and security remain locally owned.
+- UEEF can compare its semantics with preserved upstream source during manual review while production policy, security, and implementation remain wholly local.
 - Execution can resume deterministically and reject stale or concurrent state updates.
 - Team size follows runnable, non-conflicting work instead of being inferred directly from tier.
 - High-risk or unscoped work is serialized; bounded, disjoint work can form parallel waves.
 - Host execution is inspectable and resumable because every dispatch boundary is persisted through the same revision-guarded state store.
 - Semantic convergence can add traceable corrective work without discarding valid prior progress.
 - Productivity claims require comparable recorded evidence and cannot be synthesized from defaults.
-- Full upstream compatibility validation requires the optional dependencies declared by the engine's `upstream` extra. Core graph scheduling uses only the Python standard library.
-- Updating Spec Kit requires replacing the snapshot, updating provenance and license evidence, rerunning upstream validation, and reviewing the UEEF boundary for new executable surfaces.
+- UEEF runtime and verification require no Spec Kit dependencies. Core graph scheduling uses only UEEF-owned code and the Python standard library.
+- Updating the Spec Kit reference requires replacing the snapshot, updating provenance and license evidence, running the manual comparison review, and confirming mechanically that no production import or read path was introduced.
 - Dynamic sizing is now actionable through an explicit management cycle, while
   native worker lifecycle remains owned by the selected host.
 

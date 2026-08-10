@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  assistantMessageContains, commitWorkUnitInvocation, hookRoot, loadPolicy, newTurnState, passingToolResponse, preToolDeny, readTurnState,
+  assistantMessageContains, commitWorkUnitInvocation, hookRoot, hostRoutePathsFromPrompt, inheritValidatedHostRoute, loadPolicy, newTurnState, passingToolResponse, preToolDeny, readTurnState,
   runtimePath, safeId, setSessionGoalState, stopBlock, updateTurnState, writeTurnState
 } from './ueef-hook-common.mjs';
 
@@ -101,11 +101,22 @@ function isEconomicalLeadRead(toolName, event, tier) {
 }
 
 function onUserPromptSubmit(event) {
-  const state = newTurnState(event.session_id, event.turn_id, event.prompt, event.cwd, event.model);
+  const inheritedPaths = hostRoutePathsFromPrompt(event.prompt);
+  const baseState = newTurnState(event.session_id, event.turn_id, event.prompt, event.cwd, event.model);
+  baseState.hostRouteEnvelopeObserved = String(event.prompt || '').includes('UEEF_HOST_ROUTE_INHERIT_V1:');
+  baseState.hostRouteEnvelopeParsed = Boolean(inheritedPaths);
+  const state = inheritValidatedHostRoute(
+    baseState,
+    inheritedPaths?.routePath,
+    inheritedPaths?.claimPath
+  );
   writeTurnState(event.session_id, event.turn_id, state);
   const recorder = path.join(hookRoot, 'record-ueef-route.mjs');
   const command = `& ${quotePowerShell(process.execPath)} ${quotePowerShell(recorder)} --session-id ${quotePowerShell(state.sessionId)} --turn-id ${quotePowerShell(state.turnId)} --work-unit-id '<stable-work-unit-id>' --tier <T0|T1|T2|T3|T4> --intent '<intent>' --agent-route '<route>' --browser-reason '<reason>' --acceptance '<acceptance criteria>' --owner-paths '<owned paths>' --non-goals '<explicit non-goals>'`;
-  return {continue:true,hookSpecificOutput:{hookEventName:'UserPromptSubmit',additionalContext:currentContext(command)}};
+  const context = state.route?.inheritedHostDispatch === true
+    ? `${currentContext()} The validated host route is already inherited and dispatched for this turn. Do not record or replace it; proceed directly with the scoped work.`
+    : currentContext(command);
+  return {continue:true,hookSpecificOutput:{hookEventName:'UserPromptSubmit',additionalContext:context}};
 }
 
 function onPreToolUse(event) {
@@ -117,9 +128,13 @@ function onPreToolUse(event) {
   if (isIsolatedRouteRecorder(toolName, event, toolInput)) return {};
   if (!freeModeActive && !state.route?.modelRouteVerified) return preToolDeny('UEEF dynamic model route is missing. Publish Intent, Tier, Agent route, Browser reason, model, and effort, then run the injected record-ueef-route.mjs command with a fresh host catalog before using local tools.');
   if (!freeModeActive && state.route.tokenEconomy?.specRequired === true && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return preToolDeny('T2+ execution requires the managed execution spec created by the validated route recorder.');
-  if (!freeModeActive && !assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
+  if (!freeModeActive && state.route.inheritedHostDispatch !== true && !assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
   const directModelDispatch = /codex-app-server-dispatch\.mjs/iu.test(toolInput);
-  const hostModelDispatch = /(send_message_to_thread|create_thread|spawn_agent)/iu.test(toolName);
+  // App Server routes and collaboration workers are separate model channels.
+  // A worker may use only the model identifiers exposed by the collaboration
+  // tool, so it must never stand in for (or be forced to match) the validated
+  // host-catalog lead execution.
+  const hostModelDispatch = /(send_message_to_thread|create_thread)/iu.test(toolName);
   const goalLifecycleTool = /^(?:create_goal|update_goal)$/iu.test(toolName);
   const economicalLeadRead = isEconomicalLeadRead(toolName, event, state.route?.tier);
   if (/(create_thread|fork_thread)/iu.test(toolName) && state.authorizations?.newUserTask !== true) return preToolDeny('Creating a user-visible Codex task requires an explicit current-prompt request for a new task. Use ephemeral routed execution or an internal worker instead.');
@@ -208,7 +223,7 @@ function onPostToolUse(event) {
     if (/(publish-github-release|gh\s+release\s+create)/iu.test(toolInput) && /(Exit code:\s*0|release)/iu.test(response)) state.validations.release = true;
     if (toolName === 'update_goal' && event.tool_input?.status === 'complete' && /"status"\s*:\s*"complete"/iu.test(response)) state.validations.goalComplete = true;
     if (toolName === 'update_goal' && event.tool_input?.status === 'blocked' && /"status"\s*:\s*"blocked"/iu.test(response)) state.validations.goalBlocked = true;
-    if (/(send_message_to_thread|create_thread|spawn_agent)/iu.test(toolName) && state.route?.modelRouteVerified === true) {
+    if (/(send_message_to_thread|create_thread)/iu.test(toolName) && state.route?.modelRouteVerified === true) {
       const dispatchedModel = String(event.tool_input?.model || '');
       const dispatchedReasoning = String(event.tool_input?.thinking || event.tool_input?.reasoning_effort || '');
       const exactHostReceipt = containsJsonStringField(response, 'provider', 'codex-app-server:turn/start') &&
@@ -278,8 +293,9 @@ function onStop(event) {
   if (!freeModeActive && completionClaim && (state.engineeringLikely === true || Number(state.toolsUsed || 0) > 0)) {
     const missing = policy.requiredFinalLabels.filter((label) => !new RegExp(`^\\s*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`, 'imu').test(message));
     if (missing.length) return stopBlock(`UEEF final verification is missing labels: ${missing.join(', ')}`);
-    if (state.route?.modelRouteVerified && (!message.includes(state.route.preferredModel) || !message.includes(state.route.displayReasoning || state.route.hostReasoning))) return stopBlock('UEEF Selected must report the current work-unit model and host-provided reasoning display from the validated route.');
-    if (state.validations.modelDispatch === true && state.route?.actualModel && (!message.includes(state.route.actualModel) || !message.includes(state.route.actualHostReasoning))) return stopBlock('UEEF Selected must report the verified actual sub-agent model and reasoning effort.');
+    const reportedModel = state.route?.actualModel || state.route?.preferredModel;
+    const reportedReasoning = state.route?.actualDisplayReasoning || state.route?.displayReasoning || state.route?.actualHostReasoning || state.route?.hostReasoning;
+    if (state.route?.modelRouteVerified && (!message.includes(reportedModel) || !message.includes(reportedReasoning))) return stopBlock('UEEF Selected must report the verified actual work-unit model and host-provided reasoning display.');
   }
   if (!freeModeActive && completionClaim) {
     if (['T2','T3','T4'].includes(state.route?.tier) && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return stopBlock('T2+ completion requires the managed execution spec bound to the current route.');

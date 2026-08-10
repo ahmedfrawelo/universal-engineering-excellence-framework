@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { appServerSandboxPolicy, resolveCodexExecutable } from './codex-app-server-client-lib.mjs';
 
@@ -74,7 +75,22 @@ const executionContext = {
 };
 if (responseLanguage !== 'auto') executionContext['ueef-response-language'] = { kind: 'application', value: `Respond in the language identified by BCP-47 tag ${responseLanguage}. Keep technical identifiers unchanged.` };
 
-const child = spawn(executable, [...executableArgs, 'app-server'], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, cwd });
+const hostRouteClaimPath = path.join(os.tmpdir(), `ueef-host-route-claim-${crypto.randomBytes(16).toString('hex')}.lock`);
+const hostRouteEnvelope = Buffer.from(JSON.stringify({
+  routePath: path.resolve(routePath),
+  claimPath: hostRouteClaimPath
+}), 'utf8').toString('base64url');
+const routedPrompt = `UEEF_HOST_ROUTE_INHERIT_V1:${hostRouteEnvelope}\n${prompt}`;
+const child = spawn(executable, [...executableArgs, 'app-server'], {
+  stdio: ['pipe', 'pipe', 'pipe'],
+  windowsHide: true,
+  cwd,
+  env: {
+    ...process.env,
+    UEEF_VALIDATED_HOST_ROUTE: path.resolve(routePath),
+    UEEF_VALIDATED_HOST_ROUTE_CLAIM: hostRouteClaimPath
+  }
+});
 let buffer = '';
 let stderr = '';
 let finished = false;
@@ -92,6 +108,14 @@ let attemptIndex = 0;
 let selectedModel = route.preferredModel;
 let selectedHostReasoning = route.hostReasoning;
 const startedAt = new Date().toISOString();
+const deadlineAt = Date.now() + timeoutMs;
+const maxTransientRetries = 4;
+const transientRetries = [];
+const transientRetryCounts = new Map();
+let nextRequestId = 1;
+let pendingThreadStartId = null;
+let pendingTurnStartId = null;
+let lastTurnStartId = null;
 
 const emitResult = (value) => {
   const serialized = `${JSON.stringify(value, null, outputPath ? 2 : 0)}\n`;
@@ -111,6 +135,7 @@ const finish = (error = null) => {
   finished = true;
   clearTimeout(timer);
   stopChild();
+  fs.rmSync(hostRouteClaimPath, { force: true });
   if (error) {
     process.stderr.write(`Codex App Server dispatch failed: ${error.message}\n`);
     process.exitCode = 1;
@@ -120,7 +145,11 @@ const finish = (error = null) => {
   const capacity = providerMessage.includes('Selected model is at capacity');
   const result = capacity ? 'CAPACITY' : turnStatus === 'completed' ? 'SUCCESS' : turnStatus === 'interrupted' ? 'INTERRUPTED' : 'FAILED';
   const effectiveModel = modelReroutes.filter((entry) => entry.attemptIndex === attemptIndex).at(-1)?.toModel || acceptedModel;
-  const executionVerified = result === 'SUCCESS' && Boolean(effectiveModel) && Boolean(acceptedHostReasoning);
+  const executionVerified = result === 'SUCCESS'
+    && effectiveModel === selectedModel
+    && acceptedModel === selectedModel
+    && acceptedHostReasoning === selectedHostReasoning;
+  const verifiedResult = result === 'SUCCESS' && !executionVerified ? 'FAILED' : result;
   emitResult({
     schemaVersion: 1,
     provider: 'codex-app-server:turn/start',
@@ -144,10 +173,11 @@ const finish = (error = null) => {
     executionVerificationSource: executionVerified ? 'codex-app-server:thread/start+thread/settings/updated+model/rerouted' : null,
     modelReroutes,
     attempts,
+    transientRetries,
     capacityFallbackUsed: attemptIndex === 1,
     providerModelFallbackAllowed: false,
-    result,
-    errorMessage: providerMessage || null,
+    result: verifiedResult,
+    errorMessage: providerMessage || (result === 'SUCCESS' && !executionVerified ? 'App Server completed on a model or effort outside the validated route.' : null),
     finalText,
     startedAt,
     completedAt: new Date().toISOString()
@@ -156,7 +186,8 @@ const finish = (error = null) => {
 const timer = setTimeout(() => finish(new Error(`Timed out after ${timeoutMs} ms`)), timeoutMs);
 
 const startThread = () => {
-  const requestId = 1 + (attemptIndex * 2);
+  const requestId = nextRequestId++;
+  pendingThreadStartId = requestId;
   send({ method: 'thread/start', id: requestId, params: {
     model: selectedModel,
     cwd,
@@ -168,9 +199,45 @@ const startThread = () => {
     serviceName: 'ueef-model-routing'
   } });
 };
-const startSingleFallback = (errorMessage, stage) => {
+const startTurn = () => {
+  const requestId = nextRequestId++;
+  pendingTurnStartId = requestId;
+  lastTurnStartId = requestId;
+  send({ method: 'turn/start', id: requestId, params: {
+    threadId,
+    input: [{ type: 'text', text: routedPrompt }],
+    cwd,
+    approvalPolicy: 'never',
+    sandboxPolicy: appServerSandboxPolicy(sandbox, cwd),
+    model: selectedModel,
+    effort: selectedHostReasoning,
+    summary: 'concise',
+    personality: 'pragmatic',
+    additionalContext: executionContext
+  } });
+};
+const retryTransient = (error, stage, requestId, retry) => {
+  if (error?.code !== -32001) return false;
+  const key = `${attemptIndex}:${stage}`;
+  const retryIndex = transientRetryCounts.get(key) || 0;
+  if (retryIndex >= maxTransientRetries) {
+    finishAttemptFailure(error.message || `${stage} unavailable`, stage, requestId, error.code);
+    return true;
+  }
+  const exponentialMs = Math.min(2000, 100 * (2 ** retryIndex));
+  const jitterMs = crypto.randomInt(0, Math.max(1, Math.floor(exponentialMs / 2) + 1));
+  const delayMs = exponentialMs + jitterMs;
+  if (Date.now() + delayMs >= deadlineAt) {
+    finish(new Error(`Timed out after ${timeoutMs} ms while retrying App Server ${stage}`));
+    return true;
+  }
+  transientRetryCounts.set(key, retryIndex + 1);
+  transientRetries.push({ attemptIndex, stage, requestId, retryIndex: retryIndex + 1, delayMs, errorCode: error.code });
+  setTimeout(() => { if (!finished) retry(); }, delayMs);
+  return true;
+};
+const startSingleFallback = (errorMessage, stage, requestId) => {
   if (!String(errorMessage).includes('Selected model is at capacity') || attemptIndex !== 0 || !route.fallbackModel || !route.fallbackHostReasoning) return false;
-  const requestId = stage === 'thread/start' ? 1 + (attemptIndex * 2) : 2 + (attemptIndex * 2);
   attempts.push({ attemptIndex, stage, requestId, model: selectedModel, hostReasoning: selectedHostReasoning, threadId, turnId, result: 'CAPACITY', errorMessage: String(errorMessage) });
   attemptIndex = 1;
   selectedModel = route.fallbackModel;
@@ -186,20 +253,21 @@ const startSingleFallback = (errorMessage, stage) => {
   startThread();
   return true;
 };
-const finishAttemptFailure = (errorMessage, stage) => {
+const finishAttemptFailure = (errorMessage, stage, requestId, errorCode = null) => {
   const message = String(errorMessage || `${stage} failed`);
   turnStatus = 'failed';
   turnError = { message };
   attempts.push({
     attemptIndex,
     stage,
-    requestId: stage === 'thread/start' ? 1 + (attemptIndex * 2) : 2 + (attemptIndex * 2),
+    requestId,
     model: selectedModel,
     hostReasoning: selectedHostReasoning,
     threadId,
     turnId,
     result: message.includes('Selected model is at capacity') ? 'CAPACITY' : 'FAILED',
-    errorMessage: message
+    errorMessage: message,
+    errorCode
   });
   finish();
 };
@@ -225,11 +293,14 @@ child.stdout.on('data', (chunk) => {
       startThread();
       continue;
     }
-    if (message.id === 1 + (attemptIndex * 2)) {
+    if (message.id === pendingThreadStartId) {
+      const requestId = pendingThreadStartId;
+      pendingThreadStartId = null;
       if (message.error) {
         const errorMessage = message.error.message || 'thread/start failed';
-        if (startSingleFallback(errorMessage, 'thread/start')) continue;
-        return finishAttemptFailure(errorMessage, 'thread/start');
+        if (retryTransient(message.error, 'thread/start', requestId, startThread)) continue;
+        if (startSingleFallback(errorMessage, 'thread/start', requestId)) continue;
+        return finishAttemptFailure(errorMessage, 'thread/start', requestId, message.error.code ?? null);
       }
       threadId = message.result?.thread?.id;
       acceptedModel = message.result?.model || null;
@@ -239,25 +310,17 @@ child.stdout.on('data', (chunk) => {
       if (acceptedModel !== selectedModel) {
         return finish(new Error(`App Server accepted model ${acceptedModel}, not the routed ${selectedModel}`));
       }
-      send({ method: 'turn/start', id: 2 + (attemptIndex * 2), params: {
-        threadId,
-        input: [{ type: 'text', text: prompt }],
-        cwd,
-        approvalPolicy: 'never',
-        sandboxPolicy: appServerSandboxPolicy(sandbox, cwd),
-        model: selectedModel,
-        effort: selectedHostReasoning,
-        summary: 'concise',
-        personality: 'pragmatic',
-        additionalContext: executionContext
-      } });
+      startTurn();
       continue;
     }
-    if (message.id === 2 + (attemptIndex * 2)) {
+    if (message.id === pendingTurnStartId) {
+      const requestId = pendingTurnStartId;
+      pendingTurnStartId = null;
       if (message.error) {
         const errorMessage = message.error.message || 'turn/start failed';
-        if (startSingleFallback(errorMessage, 'turn/start')) continue;
-        return finishAttemptFailure(errorMessage, 'turn/start');
+        if (retryTransient(message.error, 'turn/start', requestId, startTurn)) continue;
+        if (startSingleFallback(errorMessage, 'turn/start', requestId)) continue;
+        return finishAttemptFailure(errorMessage, 'turn/start', requestId, message.error.code ?? null);
       }
       turnId = message.result?.turn?.id || null;
       continue;
@@ -292,11 +355,11 @@ child.stdout.on('data', (chunk) => {
       turnStatus = turn.status || 'failed';
       turnError = turn.error || null;
       const providerMessage = String(turnError?.message || turnError || '');
-      if (startSingleFallback(providerMessage, 'turn/completed')) continue;
+      if (startSingleFallback(providerMessage, 'turn/completed', lastTurnStartId)) continue;
       attempts.push({
         attemptIndex,
         stage: 'turn/completed',
-        requestId: 2 + (attemptIndex * 2),
+        requestId: lastTurnStartId,
         model: selectedModel,
         hostReasoning: selectedHostReasoning,
         threadId,

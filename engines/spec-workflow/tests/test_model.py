@@ -26,9 +26,7 @@ class TaskGraphModelTests(unittest.TestCase):
             graph(task("TASK-001", dependsOn=["TASK-404"]))
 
     def test_cycle_reports_the_path(self) -> None:
-        with self.assertRaisesRegex(
-            WorkflowError, "TASK-001 -> TASK-002 -> TASK-001"
-        ):
+        with self.assertRaisesRegex(WorkflowError, "TASK-001 -> TASK-002 -> TASK-001"):
             graph(
                 task("TASK-001", dependsOn=["TASK-002"]),
                 task("TASK-002", dependsOn=["TASK-001"]),
@@ -66,9 +64,7 @@ class TaskGraphModelTests(unittest.TestCase):
 
     def test_graph_size_limits_are_enforced(self) -> None:
         with self.assertRaisesRegex(WorkflowError, "more than 500"):
-            TaskGraph.from_dict(
-                graph_data(*(task(f"TASK-{index:03d}") for index in range(501)))
-            )
+            TaskGraph.from_dict(graph_data(*(task(f"TASK-{index:03d}") for index in range(501))))
         with self.assertRaisesRegex(WorkflowError, "cannot exceed 512"):
             graph(task("TASK-001", title="x" * 513))
 

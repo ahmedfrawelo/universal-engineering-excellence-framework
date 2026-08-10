@@ -54,6 +54,8 @@ $requiredAcceptance = @(
   "scripts/test-spec-workflow.ps1",
   "scripts/invoke-spec-workflow-engine.ps1",
   "scripts/test-spec-workflow-engine.ps1",
+  "scripts/verify-spec-workflow-upstream.mjs",
+  "scripts/test-spec-workflow-upstream.mjs",
   "engines/spec-workflow/UPSTREAM.json",
   "engines/spec-workflow/pyproject.toml",
   "engines/spec-workflow/uv.lock",
@@ -467,6 +469,7 @@ foreach ($p in $packs) {
   if (!(Test-Path (Join-Path $p.FullName "INDEX.md"))) { $missing += "$($p.Name)/INDEX.md" }
 }
 if ($missing.Count) { throw "Missing required items: $($missing -join ', ')" }
+Invoke-NodeChecked @((Join-Path $Root "scripts/verify-spec-workflow-upstream.mjs"), '--engine-root', (Join-Path $Root 'engines/spec-workflow'), '--json') | Out-Null
 $engineGeneratedPattern = '[\\/]engines[\\/](?:repository-intelligence|spec-workflow)[\\/](?:\.venv|build|[^\\/]+\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
 $md = Get-ChildItem $Root -Filter *.md -Recurse | Where-Object {
   $_.FullName -notmatch '[\\/]\.ueef[\\/]' -and $_.FullName -notmatch $engineGeneratedPattern
@@ -544,6 +547,7 @@ foreach ($term in $skillProtocolTerms) { if ($runtimeText -notmatch [regex]::Esc
 $specDrivenTerms = @("Spec-driven applicability:","Specification artifact:","Open ambiguities:","Requirements-to-plan trace:","Task breakdown trace:","Consistency analysis:","Convergence evidence:","Spec-driven gate:")
 foreach ($term in $specDrivenTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing spec-driven field: $term" } }
 if (!$SkipNestedTests) {
+  Invoke-NodeChecked @((Join-Path $Root "scripts/test-spec-workflow-upstream.mjs")) | Out-Null
   & (Join-Path $Root "scripts/test-spec-workflow.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-spec-workflow-engine.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null

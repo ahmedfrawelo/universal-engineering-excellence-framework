@@ -5,7 +5,8 @@ try {
   New-Item -ItemType Directory -Path $sandbox | Out-Null
   $new = Join-Path $root 'scripts\new-spec-workflow.ps1'
   $validate = Join-Path $root 'scripts\validate-spec-workflow.ps1'
-  $created = & $new -Id 'demo-feature' -Root $sandbox | ConvertFrom-Json
+  $route = Join-Path $root 'scripts\fixtures\spec-workflow-route.json'
+  $created = & $new -Id 'demo-feature' -Root $sandbox -RoutePath $route | ConvertFrom-Json
   if ($created.schemaVersion -ne 2 -or !(Test-Path -LiteralPath $created.path)) { throw 'Workflow generator did not produce its contract.' }
   & $validate -Path $created.path -Mode Draft | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Validator rejected a newly generated draft.' }
@@ -16,17 +17,19 @@ try {
     $text = [regex]::Replace($text, '\{\{[A-Z0-9_]+\}\}', 'Completed')
     $text = $text -replace '- Token budget mode: Completed', '- Token budget mode: bounded'
     $text = $text -replace '- Delegation policy: Completed', '- Delegation policy: none'
-    $text = $text -replace '- Maximum worker count: Completed', '- Maximum worker count: 2'
+    $text = $text -replace '- Maximum worker count: Completed', '- Maximum worker count: 1'
     $text = $text -replace '- Actual worker count: Completed', '- Actual worker count: 0'
     $text = $text -replace '\| AC-001 \| Completed \| Completed \| Completed \|', '| AC-001 | completed review | PASS | 2026-07-23T00:00:00Z |'
     Set-Content -LiteralPath $_.FullName -Value $text -Encoding utf8
   }
-  & $validate -Path $created.path -Mode Ready | Out-Null
+  & (Join-Path $root 'scripts\invoke-spec-workflow-engine.ps1') compile --tasks (Join-Path $created.path 'tasks.md') --workflow-id demo-feature --route $route --output (Join-Path $created.path 'task-graph.json') | Out-Null
+  & $validate -Path $created.path -Mode Ready -RoutePath $route | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Validator rejected a completed workflow.' }
   $completedTasksPath = Join-Path $created.path 'tasks.md'
   $completedTasks = (Get-Content -LiteralPath $completedTasksPath -Raw) -replace '- \[ \] TASK-001', '- [x] TASK-001'
   Set-Content -LiteralPath $completedTasksPath -Value $completedTasks -Encoding utf8
-  & $validate -Path $created.path -Mode Ready | Out-Null
+  & (Join-Path $root 'scripts\invoke-spec-workflow-engine.ps1') compile --tasks $completedTasksPath --workflow-id demo-feature --route $route --output (Join-Path $created.path 'task-graph.json') | Out-Null
+  & $validate -Path $created.path -Mode Ready -RoutePath $route | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Validator rejected a Ready workflow after TASK-001 was checked complete.' }
   $duplicateRejected = $false
   try { & $new -Id 'demo-feature' -Root $sandbox | Out-Null } catch { $duplicateRejected = $true }

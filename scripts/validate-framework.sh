@@ -20,6 +20,9 @@ for d in framework scripts docs examples tools config engines; do
 done
 [ -f "$ROOT/scripts/new-spec-workflow.ps1" ] || { echo "Missing spec workflow generator" >&2; exit 1; }
 [ -f "$ROOT/scripts/validate-spec-workflow.ps1" ] || { echo "Missing spec workflow validator" >&2; exit 1; }
+[ -f "$ROOT/scripts/verify-spec-workflow-upstream.mjs" ] || { echo "Missing spec workflow upstream integrity verifier" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-spec-workflow-upstream.mjs" ] || { echo "Missing spec workflow upstream integrity tests" >&2; exit 1; }
+node "$ROOT/scripts/verify-spec-workflow-upstream.mjs" --engine-root "$ROOT/engines/spec-workflow" --json >/dev/null || { echo "Spec workflow upstream integrity verification failed" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-capability-health.ps1" ] || { echo "Missing capability health doctor" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-ueef-health.ps1" ] || { echo "Missing unified UEEF health report" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-intent-fidelity-contract.sh" ] || { echo "Missing Unix intent-fidelity contract test" >&2; exit 1; }
@@ -456,6 +459,7 @@ grep -q 'BLOCKED_ALLOWED' "$ROOT/framework/01-core/14-delivery-continuation-poli
 [ -f "$ROOT/scripts/write-active-state.sh" ] || { echo "Missing Unix active-state writer" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-ueef-status.sh" ] || { echo "Missing Unix source-status tests" >&2; exit 1; }
 if [ "$SKIP_NESTED_TESTS" = 0 ]; then
+  node "$ROOT/scripts/test-spec-workflow-upstream.mjs" >/dev/null || { echo "Spec workflow upstream integrity tests failed" >&2; exit 1; }
   sh "$ROOT/scripts/test-intent-fidelity-contract.sh" >/dev/null || { echo "Unix intent-fidelity contract tests failed" >&2; exit 1; }
   sh "$ROOT/scripts/test-browser-control-contract.sh" >/dev/null || { echo "Unix browser control contract tests failed" >&2; exit 1; }
   sh "$ROOT/scripts/test-skeleton-loading-contract.sh" >/dev/null || { echo "Unix skeleton loading contract tests failed" >&2; exit 1; }

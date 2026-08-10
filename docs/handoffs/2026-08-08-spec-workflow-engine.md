@@ -14,7 +14,7 @@
 
 UEEF now owns an executable specification workflow rather than only Markdown workflow guidance.
 
-- `engines/spec-workflow/upstream/spec-kit/` contains an unmodified GitHub Spec Kit `v0.16.1` source snapshot.
+- `engines/spec-workflow/upstream/spec-kit/` contains an unmodified GitHub Spec Kit `v0.16.1` reference snapshot for manual comparison, provenance, and licensing only; UEEF runtime code never reads or imports it.
 - `engines/spec-workflow/UPSTREAM.json` pins the commit, license, copied roots, file count, and aggregate digest.
 - `engines/spec-workflow/ueef/ueef_spec_workflow/` owns validation, state, scheduling, policy, adapters, and the CLI.
 - `.ueef/specs/<id>/task-graph.json` is generated and validated with the existing spec artifacts.
@@ -24,16 +24,16 @@ UEEF now owns an executable specification workflow rather than only Markdown wor
 
 ## Security and update boundary
 
-- The upstream snapshot is not modified in place. Refresh it by replacing the snapshot, updating `UPSTREAM.json`, preserving the MIT license, and rerunning upstream and UEEF tests.
-- The UEEF CLI has no workflow-run command. `upstream-validate` is validation only; shell execution is always false.
+- The reference snapshot is not modified in place. Refresh it by replacing the snapshot, updating `UPSTREAM.json`, preserving the MIT license, and running the manual review plus UEEF tests.
+- The UEEF runtime has no Spec Kit bridge or `upstream-validate` execution path; it neither reads nor imports the snapshot.
 - Community workflows, custom steps, extensions, presets, and bundles remain opt-in external code and are not loaded automatically.
-- Core scheduling has no third-party runtime dependencies. Optional upstream validation dependencies are locked in `engines/spec-workflow/uv.lock`.
+- Core scheduling has no Spec Kit or other third-party runtime dependency.
 
 ## Authoritative commands
 
 ```powershell
 Set-Location 'E:\MY DATA\div\universal-engineering-excellence-framework'
-& .\scripts\invoke-spec-workflow-engine.ps1 upstream-status
+& .\scripts\review-spec-kit-update.ps1 -CandidatePath '<separate-reviewed-candidate>'
 & .\scripts\test-spec-workflow-engine.ps1
 & .\scripts\test-spec-workflow.ps1
 & .\scripts\validate-framework.ps1

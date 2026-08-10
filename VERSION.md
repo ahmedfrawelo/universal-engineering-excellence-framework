@@ -1,11 +1,12 @@
 # Version
 
-UEEF Enterprise Edition version: 2.26.2.
+UEEF Enterprise Edition version: 2.27.0.
 
 UEEF follows Semantic Versioning: `MAJOR.MINOR.PATCH`. A MAJOR release changes compatibility, a MINOR release adds backward-compatible capability, and a PATCH release makes backward-compatible corrections. Technology-pack additions are MINOR releases unless they change a core contract.
 
 See [CHANGELOG.md](CHANGELOG.md) for the high-level history and [docs/releases](docs/releases/) for individual release notes.
 
+- 2.27.0: completed the independent governed Spec workflow runtime with fenced execution, real Codex production dispatch, signed approvals and packages, portfolio/composition control, exact evidence traceability, snapshot integrity, and hardened recovery.
 - 2.26.2: decoupled goal lifecycle controls from mandatory model-dispatch sequencing while preserving lifecycle evidence enforcement.
 - 2.26.1: added safe capability-matched team management, persisted reroute and escalation decisions, verifier and integration phase gates, benchmark and convergence workflows, and hardened host-dispatch enforcement.
 - 2.26.0: added the provenance-tracked Spec Kit derived engine, persistent task graphs, conflict-safe dynamic execution waves, resumable state, bounded retries and budgets, and host dispatch contracts.

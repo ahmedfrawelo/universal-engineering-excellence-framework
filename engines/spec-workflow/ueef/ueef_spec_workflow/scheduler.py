@@ -8,7 +8,7 @@ from typing import Any
 from .model import TaskGraph, TaskSpec, scopes_overlap
 from .state import ExecutionState, TaskStatus
 
-_TIER_WORKER_CAP = {"T0": 1, "T1": 1, "T2": 2, "T3": 4, "T4": 6}
+_TIER_WORKER_CAP = {"T0": 1, "T1": 1, "T2": 1, "T3": 3, "T4": 4}
 _SINGLE_WORKER_BUDGET_MODES = frozenset({"minimal"})
 
 
@@ -40,6 +40,7 @@ class ScheduleDecision:
     tasks: tuple[ScheduledTask, ...]
     deferred: tuple[dict[str, str], ...]
     budget_remaining: int | None
+    assignment_mode: str = "synthetic-preview"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -54,6 +55,8 @@ class ScheduleDecision:
                 "scaleAction": self.scale_action,
             },
             "budgetRemaining": self.budget_remaining,
+            "assignmentMode": self.assignment_mode,
+            "capabilityVerified": self.assignment_mode == "host-catalog-validated",
             "wave": [task.to_dict() for task in self.tasks],
             "deferred": list(self.deferred),
         }
@@ -84,18 +87,22 @@ class Scheduler:
         if policy.token_budget_mode in _SINGLE_WORKER_BUDGET_MODES:
             total_cap = min(total_cap, 1)
         remaining = self._budget_remaining(state)
-        if remaining is not None and ready:
-            smallest = min(task.estimated_tokens for task in ready)
-            total_cap = min(total_cap, remaining // smallest)
         current_workers = len(
             {
                 run.assigned_worker
                 for run in state.tasks.values()
-                if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING}
-                and run.assigned_worker
+                if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING} and run.assigned_worker
             }
         )
-        return max(0, total_cap), max(0, total_cap - current_workers)
+        policy_slots = max(0, total_cap - current_workers)
+        if remaining is None or not ready:
+            budget_slots = policy_slots
+        else:
+            smallest = min(task.estimated_tokens for task in ready)
+            # ``remaining`` has already reserved the estimates of active work.
+            # It therefore limits only *new* reservations, not total workers.
+            budget_slots = remaining // smallest
+        return max(0, total_cap), min(policy_slots, budget_slots)
 
     @staticmethod
     def _can_share_wave(task: TaskSpec, companions: list[TaskSpec]) -> tuple[bool, str]:
@@ -119,15 +126,30 @@ class Scheduler:
         return True, ""
 
     def decide(self, state: ExecutionState) -> ScheduleDecision:
+        if state.paused:
+            return ScheduleDecision(
+                workflow_id=self.graph.workflow_id,
+                state_revision=state.revision,
+                state_status="PAUSED",
+                worker_cap=0,
+                current_workers=0,
+                desired_workers=state.team_size_target,
+                scale_action="HOLD",
+                tasks=(),
+                deferred=tuple(
+                    {"taskId": task.id, "reason": "workflow is operator-paused"}
+                    for task in self.graph.tasks
+                    if state.tasks[task.id].status == TaskStatus.READY
+                ),
+                budget_remaining=self._budget_remaining(state),
+            )
         state.refresh(self.graph)
         ready = [
             self._task_map[task_id]
             for task_id, run in state.tasks.items()
             if run.status == TaskStatus.READY
         ]
-        ready.sort(
-            key=lambda task: (-task.priority, -self._weights[task.id], -task.risk, task.id)
-        )
+        ready.sort(key=lambda task: (-task.priority, -self._weights[task.id], -task.risk, task.id))
         total_cap, available_slots = self._worker_limits(state, ready)
         budget_remaining = self._budget_remaining(state)
         selected: list[TaskSpec] = []
@@ -139,14 +161,20 @@ class Scheduler:
         deferred: list[dict[str, str]] = []
         planned_tokens = 0
         for task in ready:
-            if len(selected) >= available_slots:
-                deferred.append({"taskId": task.id, "reason": "worker cap reached"})
-                continue
             if (
                 budget_remaining is not None
                 and planned_tokens + task.estimated_tokens > budget_remaining
             ):
                 deferred.append({"taskId": task.id, "reason": "token budget would be exceeded"})
+                continue
+            if len(selected) >= available_slots:
+                reason = (
+                    "token budget would be exceeded"
+                    if budget_remaining is not None
+                    and task.estimated_tokens > budget_remaining
+                    else "worker cap reached"
+                )
+                deferred.append({"taskId": task.id, "reason": reason})
                 continue
             allowed, reason = self._can_share_wave(task, active + selected)
             if not allowed:
@@ -158,8 +186,7 @@ class Scheduler:
             {
                 run.assigned_worker
                 for run in state.tasks.values()
-                if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING}
-                and run.assigned_worker
+                if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING} and run.assigned_worker
             }
         )
         desired_workers = current_workers + len(selected)
@@ -173,8 +200,7 @@ class Scheduler:
         used_workers = {
             run.assigned_worker
             for run in state.tasks.values()
-            if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING}
-            and run.assigned_worker
+            if run.status in {TaskStatus.RESERVED, TaskStatus.RUNNING} and run.assigned_worker
         }
         next_worker = 1
         scheduled_items: list[ScheduledTask] = []

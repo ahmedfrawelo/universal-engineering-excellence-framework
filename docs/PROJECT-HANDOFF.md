@@ -1,6 +1,6 @@
 # UEEF Project Handoff
 
-> **Current handoff:** [`docs/handoffs/2026-08-08-spec-workflow-engine.md`](handoffs/2026-08-08-spec-workflow-engine.md) for UEEF `2.26.0` and the Spec workflow derived-engine delivery.
+> **Current handoff:** [`docs/handoffs/2026-08-09-dynamic-runtime-repair.md`](handoffs/2026-08-09-dynamic-runtime-repair.md) for the schema-v2 dynamic runtime repair and model-route deadlock fix.
 >
 > Everything below is the preserved 2026-08-02 legacy snapshot. Use it only for historical context; current command output and the current handoff above are authoritative.
 

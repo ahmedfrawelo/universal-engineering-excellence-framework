@@ -2,6 +2,7 @@
 param(
   [Parameter(Mandatory)][ValidatePattern('^[a-z0-9][a-z0-9-]{1,62}$')][string]$Id,
   [string]$Root = (Get-Location).Path,
+  [string]$RoutePath = '',
   [switch]$Force
 )
 
@@ -87,6 +88,10 @@ Status: DRAFT
 | --- | --- | --- | --- |
 | REQ-001 | {{DECISION}} | {{OWNER}} | {{VERIFICATION}} |
 
+## Acceptance mapping
+
+- AC-001: TASK-001 verifies {{VERIFICATION}}.
+
 ## Architecture and contracts
 
 {{ARCHITECTURE}}
@@ -108,11 +113,18 @@ Status: DRAFT
 
 - [ ] TASK-001 {{TASK}}
   - Requirements: REQ-001
-  - Delegation: {{DELEGATION_MODE}}
-  - Allowed write set: {{ALLOWED_WRITE_SET}}
-  - Forbidden paths: {{FORBIDDEN_PATHS}}
-  - Depends on: {{DEPENDENCY}}
-  - Evidence: {{EVIDENCE}}
+  - Acceptance: AC-001
+  - Delegation: none
+  - Allowed write set: none
+  - Forbidden paths: none
+  - Depends on: none
+  - Capabilities: none
+  - Effort points: 1
+  - Risk: 0
+  - Priority: 0
+  - Parallel safe: false
+  - Read only: false
+  - Evidence: {"AC-001":"{{EVIDENCE}}"}
   - Done when: {{DONE_WHEN}}
 '@
   'evidence.md' = @'
@@ -180,7 +192,7 @@ Status: DRAFT
   "workflowId": "$Id",
   "policy": {
     "tier": "T2",
-    "maxWorkers": 2,
+    "maxWorkers": 1,
     "tokenBudgetMode": "bounded",
     "tokenBudget": 10000,
     "retryLimit": 1,
@@ -215,10 +227,17 @@ foreach ($entry in $files.GetEnumerator()) {
   }
 }
 
+if (![string]::IsNullOrWhiteSpace($RoutePath)) {
+  $resolvedRoute = (Resolve-Path -LiteralPath $RoutePath).Path
+  $engine = Join-Path $PSScriptRoot 'invoke-spec-workflow-engine.ps1'
+  & $engine compile --tasks (Join-Path $specRoot 'tasks.md') --workflow-id $Id --route $resolvedRoute --output (Join-Path $specRoot 'task-graph.json') | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'Failed to compile the generated task plan.' }
+}
+
 [pscustomobject]@{
   schemaVersion = 2
   workflowId = $Id
   path = $specRoot
   files = @($files.Keys)
-  next = 'Resolve clarifications, replace {{PLACEHOLDERS}}, then run validate-spec-workflow.ps1.'
+  next = if ($RoutePath) { 'Resolve placeholders, recompile, then validate with the same -RoutePath.' } else { 'Draft only: resolve placeholders and supply -RoutePath before Ready or execution.' }
 } | ConvertTo-Json -Depth 3

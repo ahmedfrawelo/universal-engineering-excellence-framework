@@ -21,6 +21,7 @@ _MAX_TASKS = 500
 _MAX_GRAPH_BYTES = 5 * 1024 * 1024
 _MAX_LIST_ITEMS = 256
 _MAX_TEXT_LENGTH = 512
+_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _as_string_list(value: Any, field_name: str) -> tuple[str, ...]:
@@ -34,9 +35,7 @@ def _as_string_list(value: Any, field_name: str) -> tuple[str, ...]:
     if any(not item for item in stripped):
         raise WorkflowError(f"{field_name} cannot contain empty strings")
     if any(len(item) > _MAX_TEXT_LENGTH for item in stripped):
-        raise WorkflowError(
-            f"{field_name} entries cannot exceed {_MAX_TEXT_LENGTH} characters"
-        )
+        raise WorkflowError(f"{field_name} entries cannot exceed {_MAX_TEXT_LENGTH} characters")
     if len(set(stripped)) != len(stripped):
         raise WorkflowError(f"{field_name} cannot contain duplicates")
     return stripped
@@ -103,14 +102,10 @@ class WorkflowPolicy:
             raise WorkflowError("policy.maxWorkers must be an integer from 1 through 16")
         budget_mode = data.get("tokenBudgetMode", "bounded")
         if budget_mode not in _BUDGET_MODES:
-            raise WorkflowError(
-                f"policy.tokenBudgetMode must be one of {sorted(_BUDGET_MODES)}"
-            )
+            raise WorkflowError(f"policy.tokenBudgetMode must be one of {sorted(_BUDGET_MODES)}")
         token_budget = data.get("tokenBudget")
         if token_budget is not None and (
-            isinstance(token_budget, bool)
-            or not isinstance(token_budget, int)
-            or token_budget < 1
+            isinstance(token_budget, bool) or not isinstance(token_budget, int) or token_budget < 1
         ):
             raise WorkflowError("policy.tokenBudget must be a positive integer when supplied")
         retry_limit = data.get("retryLimit", 1)
@@ -189,9 +184,7 @@ class TaskSpec:
         if not isinstance(title, str) or not title.strip():
             raise WorkflowError(f"{task_id}.title must be a non-empty string")
         if len(title.strip()) > _MAX_TEXT_LENGTH:
-            raise WorkflowError(
-                f"{task_id}.title cannot exceed {_MAX_TEXT_LENGTH} characters"
-            )
+            raise WorkflowError(f"{task_id}.title cannot exceed {_MAX_TEXT_LENGTH} characters")
         depends_on = _as_string_list(data.get("dependsOn", []), f"{task_id}.dependsOn")
         if task_id in depends_on:
             raise WorkflowError(f"{task_id} cannot depend on itself")
@@ -201,9 +194,7 @@ class TaskSpec:
         )
         forbidden_paths = tuple(
             normalize_scope_path(path, f"{task_id}.forbiddenPaths")
-            for path in _as_string_list(
-                data.get("forbiddenPaths", []), f"{task_id}.forbiddenPaths"
-            )
+            for path in _as_string_list(data.get("forbiddenPaths", []), f"{task_id}.forbiddenPaths")
         )
         if len({path.casefold() for path in write_set}) != len(write_set):
             raise WorkflowError(f"{task_id}.writeSet contains duplicate normalized paths")
@@ -302,14 +293,18 @@ class TaskGraph:
     tasks: tuple[TaskSpec, ...]
     policy: WorkflowPolicy = field(default_factory=WorkflowPolicy)
     schema_version: int = 1
+    generated_from: str | None = None
+    source_digest: str | None = None
+    route_digest: str | None = None
+    execution_spec_digest: str | None = None
 
     @classmethod
     def from_dict(cls, data: Any) -> TaskGraph:
         if not isinstance(data, dict):
             raise WorkflowError("task graph must be a JSON object")
         schema_version = data.get("schemaVersion")
-        if schema_version != 1:
-            raise WorkflowError("schemaVersion must be 1")
+        if schema_version not in {1, 2}:
+            raise WorkflowError("schemaVersion must be 1 or 2")
         workflow_id = data.get("workflowId")
         if not isinstance(workflow_id, str) or not _WORKFLOW_ID.fullmatch(workflow_id):
             raise WorkflowError(
@@ -330,11 +325,35 @@ class TaskGraph:
             missing = sorted(set(task.depends_on) - known)
             if missing:
                 raise WorkflowError(f"{task.id} has unknown dependencies: {', '.join(missing)}")
+        generated_from = data.get("generatedFrom")
+        source_digest = data.get("sourceDigest")
+        route_binding = data.get("routeBinding")
+        route_digest = None
+        execution_spec_digest = None
+        if schema_version == 2:
+            if generated_from != "tasks.md":
+                raise WorkflowError("schema-version-2 generatedFrom must be tasks.md")
+            if not isinstance(source_digest, str) or not _SHA256.fullmatch(source_digest):
+                raise WorkflowError("schema-version-2 sourceDigest must be a SHA-256 digest")
+            if not isinstance(route_binding, dict):
+                raise WorkflowError("schema-version-2 routeBinding must be an object")
+            route_digest = route_binding.get("routeDigest")
+            execution_spec_digest = route_binding.get("executionSpecDigest")
+            if not isinstance(route_digest, str) or not _SHA256.fullmatch(route_digest):
+                raise WorkflowError("routeBinding.routeDigest must be a SHA-256 digest")
+            if not isinstance(execution_spec_digest, str) or not _SHA256.fullmatch(
+                execution_spec_digest
+            ):
+                raise WorkflowError("routeBinding.executionSpecDigest must be a SHA-256 digest")
         graph = cls(
             workflow_id=workflow_id,
             tasks=tasks,
             policy=WorkflowPolicy.from_dict(data.get("policy", {})),
             schema_version=schema_version,
+            generated_from=generated_from,
+            source_digest=source_digest,
+            route_digest=route_digest,
+            execution_spec_digest=execution_spec_digest,
         )
         graph._validate_acyclic()
         return graph
@@ -344,9 +363,7 @@ class TaskGraph:
         try:
             size = os.stat(path).st_size
             if size > _MAX_GRAPH_BYTES:
-                raise WorkflowError(
-                    f"task graph exceeds the {_MAX_GRAPH_BYTES}-byte input limit"
-                )
+                raise WorkflowError(f"task graph exceeds the {_MAX_GRAPH_BYTES}-byte input limit")
             with open(path, encoding="utf-8-sig") as handle:
                 return cls.from_dict(json.load(handle))
         except json.JSONDecodeError as exc:
@@ -377,12 +394,26 @@ class TaskGraph:
         return {task.id: task for task in self.tasks}
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result: dict[str, Any] = {
             "schemaVersion": self.schema_version,
             "workflowId": self.workflow_id,
             "policy": self.policy.to_dict(),
             "tasks": [task.to_dict() for task in self.tasks],
         }
+        if self.schema_version == 2:
+            result = {
+                "schemaVersion": self.schema_version,
+                "workflowId": self.workflow_id,
+                "generatedFrom": self.generated_from,
+                "sourceDigest": self.source_digest,
+                "routeBinding": {
+                    "routeDigest": self.route_digest,
+                    "executionSpecDigest": self.execution_spec_digest,
+                },
+                "policy": self.policy.to_dict(),
+                "tasks": [task.to_dict() for task in self.tasks],
+            }
+        return result
 
     @property
     def digest(self) -> str:

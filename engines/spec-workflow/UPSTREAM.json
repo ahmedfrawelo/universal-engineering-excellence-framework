@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "project": "GitHub Spec Kit",
   "repository": "https://github.com/github/spec-kit",
   "release": "v0.16.1",
@@ -8,8 +8,8 @@
   "license": "MIT",
   "snapshotPath": "upstream/spec-kit",
   "snapshotFileCount": 130,
-  "snapshotAggregateSha256": "ae2282a939ad1680bc72decea5db5e49367ea1ebcb7e608d0e13586cb9efc82b",
-  "aggregateAlgorithm": "sha256(sorted(relative-posix-path + NUL + raw-bytes))",
+  "snapshotAggregateSha256": "ca409eb97ddce5d38d8bccd665c27331bc9d6dff1773731204d41d25443765ff",
+  "aggregateAlgorithm": "sha256(sorted-utf8(uint32be(path-length) + path-utf8 + uint64be(content-length) + raw-bytes))",
   "included": [
     "LICENSE",
     "README.upstream.md",

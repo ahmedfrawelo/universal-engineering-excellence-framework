@@ -33,6 +33,8 @@ class TeamManagerTests(unittest.TestCase):
             {contract.worker for contract in report.contracts},
             {"backend-worker", "frontend-worker"},
         )
+        self.assertEqual(report.decision.assignment_mode, "host-catalog-validated")
+        self.assertTrue(report.decision.to_dict()["capabilityVerified"])
 
     def test_incompatible_worker_emits_wait_action_not_contract(self) -> None:
         subject = graph(task("TASK-001", capabilities=["security"]))
@@ -41,10 +43,13 @@ class TeamManagerTests(unittest.TestCase):
         )
         self.assertEqual(report.contracts, ())
         self.assertEqual(report.actions[-1].kind, "WAIT_FOR_WORKER")
+        self.assertEqual(report.decision.assignment_mode, "host-catalog-partial")
+        self.assertFalse(report.decision.to_dict()["capabilityVerified"])
 
     def test_failed_attempt_emits_durable_reroute_guidance(self) -> None:
         subject = graph(task("TASK-001", capabilities=["backend"]))
         state = ExecutionState.new(subject)
+        state.reserve_wave([("TASK-001", "previous")], 1)
         state.transition(subject, "TASK-001", "start", worker="previous")
         state.transition(subject, "TASK-001", "fail", worker="previous", error="host lost")
         with tempfile.TemporaryDirectory() as directory:
@@ -81,6 +86,7 @@ class TeamManagerTests(unittest.TestCase):
             {action.task_id for action in report.actions if action.kind == "DEFER_PHASE"},
             {"VERIFY-001", "INTEGRATE-001"},
         )
+        state.reserve_wave([("TASK-001", "backend")], 1)
         state.transition(subject, "TASK-001", "start", worker="backend")
         state.transition(subject, "TASK-001", "complete", worker="backend", evidence="done")
         report = TeamManager(subject).plan(
@@ -91,6 +97,7 @@ class TeamManagerTests(unittest.TestCase):
             ),
         )
         self.assertEqual([contract.task_id for contract in report.contracts], ["VERIFY-001"])
+        state.reserve_wave([("VERIFY-001", "reviewer")], 1)
         state.transition(subject, "VERIFY-001", "start", worker="reviewer")
         state.transition(subject, "VERIFY-001", "complete", worker="reviewer", evidence="reviewed")
         report = TeamManager(subject).plan(
@@ -109,9 +116,57 @@ class TeamManagerTests(unittest.TestCase):
             self.assertEqual(store.load(subject).tasks["TASK-001"].status, TaskStatus.RESERVED)
             self.assertEqual(store.load(subject).tasks["TASK-001"].assigned_worker, "backend")
 
+    def test_commit_preserves_total_desired_team_size_with_existing_worker(self) -> None:
+        subject = graph(
+            task("TASK-001", capabilities=["backend"], priority=10),
+            task("TASK-002", capabilities=["backend"]),
+            maxWorkers=2,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            store = StateStore(Path(directory) / "state.json")
+            state = ExecutionState.new(subject)
+            state.reserve_wave([("TASK-001", "active")], 1)
+            store.save(state)
+            report = TeamManager(subject).manage_persisted(
+                store,
+                workers(
+                    {"id": "active", "capabilities": ["backend"]},
+                    {"id": "new", "capabilities": ["backend"]},
+                ),
+                commit=True,
+            )
+            persisted = store.load(subject)
+            self.assertEqual(report.decision.desired_workers, 2)
+            self.assertEqual(persisted.team_size_target, 2)
+
     def test_rejects_invalid_worker_catalog(self) -> None:
         with self.assertRaisesRegex(WorkflowError, "schemaVersion"):
             TeamManager.parse_workers({"workers": []})
+
+    def test_commit_steals_unstarted_reservation_from_unavailable_worker(self) -> None:
+        subject = graph(task("TASK-001", capabilities=["backend"]))
+        with tempfile.TemporaryDirectory() as directory:
+            store = StateStore(Path(directory) / "state.json")
+            state = ExecutionState.new(subject)
+            state.reserve_wave([("TASK-001", "dead-worker")], 1)
+            prior_attempt = state.tasks["TASK-001"].attempt_id
+            prior_fence = state.tasks["TASK-001"].fencing_token
+            store.save(state)
+            report = TeamManager(subject).manage_persisted(
+                store,
+                workers(
+                    {"id": "dead-worker", "capabilities": ["backend"], "available": False},
+                    {"id": "replacement", "capabilities": ["backend"]},
+                ),
+                commit=True,
+            )
+            run = store.load(subject).tasks["TASK-001"]
+            self.assertEqual(run.status, TaskStatus.RESERVED)
+            self.assertEqual(run.assigned_worker, "replacement")
+            self.assertNotEqual(run.attempt_id, prior_attempt)
+            self.assertNotEqual(run.fencing_token, prior_fence)
+            self.assertIn("WORK_STEAL", [action.kind for action in report.actions])
+            self.assertEqual(report.contracts[0].worker, "replacement")
 
 
 if __name__ == "__main__":

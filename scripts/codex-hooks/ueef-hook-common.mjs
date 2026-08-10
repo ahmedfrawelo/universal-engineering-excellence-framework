@@ -13,6 +13,98 @@ export function sha256Text(value) {
   return crypto.createHash('sha256').update(String(value), 'utf8').digest('hex');
 }
 
+export function hostRoutePathsFromPrompt(prompt) {
+  const encoded = String(prompt || '').match(/^UEEF_HOST_ROUTE_INHERIT_V1:([A-Za-z0-9_-]+)\r?$/mu)?.[1];
+  if (!encoded) return null;
+  try {
+    const value = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8'));
+    if (!value || typeof value.routePath !== 'string' || typeof value.claimPath !== 'string') return null;
+    if (!path.isAbsolute(value.routePath) || !path.isAbsolute(value.claimPath)) return null;
+    return { routePath: value.routePath, claimPath: value.claimPath };
+  } catch { return null; }
+}
+
+export function inheritValidatedHostRoute(
+  state,
+  routePath,
+  claimPath,
+  trustedRoutePath = process.env.UEEF_VALIDATED_HOST_ROUTE,
+  trustedClaimPath = process.env.UEEF_VALIDATED_HOST_ROUTE_CLAIM
+) {
+  if (!routePath || !claimPath) {
+    if (state.hostRouteEnvelopeObserved) state.hostRouteInheritanceError = 'ENVELOPE_NOT_PARSED';
+    return state;
+  }
+  if (!trustedRoutePath || !trustedClaimPath) {
+    state.hostRouteInheritanceError = 'HOST_ROUTE_ENV_MISSING';
+    return state;
+  }
+  if (routePath !== trustedRoutePath || claimPath !== trustedClaimPath) {
+    state.hostRouteInheritanceError = 'HOST_ROUTE_ENV_MISMATCH';
+    return state;
+  }
+  if (!fs.existsSync(routePath)) { state.hostRouteInheritanceError = 'ROUTE_NOT_FOUND'; return state; }
+  let route;
+  try { route = JSON.parse(fs.readFileSync(routePath, 'utf8')); } catch { state.hostRouteInheritanceError = 'ROUTE_UNREADABLE'; return state; }
+  const catalogIdentity = (route.catalogCoverage || []).map((entry) => ({
+    model: entry.model,
+    hidden: entry.hidden,
+    capabilityClass: entry.capabilityClass,
+    supportedReasoningEfforts: entry.supportedReasoningEfforts,
+    defaultReasoningEffort: entry.defaultReasoningEffort,
+    upgrade: entry.upgrade
+  }));
+  const catalogDigest = sha256Text(JSON.stringify(catalogIdentity));
+  const routeDigest = sha256Text(JSON.stringify({
+    tier: route.tier,
+    workUnitId: route.workUnitId || null,
+    invocationIndex: route.invocationIndex ?? 0,
+    preferredModel: route.preferredModel,
+    hostReasoning: route.hostReasoning,
+    fallbackModel: route.fallbackModel || null,
+    fallbackHostReasoning: route.fallbackHostReasoning || null,
+    tokenEconomy: route.tokenEconomy || null,
+    catalogDigest: route.catalogDigest,
+    catalogProvider: route.catalogProvider,
+    catalogDiscoveredAt: route.catalogDiscoveredAt
+  }));
+  const discoveredAt = Date.parse(route.catalogDiscoveredAt || '');
+  const selectedModel = state.pickerModel === route.preferredModel
+    ? route.preferredModel
+    : state.pickerModel === route.fallbackModel ? route.fallbackModel : null;
+  if (route.accountCatalogVerified !== true || route.catalogFresh !== true || route.catalogContractValid !== true) { state.hostRouteInheritanceError = 'CATALOG_NOT_VERIFIED'; return state; }
+  if (route.catalogProvider !== 'codex-app-server:model/list' || route.catalogDigest !== catalogDigest) { state.hostRouteInheritanceError = 'CATALOG_IDENTITY_INVALID'; return state; }
+  if (route.routeDigest !== routeDigest) { state.hostRouteInheritanceError = 'ROUTE_DIGEST_INVALID'; return state; }
+  if (!selectedModel) { state.hostRouteInheritanceError = 'MODEL_MISMATCH'; return state; }
+  if (!Number.isFinite(discoveredAt) || Date.now() - discoveredAt > 10 * 60 * 1000 || discoveredAt - Date.now() > 60_000) { state.hostRouteInheritanceError = 'ROUTE_STALE'; return state; }
+  if (route.tokenEconomy?.specRequired === true) {
+    if (!route.executionSpec?.digest) { state.hostRouteInheritanceError = 'EXECUTION_SPEC_MISSING'; return state; }
+    const { digest, ...body } = route.executionSpec;
+    if (digest !== sha256Text(JSON.stringify(body))) { state.hostRouteInheritanceError = 'EXECUTION_SPEC_INVALID'; return state; }
+  }
+  let claimHandle;
+  try {
+    claimHandle = fs.openSync(claimPath, 'wx');
+    fs.writeFileSync(claimHandle, `${route.routeDigest}\n`, 'utf8');
+  } catch { state.hostRouteInheritanceError = 'ROUTE_ALREADY_CLAIMED'; return state; }
+  finally { if (claimHandle !== undefined) fs.closeSync(claimHandle); }
+  state.route = {
+    ...route,
+    actualModel: selectedModel,
+    actualHostReasoning: selectedModel === route.fallbackModel ? route.fallbackHostReasoning : route.hostReasoning,
+    actualDisplayReasoning: selectedModel === route.fallbackModel ? route.fallbackHostReasoning : route.displayReasoning,
+    capacityFallbackUsed: selectedModel === route.fallbackModel,
+    modelRouteVerified: true,
+    inheritedHostDispatch: true,
+    routeLine: route.routeLine || `Model route: ${route.workUnitId} | ${route.preferredModel} / ${route.displayReasoning || route.hostReasoning} (host: ${route.hostReasoning})`
+  };
+  state.executionSpec = route.executionSpec || null;
+  state.validations.executionSpec = route.tokenEconomy?.specRequired !== true || Boolean(route.executionSpec?.digest);
+  state.validations.modelDispatch = true;
+  state.hostRouteInheritanceError = null;
+  return state;
+}
+
 export function safeId(value) {
   const text = String(value || 'missing');
   return /^[A-Za-z0-9._-]{1,128}$/.test(text) ? text : sha256Text(text).slice(0, 32);
