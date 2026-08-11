@@ -1,6 +1,8 @@
 # UEEF Project Handoff
 
-> **Current handoff:** [`docs/handoffs/2026-08-09-dynamic-runtime-repair.md`](handoffs/2026-08-09-dynamic-runtime-repair.md) for the schema-v2 dynamic runtime repair and model-route deadlock fix.
+> **Current handoff:** [`docs/handoffs/2026-08-11-orchestration-repair.md`](handoffs/2026-08-11-orchestration-repair.md) for the current orchestration repair branch, green draft PR, installed runtime state, exact Spec Kit boundaries, and receiving-task instructions.
+>
+> The preceding schema-v2 dynamic-runtime handoff remains at [`docs/handoffs/2026-08-09-dynamic-runtime-repair.md`](handoffs/2026-08-09-dynamic-runtime-repair.md).
 >
 > Everything below is the preserved 2026-08-02 legacy snapshot. Use it only for historical context; current command output and the current handoff above are authoritative.
 
