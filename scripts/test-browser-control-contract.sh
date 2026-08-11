@@ -39,11 +39,11 @@ for term in 'dedicated task tab' 'browser-control session' 'Do not ask the user 
   grep -Fq "$term" "$ROOT/framework/18-runtime-operations/02-browser-session-control/14-automatic-tab-ownership-recovery.md" || { echo "Missing automatic ownership-recovery term: $term" >&2; exit 1; }
 done
 
-for term in 'connector-created Chrome window' 'repair-chrome-tab-ownership.ps1' 'VERIFIED_HANDOFF' 'non-visual tests can continue' 'keep visual verification explicitly pending'; do
-  grep -Fq "$term" "$ROOT/UEEF-LOADER.md" || { echo "Missing loader browser-continuation term: $term" >&2; exit 1; }
+for term in 'Browser hard stop' 'dedicated task tab' 'in-app browser' 'framework/18-runtime-operations/02-browser-session-control'; do
+  grep -Fq "$term" "$ROOT/UEEF-LOADER.md" || { echo "Compact loader missing browser invariant or canonical-owner pointer: $term" >&2; exit 1; }
 done
 
-for file in "$ROOT/UEEF-LOADER.md" "$ROOT/scripts/sync-runtime.ps1" "$ROOT/framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md"; do
+for file in "$ROOT/framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md"; do
   for term in 'HARD FAIL BEFORE ANY BROWSER TOOL' 'get-ueef-task-preflight.ps1' 'browserGate' 'do not select a browser tool' 'mcp__node_repl__js' 'claimTab()' 'tab.playwright'; do
     grep -Fq "$term" "$file" || { echo "Missing mandatory pre-tool browser gate term $term in $file" >&2; exit 1; }
   done
