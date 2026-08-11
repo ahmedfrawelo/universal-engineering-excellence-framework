@@ -29,7 +29,8 @@ function Invoke-TestRuntimeSync {
     [string]$SyncCodexHome = $codexHome,
     [string]$SyncAgent = 'codex',
     [switch]$WithValidation,
-    [switch]$TestFailAfterState
+    [switch]$TestFailAfterState,
+    [switch]$TestFailRollbackCleanup
   )
   $syncParams = @{
     SourcePath = $SyncSourcePath
@@ -39,6 +40,7 @@ function Invoke-TestRuntimeSync {
   }
   if (!$WithValidation) { $syncParams.SkipValidation = $true }
   if ($TestFailAfterState) { $syncParams.TestFailAfterState = $true }
+  if ($TestFailRollbackCleanup) { $syncParams.TestFailRollbackCleanup = $true }
   & (Join-Path $root 'scripts\sync-runtime.ps1') @syncParams | Out-Null
 }
 
@@ -177,9 +179,25 @@ try {
     if (!($runtimeLinkMismatches | Where-Object { $_ -like 'Unsafe runtime reparse point:*' })) { throw 'Runtime drift accepted a reparse point inside the runtime.' }
   } finally { if (Test-Path -LiteralPath $runtimeLink) { [IO.Directory]::Delete($runtimeLink) } }
   $syncText = Get-Content -LiteralPath (Join-Path $root 'scripts\sync-runtime.ps1') -Raw
-  foreach ($term in @('stagingPath','rollbackPath','Copy-UeefReleaseFiles','validate-framework.ps1')) {
+  foreach ($term in @('stagingPath','rollbackPath','Copy-UeefReleaseFiles','validate-framework.ps1','[IO.Directory]::Move')) {
     if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime sync is missing transactional control: $term" }
   }
+  $atomicProbeRoot = Join-Path $sandbox 'atomic-directory-move-probe'
+  $atomicProbeSource = Join-Path $atomicProbeRoot 'source'
+  $atomicProbeTarget = Join-Path $atomicProbeRoot 'target'
+  New-Item -ItemType Directory -Path $atomicProbeSource -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $atomicProbeSource 'first.txt') -Value 'first'
+  $lockedProbePath = Join-Path $atomicProbeSource 'locked.txt'
+  Set-Content -LiteralPath $lockedProbePath -Value 'locked'
+  $lockedProbe = [IO.File]::Open($lockedProbePath, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::None)
+  try {
+    $atomicMoveRejected = $false
+    try { [IO.Directory]::Move($atomicProbeSource, $atomicProbeTarget) } catch { $atomicMoveRejected = $true }
+    if (!$atomicMoveRejected -or !(Test-Path -LiteralPath (Join-Path $atomicProbeSource 'first.txt')) -or
+        !(Test-Path -LiteralPath $lockedProbePath) -or (Test-Path -LiteralPath $atomicProbeTarget)) {
+      throw 'Atomic directory rename did not fail without partially moving the locked source.'
+    }
+  } finally { $lockedProbe.Dispose() }
   $statePath = Join-Path $codexHome 'ueef\UEEF-ACTIVE.json'
   $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
   if ($state.agent -ne 'codex' -or $state.requireAgents -ne $true) { throw 'Active state did not preserve the Codex agent and RequireAgents contract.' }
@@ -223,6 +241,15 @@ try {
   if ([IO.File]::ReadAllText($managedRequirementsPath, [Text.Encoding]::UTF8) -cne $managedRequirementsBeforeRollback) { throw 'Runtime sync did not restore managed requirements.' }
   $managedHookHashesAfterRollback = @($state.managedEnforcement.hookFiles | ForEach-Object { (Get-FileHash -LiteralPath (Join-Path $managedHooksPath ([string]$_.relativePath)) -Algorithm SHA256).Hash })
   if (($managedHookHashesAfterRollback -join ',') -cne ($managedHookHashesBeforeRollback -join ',')) { throw 'Runtime sync did not restore managed hook payload.' }
+  $previousWarningPreference = $WarningPreference
+  try {
+    $WarningPreference = 'Stop'
+    Invoke-TestRuntimeSync -TestFailRollbackCleanup
+  } finally { $WarningPreference = $previousWarningPreference }
+  if (!(Test-Path -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md')) -or
+      !(Test-Path -LiteralPath (Join-Path $runtime 'scripts\ueef-status.ps1'))) {
+    throw 'Committed runtime was removed after rollback cleanup failure.'
+  }
   $freshCodexHome = Join-Path $sandbox 'fresh-codex-home'
   Initialize-FakeSkillInstaller $freshCodexHome
   $freshRollbackTriggered = $false

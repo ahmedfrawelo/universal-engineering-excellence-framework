@@ -1,9 +1,11 @@
 # Agent and Model Routing Checklist
 
 - [ ] Route tier recorded.
+- [ ] `Mode`, `Spec`, and `Team` are visible with reasons before substantial work.
+- [ ] Any spawned team has a current user, platform-policy, or task-instruction authorization source.
 - [ ] Visible pre-command route line recorded.
 - [ ] Child agent identity and bounded ownership recorded when spawned.
-- [ ] No-spawn reason is explicit: NO_INDEPENDENT_WORK, CRITICAL_PATH_ONLY, or TOOL_UNAVAILABLE.
+- [ ] No-spawn reason is explicit: NO_INDEPENDENT_WORK, CRITICAL_PATH_ONLY, TOOL_UNAVAILABLE, or AUTHORIZATION_REQUIRED.
 - [ ] Risk floor checked.
 - [ ] Capability and effort position resolved from `config/model-routing-policy.json`; concrete model and per-model effort resolved from the live host catalog.
 - [ ] Concrete names and each model's efforts came from the signed-in host catalog, not repository constants.

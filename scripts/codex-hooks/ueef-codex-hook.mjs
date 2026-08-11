@@ -52,6 +52,54 @@ function currentContext(routeCommand = '') {
   return context;
 }
 
+function durableSpecRequired(state) {
+  return ['T3', 'T4'].includes(String(state.route?.tier)) ||
+    state.route?.durableSpecRequired === true ||
+    state.route?.tokenEconomy?.durableSpecRequired === true ||
+    state.executionSpec?.durableSpecRequired === true;
+}
+
+function executionPolicyLine(state) {
+  const decision = state.route?.decision || {};
+  const mode = state.freeMode?.active === true ? 'FREE-MODE' : decision.mode || 'IMPLEMENTATION';
+  const spec = decision.spec || (durableSpecRequired(state) ? 'FULL_REQUIRED' : state.route?.tokenEconomy?.specRequired === true ? 'LIGHT' : 'NONE');
+  const team = decision.team || 'AUTHORIZATION_REQUIRED';
+  const scope = decision.delegationScope || 'NONE';
+  const teamReason = decision.teamReason || 'ROUTE_DECISION_MISSING';
+  return `Execution policy: Mode=${mode} | Spec=${spec} | Team=${team}/${scope} (${teamReason})`;
+}
+
+function independentVerifierContractValid(taskName, message) {
+  if (String(taskName || '') !== 'independent_review') return false;
+  let contract;
+  try { contract = JSON.parse(String(message || '')); } catch { return false; }
+  if (!contract || typeof contract !== 'object' || Array.isArray(contract)) return false;
+  const keys = Object.keys(contract).sort();
+  const expectedKeys = ['checks', 'kind', 'objective', 'readOnly', 'schemaVersion'];
+  if (JSON.stringify(keys) !== JSON.stringify(expectedKeys)) return false;
+  if (contract.schemaVersion !== 1 || contract.kind !== 'UEEF_INDEPENDENT_REVIEW' || contract.readOnly !== true) return false;
+  if (contract.objective !== 'CURRENT_WORKTREE_DIFF') return false;
+  const allowedChecks = new Set(['ARCHITECTURE', 'CLAIM_ACCURACY', 'CORRECTNESS', 'SECURITY', 'TEST_EVIDENCE']);
+  return Array.isArray(contract.checks) && contract.checks.length > 0 && contract.checks.length <= allowedChecks.size && new Set(contract.checks).size === contract.checks.length && contract.checks.every((item) => allowedChecks.has(item));
+}
+
+function durableSpecAuthoringMutation(toolName, event, toolInput) {
+  if (!(/apply_patch/iu.test(String(toolName)) || /tools\.apply_patch\s*\(/u.test(toolInput))) return false;
+  const patchText = /apply_patch/iu.test(String(toolName))
+    ? String(event.tool_input?.command || event.tool_input?.patch || toolInput)
+    : toolInput;
+  const paths = [...patchText.matchAll(/^\s*\*{3}\s+(?:Add|Update)\s+File:\s*(.+?)\s*$/gimu)].map((match) => match[1]);
+  if (paths.length === 0 || /^\s*\*{3}\s+Delete\s+File:/imu.test(patchText)) return false;
+  const cwd = path.resolve(String(event.cwd || process.cwd()));
+  const specRoot = path.join(cwd, '.ueef', 'specs');
+  const inside = (candidate) => {
+    const resolved = path.resolve(cwd, candidate);
+    const relative = path.relative(specRoot, resolved);
+    return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+  };
+  return paths.every(inside);
+}
+
 function onSessionStart(event) {
   try { cleanupHookState({ currentSessionId: event.session_id }); } catch { /* Maintenance must never block a session. */ }
   return {continue:true,hookSpecificOutput:{hookEventName:'SessionStart',additionalContext:currentContext()}};
@@ -117,6 +165,23 @@ function isIsolatedDirectDispatcher(toolName, event) {
   return samePath(invoked, installedRecorder) && /--execute-route\s+/iu.test(command);
 }
 
+function isolatedSpecValidator(command, cwd) {
+  if (!command || hasUnquotedShellControl(command)) return null;
+  const words = command.match(/"[^"]*"|'[^']*'|\S+/gu)?.map((word) => word.replace(/^(["'])|(["'])$/gu, '')) || [];
+  if (words[0] === '&') words.shift();
+  if (words.length !== 7) return null;
+  const samePath = (left, right) => process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right;
+  const expected = path.resolve(String(cwd || process.cwd()), 'scripts', 'validate-spec-workflow.ps1');
+  if (!samePath(path.resolve(String(cwd || process.cwd()), words[0]), expected)) return null;
+  const values = new Map();
+  for (let index = 1; index < words.length; index += 2) {
+    const flag = String(words[index] || '').toLowerCase();
+    if (!['-path', '-mode', '-routepath'].includes(flag) || values.has(flag) || !words[index + 1]) return null;
+    values.set(flag, words[index + 1]);
+  }
+  return values.size === 3 ? values : null;
+}
+
 function isEconomicalLeadRead(toolName, event, tier) {
   if (!['T0', 'T1'].includes(String(tier))) return false;
   if (/^(?:view_image|codex_app__read_thread_terminal)$/iu.test(String(toolName))) return true;
@@ -177,6 +242,7 @@ function onPreToolUse(event) {
   if (!freeModeActive && !state.route?.modelRouteVerified) return preToolDeny('UEEF dynamic model route is missing. Publish Intent, Tier, Agent route, Browser reason, model, and effort, then run the injected record-ueef-route.mjs command with a fresh host catalog before using local tools.');
   if (!freeModeActive && state.route.tokenEconomy?.specRequired === true && (state.validations.executionSpec !== true || !state.executionSpec?.digest)) return preToolDeny('T2+ execution requires the managed execution spec created by the validated route recorder.');
   if (!freeModeActive && state.route.inheritedHostDispatch !== true && !assistantMessageContains(event.transcript_path, state.route.routeLine)) return preToolDeny(`Publish this exact route before execution: ${state.route.routeLine}`);
+  if (!freeModeActive && mutation && !assistantMessageContains(event.transcript_path, executionPolicyLine(state))) return preToolDeny(`Publish this exact execution policy before mutation: ${executionPolicyLine(state)}`);
   const directModelDispatch = /codex-app-server-dispatch\.mjs/iu.test(toolInput) || /record-ueef-route\.mjs[\s\S]*--execute-route\s+/iu.test(toolInput);
   // App Server routes and collaboration workers are separate model channels.
   // A worker may use only the model identifiers exposed by the collaboration
@@ -188,6 +254,15 @@ function onPreToolUse(event) {
   const hostNativeLead = ['T0', 'T1'].includes(String(state.route?.tier));
   if (/(create_thread|fork_thread)/iu.test(toolName) && state.authorizations?.newUserTask !== true) return preToolDeny('Creating a user-visible Codex task requires an explicit current-prompt request for a new task. Use ephemeral routed execution or an internal worker instead.');
   const workerDispatch = state.validations.modelDispatch === true && /(create_thread|spawn_agent)/iu.test(toolName);
+  if (/spawn_agent/iu.test(toolName) && (state.route?.decision?.team !== 'SPAWN' || state.route?.decision?.delegationAuthorized !== true || !['USER', 'PLATFORM_POLICY', 'TASK_INSTRUCTION'].includes(String(state.route?.decision?.delegationAuthorizationSource || '')))) return preToolDeny('Worker dispatch requires a current route with explicit delegation authorization and a trusted authorization source.');
+  if (/spawn_agent/iu.test(toolName) && state.route?.decision?.delegationScope === 'INDEPENDENT_VERIFIER') {
+    const workerName = String(event.tool_input?.task_name || '');
+    const workerMessage = String(event.tool_input?.message || '');
+    const forkTurns = String(event.tool_input?.fork_turns || '');
+    if (!independentVerifierContractValid(workerName, workerMessage) || forkTurns !== 'none') {
+      return preToolDeny('Platform policy authorizes only task_name=independent_review, fork_turns=none, and a schema-version-1 UEEF_INDEPENDENT_REVIEW JSON contract with readOnly=true and bounded review checks; implementation workers require user or task authorization.');
+    }
+  }
   if (!freeModeActive && workerDispatch && Number(state.workerDispatchCount || 0) >= Number(state.route.tokenEconomy?.maxWorkerCount ?? 0)) return preToolDeny(`Worker dispatch exceeds the ${state.route.tokenEconomy?.maxWorkerCount ?? 0}-worker budget for ${state.route.tier}.`);
   if (!freeModeActive && !hostNativeLead && state.validations.modelDispatch !== true && !directModelDispatch && !hostModelDispatch && !goalLifecycleTool && !economicalLeadRead) return preToolDeny('Execute the current validated model route before using mutation or non-read task tools. Goal lifecycle controls and T0/T1 host-native execution remain available without a duplicate dispatch.');
   if (!freeModeActive && state.validations.modelDispatch === true && state.route.actualLine && !assistantMessageContains(event.transcript_path, state.route.actualLine)) return preToolDeny(`Publish the verified actual sub-agent execution before continuing: ${state.route.actualLine}`);
@@ -208,6 +283,9 @@ function onPreToolUse(event) {
     const dispatchedReasoning = String(event.tool_input?.thinking || event.tool_input?.reasoning_effort || '');
     if (!dispatchedModel || !dispatchedReasoning) return preToolDeny('Model-aware dispatch requires explicit model and reasoning from the current validated UEEF route.');
     if (dispatchedModel !== state.route.preferredModel || dispatchedReasoning !== state.route.hostReasoning) return preToolDeny(`Dispatch does not match validated work-unit route ${state.route.preferredModel}/${state.route.hostReasoning}.`);
+  }
+  if (!freeModeActive && mutation && !durableSpecAuthoringMutation(toolName, event, toolInput) && durableSpecRequired(state) && (state.validations.durableSpec !== true || state.durableSpec?.routeDigest !== state.route.routeDigest || state.durableSpec?.executionSpecDigest !== state.executionSpec?.digest)) {
+    return preToolDeny('Mutation requires a Ready durable Full Spec validated against the current managed route. Run validate-spec-workflow.ps1 -Path <spec> -Mode Ready -RoutePath <current route artifact>.');
   }
   if (!freeModeActive && state.frontendLikely === true && mutation && state.validations.frontendRouting !== true) return preToolDeny('Frontend mutation requires a passing select-frontend-route.mjs result before editing.');
   if (toolName === 'update_goal') {
@@ -234,10 +312,31 @@ function onPostToolUse(event) {
     state.toolsUsed = Number(state.toolsUsed || 0) + 1;
     if (goalCreated) state.goalTask = true;
     if (mutation && !responseFailed(response)) state.frontendMutation = state.frontendLikely === true;
+    if (mutation && !responseFailed(response) && durableSpecAuthoringMutation(toolName, event, toolInput)) {
+      state.validations.durableSpec = false;
+      delete state.durableSpec;
+    }
     const frontendPolicy = loadPolicy().frontendEnforcement || {};
     if (regex(frontendPolicy.routeCommandPattern || 'select-frontend-route\\.mjs').test(toolInput) && !responseFailed(response) && /"applies"\s*:\s*true/iu.test(response)) state.validations.frontendRouting = true;
     if (regex(frontendPolicy.evidenceCommandPattern || 'validate-frontend-execution-evidence\\.mjs').test(toolInput) && !responseFailed(response) && /FRONTEND_EXECUTION_EVIDENCE:\s*PASS/iu.test(response)) state.validations.frontendExecutionEvidence = true;
     if (!passed) return;
+    const shellCommand = shellCommandFromTool(toolName, event);
+    const specValidator = isolatedSpecValidator(shellCommand, event.cwd || event.tool_input?.workdir);
+    if (specValidator && /Spec workflow:\s*PASS\s*\(Ready,/iu.test(response)) {
+      const specPath = specValidator.get('-path');
+      const routePath = specValidator.get('-routepath');
+      const mode = specValidator.get('-mode');
+      const samePath = (left, right) => process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right;
+      let safeSpec = false;
+      try {
+        const resolvedSpec = path.resolve(String(event.cwd || event.tool_input?.workdir || process.cwd()), specPath || '');
+        safeSpec = Boolean(specPath) && fs.existsSync(resolvedSpec) && fs.lstatSync(resolvedSpec).isDirectory() && !fs.lstatSync(resolvedSpec).isSymbolicLink();
+        if (safeSpec && mode === 'Ready' && routePath && samePath(path.resolve(String(event.cwd || event.tool_input?.workdir || process.cwd()), routePath), path.resolve(state.route?.routeOutput || ''))) {
+          state.validations.durableSpec = true;
+          state.durableSpec = { schemaVersion: 1, workflowPath: resolvedSpec, routeDigest: state.route.routeDigest, executionSpecDigest: state.executionSpec?.digest || null, validatedAtUtc: new Date().toISOString() };
+        }
+      } catch { /* Invalid or racing artifact paths fail closed. */ }
+    }
     if (/ueef-status\.ps1/iu.test(toolInput) && /Overall:\s*ACTIVE/iu.test(response) && /Runtime drift:\s*PASS/iu.test(response) && /Runtime source revision:\s*PASS/iu.test(response)) state.validations.runtime = true;
     if (/validate-task-evidence\.ps1/iu.test(toolInput) && /(\bstatus\s*[:=]\s*PASS|"status"\s*:\s*"PASS")/iu.test(response)) state.validations.taskEvidence = true;
     if (/validate-fresh-review-evidence\.ps1/iu.test(toolInput) && /FRESH_REVIEW_EVIDENCE:\s*PASS/iu.test(response)) state.validations.freshReview = true;

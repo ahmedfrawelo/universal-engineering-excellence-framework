@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { commitReservedWorkUnitInvocation, hookRoot, peekWorkUnitInvocation, readTurnState, releaseWorkUnitInvocationReservation, reserveWorkUnitInvocation, safeId, sha256Text, stateRoot, updateTurnState } from './ueef-hook-common.mjs';
+import { assertTurnOwner, commitReservedWorkUnitInvocation, hookRoot, peekWorkUnitInvocation, readTurnState, releaseWorkUnitInvocationReservation, reserveWorkUnitInvocation, safeId, sha256Text, stateRoot, updateTurnState } from './ueef-hook-common.mjs';
 
 const args = process.argv.slice(2);
 const value = (name) => {
@@ -25,6 +25,7 @@ if (executeRoute) {
   if (!prompt.trim() || Buffer.byteLength(prompt, 'utf8') > 256 * 1024) throw new Error('--prompt must contain 1-262144 UTF-8 bytes.');
   const state = readTurnState(sessionId, turnId);
   if (!state?.route?.modelRouteVerified) throw new Error('No verified route exists for the requested UEEF turn.');
+  assertTurnOwner(state, sessionId);
   if (path.resolve(state.route.routeOutput || '') !== routePath) throw new Error('Dispatch route path does not match the current UEEF turn route.');
   if (!fs.existsSync(routePath) || !fs.lstatSync(routePath).isFile() || fs.lstatSync(routePath).isSymbolicLink()) throw new Error('Dispatch route is missing or unsafe.');
   const route = JSON.parse(fs.readFileSync(routePath, 'utf8'));
@@ -87,6 +88,7 @@ if (closureEvidence) {
   const completionAuditPath = path.resolve(value('--completion-audit'));
   const state = readTurnState(sessionId, turnId);
   if (!state?.validations?.modelDispatch || !['T3', 'T4'].includes(String(state.route?.tier))) throw new Error('Closure validation requires a verified T3/T4 host dispatch.');
+  assertTurnOwner(state, sessionId);
   for (const file of [taskEvidencePath, freshReviewPath, completionAuditPath]) {
     if (!fs.existsSync(file) || !fs.lstatSync(file).isFile() || fs.lstatSync(file).isSymbolicLink()) throw new Error(`Closure evidence is missing or unsafe: ${file}`);
   }
@@ -144,6 +146,8 @@ const nonGoals = optional('--non-goals');
 const modelCatalog = optional('--model-catalog');
 const routeOutput = optional('--route-output');
 const specialistPurpose = optional('--specialist-purpose');
+const catalogTimeoutMs = 15_000;
+const resolverProcessGraceMs = 10_000;
 
 if (!/^T[0-4]$/.test(tier)) throw new Error(`Invalid tier: ${tier}`);
 for (const [name, item] of Object.entries({ workUnitId, intent, agentRoute, browserReason })) {
@@ -159,6 +163,7 @@ if (['T2', 'T3', 'T4'].includes(tier)) {
 
 const stateBefore = readTurnState(sessionId, turnId);
 if (!stateBefore) throw new Error('No current UEEF turn state exists. Submit the prompt through the managed UserPromptSubmit hook first.');
+assertTurnOwner(stateBefore, sessionId);
 if (has('--use-current-model') && stateBefore.authorizations?.useCurrentModel !== true) throw new Error('Current-model constraint was not explicitly authorized by the current prompt.');
 if (has('--allow-model-constraint-override') && stateBefore.authorizations?.allowModelConstraintOverride !== true) throw new Error('Model-constraint override was not explicitly authorized by the current prompt.');
 if (has('--allow-exceed') && stateBefore.authorizations?.allowAboveHigh !== true) throw new Error('Above-high reasoning was not explicitly authorized by the current prompt.');
@@ -169,6 +174,7 @@ const localPolicy = path.join(hookRoot, 'model-routing-policy.json');
 const policy = fs.existsSync(localPolicy) ? localPolicy : path.join(hookRoot, '..', '..', 'config', 'model-routing-policy.json');
 const invocationIndex = peekWorkUnitInvocation(sessionId, workUnitId);
 const resolverArgs = [resolver, '--tier', tier, '--policy', policy];
+resolverArgs.push('--catalog-timeout-ms', String(catalogTimeoutMs));
 resolverArgs.push('--work-unit-id', workUnitId);
 resolverArgs.push('--invocation-index', String(invocationIndex));
 if (modelCatalog) resolverArgs.push('--catalog', modelCatalog);
@@ -190,12 +196,29 @@ if (reasoningOverride) resolverArgs.push('--reasoning-override', reasoningOverri
 if (has('--allow-exceed') || stateBefore.authorizations?.allowAboveHigh === true) resolverArgs.push('--allow-exceed');
 if (has('--allow-model-constraint-override') || stateBefore.authorizations?.allowModelConstraintOverride === true) resolverArgs.push('--allow-model-constraint-override');
 
-const modelRoute = JSON.parse(execFileSync(process.execPath, resolverArgs, { encoding: 'utf8', timeout: 20_000 }));
+const modelRoute = JSON.parse(execFileSync(process.execPath, resolverArgs, {
+  encoding: 'utf8',
+  timeout: catalogTimeoutMs + resolverProcessGraceMs,
+  windowsHide: true
+}));
 const effectiveReasoning = modelRoute.displayReasoning || modelRoute.hostReasoning || modelRoute.reasoning || null;
 const testRoute = modelRoute.testCatalogAllowed === true && has('--allow-test-catalog');
 if ((!testRoute && (modelRoute.accountCatalogVerified !== true || modelRoute.catalogFresh !== true || modelRoute.catalogContractValid !== true)) || !modelRoute.preferredModel || !modelRoute.hostReasoning) {
   throw new Error(`Model route is unresolved or not backed by a fresh validated host catalog: ${modelRoute.modelAvailability}`);
 }
+const reviewIntent = /(?:review|audit|inspect|diagnos|report|analyse|analyze|راجع|افحص|شخص|تقرير)/iu.test(intent);
+const implementationIntent = /(?:implement|fix|change|build|create|migrate|release|deploy|نفذ|اصلح|عدل|انش)/iu.test(intent);
+const mode = reviewIntent && !implementationIntent ? 'REVIEW' : 'IMPLEMENTATION';
+const spec = ['T3', 'T4'].includes(tier) ? 'FULL_REQUIRED' : modelRoute.tokenEconomy?.specRequired === true ? 'LIGHT' : 'NONE';
+const specReason = spec === 'FULL_REQUIRED' ? 'FULL_SPEC_REQUIRED_BY_SCOPE_OR_RISK' : spec === 'LIGHT' ? 'EXECUTION_SPEC_REQUIRED' : 'TIER_DOES_NOT_REQUIRE_SPEC';
+const userDelegationAuthorized = stateBefore.authorizations?.delegation === true;
+const policyVerifierAuthorized = tier === 'T4' && !userDelegationAuthorized;
+const delegationAuthorized = userDelegationAuthorized || policyVerifierAuthorized;
+const delegationAuthorizationSource = userDelegationAuthorized ? 'USER' : policyVerifierAuthorized ? 'PLATFORM_POLICY' : 'NONE';
+const delegationScope = userDelegationAuthorized ? 'WORKERS' : policyVerifierAuthorized ? 'INDEPENDENT_VERIFIER' : 'NONE';
+const team = Number(modelRoute.tokenEconomy?.maxWorkerCount || 0) > 0 && delegationAuthorized ? 'SPAWN' : Number(modelRoute.tokenEconomy?.maxWorkerCount || 0) > 0 ? 'AUTHORIZATION_REQUIRED' : 'NONE';
+const teamReason = userDelegationAuthorized ? 'USER_AUTHORIZED' : policyVerifierAuthorized ? 'MANDATORY_FRESH_REVIEW' : team === 'AUTHORIZATION_REQUIRED' ? 'AUTHORIZATION_REQUIRED' : 'NO_INDEPENDENT_WORK';
+const decision = { mode, spec, specReason, team, teamReason, delegationAuthorized, delegationAuthorizationSource, delegationScope };
 const routeDigest = sha256Text(JSON.stringify({
   tier,
   workUnitId,
@@ -205,6 +228,7 @@ const routeDigest = sha256Text(JSON.stringify({
   fallbackModel: modelRoute.fallbackModel || null,
   fallbackHostReasoning: modelRoute.fallbackHostReasoning || null,
   tokenEconomy: modelRoute.tokenEconomy,
+  decision,
   catalogDigest: modelRoute.catalogDigest,
   catalogProvider: modelRoute.catalogProvider,
   catalogDiscoveredAt: modelRoute.catalogDiscoveredAt
@@ -243,6 +267,8 @@ const routeChanged = routeHasMeaningfulChange && (
 );
 
 updateTurnState(sessionId, turnId, (state) => {
+  assertTurnOwner(state, sessionId);
+  if (state.promptSha256 !== stateBefore.promptSha256) throw new Error('UEEF turn state changed while resolving the model route.');
   const previous = state.route;
   state.route = {
     tier,
@@ -259,6 +285,7 @@ updateTurnState(sessionId, turnId, (state) => {
     catalogDigest: modelRoute.catalogDigest,
     specialistPurpose: modelRoute.specialistPurpose || null,
     tokenEconomy: modelRoute.tokenEconomy,
+    decision,
     eligibleSelectionPool: modelRoute.eligibleSelectionPool || [],
     distributionIndex: modelRoute.distributionIndex,
     catalogProvider: modelRoute.catalogProvider,
@@ -290,6 +317,7 @@ const routeLine = routeChanged
     routeRevision,
     routeChanged,
     routeLine,
+    decision,
     executionSpec
   }, null, 2)}\n`, { flag: routeOutput ? 'wx' : 'w' });
 }
@@ -307,6 +335,7 @@ process.stdout.write(`${JSON.stringify({
   routeRevision,
   routeChanged,
   routeLine,
+  decision,
   preferredModel: modelRoute.preferredModel,
   displayReasoning: effectiveReasoning,
   hostReasoning: modelRoute.hostReasoning,

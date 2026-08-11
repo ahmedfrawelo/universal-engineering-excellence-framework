@@ -14,16 +14,36 @@ _MAX_STEPS = 500
 _MAX_LOOP = 20
 _MAX_OVERLAYS = 64
 _MAX_EDITS = 100
+_MAX_DOCUMENT_BYTES = 1024 * 1024
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _WORKFLOW_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$")
 _SEMVER = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 _SOURCE_RANK = {"core": 0, "extension": 1, "preset": 2, "project": 3}
+_STEP_FIELDS = {
+    "task": frozenset({"type", "id", "title"}),
+    "if": frozenset({"type", "condition", "then", "else"}),
+    "fan-out": frozenset({"type", "branches"}),
+    "fan-in": frozenset({"type", "id"}),
+    "while": frozenset({"type", "condition", "maxIterations", "steps"}),
+    "do-while": frozenset({"type", "condition", "maxIterations", "steps"}),
+}
+
+
+def _require_bounded_json(value: Any, label: str) -> None:
+    try:
+        encoded = json.dumps(value, separators=(",", ":")).encode()
+    except (TypeError, ValueError, RecursionError) as error:
+        raise WorkflowError(f"{label} must be an acyclic JSON document") from error
+    if len(encoded) > _MAX_DOCUMENT_BYTES:
+        raise WorkflowError(f"{label} exceeds the 1048576-byte limit")
 
 
 def adapt_safe_workflow(
-    document: Any, *, adapter: str, context: dict[str, bool] | None = None
+    document: Any, *, adapter: str, context: dict[str, bool | list[bool]] | None = None
 ) -> dict[str, Any]:
     """Normalize a supported authoring format into the non-executable UEEF IR."""
+
+    _require_bounded_json(document, "workflow")
 
     if adapter == "ueef-native/v1":
         if not isinstance(document, dict) or document.get("schemaVersion") != 1:
@@ -92,10 +112,11 @@ def compose_safe_workflow(
     overlays: Any,
     *,
     adapter: str = "ueef-native/v1",
-    context: dict[str, bool] | None = None,
+    context: dict[str, bool | list[bool]] | None = None,
 ) -> dict[str, Any]:
     """Apply deterministic, bounded anchor edits and return a digest-bound expanded plan."""
 
+    _require_bounded_json(overlays, "workflow overlays")
     normalized = adapt_safe_workflow(document, adapter=adapter, context=context)
     workflow_id = normalized.get("workflowId")
     raw_overlays = overlays if overlays is not None else []
@@ -208,16 +229,26 @@ def compose_safe_workflow(
 
 
 def expand_safe_workflow(
-    document: Any, context: dict[str, bool] | None = None
+    document: Any, context: dict[str, bool | list[bool]] | None = None
 ) -> list[dict[str, Any]]:
     if not isinstance(document, dict) or document.get("schemaVersion") != 1:
         raise WorkflowError("safe workflow schemaVersion must be 1")
     context = context or {}
+
+    def valid_context_value(value: Any) -> bool:
+        return isinstance(value, bool) or (
+            isinstance(value, list)
+            and 1 <= len(value) <= _MAX_LOOP
+            and all(isinstance(item, bool) for item in value)
+        )
+
     if len(context) > 100 or any(
-        not isinstance(name, str) or not _ID.fullmatch(name) or not isinstance(value, bool)
+        not isinstance(name, str) or not _ID.fullmatch(name) or not valid_context_value(value)
         for name, value in context.items()
     ):
-        raise WorkflowError("workflow context must contain at most 100 named booleans")
+        raise WorkflowError(
+            "workflow context must contain at most 100 named booleans or bounded boolean sequences"
+        )
     result: list[dict[str, Any]] = []
 
     def expand(steps: Any, prefix: str = "", incoming: tuple[str, ...] = ()) -> tuple[str, ...]:
@@ -232,6 +263,14 @@ def expand_safe_workflow(
             kind = step.get("type", "task")
             if kind in {"shell", "command", "prompt"}:
                 raise WorkflowError(f"unsafe workflow step is forbidden: {kind}")
+            allowed_fields = _STEP_FIELDS.get(kind)
+            if allowed_fields is None:
+                raise WorkflowError(f"unsupported safe workflow step: {kind}")
+            unknown_fields = sorted(set(step) - allowed_fields)
+            if unknown_fields:
+                raise WorkflowError(
+                    f"{kind} step contains unsupported fields: {', '.join(unknown_fields)}"
+                )
             if kind == "task":
                 task_id = step.get("id")
                 if not isinstance(task_id, str) or not _ID.fullmatch(task_id):
@@ -239,17 +278,26 @@ def expand_safe_workflow(
                 full_id = prefix + task_id
                 if len(full_id) > 128:
                     raise WorkflowError("expanded task id exceeds 128 characters")
+                title = step.get("title", task_id)
+                if not isinstance(title, str) or not title.strip() or len(title) > 200:
+                    raise WorkflowError(
+                        "task title must be a non-empty string up to 200 characters"
+                    )
                 result.append(
                     {
                         "id": full_id,
-                        "title": step.get("title", task_id),
+                        "title": title,
                         "dependsOn": list(frontier),
                     }
                 )
                 frontier = (full_id,)
             elif kind == "if":
                 condition = step.get("condition")
-                if not isinstance(condition, str) or condition not in context:
+                if (
+                    not isinstance(condition, str)
+                    or condition not in context
+                    or not isinstance(context[condition], bool)
+                ):
                     raise WorkflowError("if step condition must name a supplied boolean")
                 frontier = expand(
                     step.get("then" if context[condition] else "else", []), prefix, frontier
@@ -290,13 +338,24 @@ def expand_safe_workflow(
                 if not isinstance(body, list):
                     raise WorkflowError("loop steps must be an array")
                 condition_value = True if condition is None else context[condition]
-                bounded_iterations = (
-                    iterations if condition_value else (1 if kind == "do-while" else 0)
-                )
-                for iteration in range(1, bounded_iterations + 1):
-                    frontier = expand(body, f"{prefix}I{iteration}-", frontier)
-            else:
-                raise WorkflowError(f"unsupported safe workflow step: {kind}")
+                if isinstance(condition_value, bool):
+                    bounded_iterations = (
+                        iterations if condition_value else (1 if kind == "do-while" else 0)
+                    )
+                    for iteration in range(1, bounded_iterations + 1):
+                        frontier = expand(body, f"{prefix}I{iteration}-", frontier)
+                else:
+                    for iteration in range(1, iterations + 1):
+                        condition_index = iteration - 1 if kind == "while" else iteration - 2
+                        should_continue = (
+                            True
+                            if kind == "do-while" and iteration == 1
+                            else condition_index < len(condition_value)
+                            and condition_value[condition_index]
+                        )
+                        if not should_continue:
+                            break
+                        frontier = expand(body, f"{prefix}I{iteration}-", frontier)
         return frontier
 
     expand(document.get("steps"))

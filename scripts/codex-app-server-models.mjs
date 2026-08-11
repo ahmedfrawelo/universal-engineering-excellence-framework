@@ -5,6 +5,9 @@ const args = process.argv.slice(2);
 const valueAfter = (flag) => { const i = args.indexOf(flag); return i === -1 ? null : args[i + 1] || null; };
 const { executable, executableSource } = resolveCodexExecutable(valueAfter('--executable'));
 const timeoutMs = Number(valueAfter('--timeout-ms') || 15000);
+if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300_000) {
+  throw new Error('--timeout-ms requires an integer from 1 to 300000.');
+}
 const includeHidden = !args.includes('--picker-visible-only');
 let child;
 try {

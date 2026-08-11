@@ -8,6 +8,11 @@ param(
   [string]$RiskFloor = 'None',
   [switch]$CodeChange,
   [switch]$DelegationBenefit,
+  [switch]$DelegationAuthorized,
+  [ValidateSet('NONE','USER','PLATFORM_POLICY','TASK_INSTRUCTION')]
+  [string]$DelegationAuthorizationSource = 'NONE',
+  [ValidateSet('Auto','Review','Implementation')]
+  [string]$ExecutionMode = 'Auto',
   [ValidateRange(1,16)][int]$IndependentWorkstreams = 1,
   [switch]$AgentsUnavailable,
   [switch]$ModelsUnavailable,
@@ -25,6 +30,10 @@ param(
   [switch]$Json
 )
 $ErrorActionPreference = 'Stop'
+
+if ($DelegationAuthorized.IsPresent -xor ($DelegationAuthorizationSource -ne 'NONE')) {
+  throw 'Delegation authorization requires both -DelegationAuthorized and a non-NONE -DelegationAuthorizationSource.'
+}
 
 $root = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($ModelPolicyPath)) { $ModelPolicyPath = Join-Path $root 'config\model-routing-policy.json' }
@@ -63,16 +72,25 @@ if ($AllowModelConstraintOverride) { $resolverArgs += '--allow-model-constraint-
 if ($SpecialistPurpose) { $resolverArgs += @('--specialist-purpose', $SpecialistPurpose) }
 $modelRoute = & node @resolverArgs | ConvertFrom-Json
 $reasoning = $modelRoute.reasoning
-$spawnAgents = !$AgentsUnavailable -and ($DelegationBenefit.IsPresent -or $tier -eq 'T4')
+$delegationRequested = $DelegationBenefit.IsPresent -or $tier -eq 'T4'
+$delegationAuthorizationValid = $DelegationAuthorized.IsPresent -and $DelegationAuthorizationSource -ne 'NONE'
+$spawnAgents = !$AgentsUnavailable -and $delegationRequested -and $delegationAuthorizationValid
 $topology = if (!$spawnAgents) {
   'single-agent'
+} elseif ($DelegationAuthorizationSource -eq 'PLATFORM_POLICY') {
+  'lead-plus-independent-verifier'
 } elseif ($tier -eq 'T2' -or $IndependentWorkstreams -eq 1) {
   if ($tier -eq 'T4') { 'lead-plus-independent-verifier' } else { 'lead-plus-sidecar' }
 } else {
   $topologies[$tier]
 }
 $preferredModel = $modelRoute.preferredModel
-$noSpawnReason = if ($spawnAgents) { $null } elseif ($CodeChange -and $AgentsUnavailable) { 'TOOL_UNAVAILABLE' } elseif ($tier -in @('T0','T1')) { 'NO_INDEPENDENT_WORK' } else { 'CRITICAL_PATH_ONLY' }
+$noSpawnReason = if ($spawnAgents) { $null } elseif ($delegationRequested -and $AgentsUnavailable) { 'TOOL_UNAVAILABLE' } elseif ($delegationRequested -and !$delegationAuthorizationValid) { 'AUTHORIZATION_REQUIRED' } elseif ($tier -in @('T0','T1')) { 'NO_INDEPENDENT_WORK' } else { 'CRITICAL_PATH_ONLY' }
+$resolvedExecutionMode = if ($ExecutionMode -eq 'Auto') { if ($CodeChange) { 'IMPLEMENTATION' } else { 'REVIEW' } } else { $ExecutionMode.ToUpperInvariant() }
+$specMode = $modelPolicy.visibleDecisionContract.specModeByTier.$tier
+$specReason = if ($specMode -eq 'NONE') { 'TIER_DOES_NOT_REQUIRE_SPEC' } elseif ($specMode -eq 'LIGHT') { 'EXECUTION_SPEC_REQUIRED' } else { 'FULL_SPEC_REQUIRED_BY_SCOPE_OR_RISK' }
+$teamMode = if ($spawnAgents) { 'SPAWN' } elseif ($noSpawnReason -eq 'AUTHORIZATION_REQUIRED') { 'AUTHORIZATION_REQUIRED' } else { 'NONE' }
+$teamReason = if ($spawnAgents) { 'AUTHORIZED_POSITIVE_DELEGATION_BENEFIT' } else { $noSpawnReason }
 $freshReviewMode = if ($tier -eq 'T4') { 'FRESH_CONTEXT_REQUIRED' } elseif ($tier -eq 'T3') { 'FRESH_CONTEXT_RECOMMENDED' } else { 'NONE' }
 $result = [ordered]@{
   schemaVersion = 4
@@ -114,7 +132,15 @@ $result = [ordered]@{
   currentModelConstraintApplied = $modelRoute.currentModelConstraintApplied
   currentModelConstraintOverridden = $modelRoute.currentModelConstraintOverridden
   topology = $topology
+  mode = $resolvedExecutionMode
+  spec = $specMode
+  specReason = $specReason
+  team = $teamMode
+  teamReason = $teamReason
   delegationBenefit = $DelegationBenefit.IsPresent
+  delegationAuthorized = $delegationAuthorizationValid
+  delegationAuthorizationSource = if ($delegationAuthorizationValid) { $DelegationAuthorizationSource } else { 'NONE' }
+  delegationScope = if (!$delegationAuthorizationValid) { 'NONE' } elseif ($DelegationAuthorizationSource -eq 'PLATFORM_POLICY') { 'INDEPENDENT_VERIFIER' } else { 'WORKERS' }
   codeChange = $CodeChange.IsPresent
   independentWorkstreams = $IndependentWorkstreams
   agentsAvailable = !$AgentsUnavailable

@@ -25,6 +25,12 @@ const invocationIndex = invocationIndexRaw == null ? 0 : Number(invocationIndexR
 const useCurrentModel = has('--use-current-model');
 const allowModelConstraintOverride = has('--allow-model-constraint-override');
 const allowExceed = has('--allow-exceed');
+const catalogTimeoutMs = Number(valueAfter('--catalog-timeout-ms') || 15000);
+const catalogProcessGraceMs = 5000;
+
+if (!Number.isInteger(catalogTimeoutMs) || catalogTimeoutMs < 1 || catalogTimeoutMs > 300_000) {
+  throw new Error('--catalog-timeout-ms requires an integer from 1 to 300000.');
+}
 
 const emit = (value) => {
   const serialized = `${JSON.stringify(value, null, outputPath ? 2 : 0)}\n`;
@@ -116,9 +122,17 @@ const readJson = (file, fallback) => fs.existsSync(file) ? JSON.parse(fs.readFil
 let discoveryError = null;
 const discoverLiveCatalog = () => {
   try {
-    return JSON.parse(execFileSync(process.execPath, [path.join(here, 'codex-app-server-models.mjs')], { encoding: 'utf8', timeout: 20_000 }));
+    return JSON.parse(execFileSync(process.execPath, [
+      path.join(here, 'codex-app-server-models.mjs'),
+      '--timeout-ms', String(catalogTimeoutMs)
+    ], {
+      encoding: 'utf8',
+      timeout: catalogTimeoutMs + catalogProcessGraceMs,
+      windowsHide: true
+    }));
   } catch (error) {
-    discoveryError = error.message;
+    const stderr = String(error.stderr || '').trim();
+    discoveryError = stderr || error.message;
     return null;
   }
 };
@@ -337,6 +351,17 @@ const resolvedRoute = {
 };
 if (workUnitId && resolvedRoute.preferredModel && resolvedRoute.hostReasoning) {
   resolvedRoute.workUnitId = workUnitId;
+  const spec = ['T3', 'T4'].includes(tier) ? 'FULL_REQUIRED' : resolvedRoute.tokenEconomy?.specRequired === true ? 'LIGHT' : 'NONE';
+  resolvedRoute.decision = {
+    mode: 'IMPLEMENTATION',
+    spec,
+    specReason: `${tier} route policy`,
+    team: Number(resolvedRoute.tokenEconomy?.maxWorkerCount || 0) > 0 ? 'AUTHORIZATION_REQUIRED' : 'NONE',
+    teamReason: Number(resolvedRoute.tokenEconomy?.maxWorkerCount || 0) > 0 ? 'Explicit delegation authorization is required before spawning workers.' : 'The route has no worker budget.',
+    delegationAuthorized: false,
+    delegationAuthorizationSource: 'NONE',
+    delegationScope: 'NONE'
+  };
   resolvedRoute.routeDigest = crypto.createHash('sha256').update(JSON.stringify({
     tier,
     workUnitId,
@@ -346,6 +371,7 @@ if (workUnitId && resolvedRoute.preferredModel && resolvedRoute.hostReasoning) {
     fallbackModel: resolvedRoute.fallbackModel || null,
     fallbackHostReasoning: resolvedRoute.fallbackHostReasoning || null,
     tokenEconomy: resolvedRoute.tokenEconomy,
+    decision: resolvedRoute.decision,
     catalogDigest: resolvedRoute.catalogDigest,
     catalogProvider: resolvedRoute.catalogProvider,
     catalogDiscoveredAt: resolvedRoute.catalogDiscoveredAt

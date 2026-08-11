@@ -14,18 +14,19 @@ function Assert-Route {
   }
 }
 
-Assert-Route @{} @{ schemaVersion=4; tier='T0'; reasoning='low'; displayReasoning='low'; hostReasoning='low'; preferredModel='gpt-5.3-codex-spark'; modelSelectionMode='TEST_ONLY_ROUTE'; fallbackModel='gpt-5.6-luna'; reasoningCeiling='high'; topology='single-agent'; spawnAgents=$false; catalogModelCount=8; generalModelCount=7 }
-Assert-Route @{ CodeChange=$true } @{ tier='T1'; preferredModel='gpt-5.6-luna'; reasoning='low'; modelSelectionMode='TEST_ONLY_ROUTE'; codeChange=$true; spawnAgents=$false; noSpawnReason='NO_INDEPENDENT_WORK'; routeEvidenceRequired=$true; invocationIndex=0; effortRotation='INVOCATION_CYCLE' }
-Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1 } @{ tier='T2'; preferredModel='gpt-5.4'; reasoning='low'; modelSelectionMode='TEST_ONLY_ROUTE'; topology='single-agent'; spawnAgents=$false }
-Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true } @{ tier='T2'; topology='lead-plus-sidecar'; spawnAgents=$true }
+Assert-Route @{} @{ schemaVersion=4; tier='T0'; mode='REVIEW'; spec='NONE'; team='NONE'; reasoning='low'; displayReasoning='low'; hostReasoning='low'; preferredModel='gpt-5.3-codex-spark'; modelSelectionMode='TEST_ONLY_ROUTE'; fallbackModel='gpt-5.6-luna'; reasoningCeiling='high'; topology='single-agent'; spawnAgents=$false; catalogModelCount=8; generalModelCount=7 }
+Assert-Route @{ CodeChange=$true } @{ tier='T1'; mode='IMPLEMENTATION'; spec='NONE'; team='NONE'; preferredModel='gpt-5.6-luna'; reasoning='low'; modelSelectionMode='TEST_ONLY_ROUTE'; codeChange=$true; spawnAgents=$false; noSpawnReason='NO_INDEPENDENT_WORK'; routeEvidenceRequired=$true; invocationIndex=0; effortRotation='INVOCATION_CYCLE' }
+Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1 } @{ tier='T2'; mode='REVIEW'; spec='LIGHT'; specReason='EXECUTION_SPEC_REQUIRED'; preferredModel='gpt-5.4'; reasoning='low'; modelSelectionMode='TEST_ONLY_ROUTE'; topology='single-agent'; spawnAgents=$false }
+Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true } @{ tier='T2'; topology='single-agent'; team='AUTHORIZATION_REQUIRED'; spawnAgents=$false; noSpawnReason='AUTHORIZATION_REQUIRED' }
+Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true; DelegationAuthorized=$true; DelegationAuthorizationSource='USER' } @{ tier='T2'; topology='lead-plus-sidecar'; team='SPAWN'; delegationAuthorized=$true; delegationAuthorizationSource='USER'; delegationScope='WORKERS'; spawnAgents=$true }
 Assert-Route @{ RiskFloor='Authentication' } @{ tier='T3'; preferredModel='gpt-5.6-sol'; reasoning='low'; fallbackModel='gpt-5.5'; fallbackReasoning='low'; freshReviewMode='FRESH_CONTEXT_RECOMMENDED'; freshReviewRequired=$false }
-Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; preferredModel='gpt-5.6-sol'; reasoning='medium'; fallbackModel='gpt-5.5'; reasoningCeiling='high'; independentVerificationRequired=$true; freshReviewMode='FRESH_CONTEXT_REQUIRED'; freshReviewRequired=$true }
-Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true } @{ tier='T4'; topology='lead-plus-independent-verifier'; spawnAgents=$true }
-Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true; IndependentWorkstreams=2 } @{ tier='T4'; topology='lead-workers-independent-verifier'; spawnAgents=$true }
-Assert-Route @{ Scope=3; Ambiguity=3; Coupling=3; Risk=2; Verification=1; DelegationBenefit=$true; IndependentWorkstreams=1 } @{ tier='T3'; topology='lead-plus-sidecar' }
-Assert-Route @{ Scope=3; Ambiguity=3; Coupling=3; Risk=2; Verification=1; DelegationBenefit=$true; IndependentWorkstreams=2 } @{ tier='T3'; topology='parallel-specialists' }
-Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true; AgentsUnavailable=$true } @{ topology='single-agent'; spawnAgents=$false; agentsAvailable=$false }
-Assert-Route @{ CodeChange=$true; AgentsUnavailable=$true } @{ tier='T1'; spawnAgents=$false; agentsAvailable=$false; noSpawnReason='TOOL_UNAVAILABLE'; routeEvidenceRequired=$true }
+Assert-Route @{ RiskFloor='Privacy' } @{ tier='T4'; spec='FULL_REQUIRED'; team='AUTHORIZATION_REQUIRED'; preferredModel='gpt-5.6-sol'; reasoning='medium'; fallbackModel='gpt-5.5'; reasoningCeiling='high'; independentVerificationRequired=$true; freshReviewMode='FRESH_CONTEXT_REQUIRED'; freshReviewRequired=$true }
+Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true; DelegationAuthorized=$true; DelegationAuthorizationSource='TASK_INSTRUCTION' } @{ tier='T4'; topology='lead-plus-independent-verifier'; spawnAgents=$true }
+Assert-Route @{ RiskFloor='Payment'; DelegationBenefit=$true; DelegationAuthorized=$true; DelegationAuthorizationSource='TASK_INSTRUCTION'; IndependentWorkstreams=2 } @{ tier='T4'; topology='lead-workers-independent-verifier'; spawnAgents=$true }
+Assert-Route @{ Scope=3; Ambiguity=3; Coupling=3; Risk=2; Verification=1; DelegationBenefit=$true; DelegationAuthorized=$true; DelegationAuthorizationSource='PLATFORM_POLICY'; IndependentWorkstreams=1 } @{ tier='T3'; topology='lead-plus-independent-verifier'; delegationScope='INDEPENDENT_VERIFIER' }
+Assert-Route @{ Scope=3; Ambiguity=3; Coupling=3; Risk=2; Verification=1; DelegationBenefit=$true; DelegationAuthorized=$true; DelegationAuthorizationSource='PLATFORM_POLICY'; IndependentWorkstreams=2 } @{ tier='T3'; topology='lead-plus-independent-verifier'; delegationScope='INDEPENDENT_VERIFIER' }
+Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; DelegationBenefit=$true; AgentsUnavailable=$true } @{ topology='single-agent'; spawnAgents=$false; agentsAvailable=$false; noSpawnReason='TOOL_UNAVAILABLE' }
+Assert-Route @{ CodeChange=$true; AgentsUnavailable=$true } @{ tier='T1'; spawnAgents=$false; agentsAvailable=$false; noSpawnReason='NO_INDEPENDENT_WORK'; routeEvidenceRequired=$true }
 Assert-Route @{ RiskFloor='Authentication'; ModelsUnavailable=$true } @{ preferredModel=$null; modelAvailabilityMustBeVerified=$false }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; UseCurrentModel=$true; CurrentModel='gpt-5.6-luna' } @{ preferredModel='gpt-5.6-luna'; reasoning='low'; currentModelConstraintApplied=$true; currentModelConstraintOverridden=$false }
 Assert-Route @{ Scope=2; Ambiguity=2; Coupling=1; Risk=1; Verification=1; InvocationIndex=1 } @{ tier='T2'; reasoning='medium'; invocationIndex=1; effortRotation='INVOCATION_CYCLE' }
@@ -35,6 +36,9 @@ Assert-Route @{ RiskFloor='Privacy'; UseCurrentModel=$true; CurrentModel='gpt-5.
 $criticalRejected = $false
 try { & $selector -Risk 3 -Json | Out-Null } catch { $criticalRejected = $true }
 if (!$criticalRejected) { throw 'Risk 3 without RiskFloor must be rejected.' }
+$partialAuthorizationRejected = $false
+try { & $selector -DelegationAuthorized -ModelCatalogPath $catalog -TestModelCatalog -Json | Out-Null } catch { $partialAuthorizationRejected = $true }
+if (!$partialAuthorizationRejected) { throw 'Partial delegation authorization must be rejected.' }
 
 $root = Split-Path -Parent $PSScriptRoot
 $contractChecks = @{
@@ -66,9 +70,9 @@ foreach ($routeArgs in @(@{}, @{Scope=1;Ambiguity=1;Coupling=1;Risk=1;Verificati
 
 $bashPath = if (Test-Path 'C:\Program Files\Git\bin\bash.exe') { 'C:\Program Files\Git\bin\bash.exe' } else { '' }
 if ($bashPath) {
-  $psRoute = & $selector -RiskFloor Payment -DelegationBenefit -IndependentWorkstreams 2 -ModelCatalogPath $catalog -TestModelCatalog -Json | ConvertFrom-Json
+  $psRoute = & $selector -RiskFloor Payment -DelegationBenefit -DelegationAuthorized -DelegationAuthorizationSource USER -IndependentWorkstreams 2 -ModelCatalogPath $catalog -TestModelCatalog -Json | ConvertFrom-Json
   $shSelector = (Join-Path $PSScriptRoot 'select-agent-route.sh').Replace('\','/')
-  $shRoute = & $bashPath $shSelector --risk-floor Payment --delegation-benefit --independent-workstreams 2 --model-catalog $catalog --test-model-catalog | ConvertFrom-Json
+  $shRoute = & $bashPath $shSelector --risk-floor Payment --delegation-benefit --delegation-authorized --delegation-authorization-source USER --independent-workstreams 2 --model-catalog $catalog --test-model-catalog | ConvertFrom-Json
   $psProperties = @($psRoute.psobject.Properties.Name | Sort-Object)
   $shProperties = @($shRoute.psobject.Properties.Name | Sort-Object)
   if (($psProperties -join '|') -ne ($shProperties -join '|')) { throw 'PowerShell and Unix route schemas differ.' }
@@ -106,6 +110,15 @@ try {
 } finally {
   if (Test-Path -LiteralPath $integrationRoot) { Remove-Item -LiteralPath $integrationRoot -Recurse -Force }
 }
-& node (Join-Path $PSScriptRoot 'test-model-routing-policy.mjs') | Out-Null
+function Invoke-RequiredNodeTest([string]$Name) {
+  & node (Join-Path $PSScriptRoot $Name) | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    throw "Required Node regression failed: $Name (exit $LASTEXITCODE)"
+  }
+}
+
+Invoke-RequiredNodeTest 'test-model-routing-policy.mjs'
+Invoke-RequiredNodeTest 'test-routing-timeout-recovery.mjs'
+Invoke-RequiredNodeTest 'test-cross-agent-route-ownership.mjs'
 
 Write-Host 'Agent route tests passed'

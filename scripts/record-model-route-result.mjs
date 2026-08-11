@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { assertExecutionDecision } from './codex-hooks/ueef-hook-common.mjs';
 
 const args = process.argv.slice(2);
 const valueAfter = (flag) => { const i = args.indexOf(flag); return i === -1 ? null : args[i + 1] || null; };
@@ -16,6 +17,9 @@ const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const sha256File = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const sha256Object = (value) => crypto.createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
 const route = readJson(routePath);
+if (!(allowTestRoute && route.testCatalogAllowed === true && route.decision === undefined)) {
+  assertExecutionDecision(route.decision, 'Managed route', route);
+}
 const catalogIdentity = (route.catalogCoverage || []).map((entry) => ({
   model: entry.model,
   hidden: entry.hidden,
@@ -42,6 +46,7 @@ const routeIdentity = {
   fallbackModel: route.fallbackModel || null,
   fallbackHostReasoning: route.fallbackHostReasoning || null,
   tokenEconomy: route.tokenEconomy || null,
+  ...(route.decision === undefined ? {} : { decision: route.decision }),
   catalogDigest: route.catalogDigest || null,
   catalogProvider: route.catalogProvider,
   catalogDiscoveredAt: route.catalogDiscoveredAt
@@ -55,6 +60,7 @@ const computedRouteDigest = sha256Object({
   fallbackModel: route.fallbackModel || null,
   fallbackHostReasoning: route.fallbackHostReasoning || null,
   tokenEconomy: route.tokenEconomy || null,
+  ...(route.decision === undefined ? {} : { decision: route.decision }),
   catalogDigest: route.catalogDigest || null,
   catalogProvider: route.catalogProvider,
   catalogDiscoveredAt: route.catalogDiscoveredAt

@@ -34,6 +34,13 @@ _REQUIRED_FIELDS = frozenset(
 _DIGEST = re.compile(r"^[0-9a-f]{64}$")
 
 
+def _json_digest(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def _list(value: str) -> list[str]:
     if value.strip().casefold() in {"", "none"}:
         return []
@@ -160,6 +167,33 @@ def _route_values(route: Any) -> tuple[str, int, str, str, str]:
         raise WorkflowError("route.routeDigest must be a lowercase SHA-256 digest")
     if not isinstance(execution_digest, str) or not _DIGEST.fullmatch(execution_digest):
         raise WorkflowError("route.executionSpec.digest must be a lowercase SHA-256 digest")
+    assert isinstance(execution, dict)
+    execution_payload = {key: value for key, value in execution.items() if key != "digest"}
+    if _json_digest(execution_payload) != execution_digest:
+        raise WorkflowError("route.executionSpec.digest does not match its canonical content")
+    route_identity = {
+        "tier": route.get("tier"),
+        "workUnitId": route.get("workUnitId"),
+        "invocationIndex": route.get("invocationIndex"),
+        "preferredModel": route.get("preferredModel"),
+        "hostReasoning": route.get("hostReasoning"),
+        "fallbackModel": route.get("fallbackModel"),
+        "fallbackHostReasoning": route.get("fallbackHostReasoning"),
+        "tokenEconomy": route.get("tokenEconomy"),
+        "decision": route.get("decision"),
+        "catalogDigest": route.get("catalogDigest"),
+        "catalogProvider": route.get("catalogProvider"),
+        "catalogDiscoveredAt": route.get("catalogDiscoveredAt"),
+    }
+    nullable_identity_fields = {"fallbackModel", "fallbackHostReasoning"}
+    if any(
+        value is None
+        for key, value in route_identity.items()
+        if key not in nullable_identity_fields
+    ):
+        raise WorkflowError("route is missing canonical identity fields")
+    if _json_digest(route_identity) != route_digest:
+        raise WorkflowError("route.routeDigest does not match its canonical identity")
     return tier, workers, mode, route_digest, execution_digest
 
 

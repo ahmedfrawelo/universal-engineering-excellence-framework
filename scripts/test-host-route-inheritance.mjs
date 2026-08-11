@@ -22,13 +22,14 @@ try {
     preferredModel: 'primary-model', displayReasoning: 'medium', hostReasoning: 'medium',
     fallbackModel: null, fallbackHostReasoning: null,
     tokenEconomy: { specRequired: true, maxWorkerCount: 1 },
+    decision: { mode: 'IMPLEMENTATION', spec: 'LIGHT', specReason: 'T2 managed execution', team: 'SPAWN', teamReason: 'explicit user authorization', delegationAuthorized: true, delegationAuthorizationSource: 'USER', delegationScope: 'WORKERS' },
     executionSpec,
   };
   route.routeDigest = digest({
     tier: route.tier, workUnitId: route.workUnitId, invocationIndex: route.invocationIndex,
     preferredModel: route.preferredModel, hostReasoning: route.hostReasoning,
     fallbackModel: route.fallbackModel, fallbackHostReasoning: route.fallbackHostReasoning,
-    tokenEconomy: route.tokenEconomy, catalogDigest: route.catalogDigest,
+    tokenEconomy: route.tokenEconomy, decision: route.decision, catalogDigest: route.catalogDigest,
     catalogProvider: route.catalogProvider, catalogDiscoveredAt: route.catalogDiscoveredAt,
   });
   const routePath = path.join(sandbox, 'route.json');
@@ -70,6 +71,19 @@ try {
   if (previousTrustedClaim === undefined) delete process.env.UEEF_VALIDATED_HOST_ROUTE_CLAIM;
   else process.env.UEEF_VALIDATED_HOST_ROUTE_CLAIM = previousTrustedClaim;
 
+  const missingDecisionPath = path.join(sandbox, 'missing-decision.json');
+  const { decision: omittedDecision, ...missingDecisionRoute } = route;
+  missingDecisionRoute.routeDigest = digest({
+    tier: route.tier, workUnitId: route.workUnitId, invocationIndex: route.invocationIndex,
+    preferredModel: route.preferredModel, hostReasoning: route.hostReasoning,
+    fallbackModel: route.fallbackModel, fallbackHostReasoning: route.fallbackHostReasoning,
+    tokenEconomy: route.tokenEconomy, catalogDigest: route.catalogDigest,
+    catalogProvider: route.catalogProvider, catalogDiscoveredAt: route.catalogDiscoveredAt,
+  });
+  fs.writeFileSync(missingDecisionPath, JSON.stringify(missingDecisionRoute), 'utf8');
+  const missingDecisionClaim = path.join(sandbox, 'missing-decision.claim');
+  assert.equal(inheritValidatedHostRoute(state(), missingDecisionPath, missingDecisionClaim, missingDecisionPath, missingDecisionClaim).hostRouteInheritanceError, 'ROUTE_DECISION_INVALID');
+
   const fallbackRoute = { ...route, fallbackModel: 'fallback-model', fallbackHostReasoning: 'medium' };
   fallbackRoute.catalogCoverage = [...catalogCoverage, { ...catalogCoverage[0], model: 'fallback-model' }];
   fallbackRoute.catalogDigest = digest(fallbackRoute.catalogCoverage);
@@ -77,7 +91,7 @@ try {
     tier: fallbackRoute.tier, workUnitId: fallbackRoute.workUnitId, invocationIndex: fallbackRoute.invocationIndex,
     preferredModel: fallbackRoute.preferredModel, hostReasoning: fallbackRoute.hostReasoning,
     fallbackModel: fallbackRoute.fallbackModel, fallbackHostReasoning: fallbackRoute.fallbackHostReasoning,
-    tokenEconomy: fallbackRoute.tokenEconomy, catalogDigest: fallbackRoute.catalogDigest,
+    tokenEconomy: fallbackRoute.tokenEconomy, decision: fallbackRoute.decision, catalogDigest: fallbackRoute.catalogDigest,
     catalogProvider: fallbackRoute.catalogProvider, catalogDiscoveredAt: fallbackRoute.catalogDiscoveredAt,
   });
   const fallbackPath = path.join(sandbox, 'fallback.json');
@@ -102,6 +116,22 @@ try {
   fs.writeFileSync(tamperedPath, JSON.stringify({ ...route, hostReasoning: 'high' }), 'utf8');
   const tamperedClaim = path.join(sandbox, 'tampered.claim');
   assert.equal(inheritValidatedHostRoute(state(), tamperedPath, tamperedClaim, tamperedPath, tamperedClaim).route, null);
+  const decisionTamperedPath = path.join(sandbox, 'decision-tampered.json');
+  fs.writeFileSync(decisionTamperedPath, JSON.stringify({ ...route, decision: { ...route.decision, team: 'NONE' } }), 'utf8');
+  const decisionTamperedClaim = path.join(sandbox, 'decision-tampered.claim');
+  assert.equal(inheritValidatedHostRoute(state(), decisionTamperedPath, decisionTamperedClaim, decisionTamperedPath, decisionTamperedClaim).hostRouteInheritanceError, 'ROUTE_DECISION_INVALID');
+  const invalidDecisionPath = path.join(sandbox, 'invalid-decision.json');
+  const invalidDecision = { ...route, decision: { ...route.decision, delegationAuthorized: false } };
+  invalidDecision.routeDigest = digest({
+    tier: invalidDecision.tier, workUnitId: invalidDecision.workUnitId, invocationIndex: invalidDecision.invocationIndex,
+    preferredModel: invalidDecision.preferredModel, hostReasoning: invalidDecision.hostReasoning,
+    fallbackModel: invalidDecision.fallbackModel, fallbackHostReasoning: invalidDecision.fallbackHostReasoning,
+    tokenEconomy: invalidDecision.tokenEconomy, decision: invalidDecision.decision, catalogDigest: invalidDecision.catalogDigest,
+    catalogProvider: invalidDecision.catalogProvider, catalogDiscoveredAt: invalidDecision.catalogDiscoveredAt,
+  });
+  fs.writeFileSync(invalidDecisionPath, JSON.stringify(invalidDecision), 'utf8');
+  const invalidDecisionClaim = path.join(sandbox, 'invalid-decision.claim');
+  assert.equal(inheritValidatedHostRoute(state(), invalidDecisionPath, invalidDecisionClaim, invalidDecisionPath, invalidDecisionClaim).hostRouteInheritanceError, 'ROUTE_DECISION_INVALID');
   const modelClaim = path.join(sandbox, 'model.claim');
   assert.equal(inheritValidatedHostRoute({ ...state(), pickerModel: 'other-model' }, routePath, modelClaim, routePath, modelClaim).route, null);
   const stalePath = path.join(sandbox, 'stale.json');

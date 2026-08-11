@@ -49,6 +49,20 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
     { model: 'fallback-model', hidden: false, capabilityClass: 'fast', supportedReasoningEfforts: ['low'], defaultReasoningEffort: 'low', upgrade: null }
   ];
   const catalogDigest = crypto.createHash('sha256').update(JSON.stringify(catalogCoverage)).digest('hex');
+  const routeDigestFor = (value) => crypto.createHash('sha256').update(JSON.stringify({
+    tier: value.tier,
+    workUnitId: value.workUnitId,
+    invocationIndex: value.invocationIndex,
+    preferredModel: value.preferredModel,
+    hostReasoning: value.hostReasoning,
+    fallbackModel: value.fallbackModel,
+    fallbackHostReasoning: value.fallbackHostReasoning,
+    tokenEconomy: value.tokenEconomy,
+    decision: value.decision,
+    catalogDigest: value.catalogDigest,
+    catalogProvider: value.catalogProvider,
+    catalogDiscoveredAt: value.catalogDiscoveredAt
+  })).digest('hex');
   const executionSpec = { schemaVersion: 1, tier: 'T2', workUnitId: 'dispatch-fixture', promptSha256: 'prompt-digest', outcome: 'test dispatch', acceptanceCriteria: 'dispatch passes', ownerPaths: 'scripts', nonGoals: 'unrelated work', tokenEconomy: { specRequired: true, budgetMode: 'bounded', delegationPolicy: 'sidecar', maxWorkerCount: 1, workerOutputCap: { maxBullets: 12, maxWords: 250, longEvidenceStoredInArtifacts: true }, leadOwns: ['planning'], workerMayOwn: ['bounded-read'], forbiddenSavings: ['omit-required-acceptance-evidence'] }, requiredEvidence: ['test'], createdAtUtc: new Date().toISOString() };
   executionSpec.digest = crypto.createHash('sha256').update(JSON.stringify(executionSpec)).digest('hex');
   const route = {
@@ -67,9 +81,10 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
     fallbackModel: 'fallback-model',
     fallbackHostReasoning: 'low',
     tokenEconomy: executionSpec.tokenEconomy,
+    decision: { mode: 'IMPLEMENTATION', spec: 'LIGHT', specReason: 'T2 managed execution', team: 'SPAWN', teamReason: 'explicit test authorization', delegationAuthorized: true, delegationAuthorizationSource: 'TASK_INSTRUCTION', delegationScope: 'WORKERS' },
     executionSpec
   };
-  route.routeDigest = crypto.createHash('sha256').update(JSON.stringify({ tier: route.tier, workUnitId: route.workUnitId, invocationIndex: route.invocationIndex, preferredModel: route.preferredModel, hostReasoning: route.hostReasoning, fallbackModel: route.fallbackModel, fallbackHostReasoning: route.fallbackHostReasoning, tokenEconomy: route.tokenEconomy, catalogDigest: route.catalogDigest, catalogProvider: route.catalogProvider, catalogDiscoveredAt: route.catalogDiscoveredAt })).digest('hex');
+  route.routeDigest = routeDigestFor(route);
   fs.writeFileSync(routePath, JSON.stringify(route), 'utf8');
   const tamperedRoutePath = path.join(sandbox, 'tampered-route.json');
   fs.writeFileSync(tamperedRoutePath, JSON.stringify({ ...route, fallbackModel: 'tampered-model' }), 'utf8');
@@ -87,6 +102,45 @@ readline.createInterface({input:process.stdin}).on('line',(line)=>{
   ], { encoding: 'utf8', timeout: 20_000 });
   assert.notEqual(tamperedInvocation.status, 0);
   assert.match(`${tamperedInvocation.stderr}${tamperedInvocation.stdout}`, /route digest does not bind the complete route identity/u);
+  const inconsistentDecisionRoute = {
+    ...route,
+    decision: { ...route.decision, team: 'SPAWN', delegationAuthorized: false, delegationAuthorizationSource: 'NONE' }
+  };
+  inconsistentDecisionRoute.routeDigest = routeDigestFor(inconsistentDecisionRoute);
+  const inconsistentDecisionPath = path.join(sandbox, 'inconsistent-decision-route.json');
+  fs.writeFileSync(inconsistentDecisionPath, JSON.stringify(inconsistentDecisionRoute), 'utf8');
+  const inconsistentDecision = spawnSync(process.execPath, [
+    path.join(root, 'scripts', 'codex-app-server-dispatch.mjs'), '--route', inconsistentDecisionPath, '--prompt', 'test', '--cwd', root,
+    '--sandbox', 'read-only', '--timeout-ms', '10000', '--executable', process.execPath, '--executable-arg', fakeServer
+  ], { encoding: 'utf8', timeout: 20_000 });
+  assert.notEqual(inconsistentDecision.status, 0);
+  assert.match(`${inconsistentDecision.stderr}${inconsistentDecision.stdout}`, /invalid canonical execution decision/u);
+  const tierDecisionMismatchRoute = {
+    ...route,
+    decision: { ...route.decision, spec: 'FULL_REQUIRED' }
+  };
+  tierDecisionMismatchRoute.routeDigest = routeDigestFor(tierDecisionMismatchRoute);
+  const tierDecisionMismatchPath = path.join(sandbox, 'tier-decision-mismatch-route.json');
+  fs.writeFileSync(tierDecisionMismatchPath, JSON.stringify(tierDecisionMismatchRoute), 'utf8');
+  const tierDecisionMismatch = spawnSync(process.execPath, [
+    path.join(root, 'scripts', 'codex-app-server-dispatch.mjs'), '--route', tierDecisionMismatchPath, '--prompt', 'test', '--cwd', root,
+    '--sandbox', 'read-only', '--timeout-ms', '10000', '--executable', process.execPath, '--executable-arg', fakeServer
+  ], { encoding: 'utf8', timeout: 20_000 });
+  assert.notEqual(tierDecisionMismatch.status, 0);
+  assert.match(`${tierDecisionMismatch.stderr}${tierDecisionMismatch.stdout}`, /invalid canonical execution decision/u);
+  const invalidBudgetRoute = {
+    ...route,
+    tokenEconomy: { ...route.tokenEconomy, maxWorkerCount: 'one' }
+  };
+  invalidBudgetRoute.routeDigest = routeDigestFor(invalidBudgetRoute);
+  const invalidBudgetPath = path.join(sandbox, 'invalid-budget-route.json');
+  fs.writeFileSync(invalidBudgetPath, JSON.stringify(invalidBudgetRoute), 'utf8');
+  const invalidBudget = spawnSync(process.execPath, [
+    path.join(root, 'scripts', 'codex-app-server-dispatch.mjs'), '--route', invalidBudgetPath, '--prompt', 'test', '--cwd', root,
+    '--sandbox', 'read-only', '--timeout-ms', '10000', '--executable', process.execPath, '--executable-arg', fakeServer
+  ], { encoding: 'utf8', timeout: 20_000 });
+  assert.notEqual(invalidBudget.status, 0);
+  assert.match(`${invalidBudget.stderr}${invalidBudget.stdout}`, /invalid canonical execution decision/u);
   const run = spawnSync(process.execPath, [
     path.join(root, 'scripts', 'codex-app-server-dispatch.mjs'),
     '--route', routePath,

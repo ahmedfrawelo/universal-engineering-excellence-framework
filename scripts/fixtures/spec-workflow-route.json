@@ -1,12 +1,49 @@
 {
   "schemaVersion": 3,
   "tier": "T2",
-  "routeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "workUnitId": "spec-workflow-fixture",
+  "invocationIndex": 0,
+  "preferredModel": "generic-test-host",
+  "hostReasoning": "low",
+  "fallbackModel": null,
+  "fallbackHostReasoning": null,
+  "routeDigest": "456041354d66277e73989b2912fdf2de8247d3bc02cd61726f89450cd3a7a62e",
   "tokenEconomy": {
     "budgetMode": "bounded",
-    "maxWorkerCount": 1
+    "maxWorkerCount": 1,
+    "specRequired": true
   },
+  "decision": {
+    "mode": "IMPLEMENTATION",
+    "spec": "LIGHT",
+    "specReason": "EXECUTION_SPEC_REQUIRED",
+    "team": "AUTHORIZATION_REQUIRED",
+    "teamReason": "AUTHORIZATION_REQUIRED",
+    "delegationAuthorized": false,
+    "delegationAuthorizationSource": "NONE",
+    "delegationScope": "NONE"
+  },
+  "catalogDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "catalogProvider": "test-fixture",
+  "catalogDiscoveredAt": "2026-08-11T00:00:00.000Z",
   "executionSpec": {
-    "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "schemaVersion": 1,
+    "tier": "T2",
+    "workUnitId": "spec-workflow-fixture",
+    "promptSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "outcome": "exercise the deterministic workflow fixture",
+    "acceptanceCriteria": "fixture tests pass",
+    "ownerPaths": "temporary test workspace",
+    "nonGoals": "no production mutation",
+    "tokenEconomy": {
+      "budgetMode": "bounded",
+      "maxWorkerCount": 1,
+      "specRequired": true
+    },
+    "requiredEvidence": [
+      "fixture tests"
+    ],
+    "createdAtUtc": "2026-08-11T00:00:00.000Z",
+    "digest": "808910e6f46034466f55918418aca677fcc1ca501792ff5fcd30175f5117faf0"
   }
 }
