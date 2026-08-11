@@ -15,7 +15,14 @@ const recorderScript = path.join(scripts, 'codex-hooks', 'record-ueef-route.mjs'
     windowsHide: true
   });
   assert.equal(catalogFailure.status, 1, `catalog process should fail cleanly: ${catalogFailure.stderr}`);
-  assert.match(catalogFailure.stderr, /catalog discovery failed: Timed out after 1 ms/u);
+  // Developer machines normally exercise the owned timeout. Minimal CI runners
+  // may not install the Codex executable at all; that is also a clean,
+  // fail-closed discovery result and must not make this portability regression
+  // depend on an external binary.
+  assert.match(
+    catalogFailure.stderr,
+    /catalog discovery failed: (?:Timed out after 1 ms|spawn codex ENOENT)/u
+  );
   assert.equal(catalogFailure.signal, null, 'catalog process must own its timeout instead of being externally killed');
 
   const routeRaw = execFileSync(process.execPath, [resolverScript, '--tier', 'T3', '--catalog-timeout-ms', '1'], {
@@ -26,7 +33,7 @@ const recorderScript = path.join(scripts, 'codex-hooks', 'record-ueef-route.mjs'
   const route = JSON.parse(routeRaw);
   assert.equal(route.modelAvailability, 'CATALOG_DISCOVERY_FAILED');
   assert.equal(route.modelSelectionMode, 'CATALOG_DISCOVERY_REQUIRED');
-  assert.match(route.catalogDiscoveryError, /Timed out after 1 ms/u);
+  assert.match(route.catalogDiscoveryError, /(?:Timed out after 1 ms|spawn codex ENOENT)/u);
 
   const fallback = JSON.parse(execFileSync(process.execPath, [resolverScript, '--tier', 'T3', '--models-unavailable'], {
     encoding: 'utf8',

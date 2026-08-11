@@ -156,7 +156,9 @@ def _route_values(route: Any) -> tuple[str, int, str, str, str]:
     mode = economy.get("budgetMode")
     route_digest = route.get("routeDigest")
     execution = route.get("executionSpec")
-    execution_digest = execution.get("digest") if isinstance(execution, dict) else None
+    if not isinstance(execution, dict):
+        raise WorkflowError("route.executionSpec must be an object")
+    execution_digest = execution.get("digest")
     if not isinstance(tier, str):
         raise WorkflowError("route.tier must be a string")
     if isinstance(workers, bool) or not isinstance(workers, int) or workers < 1:
@@ -167,7 +169,6 @@ def _route_values(route: Any) -> tuple[str, int, str, str, str]:
         raise WorkflowError("route.routeDigest must be a lowercase SHA-256 digest")
     if not isinstance(execution_digest, str) or not _DIGEST.fullmatch(execution_digest):
         raise WorkflowError("route.executionSpec.digest must be a lowercase SHA-256 digest")
-    assert isinstance(execution, dict)
     execution_payload = {key: value for key, value in execution.items() if key != "digest"}
     if _json_digest(execution_payload) != execution_digest:
         raise WorkflowError("route.executionSpec.digest does not match its canonical content")
