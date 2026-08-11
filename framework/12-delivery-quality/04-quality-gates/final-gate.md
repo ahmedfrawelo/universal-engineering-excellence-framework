@@ -4,6 +4,7 @@
 This gate defines the minimum evidence required before work can be reported as complete. It is intended for AI coding assistants, maintainers, reviewers, and release owners.
 
 ## Checks
+- T0/T1 use host-native closure: route metadata precedes mutation or non-read execution, the current lead performs the work, and the nearest focused check verifies the bounded outcome. They require neither a duplicate App Server dispatch nor the eight-label final block.
 - The relevant source, configuration, documentation, and runtime paths were inspected.
 - Requirements and acceptance criteria are explicit and testable.
 - The implementation follows local project patterns and avoids unrelated rewrites.
@@ -13,8 +14,8 @@ This gate defines the minimum evidence required before work can be reported as c
 - The final report answers the user's direct question first and does not bury the outcome behind internal process detail.
 - Multi-step active-goal milestone updates expose the current understanding, named current step, current-step percent, conservative overall percent, new evidence, current action, and next gate as separate fields.
 - Completion, perfection, release, browser verification, push, and runtime activation claims are backed by current evidence.
-- `scripts/validate-completion-audit.ps1` passes a schema-version-2 artifact whose verbatim source review covers every non-whitespace character of the original goal and links every reviewed segment to a requirement; `remainingWork` and `knownProblems` are empty.
-- The audit proves implementation completion was announced before goal review, the goal remained active during review, every requirement checklist item passed both requested-implementation and best-feasible-outcome review, and every changed surface has a passing regression check.
+- For T2+, `scripts/validate-completion-audit.ps1` passes a schema-version-2 artifact whose verbatim source review covers every non-whitespace character of the original goal and links every reviewed segment to a requirement; `remainingWork` and `knownProblems` are empty.
+- For T2+, the audit proves implementation completion was announced before goal review, the goal remained active during review, every requirement checklist item passed both requested-implementation and best-feasible-outcome review, and every changed surface has a passing regression check.
 - Every requirement is compared to actual implemented and observed behavior with current evidence, and every implementation inventory item traces back to a requirement; no untraced implementation remains.
 - Every received goal update is detected and classified; no missing implementation, pending update, or open resume point remains.
 - For a T4 route with an eligible review lane, the agent automatically runs the selected fresh-context review before completion, and `scripts/validate-fresh-review-evidence.ps1` passes a distinct reviewer artifact whose `ship` verdict is bound to an unchanged final diff. Do not ask the user to trigger this reviewer manually.
@@ -27,7 +28,7 @@ This gate defines the minimum evidence required before work can be reported as c
 - `GoalStatus: BLOCKED` for an internal implementation failure or while meaningful local work remains.
 - Empty files, placeholders, shallow outlines, or TODO-only artifacts.
 - Claims of completion without validation evidence.
-- A `COMPLETE` transition without a passing completion-audit artifact, or with any known problem or required work still recorded.
+- A T2+ `COMPLETE` transition without a passing completion-audit artifact, or any completion transition with a known problem or required work still recorded.
 - Overstated final wording such as "perfect", "100%", "fully verified", or "released" without evidence for every explicit requirement.
 - Asking whether more work is wanted, whether anything is missing, or whether the goal is complete after the completion audit already proved the bounded goal complete.
 - Unreviewed public API, database, authentication, authorization, deployment, or UX changes.

@@ -40,7 +40,7 @@ Start from `framework/21-framework-resources/01-templates/33-fresh-review-eviden
 
 ## Boundaries
 
-- This protocol strengthens, but does not replace, task evidence, completion audit, tests, security review, or lead accountability.
+- This protocol strengthens, but does not replace, applicable T2+ task evidence and completion audit, tests, security review, or lead accountability.
 - Do not spawn a reviewer merely for ceremony. T3 uses it where the decision materially benefits; T4 follows the runtime route and available capability. When the route requires an eligible reviewer, run it automatically and record the evidence instead of asking the user for a separate trigger phrase.
 - Do not substitute a different agent, model, or browser surface silently when an explicitly selected review route is unavailable.
 - External workflow references inform this UEEF-native protocol; see `docs/third-party/sol-advisor-attribution.md`.

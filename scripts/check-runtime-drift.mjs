@@ -24,7 +24,7 @@ const loader = path.join(runtime, 'UEEF-LOADER.md');
 if (!fs.existsSync(loader)) mismatches.push('Missing runtime: UEEF-LOADER.md');
 else {
   const loaderText = fs.readFileSync(loader, 'utf8');
-  for (const term of ['Agent and model routing:','environment-bootstrap','Loaded: boot-loader, core-system']) {
+  for (const term of ['Scope wins','Browser hard stop','framework/19-agent-workflow/01-model-orchestration','Loaded: boot-loader, core-system']) {
     if (!loaderText.includes(term)) mismatches.push(`Runtime loader missing contract: ${term}`);
   }
   const statePath = path.join(path.dirname(runtime), 'UEEF-ACTIVE.json');

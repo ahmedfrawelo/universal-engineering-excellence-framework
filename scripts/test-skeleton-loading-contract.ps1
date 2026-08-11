@@ -13,8 +13,7 @@ $required = @{
   'framework/16-design-system/01-consistency-reuse/06-shared-frontend-services-validation-api.md' = @('Shared skeleton services', 'content-preserving refresh')
   'framework/16-design-system/03-governance/16-component-registry.md' = @('Skeleton entries include', 'duplicate-detection evidence')
   'framework/16-design-system/01-consistency-reuse/00-unified-design-system-architecture.md' = @('one owned folder', 'multiple sibling shared folders', 'reuse when the contract fits')
-  'UEEF-LOADER.md' = @('one owned family folder', 'does not justify parallel implementations')
-  'scripts/sync-runtime.ps1' = @('one owned family folder', 'search all shared roots and imports')
+  'framework/01-core/00-core-system.md' = @('standalone-file system', 'shared/common/library owner', 'discovering module boundaries')
 }
 
 foreach ($relative in $required.Keys) {

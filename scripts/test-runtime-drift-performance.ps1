@@ -16,7 +16,7 @@ try {
   git -C $source commit -qm baseline
   Copy-UeefReleaseFiles -SourcePath $source -DestinationPath $runtime
   $loader = Join-Path $runtime 'UEEF-LOADER.md'
-  Set-Content -LiteralPath $loader -Encoding utf8 -Value "Agent and model routing:`nenvironment-bootstrap`nLoaded: boot-loader, core-system"
+  Set-Content -LiteralPath $loader -Encoding utf8 -Value "Scope wins`nBrowser hard stop`nframework/19-agent-workflow/01-model-orchestration`nLoaded: boot-loader, core-system"
   $loaderHash = (Get-FileHash -LiteralPath $loader -Algorithm SHA256).Hash
 
   $watch = [Diagnostics.Stopwatch]::StartNew()

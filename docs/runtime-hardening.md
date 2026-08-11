@@ -36,7 +36,7 @@ The sync script creates a self-contained runtime copy, writes `UEEF-LOADER.md`, 
 
 On Windows, exact Codex synchronization owns `%ProgramData%\OpenAI\Codex\requirements.toml` only when that file is absent or already starts with `# UEEF-MANAGED-REQUIREMENTS`. It pins hooks on and points Codex at `CODEX_HOME/ueef/managed-hooks`. A foreign administrator requirements file is rejected unchanged instead of being parsed or weakened.
 
-The managed hook layer uses the official `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, and `Stop` events. It refreshes the current loader, requires a route record before supported local tools, blocks protected browser/destructive paths, records passing validators, and continues the turn when required final evidence is missing.
+The managed hook layer uses the official `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, and `Stop` events. It refreshes the current loader, permits only explicit safe local read-only intake before route selection, requires a route before mutation or non-read execution, blocks protected browser/destructive paths before that shortcut, records passing validators, and continues the turn when required final evidence is missing. T0/T1 use the host-native lead; T2+ retains verified dispatch and evidence closure.
 
 Codex does not route hosted tools and some specialized paths through local function hooks. This is an explicit platform boundary, not a reason to claim universal interception. The hook layer enforces every officially supported local path and the final `Stop` gate prevents unsupported evidence from becoming a completion claim.
 

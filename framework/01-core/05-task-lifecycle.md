@@ -20,6 +20,8 @@ This module defines when a task starts, continues, completes, or becomes blocked
 
 ## Execution Contract
 
+T0/T1 use the host-native compact lifecycle: record route metadata before mutation or non-read execution, perform the bounded work in the current lead, run the nearest focused verification, report the direct outcome, and stop. They do not require a duplicate App Server dispatch, schema-version-2 completion audit, or eight-label final block. Steps 5 through 9 below are the evidence-managed lifecycle for T2+ and any task escalated to that tier by risk or scope.
+
 1. Translate the request into observable acceptance criteria and exclusions.
 2. Inspect the affected owner, constraints, and validation surfaces.
 3. Plan dependent work in order; keep only one dependent step in progress.
@@ -27,7 +29,7 @@ This module defines when a task starts, continues, completes, or becomes blocked
 5. When implementation is complete, announce that implementation is complete and that goal review has started. Keep `GoalStatus: ACTIVE`; implementation completion is not goal completion.
 6. Start a completion checklist from the first character of the original goal. Each requirement must be compared against an inventory of what was actually implemented and observed, its current acceptance evidence, the requested implementation, and the best feasible outcome within the inspected constraints. A prose reread without this comparison cannot pass.
 7. Review regressions on every changed surface. Fix every regression caused by the task, then rerun affected checks. Record unrelated findings with evidence and an out-of-scope reason, but do not repair or chase them unless they directly block verification or the user expands scope.
-8. Generate a schema-version-2 completion-audit artifact from `framework/21-framework-resources/01-templates/completion-audit-template.json`. Preserve the original goal in `sourceReview.sourceText`, cover all non-whitespace text with contiguous exact review units, classify and link every unit, map every explicit requirement to acceptance criteria and current evidence, and validate it with `scripts/validate-completion-audit.ps1`.
+8. For T2+, generate a schema-version-2 completion-audit artifact from `framework/21-framework-resources/01-templates/completion-audit-template.json`. Preserve the original goal in `sourceReview.sourceText`, cover all non-whitespace text with contiguous exact review units, classify and link every unit, map every explicit requirement to acceptance criteria and current evidence, and validate it with `scripts/validate-completion-audit.ps1`.
 9. Only after the checklist, best-feasible review, task-regression review, and all gates pass may the goal become `COMPLETE`. Say the goal is complete and stop; do not ask whether anything is missing or whether the user wants more work.
 
 An explicit user statement such as "I need something before you finish" creates a pending before-finish commitment even when its details are not yet supplied. Keep the goal `ACTIVE`, ask the user for that promised detail, and record the commitment until it is clarified, implemented or otherwise resolved, and reviewed. This required pre-completion clarification is not a forbidden post-completion follow-up question.
@@ -63,7 +65,7 @@ The goal review compares classified updates and literal requirements to actual i
 - A reverse trace from every actual implementation inventory item to one or more requirements; untraced implementation blocks completion.
 - A changed-surface regression review with no remaining task-caused regression; unrelated findings remain visible and out of scope.
 - Final gate results, skipped-check reasons, residual risks, and owners.
-- A passing schema-version-2 completion audit with complete verbatim source coverage, no remaining work, and no known problems. Build success, test success, code presence, or a summary-only claim cannot substitute for requirement-level evidence.
+- For T0/T1, current focused verification of the bounded outcome. For T2+, a passing schema-version-2 completion audit with complete verbatim source coverage, no remaining work, and no known problems. Build success, test success, code presence, or a summary-only claim cannot substitute for requirement-level evidence where the evidence-managed lifecycle applies.
 
 ## Invalid Completion
 

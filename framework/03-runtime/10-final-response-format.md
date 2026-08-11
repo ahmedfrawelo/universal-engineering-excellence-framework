@@ -11,6 +11,8 @@ This module defines compact final UEEF verification. It prevents old verbose out
 
 ## Required Compact Format
 
+This eight-label block applies to evidence-managed T2+ completion. T0/T1 answer with the direct outcome and the nearest focused verification; they do not emit this block merely because UEEF routing was active.
+
 ```text
 UEEF Verification
 UEEF: ACTIVE / INACTIVE
@@ -31,7 +33,7 @@ Status: PASS / PARTIAL / ACTIVE / BLOCKED
 - Do not list `master-loader`, `master-index`, `runtime-sequence`, or `activation proof` under `Loaded` for normal tasks.
 - The Master Loader is a selector. If used, mention its output under `Selected`, not `Loaded`.
 - Use module paths or compact counts under `Selected`.
-- For model-routed work units, append `Model used: <actual model> / <host display effort> (host: <technical effort>)` to `Selected`; list each materially different route when more than one ran. If the host did not supply a display label, repeat the exact technical identifier rather than translating it. If a capacity fallback ran, also name the requested model and the observed capacity result. Do not report the requested route as the actual model before execution evidence exists.
+- For evidence-managed T2+ model-routed work units, append `Model used: <actual model> / <host display effort> (host: <technical effort>)` to `Selected`; list each materially different route when more than one ran. If the host did not supply a display label, repeat the exact technical identifier rather than translating it. If a capacity fallback ran, also name the requested model and the observed capacity result. Do not report the requested route as the actual model before execution evidence exists. T0/T1 host-native closure does not require this receipt or label.
 - If a visible picker update was requested, report `Picker: updated <threadId> / verified`, `Picker: attempted / unverified`, or `Picker: not changed - no explicit threadId`. Do not imply the UI dropdown changed just because routed execution succeeded.
 - Keep quality gates under `Gates`.
 - Keep UI UX Pro Max as `UIUX: YES`, `NO`, or `NA`.

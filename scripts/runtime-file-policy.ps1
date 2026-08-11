@@ -181,7 +181,7 @@ function Get-UeefRuntimeDriftMismatches {
     $mismatches.Add('Missing runtime: UEEF-LOADER.md')
   } else {
     $loaderText = Get-Content -LiteralPath $runtimeLoader -Raw
-    foreach ($term in @('Agent and model routing:','environment-bootstrap','Loaded: boot-loader, core-system')) {
+    foreach ($term in @('Scope wins','Browser hard stop','framework/19-agent-workflow/01-model-orchestration','Loaded: boot-loader, core-system')) {
       if ($loaderText -notmatch [regex]::Escape($term)) { $mismatches.Add("Runtime loader missing contract: $term") }
     }
     if (![string]::IsNullOrWhiteSpace($ExpectedLoaderHash)) {

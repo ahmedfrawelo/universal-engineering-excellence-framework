@@ -13,7 +13,6 @@ function Assert-TermsInOrder([string]$RelativePath, [string[]]$Terms) {
 }
 
 $required = @{
-  'UEEF-LOADER.md' = @('Chrome family explicitly', 'dedicated task tab', 'user.openTabs()', 'working tab unless explicitly requested', 'in-app browser', 'stage', 'reason', 'AUTHORIZED_LOOPBACK_LAST_RESORT', 'repair-chrome-tab-ownership.ps1', 'Host or installed-skill prohibitions still win', 'open Chrome first, then restart Codex', 'non-visual tests can continue', 'minimized, background, or non-foreground', 'do not ask the user for routine approval', 'Automatic browser work includes automatic readiness')
   'framework/01-core/01-master-loader.md' = @('user.openTabs()', 'claimTab()')
   'framework/18-runtime-operations/02-browser-session-control/04-browser-and-tab-selection.md' = @('user.openTabs()', 'dedicated task tab', 'same existing window/profile/session', 'explicitly asks to use that tab', 'claimTab()', 'not permission to take it over', 'Do not ask the user in chat to approve routine tab creation/control')
   'framework/18-runtime-operations/02-browser-session-control/10-window-state-preservation.md' = @('current window size', 'monitor placement', 'zoom', 'tab order', 'active tab', 'Do not call resize', 'Record the initial and final window state', 'minimized, background, or non-foreground', 'do not pause or block the goal')
@@ -28,7 +27,6 @@ $required = @{
   'framework/12-delivery-quality/04-quality-gates/23-browser-session-control-gate.md' = @('user.openTabs()', 'dedicated task tab', 'working tab', 'claim', 'stage/reason/next', 'in-app browser', 'Chrome readiness flow', 'Do not fail because')
   'framework/03-runtime/00-runtime-sequence.md' = @('Chrome readiness flow completed:', 'Chrome-family binding selected explicitly:', 'Dedicated task tab created', 'User working tab preserved:', 'Failure stage/reason/next recorded:', 'Emergency fallback authorization:', 'READY_LAST_RESORT', 'sameTargetProven', 'LOOPBACK_ONLY', 'Browser storage inspected: NO', 'Banner classification:', 'PARTIAL_VISUAL_GATE')
   'framework/12-delivery-quality/06-checklists/32-browser-session-control-checklist.md' = @('exact returned object', 'Debugging/CDP authorization', 'READY_LAST_RESORT', 'cookies/storage/password/profile/history APIs were not used')
-  'scripts/sync-runtime.ps1' = @('Chrome family explicitly', 'dedicated task tab', 'user.openTabs()', 'working tab unless explicitly requested', 'in-app browser', 'stage', 'reason', 'THREAD_CONTROL_CHANNEL_DEGRADED', 'AUTHORIZED_LOOPBACK_LAST_RESORT', 'repair-chrome-tab-ownership.ps1', 'do not ask the user for routine approval')
   'scripts/repair-chrome-tab-ownership.ps1' = @('extension-host.exe', 'chrome-extension://hehggadaopoacecdllhhajmbjkdcmajg/', 'Stop-Process', 'DryRun')
 }
 foreach ($relative in $required.Keys) {
@@ -41,7 +39,7 @@ foreach ($relative in $required.Keys) {
 $policyText = Get-Content -LiteralPath (Join-Path $root 'framework/18-runtime-operations/02-browser-session-control/11-control-surface-selection.md') -Raw
 if ($policyText -match 'prefer verified visible Windows control') { throw 'Obsolete Windows-first Chrome policy remains.' }
 if ($policyText -notmatch 'Do not use directly exposed') { throw 'Direct external browser MCP prohibition is missing.' }
-foreach ($relative in @('UEEF-LOADER.md','framework/18-runtime-operations/02-browser-session-control/01-user-owned-browser.md','framework/18-runtime-operations/02-browser-session-control/05-fallback-consent-and-blocking.md','framework/18-runtime-operations/02-browser-session-control/09-platform-authorized-chrome-control.md','framework/18-runtime-operations/02-browser-session-control/11-control-surface-selection.md','framework/18-runtime-operations/02-browser-session-control/15-chrome-control-readiness.md','framework/18-runtime-operations/02-browser-session-control/16-control-channel-failover.md','scripts/sync-runtime.ps1')) {
+foreach ($relative in @('framework/18-runtime-operations/02-browser-session-control/01-user-owned-browser.md','framework/18-runtime-operations/02-browser-session-control/05-fallback-consent-and-blocking.md','framework/18-runtime-operations/02-browser-session-control/09-platform-authorized-chrome-control.md','framework/18-runtime-operations/02-browser-session-control/11-control-surface-selection.md','framework/18-runtime-operations/02-browser-session-control/15-chrome-control-readiness.md','framework/18-runtime-operations/02-browser-session-control/16-control-channel-failover.md')) {
   $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw
   if ($text -notmatch 'macOS/Linux' -or $text -notmatch 'Windows-only|only on Windows') { throw "Cross-platform browser fallback is incomplete in $relative." }
 }
@@ -79,7 +77,7 @@ foreach ($term in @('platform permission prompt is normal external authorization
 $failoverText = Get-Content -LiteralPath (Join-Path $root 'framework/18-runtime-operations/02-browser-session-control/16-control-channel-failover.md') -Raw
 if ($failoverText -notmatch 'No user acknowledgement') { throw 'Control-channel failover still permits a manual acknowledgement.' }
 
-$strictBrowserFiles = @('UEEF-LOADER.md','scripts/sync-runtime.ps1','framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md','framework/18-runtime-operations/02-browser-session-control/11-control-surface-selection.md')
+$strictBrowserFiles = @('framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md','framework/18-runtime-operations/02-browser-session-control/11-control-surface-selection.md')
 foreach ($relative in $strictBrowserFiles) {
   $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw
   foreach ($term in @('Cursor/IDE Simple Browser','browser.newContext','browser.launch','explicit separate user request')) {
@@ -88,8 +86,10 @@ foreach ($relative in $strictBrowserFiles) {
   if ($text -match 'They remain valid for authorized isolated/local testing') { throw "Broad isolated-browser fallback remains in $relative." }
 }
 $loaderText = Get-Content -LiteralPath (Join-Path $root 'UEEF-LOADER.md') -Raw
-if ($loaderText -notmatch 'explicit separate user request' -or $loaderText -notmatch 'dedicated task tab' -or $loaderText -notmatch "user's working tab" -or $loaderText -notmatch 'in-app browser') { throw 'Loader does not constrain Chrome identity, dedicated-tab ownership, and isolated tests.' }
-foreach ($relative in @('UEEF-LOADER.md','scripts/sync-runtime.ps1','framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md')) {
+foreach ($term in @('Browser hard stop','dedicated task tab','in-app browser','framework/18-runtime-operations/02-browser-session-control')) {
+  if ($loaderText -notmatch [regex]::Escape($term)) { throw "Compact loader missing browser invariant or canonical-owner pointer: $term" }
+}
+foreach ($relative in @('framework/18-runtime-operations/02-browser-session-control/00-browser-session-first.md')) {
   $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw
   foreach ($term in @('HARD FAIL BEFORE ANY BROWSER TOOL','get-ueef-task-preflight.ps1','browserGate','do not select a browser tool','mcp__node_repl__js','claimTab()','tab.playwright')) {
     if ($text -notmatch [regex]::Escape($term)) { throw "Mandatory pre-tool browser gate term '$term' missing from $relative." }

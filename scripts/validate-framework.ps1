@@ -602,7 +602,7 @@ if (!$SkipNestedTests) {
   & (Join-Path $Root "scripts/project-context-map.ps1") -Path $Root -MaxItems 5 | Out-Null
 }
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
-foreach ($term in @("Unsafe agent name","runtimeRootPrefix","Agent = `$Agent","RequireManagedEnforcement","environment-bootstrap")) {
+foreach ($term in @("Unsafe agent name","runtimeRootPrefix","Agent = `$Agent","RequireManagedEnforcement")) {
   if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime sync missing hardening contract: $term" }
 }
 $version = (Get-Content (Join-Path $Root "VERSION.md") -Raw | Select-String -Pattern '\b\d+\.\d+\.\d+\b' -AllMatches).Matches[0].Value
@@ -629,36 +629,29 @@ $releaseIntegrityText = Get-Content -LiteralPath (Join-Path $Root 'framework/18-
 foreach ($term in @('publish-github-release.ps1','Validate UEEF','exact release commit','Git Credential Manager','do not start a browser device-login flow','Never print tokens')) {
   if ($releaseIntegrityText -notmatch [regex]::Escape($term)) { throw "Release integrity guidance missing GitHub credential fallback: $term" }
 }
-if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("not a reason to suspend execution")) { throw "Loader missing delivery continuation rule" }
-if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch [regex]::Escape("Status-loop guard")) { throw "Loader missing status-loop guard" }
-if ((Get-Content (Join-Path $Root "framework/01-core/14-delivery-continuation-policy.md") -Raw) -notmatch [regex]::Escape("Repeated status phrasing is a control-flow failure")) { throw "Delivery continuation policy missing status-loop guard" }
-if ((Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) -notmatch "19-agent-workflow/01-model-orchestration|pack 58") { throw "Loader missing agent model routing rule" }
+if ((Get-Content (Join-Path $Root "framework/01-core/14-delivery-continuation-policy.md") -Raw) -notmatch [regex]::Escape("Repeated status phrasing is a control-flow failure")) { throw "Canonical delivery continuation policy missing status-loop guard" }
+$loaderText = Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw
+if ($loaderText.Length -gt 4096) { throw "Source loader exceeds the compact 4KB contract" }
+foreach ($term in @('Scope wins','destructive','Browser hard stop','01-master-loader.md','19-agent-workflow/01-model-orchestration','Loaded: boot-loader, core-system')) {
+  if ($loaderText -notmatch [regex]::Escape($term)) { throw "Compact source loader missing invariant or canonical-owner pointer: $term" }
+}
 $syncText = Get-Content (Join-Path $Root "scripts/sync-runtime.ps1") -Raw
-foreach ($term in @("Agent and model routing:","Design engineering skill routing:","emil-design-eng","review-animations","improve-animations","animation-vocabulary","apple-design","not a reason to suspend execution","Local command autonomy:")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing global loader policy: $term" }
-}
-foreach ($term in @("File, folder, and size discipline:","Backend and frontend performance:","Response quality:","Task scope discipline:","Prevent over-rendering end to end","Animations must be smooth","SSR, SSG, streaming","standalone-file system","Reusable behavior, UI, validation","Before creating custom UI or behavior","Large-project reuse:","Discover module boundaries","project-context-map","Skill/display metadata","Skill/display icon")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing new operating policy: $term" }
-}
-foreach ($term in @("Arabic or other RTL prose","trust the renderer for ordinary mixed-language text","never wrap a full sentence or status block in inline code","Do not insert hidden bidirectional control characters","four-item localized list","never join route fields with |")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing mixed-direction response policy: $term" }
+foreach ($term in @('Scope wins','destructive','Browser hard stop','framework/01-core','framework/19-agent-workflow/01-model-orchestration','Loaded: boot-loader, core-system')) {
+  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing compact invariant or canonical-owner pointer: $term" }
 }
 $responsePolicyText = (Get-Content (Join-Path $Root "UEEF-LOADER.md") -Raw) + "`n" + (Get-Content (Join-Path $Root "framework/01-core/00-core-system.md") -Raw) + "`n" + $finalResponseText + "`n" + $syncText
 if ($responsePolicyText -match 'Intent: <requested outcome> \| Tier: <T0-T4>|every inline English word.*must be isolated') { throw "Obsolete mixed-direction response formatting remains active" }
-foreach ($term in @("Skill invocation protocol:","skill chain","red flags","TDD or an equivalent evidence loop")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing skill protocol policy: $term" }
+$browserPolicyText = (Get-ChildItem -LiteralPath (Join-Path $Root 'framework/18-runtime-operations/02-browser-session-control') -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
+foreach ($term in @("Chrome readiness flow","normal external authorization UI","not proof that Chrome is unavailable","repair-chrome-tab-ownership.ps1","CHROME_EXTERNALLY_UNAVAILABLE")) {
+  if ($browserPolicyText -notmatch [regex]::Escape($term)) { throw "Canonical browser policy missing Chrome readiness term: $term" }
 }
-foreach ($term in @("Missing screenshot evidence","pCloud screenshot delay","not a valid BLOCKED condition","screenshot is pending")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing visual-blocker policy: $term" }
+$specPolicyText = (Get-ChildItem -LiteralPath (Join-Path $Root 'framework/19-agent-workflow/03-spec-driven-development') -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
+foreach ($term in @("specification is the source of truth","technical plan","tasks that trace to the specification","specification, plan, tasks, code, tests, and final claims agree")) {
+  if ($specPolicyText -notmatch [regex]::Escape($term)) { throw "Canonical spec-driven policy missing term: $term" }
 }
-foreach ($term in @("Chrome readiness flow","normal authorization","not proof that Chrome is unavailable","run scripts/repair-chrome-tab-ownership.ps1","CHROME_EXTERNALLY_UNAVAILABLE")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing Chrome readiness policy: $term" }
-}
-foreach ($term in @("Spec-driven development:","specification the source of truth","technical plan and traceable tasks","Check consistency across specification, plan, tasks, code, tests, and final claims")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing spec-driven policy: $term" }
-}
-foreach ($term in @("Reconcile mutable remote state without page reload","eager, lazy, preload, prefetch, stream, or defer","Inventory runtimes, dependencies, and upgrade opportunities only","Broad legacy refactoring requires")) {
-  if ($syncText -notmatch [regex]::Escape($term)) { throw "Runtime generator missing modernization policy: $term" }
+$modernizationPolicyText = (Get-ChildItem -LiteralPath (Join-Path $Root 'framework/20-repository-evolution/01-project-modernization') -File -Filter *.md | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
+foreach ($term in @("behavior-preserving refactoring","Inventory direct and transitive packages","critical-path eager loading","Do not use full page reload as a normal synchronization mechanism")) {
+  if ($modernizationPolicyText -notmatch [regex]::Escape($term)) { throw "Canonical modernization policy missing term: $term" }
 }
 $modernizationRuntimeTerms = @("Repository and behavior baseline captured:","Technology inventory and support evidence captured:","Refactoring and dead-code reachability proof verified:","Live refresh no-page-reload and context-preservation proof verified:","Project modernization and runtime gate:")
 foreach ($term in $modernizationRuntimeTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing modernization field: $term" } }

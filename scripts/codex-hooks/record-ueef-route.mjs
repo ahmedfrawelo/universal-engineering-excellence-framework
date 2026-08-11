@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { hookRoot, peekWorkUnitInvocation, readTurnState, safeId, sha256Text, stateRoot, updateTurnState } from './ueef-hook-common.mjs';
+import { commitReservedWorkUnitInvocation, hookRoot, peekWorkUnitInvocation, readTurnState, releaseWorkUnitInvocationReservation, reserveWorkUnitInvocation, safeId, sha256Text, stateRoot, updateTurnState } from './ueef-hook-common.mjs';
 
 const args = process.argv.slice(2);
 const value = (name) => {
@@ -17,6 +18,121 @@ const has = (name) => args.includes(name);
 
 const sessionId = value('--session-id');
 const turnId = value('--turn-id');
+const executeRoute = optional('--execute-route');
+if (executeRoute) {
+  const routePath = path.resolve(executeRoute);
+  const prompt = value('--prompt');
+  if (!prompt.trim() || Buffer.byteLength(prompt, 'utf8') > 256 * 1024) throw new Error('--prompt must contain 1-262144 UTF-8 bytes.');
+  const state = readTurnState(sessionId, turnId);
+  if (!state?.route?.modelRouteVerified) throw new Error('No verified route exists for the requested UEEF turn.');
+  if (path.resolve(state.route.routeOutput || '') !== routePath) throw new Error('Dispatch route path does not match the current UEEF turn route.');
+  if (!fs.existsSync(routePath) || !fs.lstatSync(routePath).isFile() || fs.lstatSync(routePath).isSymbolicLink()) throw new Error('Dispatch route is missing or unsafe.');
+  const route = JSON.parse(fs.readFileSync(routePath, 'utf8'));
+  if (route.routeDigest !== state.route.routeDigest || route.executionSpec?.digest !== state.executionSpec?.digest) throw new Error('Dispatch route identity does not match the current UEEF turn.');
+  const dispatcher = path.resolve(hookRoot, '..', 'codex', 'scripts', 'codex-app-server-dispatch.mjs');
+  if (!fs.existsSync(dispatcher) || !fs.lstatSync(dispatcher).isFile() || fs.lstatSync(dispatcher).isSymbolicLink()) throw new Error('Trusted installed UEEF dispatcher is missing or unsafe.');
+  const reservationNonce = crypto.randomBytes(16).toString('hex');
+  if (!reserveWorkUnitInvocation(sessionId, state.route.workUnitId, state.route.invocationIndex, turnId, reservationNonce)) {
+    throw new Error('UEEF work-unit invocation is already reserved or committed.');
+  }
+  try {
+    updateTurnState(sessionId, turnId, (current) => {
+      if (current.route?.routeDigest !== route.routeDigest || current.executionSpec?.digest !== route.executionSpec?.digest) throw new Error('UEEF turn route changed before dispatch reservation.');
+      if (current.validations.modelDispatch === true || current.route.invocationCommitted === true) throw new Error('UEEF route execution replay denied.');
+      if (current.dispatchReservation) throw new Error('UEEF route execution is already reserved by another process.');
+      current.dispatchReservation = { schemaVersion: 1, nonce: reservationNonce, routeDigest: route.routeDigest, pid: process.pid, createdAtUtc: new Date().toISOString() };
+    });
+  } catch (error) {
+    releaseWorkUnitInvocationReservation(sessionId, state.route.workUnitId, reservationNonce);
+    throw error;
+  }
+  let committed = false;
+  try {
+    const raw = execFileSync(process.execPath, [dispatcher, '--route', routePath, '--prompt', prompt], { encoding: 'utf8', timeout: 10 * 60 * 1000, windowsHide: true });
+    const receipt = JSON.parse(raw.trim().split(/\r?\n/u).at(-1));
+    const primary = receipt.actualModel === route.preferredModel && receipt.actualHostReasoning === route.hostReasoning;
+    const fallback = Boolean(route.fallbackModel && route.fallbackHostReasoning) && receipt.actualModel === route.fallbackModel && receipt.actualHostReasoning === route.fallbackHostReasoning && receipt.capacityFallbackUsed === true;
+    const observedAt = Date.parse(receipt.completedAt || '');
+    if (receipt.provider !== 'codex-app-server:turn/start' || receipt.routeDigest !== route.routeDigest || receipt.executionSpecDigest !== route.executionSpec?.digest ||
+        !receipt.threadId || !receipt.turnId || receipt.executionVerificationSource !== 'codex-app-server:thread/start+thread/settings/updated+model/rerouted' ||
+        receipt.providerModelFallbackAllowed !== false || receipt.executionVerified !== true || receipt.result !== 'SUCCESS' || (!primary && !fallback) ||
+        !Number.isFinite(observedAt) || Math.abs(Date.now() - observedAt) > 10 * 60 * 1000) throw new Error('Dispatcher did not return an exact current verified route receipt.');
+    updateTurnState(sessionId, turnId, (current) => {
+      if (current.route?.routeDigest !== route.routeDigest || current.executionSpec?.digest !== route.executionSpec?.digest || current.dispatchReservation?.nonce !== reservationNonce) throw new Error('UEEF turn route or reservation changed during dispatch.');
+      current.validations.modelDispatch = true;
+      current.route.actualModel = receipt.actualModel;
+      current.route.actualHostReasoning = receipt.actualHostReasoning;
+      current.route.actualDisplayReasoning = primary ? (route.displayReasoning || route.hostReasoning) : (route.fallbackDisplayReasoning || route.fallbackHostReasoning);
+      current.route.capacityFallbackUsed = fallback;
+      current.route.actualVerificationSource = 'codex-app-server';
+      current.route.actualLine = `Model execution: ${current.route.workUnitId} | ${receipt.actualModel} / ${current.route.actualDisplayReasoning} (host: ${receipt.actualHostReasoning}; verified: codex-app-server)`;
+      delete current.dispatchReservation;
+    });
+    committed = commitReservedWorkUnitInvocation(sessionId, state.route.workUnitId, state.route.invocationIndex, reservationNonce);
+    if (!committed) throw new Error('Verified route execution could not commit its reserved one-shot invocation.');
+    updateTurnState(sessionId, turnId, (current) => { current.route.invocationCommitted = true; });
+    process.stdout.write(`${JSON.stringify({ status: 'PASS', ...receipt })}\n`);
+    process.exit(0);
+  } finally {
+    if (!committed) {
+      releaseWorkUnitInvocationReservation(sessionId, state.route.workUnitId, reservationNonce);
+      updateTurnState(sessionId, turnId, (current) => { if (current.dispatchReservation?.nonce === reservationNonce) delete current.dispatchReservation; });
+    }
+  }
+}
+const closureEvidence = optional('--validate-closure');
+if (closureEvidence) {
+  const taskEvidencePath = path.resolve(closureEvidence);
+  const freshReviewPath = path.resolve(value('--fresh-review'));
+  const completionAuditPath = path.resolve(value('--completion-audit'));
+  const state = readTurnState(sessionId, turnId);
+  if (!state?.validations?.modelDispatch || !['T3', 'T4'].includes(String(state.route?.tier))) throw new Error('Closure validation requires a verified T3/T4 host dispatch.');
+  for (const file of [taskEvidencePath, freshReviewPath, completionAuditPath]) {
+    if (!fs.existsSync(file) || !fs.lstatSync(file).isFile() || fs.lstatSync(file).isSymbolicLink()) throw new Error(`Closure evidence is missing or unsafe: ${file}`);
+  }
+  const taskEvidence = JSON.parse(fs.readFileSync(taskEvidencePath, 'utf8'));
+  const freshReview = JSON.parse(fs.readFileSync(freshReviewPath, 'utf8'));
+  const completionAudit = JSON.parse(fs.readFileSync(completionAuditPath, 'utf8'));
+  const bindingMatches = (artifact) => artifact?.routeBinding?.routeDigest === state.route.routeDigest && artifact?.routeBinding?.executionSpecDigest === state.executionSpec?.digest;
+  if (!taskEvidence.taskId || taskEvidence.taskId !== freshReview.taskId || taskEvidence.taskId !== completionAudit.taskId || state.route.workUnitId !== taskEvidence.taskId ||
+      taskEvidence.tier !== state.route.tier || freshReview.tier !== state.route.tier || !bindingMatches(taskEvidence) || !bindingMatches(freshReview) || !bindingMatches(completionAudit)) {
+    throw new Error('Closure artifacts do not bind the current UEEF task identity.');
+  }
+  const reportPaths = ['architecture', 'file-organization'].map((domain) => taskEvidence.domains?.[domain]?.fields?.automatedReport).filter(Boolean).map((file) => path.resolve(taskEvidence.repositoryRoot, file));
+  const closureFiles = [taskEvidencePath, freshReviewPath, completionAuditPath, ...reportPaths];
+  const hashesBefore = new Map();
+  for (const file of closureFiles) {
+    if (!fs.existsSync(file) || !fs.lstatSync(file).isFile() || fs.lstatSync(file).isSymbolicLink()) throw new Error(`Referenced closure evidence is missing or unsafe: ${file}`);
+    hashesBefore.set(file, crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'));
+  }
+  const runtimeScripts = path.resolve(hookRoot, '..', 'codex', 'scripts');
+  const powershell = process.env.SystemRoot ? path.join(process.env.SystemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe') : 'powershell.exe';
+  const runPowerShell = (script, scriptArgs) => execFileSync(powershell, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(runtimeScripts, script), ...scriptArgs], { encoding: 'utf8', timeout: 5 * 60 * 1000, windowsHide: true });
+  const domains = Array.isArray(taskEvidence.selectedDomains) ? taskEvidence.selectedDomains.join(',') : '';
+  const taskResult = runPowerShell('validate-task-evidence.ps1', ['-Tier', String(state.route.tier), '-SelectedDomain', domains, '-EvidencePath', taskEvidencePath, '-Json']);
+  const freshResult = runPowerShell('validate-fresh-review-evidence.ps1', ['-Path', freshReviewPath, '-Json']);
+  const auditResult = runPowerShell('validate-completion-audit.ps1', ['-Path', completionAuditPath, '-Json']);
+  const runtimeResult = runPowerShell('ueef-status.ps1', []);
+  if (!/"status"\s*:\s*"PASS"/iu.test(taskResult) || !/FRESH_REVIEW_EVIDENCE:\s*PASS/iu.test(freshResult) || !/"status"\s*:\s*"PASS"/iu.test(auditResult) ||
+      !/Overall:\s*ACTIVE/iu.test(runtimeResult) || !/Runtime drift:\s*PASS/iu.test(runtimeResult) || !/Runtime source revision:\s*PASS/iu.test(runtimeResult)) {
+    throw new Error('One or more managed closure validators did not pass.');
+  }
+  for (const [file, expected] of hashesBefore) {
+    const actual = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    if (actual !== expected) throw new Error(`Closure evidence changed during validation: ${file}`);
+  }
+  updateTurnState(sessionId, turnId, (current) => {
+    if (current.route?.routeDigest !== state.route.routeDigest || current.validations.modelDispatch !== true) throw new Error('UEEF turn route changed during closure validation.');
+    current.validations.taskEvidence = true;
+    current.validations.freshReview = true;
+    current.validations.completionAudit = true;
+    current.validations.goalLifecycleComplete = true;
+    current.validations.runtime = true;
+    current.validations.tests = true;
+  });
+  process.stdout.write(`${JSON.stringify({ status: 'PASS', taskId: taskEvidence.taskId, tier: state.route.tier, taskEvidence: 'PASS', freshReview: 'PASS', completionAudit: 'PASS', runtime: 'ACTIVE' })}\n`);
+  process.exit(0);
+}
 const workUnitId = value('--work-unit-id');
 const tier = value('--tier');
 const intent = value('--intent');
@@ -158,6 +274,7 @@ updateTurnState(sessionId, turnId, (state) => {
   state.executionSpec = executionSpec;
   state.validations.executionSpec = true;
   state.validations.modelDispatch = false;
+  delete state.dispatchReservation;
 });
 
 const routeLine = routeChanged

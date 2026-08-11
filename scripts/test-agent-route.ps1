@@ -38,13 +38,13 @@ if (!$criticalRejected) { throw 'Risk 3 without RiskFloor must be rejected.' }
 
 $root = Split-Path -Parent $PSScriptRoot
 $contractChecks = @{
-  'UEEF-LOADER.md' = @('Agent route:', 'NO_INDEPENDENT_WORK')
-  'framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md' = @('Visible pre-command route line', 'TOOL_UNAVAILABLE', 'fresh-context review')
+  'framework/19-agent-workflow/01-model-orchestration/00-agent-model-orchestration-system.md' = @('Visible pre-command route line', 'TOOL_UNAVAILABLE', 'fresh-context review', 'T0/T1 execute host-native', 'do not duplicate the work through an App Server dispatch')
+  'framework/19-agent-workflow/01-model-orchestration/02-model-capability-routing.md' = @('HOST_NATIVE_LEAD', 'ROUTED_LEAD_REQUIRED', 'no completion audit', 'For T2+, dispatch')
+  'framework/19-agent-workflow/01-model-orchestration/03-agent-topologies.md' = @('current host-native lead', 'does not dispatch a duplicate App Server turn')
   'framework/19-agent-workflow/01-model-orchestration/06-fresh-context-review-protocol.md' = @('FRESH_CONTEXT_REQUIRED', 'reviewed diff SHA-256', 'validate-fresh-review-evidence.ps1')
-  'framework/12-delivery-quality/04-quality-gates/31-agent-model-routing-gate.md' = @('TOOL_UNAVAILABLE', 'child-agent record')
+  'framework/12-delivery-quality/04-quality-gates/31-agent-model-routing-gate.md' = @('TOOL_UNAVAILABLE', 'child-agent record', 'T0/T1 are host-native', 'T2+ remains evidence-managed')
   'framework/12-delivery-quality/06-checklists/40-agent-model-routing-checklist.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
   'framework/21-framework-resources/01-templates/28-agent-routing-decision-template.md' = @('Visible pre-command route line', 'Child agent identity', 'TOOL_UNAVAILABLE')
-  'scripts/sync-runtime.ps1' = @('Agent route:', 'TOOL_UNAVAILABLE')
 }
 foreach ($relativePath in $contractChecks.Keys) {
   $content = Get-Content -LiteralPath (Join-Path $root $relativePath) -Raw
@@ -81,7 +81,7 @@ $capabilityRouting = Get-Content -LiteralPath (Join-Path $root 'framework\19-age
 if ($capabilityRouting -notmatch 'economical default, not a hard ceiling') {
   throw 'Model capability routing does not document proportional reasoning.'
 }
-foreach($term in @('Model used: UNVERIFIED','picker label','screenshot','assistant self-report','do not claim completion')) {
+foreach($term in @('Model used: UNVERIFIED','picker label','screenshot','assistant self-report','do not claim T2+ completion')) {
   if ($capabilityRouting -notmatch [regex]::Escape($term)) { throw "Model anti-hallucination routing term missing: $term" }
 }
 

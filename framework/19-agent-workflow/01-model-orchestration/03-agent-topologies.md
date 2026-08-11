@@ -2,7 +2,7 @@
 
 ## Single Agent
 
-Use for T0 and T1. T1 defaults to single-agent: the routed implementation lead is the single task agent, including narrow code changes, unless an independent sidecar has positive benefit. The original conversation only owns route dispatch and result integration.
+Use for T0 and T1. T1 defaults to single-agent: the current host-native lead is the task agent, including narrow code changes, unless an independent sidecar has positive benefit. The lead records route metadata before mutation or non-read execution and performs focused verification directly; it does not dispatch a duplicate App Server turn for the same bounded work.
 
 An internal worker or verifier is not a user-visible Codex task. Leader/Worker delegation uses bounded sub-agent execution and returns results to the lead in the current task. Creating or forking a sidebar task is allowed only when the user explicitly requests a separate task; model routing, smoke tests, token economy, and ordinary delegation never imply that permission.
 

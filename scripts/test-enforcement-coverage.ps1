@@ -68,15 +68,21 @@ try {
 
 $loader = Get-Content -LiteralPath (Join-Path $root 'UEEF-LOADER.md') -Raw
 $sync = Get-Content -LiteralPath (Join-Path $root 'scripts\sync-runtime.ps1') -Raw
+$deliveryPolicy = Get-Content -LiteralPath (Join-Path $root 'framework\01-core\14-delivery-continuation-policy.md') -Raw
+$taskLifecycle = Get-Content -LiteralPath (Join-Path $root 'framework\01-core\05-task-lifecycle.md') -Raw
+$canonicalGoalContract = "$deliveryPolicy`n$taskLifecycle"
+foreach($required in @('current understanding','current step','current-step percent','overall percent','new evidence','current action','next gate')) {
+  if($canonicalGoalContract -notmatch [regex]::Escape($required)){throw "Strict long-goal progress contract is missing '$required' from its canonical policy owner."}
+}
+foreach($required in @('goal review','best feasible','regression caused by the task','unrelated findings','goal is complete and stop')) {
+  if($canonicalGoalContract -notmatch [regex]::Escape($required)){throw "Completion-review contract is missing '$required' from its canonical policy owner."}
+}
+foreach($required in @('actual implementation','untraced implementation','goal update','resume point','FUTURE_STEP')) {
+  if($canonicalGoalContract -notmatch [regex]::Escape($required)){throw "Goal update or actual comparison contract is missing '$required' from its canonical policy owner."}
+}
 foreach($text in @($loader,$sync)) {
-  foreach($required in @('current understanding','current step','current-step percent','overall percent','new evidence','current action','next gate')) {
-    if($text -notmatch [regex]::Escape($required)){throw "Strict long-goal progress contract is missing '$required' in source or generated AGENTS policy."}
-  }
-  foreach($required in @('goal review','best feasible','task-caused regressions','unrelated findings','stop without')) {
-    if($text -notmatch [regex]::Escape($required)){throw "Completion-review contract is missing '$required' in source or generated AGENTS policy."}
-  }
-  foreach($required in @('actual implementation','untraced implementation','goal update','resume point','FUTURE_STEP')) {
-    if($text -notmatch [regex]::Escape($required)){throw "Goal update or actual comparison contract is missing '$required' in source or generated AGENTS policy."}
+  foreach($required in @('Scope wins','framework/01-core')) {
+    if($text -notmatch [regex]::Escape($required)){throw "Compact boot policy is missing canonical delivery pointer '$required'."}
   }
 }
 

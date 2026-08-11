@@ -55,7 +55,7 @@ Do not edit project files only when `RuntimeStatus` is `BLOCKED`. A partial veri
 
 ## Final Verification
 
-Use compact final verification:
+For T0/T1, answer with the direct outcome and focused verification without a required label block. For evidence-managed T2+, use compact final verification:
 
 ```text
 UEEF: ACTIVE
@@ -104,7 +104,7 @@ Rendered verification or non-visual rationale:
 Frontend execution evidence: PASS / BLOCKED
 ```
 
-The final user-facing verification still uses only the compact required labels. The detailed evidence belongs in the plan, task record, tests, or review artifacts, not in the `Loaded` line.
+For T2+, the final user-facing verification uses only the compact required labels. The detailed evidence belongs in the plan, task record, tests, or review artifacts, not in the `Loaded` line. T0/T1 omit the block.
 
 ## Design Governance Preflight
 

@@ -196,11 +196,11 @@ try {
   if (!$writerGuardRejected) { throw 'Codex active-state writer accepted a state without RequireAgents.' }
   if ([IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8) -cne $stateBeforeWriterGuard) { throw 'Rejected Codex active-state write changed the existing state.' }
   $loader = [IO.File]::ReadAllText((Join-Path $runtime 'UEEF-LOADER.md'), [Text.Encoding]::UTF8)
-  foreach ($term in @('environment-bootstrap','get-diff-impact.ps1','Agent and model routing:','Loaded: boot-loader, core-system')) {
+  if ($loader.Length -gt 4096) { throw "Generated loader exceeds the compact 4KB contract: $($loader.Length) characters." }
+  foreach ($term in @('Scope wins','destructive','Browser hard stop','dedicated task tab','framework/01-core','framework/19-agent-workflow/01-model-orchestration','Loaded: boot-loader, core-system')) {
     if ($loader -notmatch [regex]::Escape($term)) { throw "Generated loader missing: $term" }
   }
-  $arabicBypassCodex = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2KrYrNin2YjYsiBVRUVG'))
-  if (!$loader.Contains($arabicBypassCodex)) { throw 'Generated loader lost the Arabic Codex FREE-MODE phrase.' }
+  if ($loader -notmatch 'FREE-MODE.*never overrides') { throw 'Generated loader lost the compact FREE-MODE safety boundary.' }
   $agents = Get-Content -LiteralPath (Join-Path $codexHome 'AGENTS.md') -Raw
   if ($agents.Length -gt 2200) { throw "Generated AGENTS is too large for a precedence-only runtime block: $($agents.Length) characters." }
   foreach ($term in @('Precedence: Scope wins','stop when done','T0/T1 stay single-agent','economical default, not a hard ceiling','read the loader once per task','browser control is explicit-task only','For browser-required tasks, use the installed Chrome control plugin automatically on a dedicated task tab','Never launch Playwright, chrome-devtools','IDE Simple Browser','a second profile, or a new context','ask only for external missing access or authorized emergency fallback')) {
@@ -342,7 +342,7 @@ try {
   if ($loaderDriftStatus -notcontains 'Runtime drift: FAIL' -or $loaderDriftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime status accepted a tampered loader.' }
   Invoke-TestRuntimeSync
   $statusAfterRepair = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
-  if ($statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw 'Runtime resync did not repair drift status.' }
+  if ($statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw "Runtime resync did not repair drift status.`n$($statusAfterRepair -join [Environment]::NewLine)" }
   $untrackedStatusFixture = Join-Path $root 'docs\.ueef-untracked-runtime-test.tmp'
   try {
     Set-Content -LiteralPath $untrackedStatusFixture -Value 'untracked files are outside the release policy'

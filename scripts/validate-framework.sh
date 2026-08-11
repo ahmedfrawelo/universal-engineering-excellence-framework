@@ -136,25 +136,11 @@ grep -q "Existing theme inspected:" "$ROOT/framework/03-runtime/00-runtime-seque
 grep -q "Security and performance" "$ROOT/framework/01-core/00-core-system.md"
 grep -q "component registry" "$ROOT/framework/01-core/00-core-system.md"
 grep -q "Proceed autonomously through ordinary scoped engineering work" "$ROOT/framework/01-core/00-core-system.md"
-grep -q "not a reason to suspend execution" "$ROOT/UEEF-LOADER.md"
-grep -q "Agent and model routing:" "$ROOT/scripts/sync-runtime.ps1"
-grep -q "not a reason to suspend execution" "$ROOT/scripts/sync-runtime.ps1"
-grep -q "Local command autonomy:" "$ROOT/scripts/sync-runtime.ps1"
-grep -q "Design engineering skill routing:" "$ROOT/scripts/sync-runtime.ps1"
-grep -q "File, folder, and size discipline:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing file/folder policy" >&2; exit 1; }
-grep -q "Backend and frontend performance:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing performance policy" >&2; exit 1; }
-grep -q "Response quality:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing response policy" >&2; exit 1; }
-grep -q "Task scope discipline:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing scope policy" >&2; exit 1; }
-grep -q "Prevent over-rendering end to end" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing over-render policy" >&2; exit 1; }
-grep -q "Animations must be smooth" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing animation policy" >&2; exit 1; }
-grep -q "SSR, SSG, streaming" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing SSR policy" >&2; exit 1; }
-
-grep -q "Reusable behavior, UI, validation" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing shared-first policy" >&2; exit 1; }
-grep -q "Before creating custom UI or behavior" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing design-system-first policy" >&2; exit 1; }
-grep -q "Large-project reuse:" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing large-project reuse section" >&2; exit 1; }
-grep -q "Discover module boundaries" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing large-project discovery rule" >&2; exit 1; }
+for term in "Scope wins" "destructive" "Browser hard stop" "framework/01-core" "framework/19-agent-workflow/01-model-orchestration" "Loaded: boot-loader, core-system"; do
+  grep -q "$term" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing compact invariant or canonical pointer: $term" >&2; exit 1; }
+done
+[ "$(wc -c < "$ROOT/UEEF-LOADER.md")" -le 4096 ] || { echo "Source loader exceeds compact 4KB contract" >&2; exit 1; }
 for skill in emil-design-eng review-animations improve-animations animation-vocabulary apple-design; do
-  grep -q "$skill" "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime generator missing design skill: $skill" >&2; exit 1; }
   grep -q "$skill" "$ROOT/scripts/environment-bootstrap.sh" || { echo "Unix bootstrap missing design skill: $skill" >&2; exit 1; }
 done
 grep -q "Existing project UI searched:" "$ROOT/framework/03-runtime/00-runtime-sequence.md"
@@ -350,16 +336,15 @@ grep -q 'FrontendMode' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quali
 grep -q '25-skeleton-loading-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing explicit skeleton route" >&2; exit 1; }
 grep -q 'superpowers' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing Superpowers route" >&2; exit 1; }
 grep -q '32-skill-invocation-protocol-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing skill protocol gate" >&2; exit 1; }
-grep -q 'Skill invocation protocol:' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing skill protocol section" >&2; exit 1; }
-grep -q 'TDD or an equivalent evidence loop' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing skill evidence loop" >&2; exit 1; }
+grep -qi 'skill invocation' "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/00-skill-invocation-protocol-system.md" || { echo "Canonical skill protocol missing" >&2; exit 1; }
+grep -q 'TDD or an equivalent evidence loop' "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/04-tdd-and-evidence-loop.md" || { echo "Canonical skill evidence loop missing" >&2; exit 1; }
 grep -q 'Skill candidates:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing skill candidates" >&2; exit 1; }
 grep -q 'Red flags checked:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing red flag field" >&2; exit 1; }
 grep -q 'MIT License' "$ROOT/docs/third-party/superpowers-attribution.md" || { echo "Superpowers attribution missing MIT License" >&2; exit 1; }
 grep -q '6fd4507659784c351abbd2bc264c7162cfd386dc' "$ROOT/docs/third-party/superpowers-attribution.md" || { echo "Superpowers attribution missing reviewed commit" >&2; exit 1; }
 grep -q 'spec kit' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing Spec Kit route" >&2; exit 1; }
 grep -q '33-spec-driven-development-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing spec-driven gate" >&2; exit 1; }
-grep -q 'Spec-driven development:' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing spec-driven section" >&2; exit 1; }
-grep -q 'specification the source of truth' "$ROOT/scripts/sync-runtime.ps1" || { echo "Runtime sync missing spec-driven source-of-truth rule" >&2; exit 1; }
+grep -q 'specification is the source of truth' "$ROOT/framework/19-agent-workflow/03-spec-driven-development/00-spec-driven-development-system.md" || { echo "Canonical spec-driven source-of-truth rule missing" >&2; exit 1; }
 grep -q 'Spec-driven applicability:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing spec-driven applicability" >&2; exit 1; }
 grep -q 'Convergence evidence:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing convergence evidence" >&2; exit 1; }
 grep -q 'MIT License' "$ROOT/docs/third-party/spec-kit-attribution.md" || { echo "Spec Kit attribution missing MIT License" >&2; exit 1; }

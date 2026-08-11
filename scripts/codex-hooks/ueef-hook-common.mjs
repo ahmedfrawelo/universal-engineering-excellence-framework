@@ -6,7 +6,10 @@ import { fileURLToPath } from 'node:url';
 export const hookRoot = path.dirname(fileURLToPath(import.meta.url));
 export const runtimeRoot = path.dirname(hookRoot);
 export const runtimePath = path.join(runtimeRoot, 'codex');
-export const stateRoot = path.join(runtimeRoot, 'hook-state');
+const testStateRoot = process.env.UEEF_ALLOW_TEST_HOOK_STATE_ROOT === '1'
+  ? process.env.UEEF_TEST_HOOK_STATE_ROOT
+  : null;
+export const stateRoot = testStateRoot ? path.resolve(testStateRoot) : path.join(runtimeRoot, 'hook-state');
 const sleepBuffer = new Int32Array(new SharedArrayBuffer(4));
 
 export function sha256Text(value) {
@@ -128,23 +131,157 @@ export function sessionStatePath(sessionId) {
   return path.join(stateRoot, `${safeId(sessionId)}.session.json`);
 }
 
-function withLock(sessionId, turnId, action) {
+function processIsAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code === 'EPERM';
+  }
+}
+
+function readLockOwner(lockPath) {
+  try {
+    const stat = fs.lstatSync(lockPath);
+    if (!stat.isFile() || stat.isSymbolicLink()) return null;
+    const owner = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    if (typeof owner?.token !== 'string' || !Number.isInteger(owner?.pid)) return null;
+    return { ...owner, ino: stat.ino, size: stat.size, mtimeMs: stat.mtimeMs };
+  } catch { return null; }
+}
+
+const malformedLockGraceMs = 2000;
+
+function readLockIdentity(lockPath) {
+  try {
+    const stat = fs.lstatSync(lockPath);
+    if (!stat.isFile() || stat.isSymbolicLink()) return null;
+    return { ino: stat.ino, size: stat.size, mtimeMs: stat.mtimeMs };
+  } catch { return null; }
+}
+
+function sameLockIdentity(left, right) {
+  return Boolean(left && right && left.ino === right.ino && left.size === right.size && left.mtimeMs === right.mtimeMs);
+}
+
+function reclaimAbandonedLock(lockPath) {
+  const owner = readLockOwner(lockPath);
+  if (owner && processIsAlive(owner.pid)) return false;
+  if (owner) {
+    const current = readLockOwner(lockPath);
+    if (!current || current.token !== owner.token || current.pid !== owner.pid || !sameLockIdentity(owner, current)) return false;
+  } else {
+    const identity = readLockIdentity(lockPath);
+    if (!identity || Date.now() - identity.mtimeMs < malformedLockGraceMs) return false;
+    const currentOwner = readLockOwner(lockPath);
+    const currentIdentity = readLockIdentity(lockPath);
+    if (currentOwner || !sameLockIdentity(identity, currentIdentity)) return false;
+  }
+  try {
+    fs.rmSync(lockPath);
+    return true;
+  } catch (error) {
+    if (error?.code === 'ENOENT') return true;
+    return false;
+  }
+}
+
+export function withLock(sessionId, turnId, action) {
   assertStateRoot();
   const lockPath = path.join(stateRoot, `${sha256Text(`${sessionId}\n${turnId}`).slice(0, 32)}.lock`);
   const deadline = Date.now() + 5000;
+  const token = crypto.randomBytes(16).toString('hex');
   let handle;
-  while (!handle) {
-    try { handle = fs.openSync(lockPath, 'wx'); }
+  while (handle === undefined) {
+    try {
+      handle = fs.openSync(lockPath, 'wx');
+      fs.writeFileSync(handle, `${JSON.stringify({ schemaVersion: 1, pid: process.pid, token, sessionId: safeId(sessionId), turnId: safeId(turnId), createdAtUtc: new Date().toISOString() })}\n`, 'utf8');
+    }
     catch (error) {
-      if (error.code !== 'EEXIST' || Date.now() >= deadline) throw new Error('Timed out waiting for the UEEF hook state lock.');
+      if (handle !== undefined) {
+        fs.closeSync(handle);
+        handle = undefined;
+        fs.rmSync(lockPath, { force: true });
+      }
+      if (error.code !== 'EEXIST') throw error;
+      if (Date.now() >= deadline) throw new Error('Timed out waiting for the UEEF hook state lock.');
+      if (reclaimAbandonedLock(lockPath)) continue;
       Atomics.wait(sleepBuffer, 0, 0, 25);
     }
   }
   try { return action(); }
   finally {
     fs.closeSync(handle);
-    fs.rmSync(lockPath, { force: true });
+    const owner = readLockOwner(lockPath);
+    if (owner?.token === token && owner.pid === process.pid) fs.rmSync(lockPath, { force: true });
   }
+}
+
+export function cleanupHookState({
+  root = stateRoot,
+  currentSessionId = null,
+  nowMs = Date.now(),
+  ttlMs = 7 * 24 * 60 * 60 * 1000,
+  maxFilesPerSession = 100,
+  maxFilesGlobal = 2000,
+  maxScan = 1000,
+  maxDelete = 100
+} = {}) {
+  if (![ttlMs, maxFilesPerSession, maxFilesGlobal, maxScan, maxDelete].every((value) => Number.isInteger(value) && value >= 0)) throw new Error('Hook state cleanup limits must be non-negative integers.');
+  const resolvedRoot = path.resolve(root);
+  if (!fs.existsSync(resolvedRoot)) return { scanned: 0, before: 0, deleted: 0, after: 0, bounded: false };
+  if (!fs.lstatSync(resolvedRoot).isDirectory() || fs.lstatSync(resolvedRoot).isSymbolicLink()) throw new Error(`Refusing unsafe hook state cleanup root: ${resolvedRoot}`);
+  const names = fs.readdirSync(resolvedRoot).sort((left, right) => Number(right.endsWith('.lock')) - Number(left.endsWith('.lock')) || left.localeCompare(right));
+  const bounded = names.length > maxScan;
+  const selectedNames = names.slice(0, maxScan);
+  const activeSessions = new Set();
+  for (const name of selectedNames) {
+    if (!name.endsWith('.lock')) continue;
+    const owner = readLockOwner(path.join(resolvedRoot, name));
+    if (owner && processIsAlive(owner.pid) && typeof owner.sessionId === 'string') activeSessions.add(owner.sessionId);
+  }
+  const current = currentSessionId === null ? null : safeId(currentSessionId);
+  const records = [];
+  for (const name of selectedNames) {
+    if (!name.endsWith('.json')) continue;
+    const file = path.join(resolvedRoot, name);
+    let stat;
+    let value;
+    try {
+      stat = fs.lstatSync(file);
+      if (!stat.isFile() || stat.isSymbolicLink()) continue;
+      value = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch { continue; }
+    const sessionId = typeof value?.sessionId === 'string'
+      ? safeId(value.sessionId)
+      : name.endsWith('.session.json') ? name.slice(0, -'.session.json'.length) : null;
+    records.push({ file, name, sessionId, mtimeMs: stat.mtimeMs, recent: nowMs - stat.mtimeMs < ttlMs });
+  }
+  const protectedRecord = (record) => record.recent || record.sessionId === current || activeSessions.has(record.sessionId);
+  const deletions = new Set(records.filter((record) => !protectedRecord(record) && nowMs - record.mtimeMs >= ttlMs).map((record) => record.file));
+  const bySession = new Map();
+  for (const record of records) {
+    if (!record.sessionId || record.name.endsWith('.session.json')) continue;
+    const group = bySession.get(record.sessionId) || [];
+    group.push(record);
+    bySession.set(record.sessionId, group);
+  }
+  for (const group of bySession.values()) {
+    const retained = group.filter((record) => !deletions.has(record.file));
+    const overflow = Math.max(0, retained.length - maxFilesPerSession);
+    retained.filter((record) => !protectedRecord(record)).sort((left, right) => left.mtimeMs - right.mtimeMs).slice(0, overflow).forEach((record) => deletions.add(record.file));
+  }
+  const globallyRetained = records.filter((record) => !deletions.has(record.file));
+  const globalOverflow = Math.max(0, globallyRetained.length - maxFilesGlobal);
+  globallyRetained.filter((record) => !protectedRecord(record)).sort((left, right) => left.mtimeMs - right.mtimeMs).slice(0, globalOverflow).forEach((record) => deletions.add(record.file));
+  const ordered = [...deletions].sort((left, right) => {
+    const leftRecord = records.find((record) => record.file === left);
+    const rightRecord = records.find((record) => record.file === right);
+    return leftRecord.mtimeMs - rightRecord.mtimeMs;
+  }).slice(0, maxDelete);
+  for (const file of ordered) fs.rmSync(file, { force: true });
+  return { scanned: selectedNames.length, before: records.length, deleted: ordered.length, after: records.length - ordered.length, bounded };
 }
 
 function atomicWrite(file, value) {
@@ -205,6 +342,47 @@ export function commitWorkUnitInvocation(sessionId, workUnitId, invocationIndex)
     const current = Number(state.routeInvocations[key] || 0);
     if (current !== invocationIndex) return;
     state.routeInvocations[key] = invocationIndex + 1;
+    state.lastRouteInvocation = { workUnitId: key, invocationIndex, committedAtUtc: new Date().toISOString() };
+    committed = true;
+  });
+  return committed;
+}
+
+export function reserveWorkUnitInvocation(sessionId, workUnitId, invocationIndex, turnId, nonce) {
+  const key = safeId(workUnitId);
+  let reserved = false;
+  updateSessionState(sessionId, (state) => {
+    state.routeInvocations ||= {};
+    state.routeInvocationReservations ||= {};
+    if (Number(state.routeInvocations[key] || 0) !== invocationIndex) return;
+    const existing = state.routeInvocationReservations[key];
+    if (existing) {
+      const age = Date.now() - Date.parse(existing.createdAtUtc || '');
+      if (processIsAlive(existing.pid) && Number.isFinite(age) && age <= 11 * 60 * 1000) return;
+    }
+    state.routeInvocationReservations[key] = { schemaVersion: 1, workUnitId: key, invocationIndex, turnId: safeId(turnId), nonce, pid: process.pid, createdAtUtc: new Date().toISOString() };
+    reserved = true;
+  });
+  return reserved;
+}
+
+export function releaseWorkUnitInvocationReservation(sessionId, workUnitId, nonce) {
+  const key = safeId(workUnitId);
+  updateSessionState(sessionId, (state) => {
+    if (state.routeInvocationReservations?.[key]?.nonce === nonce) delete state.routeInvocationReservations[key];
+  });
+}
+
+export function commitReservedWorkUnitInvocation(sessionId, workUnitId, invocationIndex, nonce) {
+  const key = safeId(workUnitId);
+  let committed = false;
+  updateSessionState(sessionId, (state) => {
+    state.routeInvocations ||= {};
+    state.routeInvocationReservations ||= {};
+    const reservation = state.routeInvocationReservations[key];
+    if (Number(state.routeInvocations[key] || 0) !== invocationIndex || reservation?.nonce !== nonce) return;
+    state.routeInvocations[key] = invocationIndex + 1;
+    delete state.routeInvocationReservations[key];
     state.lastRouteInvocation = { workUnitId: key, invocationIndex, committedAtUtc: new Date().toISOString() };
     committed = true;
   });

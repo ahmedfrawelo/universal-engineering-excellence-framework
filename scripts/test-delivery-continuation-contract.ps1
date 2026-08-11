@@ -1,10 +1,10 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $required = @{
-  'UEEF-LOADER.md' = @('save-contract bugs', 'Repetition does not convert', 'Never pause an incomplete code path', 'Stop when done', 'bounded requested outcome')
   'framework/01-core/14-delivery-continuation-policy.md' = @('Internal implementation failures are never a real impasse', 'Repetition does not convert', 'no meaningful local implementation', 'BLOCKED_ALLOWED', 'repeated_external_condition', 'FINAL_ALLOWED', 'requested_outcome_complete', 'completion_audit_passed', 'Stop When Done')
-  'framework/03-runtime/10-final-response-format.md' = @('Never emit a final answer', 'GoalStatus: COMPLETE', 'status-only reporting')
-  'scripts/sync-runtime.ps1' = @('save-contract bugs', 'external or user-only condition', 'never wait for the user merely to resume incomplete code', 'Stop when done', 'bounded requested outcome')
+  'framework/01-core/05-task-lifecycle.md' = @('host-native compact lifecycle', 'focused verification', 'For T2+, generate a schema-version-2 completion-audit')
+  'framework/03-runtime/10-final-response-format.md' = @('Never emit a final answer', 'GoalStatus: COMPLETE', 'status-only reporting', 'eight-label block applies to evidence-managed T2+', 'T0/T1 host-native closure')
+  'framework/12-delivery-quality/04-quality-gates/final-gate.md' = @('T0/T1 use host-native closure', 'For T2+', 'T2+ `COMPLETE` transition')
 }
 foreach ($relative in $required.Keys) {
   $text = Get-Content -LiteralPath (Join-Path $root $relative) -Raw

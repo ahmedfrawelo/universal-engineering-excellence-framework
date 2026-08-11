@@ -186,6 +186,37 @@ try {
   $freeModeQuotedState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-free-mode-quoted.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
   if ($freeModeQuotedState.freeMode.active -eq $true) { throw 'Quoted/explanatory FREE-MODE mention was incorrectly activated.' }
 
+  $hostNativeSession = 'session-host-native'
+  $t1Turn = 'turn-host-native-t1'
+  $t1Transcript = Join-Path $sandbox 'host-native-t1.jsonl'
+  [IO.File]::WriteAllText($t1Transcript, '', [Text.UTF8Encoding]::new($false))
+  $t1Base = @{session_id=$hostNativeSession;turn_id=$t1Turn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$t1Transcript}
+  Invoke-Hook $nodePath $hook ($t1Base + @{hook_event_name='UserPromptSubmit';prompt='Apply one narrow local configuration fix'}) | Out-Null
+  Record-UeefRoute $nodePath $recorder $modelCatalog $hostNativeSession $t1Turn T1 'narrow local fix' 'host-native-t1' $t1Transcript | Out-Null
+  $t1Mutation = Invoke-Hook $nodePath $hook ($t1Base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='host-native-t1-mutation';tool_input=@{command="*** Begin Patch`n*** Update File: docs/example.md`n@@`n+bounded update`n*** End Patch"}})
+  if ([string]$t1Mutation.hookSpecificOutput.permissionDecision -eq 'deny') { throw "T1 host-native mutation required a duplicate model dispatch: $($t1Mutation.hookSpecificOutput.permissionDecisionReason)" }
+  Invoke-Hook $nodePath $hook ($t1Base + @{hook_event_name='PostToolUse';tool_name='apply_patch';tool_use_id='host-native-t1-mutation';tool_input=@{command='*** Begin Patch'};tool_response='Exit code: 0'}) | Out-Null
+  Invoke-Hook $nodePath $hook ($t1Base + @{hook_event_name='PostToolUse';tool_name='create_goal';tool_use_id='host-native-t1-goal-create';tool_input=@{objective='complete the narrow fix'};tool_response='{"status":"active"}'}) | Out-Null
+  $t1GoalComplete = Invoke-Hook $nodePath $hook ($t1Base + @{hook_event_name='PreToolUse';tool_name='update_goal';tool_use_id='host-native-t1-goal-complete';tool_input=@{status='complete'}})
+  if ([string]$t1GoalComplete.hookSpecificOutput.permissionDecision -eq 'deny') { throw "T1 goal completion required the T2+ completion audit or lifecycle: $($t1GoalComplete.hookSpecificOutput.permissionDecisionReason)" }
+  Invoke-Hook $nodePath $hook ($t1Base + @{hook_event_name='PostToolUse';tool_name='update_goal';tool_use_id='host-native-t1-goal-complete';tool_input=@{status='complete'};tool_response='{"status":"complete"}'}) | Out-Null
+  $t1PlainCompletion = Invoke-Hook $nodePath $hook ($t1Base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message='The narrow fix is COMPLETE.'})
+  if ($t1PlainCompletion.continue -eq $false -or [string]$t1PlainCompletion.decision -eq 'block') { throw "T1 host-native plain completion required T2+ closure ceremony: $($t1PlainCompletion.reason)" }
+
+  $t2Turn = 'turn-host-native-t2-control'
+  $t2Transcript = Join-Path $sandbox 'host-native-t2-control.jsonl'
+  [IO.File]::WriteAllText($t2Transcript, '', [Text.UTF8Encoding]::new($false))
+  $t2Base = @{session_id=$hostNativeSession;turn_id=$t2Turn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$t2Transcript}
+  Invoke-Hook $nodePath $hook ($t2Base + @{hook_event_name='UserPromptSubmit';prompt='Apply a coupled multi-file implementation'}) | Out-Null
+  Record-UeefRoute $nodePath $recorder $modelCatalog $hostNativeSession $t2Turn T2 'coupled implementation' 'host-native-t2-control' $t2Transcript | Out-Null
+  $t2Mutation = Invoke-Hook $nodePath $hook ($t2Base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='host-native-t2-mutation';tool_input=@{command='*** Begin Patch'}})
+  Assert-Denied $t2Mutation 'T2 mutation before matching host dispatch'
+  Invoke-Hook $nodePath $hook ($t2Base + @{hook_event_name='PostToolUse';tool_name='create_goal';tool_use_id='host-native-t2-goal-create';tool_input=@{objective='complete the coupled implementation'};tool_response='{"status":"active"}'}) | Out-Null
+  $t2GoalComplete = Invoke-Hook $nodePath $hook ($t2Base + @{hook_event_name='PreToolUse';tool_name='update_goal';tool_use_id='host-native-t2-goal-complete';tool_input=@{status='complete'}})
+  Assert-Denied $t2GoalComplete 'T2 goal completion without audit and lifecycle evidence'
+  $t2PlainCompletion = Invoke-Hook $nodePath $hook ($t2Base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message='The coupled implementation is COMPLETE.'})
+  Assert-StopBlocked $t2PlainCompletion 'T2 plain completion without evidence ceremony'
+
   $unroutedEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-1';tool_input=@{command='*** Begin Patch'}})
   Assert-Denied $unroutedEdit 'Unrouted edit'
   $routeCommand = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='tool-1b';tool_input=@{command="node record-ueef-route.mjs --session-id $session --turn-id $turn --work-unit-id implementation --tier T4"}})
@@ -296,24 +327,135 @@ try {
   $directState = Get-Content -LiteralPath $directStatePath -Raw | ConvertFrom-Json
   $directRoutePath = Join-Path $sandbox 'direct-route.json'
   [IO.File]::WriteAllText($directRoutePath, (@{routeDigest=$directState.route.routeDigest;executionSpec=$directState.executionSpec;tokenEconomy=$directState.route.tokenEconomy;catalogDigest=$directState.route.catalogDigest;preferredModel=$directState.route.preferredModel;hostReasoning=$directState.route.hostReasoning;fallbackModel=$directState.route.fallbackModel;fallbackHostReasoning=$directState.route.fallbackHostReasoning} | ConvertTo-Json -Depth 12), [Text.UTF8Encoding]::new($false))
-  $directCommand = "node scripts/codex-app-server-dispatch.mjs --route `"$directRoutePath`" --prompt test"
+  $installedDispatcher = Join-Path $runtimeRoot 'codex\scripts\codex-app-server-dispatch.mjs'
+  $directCommand = "& `"$nodePath`" `"$recorder`" --session-id $directSession --turn-id $directTurn --execute-route `"$directRoutePath`" --prompt test"
   $directPre = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='direct-dispatch';tool_input=@{command=$directCommand}})
   if ([string]$directPre.hookSpecificOutput.permissionDecision -eq 'deny') { throw "Matching direct App Server dispatch was denied before execution: $($directPre.hookSpecificOutput.permissionDecisionReason)" }
   $directExecCode = "const r = await tools.shell_command({command:$($directCommand | ConvertTo-Json -Compress),workdir:$($root | ConvertTo-Json -Compress),timeout_ms:30000}); text(r);"
   $directExecPre = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='functions.exec';tool_use_id='direct-dispatch-exec';tool_input=$directExecCode})
   if ([string]$directExecPre.hookSpecificOutput.permissionDecision -eq 'deny') { throw "Matching functions.exec App Server dispatcher wrapper was denied: $($directExecPre.hookSpecificOutput.permissionDecisionReason)" }
+  $managedExecuteCommand = "& `"$nodePath`" `"$recorder`" --session-id $directSession --turn-id $directTurn --execute-route `"$directRoutePath`" --prompt test"
+  $managedExecutePre = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='managed-execute-route';tool_input=@{command=$managedExecuteCommand}})
+  if ([string]$managedExecutePre.hookSpecificOutput.permissionDecision -eq 'deny') { throw "The natural installed recorder --execute-route command was denied: $($managedExecutePre.hookSpecificOutput.permissionDecisionReason)" }
+  $forgedRecorder = Join-Path $sandbox 'record-ueef-route.mjs'
+  [IO.File]::WriteAllText($forgedRecorder, 'process.stdout.write("forged")', [Text.UTF8Encoding]::new($false))
+  $forgedExecuteCommand = "& `"$nodePath`" `"$forgedRecorder`" --session-id $directSession --turn-id $directTurn --execute-route `"$directRoutePath`" --prompt test"
+  $forgedExecutePre = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='forged-managed-execute-route';tool_input=@{command=$forgedExecuteCommand}})
+  Assert-Denied $forgedExecutePre 'Forged recorder execute path'
+  $forgedLauncher = Join-Path $sandbox 'forged-launcher.exe'
+  [IO.File]::WriteAllText($forgedLauncher, 'not an executable', [Text.UTF8Encoding]::new($false))
+  $forgedLauncherCommand = "& `"$forgedLauncher`" `"$recorder`" --session-id $directSession --turn-id $directTurn --execute-route `"$directRoutePath`" --prompt test"
+  $forgedLauncherPre = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='forged-launcher';tool_input=@{command=$forgedLauncherCommand}})
+  Assert-Denied $forgedLauncherPre 'Forged recorder launcher'
   $minimalReceipt = [ordered]@{routeDigest=$directState.route.routeDigest;actualModel=$directState.route.preferredModel;actualHostReasoning=$directState.route.hostReasoning;executionVerified=$true;result='SUCCESS'} | ConvertTo-Json
   Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PostToolUse';tool_name='shell_command';tool_use_id='direct-dispatch-minimal';tool_input=@{command=$directCommand};tool_response="Exit code: 0`n$minimalReceipt"}) | Out-Null
   $directState = Get-Content -LiteralPath $directStatePath -Raw | ConvertFrom-Json
   if ($directState.validations.modelDispatch -eq $true) { throw 'Minimal caller-authored direct receipt was incorrectly accepted.' }
   $directReceipt = [ordered]@{provider='codex-app-server:turn/start';threadId='thread-direct';turnId='turn-direct';routeDigest=$directState.route.routeDigest;actualModel=$directState.route.preferredModel;actualHostReasoning=$directState.route.hostReasoning;executionVerified=$true;executionVerificationSource='codex-app-server:thread/start+thread/settings/updated+model/rerouted';providerModelFallbackAllowed=$false;result='SUCCESS';capacityFallbackUsed=$false} | ConvertTo-Json
-  Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PostToolUse';tool_name='shell_command';tool_use_id='direct-dispatch';tool_input=@{command=$directCommand};tool_response="Exit code: 0`n$directReceipt"}) | Out-Null
+  $nestedExecResponse = @{content=@(@{type='text';text="Script completed`nExit code: 0`n$directReceipt"})}
+  Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PostToolUse';tool_name='functions.exec';tool_use_id='direct-dispatch-exec';tool_input=$directExecCode;tool_response=$nestedExecResponse}) | Out-Null
   $directState = Get-Content -LiteralPath $directStatePath -Raw | ConvertFrom-Json
-  if ($directState.validations.modelDispatch -ne $true -or $directState.route.actualVerificationSource -ne 'codex-app-server' -or $directState.route.actualLine -notmatch [regex]::Escape([string]$directState.route.preferredModel)) { throw "Direct App Server receipt did not record the verified actual model line. Receipt=$directReceipt State=$($directState | ConvertTo-Json -Depth 8 -Compress)" }
-  Assert-Denied (Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='direct-before-line';tool_input=@{command='*** Begin Patch'}})) 'Task tool before verified actual model line'
-  Add-AssistantMessage $directTranscript $directState.route.actualLine
-  $directAfterLine = Invoke-Hook $nodePath $hook ($directBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='direct-after-line';tool_input=@{command='*** Begin Patch'}})
-  if ([string]$directAfterLine.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Task tool remained denied after verified actual model line.' }
+  if ($directState.validations.modelDispatch -eq $true) { throw 'Caller-authored nested direct receipt bypassed the managed recorder bridge.' }
+
+  $bridgeSession = 'session-managed-bridge'
+  $bridgeTurn = 'turn-managed-bridge'
+  $bridgeTranscript = Join-Path $sandbox 'session-managed-bridge.jsonl'
+  [IO.File]::WriteAllText($bridgeTranscript, '', [Text.UTF8Encoding]::new($false))
+  $bridgeBase = @{session_id=$bridgeSession;turn_id=$bridgeTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$bridgeTranscript}
+  Invoke-Hook $nodePath $hook ($bridgeBase + @{hook_event_name='UserPromptSubmit';prompt='Execute the managed bridge once'}) | Out-Null
+  $bridgeRoutePath = Join-Path $sandbox 'managed-bridge-route.json'
+  & $nodePath $recorder --session-id $bridgeSession --turn-id $bridgeTurn --work-unit-id managed-bridge --tier T2 --intent 'managed bridge regression' --agent-route 'single primary agent' --browser-reason 'not required' --acceptance 'one exact dispatch' --owner-paths 'test sandbox' --non-goals 'no external changes' --model-catalog $modelCatalog --allow-test-catalog --route-output $bridgeRoutePath | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'Managed bridge route recording failed.' }
+  $bridgeRoute = Get-Content -LiteralPath $bridgeRoutePath -Raw | ConvertFrom-Json
+  Add-AssistantMessage $bridgeTranscript $bridgeRoute.routeLine
+  $bridgeCounter = Join-Path $sandbox 'bridge-dispatch-counter.txt'
+  $fakeDispatcher = @'
+import fs from 'node:fs';
+const args = process.argv.slice(2);
+const get = (name) => args[args.indexOf(name) + 1];
+const route = JSON.parse(fs.readFileSync(get('--route'), 'utf8'));
+const counter = process.env.UEEF_TEST_BRIDGE_COUNTER;
+fs.appendFileSync(counter, 'dispatch\n');
+Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500);
+if (process.env.UEEF_TEST_BRIDGE_INVALID === '1') { process.stdout.write('{invalid-json'); process.exit(0); }
+process.stdout.write(JSON.stringify({provider:'codex-app-server:turn/start',threadId:'bridge-thread',turnId:'bridge-turn',routeDigest:route.routeDigest,executionSpecDigest:route.executionSpec.digest,actualModel:route.preferredModel,actualHostReasoning:route.hostReasoning,executionVerificationSource:'codex-app-server:thread/start+thread/settings/updated+model/rerouted',providerModelFallbackAllowed:false,executionVerified:true,result:'SUCCESS',capacityFallbackUsed:false,completedAt:new Date().toISOString()}));
+'@
+  New-Item -ItemType Directory -Path (Split-Path -Parent $installedDispatcher) -Force | Out-Null
+  [IO.File]::WriteAllText($installedDispatcher, $fakeDispatcher, [Text.UTF8Encoding]::new($false))
+  $env:UEEF_TEST_BRIDGE_COUNTER = $bridgeCounter
+  try {
+    $bridgeOutput = & $nodePath $recorder --session-id $bridgeSession --turn-id $bridgeTurn --execute-route $bridgeRoutePath --prompt test 2>&1
+    if ($LASTEXITCODE -ne 0 -or ($bridgeOutput -join "`n") -notmatch '"status":"PASS"') { throw "Managed bridge execution failed: $bridgeOutput" }
+    $previousErrorPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    $bridgeReplay = & $nodePath $recorder --session-id $bridgeSession --turn-id $bridgeTurn --execute-route $bridgeRoutePath --prompt test 2>&1
+    $bridgeReplayExit = $LASTEXITCODE
+    $ErrorActionPreference = $previousErrorPreference
+    if ($bridgeReplayExit -eq 0) { throw 'Managed bridge replay was accepted.' }
+    if (@(Get-Content -LiteralPath $bridgeCounter).Count -ne 1) { throw 'Managed bridge replay reached the external dispatcher more than once.' }
+    $bridgeState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-managed-bridge.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
+    if ($bridgeState.validations.modelDispatch -ne $true -or $bridgeState.route.invocationCommitted -ne $true -or $bridgeState.dispatchReservation) { throw 'Managed bridge did not atomically commit its verified one-shot receipt.' }
+
+    $invalidSession = 'session-managed-bridge-invalid'
+    $invalidTurn = 'turn-managed-bridge-invalid'
+    $invalidTranscript = Join-Path $sandbox 'session-managed-bridge-invalid.jsonl'
+    [IO.File]::WriteAllText($invalidTranscript, '', [Text.UTF8Encoding]::new($false))
+    $invalidBase = @{session_id=$invalidSession;turn_id=$invalidTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$invalidTranscript}
+    Invoke-Hook $nodePath $hook ($invalidBase + @{hook_event_name='UserPromptSubmit';prompt='Retry safely after an invalid receipt'}) | Out-Null
+    $invalidRoutePath = Join-Path $sandbox 'managed-bridge-invalid-route.json'
+    & $nodePath $recorder --session-id $invalidSession --turn-id $invalidTurn --work-unit-id managed-bridge-invalid --tier T2 --intent 'invalid receipt cleanup regression' --agent-route 'single primary agent' --browser-reason 'not required' --acceptance 'reservation cleanup permits retry' --owner-paths 'test sandbox' --non-goals 'no external changes' --model-catalog $modelCatalog --allow-test-catalog --route-output $invalidRoutePath | Out-Null
+    $env:UEEF_TEST_BRIDGE_INVALID = '1'
+    $previousErrorPreference = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    & $nodePath $recorder --session-id $invalidSession --turn-id $invalidTurn --execute-route $invalidRoutePath --prompt test 2>&1 | Out-Null
+    $invalidExit = $LASTEXITCODE
+    $ErrorActionPreference = $previousErrorPreference
+    Remove-Item Env:UEEF_TEST_BRIDGE_INVALID
+    if ($invalidExit -eq 0) { throw 'Malformed dispatcher receipt was accepted.' }
+    & $nodePath $recorder --session-id $invalidSession --turn-id $invalidTurn --execute-route $invalidRoutePath --prompt test | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Malformed receipt left a deadlocked work-unit reservation.' }
+
+    $concurrentSession = 'session-managed-bridge-concurrent'
+    $concurrentTurn = 'turn-managed-bridge-concurrent'
+    $concurrentTranscript = Join-Path $sandbox 'session-managed-bridge-concurrent.jsonl'
+    [IO.File]::WriteAllText($concurrentTranscript, '', [Text.UTF8Encoding]::new($false))
+    $concurrentBase = @{session_id=$concurrentSession;turn_id=$concurrentTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$concurrentTranscript}
+    Invoke-Hook $nodePath $hook ($concurrentBase + @{hook_event_name='UserPromptSubmit';prompt='Prove concurrent managed dispatch is one-shot'}) | Out-Null
+    $concurrentRoutePath = Join-Path $sandbox 'managed-bridge-concurrent-route.json'
+    & $nodePath $recorder --session-id $concurrentSession --turn-id $concurrentTurn --work-unit-id managed-bridge-concurrent --tier T2 --intent 'concurrent bridge regression' --agent-route 'single primary agent' --browser-reason 'not required' --acceptance 'one external dispatch under contention' --owner-paths 'test sandbox' --non-goals 'no external changes' --model-catalog $modelCatalog --allow-test-catalog --route-output $concurrentRoutePath | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Concurrent managed bridge route recording failed.' }
+    $concurrentRoute = Get-Content -LiteralPath $concurrentRoutePath -Raw | ConvertFrom-Json
+    Add-AssistantMessage $concurrentTranscript $concurrentRoute.routeLine
+    $concurrentTurn2 = 'turn-managed-bridge-concurrent-2'
+    $concurrentBase2 = $concurrentBase.Clone(); $concurrentBase2.turn_id = $concurrentTurn2
+    Invoke-Hook $nodePath $hook ($concurrentBase2 + @{hook_event_name='UserPromptSubmit';prompt='Competing turn for the same managed work unit'}) | Out-Null
+    $concurrentRoutePath2 = Join-Path $sandbox 'managed-bridge-concurrent-route-2.json'
+    & $nodePath $recorder --session-id $concurrentSession --turn-id $concurrentTurn2 --work-unit-id managed-bridge-concurrent --tier T2 --intent 'cross-turn bridge regression' --agent-route 'single primary agent' --browser-reason 'not required' --acceptance 'one external dispatch across turns' --owner-paths 'test sandbox' --non-goals 'no external changes' --model-catalog $modelCatalog --allow-test-catalog --route-output $concurrentRoutePath2 | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Second concurrent managed bridge route recording failed.' }
+    $concurrentRoute2 = Get-Content -LiteralPath $concurrentRoutePath2 -Raw | ConvertFrom-Json
+    Add-AssistantMessage $concurrentTranscript $concurrentRoute2.routeLine
+    if ($concurrentRoute.invocationIndex -ne $concurrentRoute2.invocationIndex) { throw 'Cross-turn regression did not stage the same work-unit invocation.' }
+    [IO.File]::WriteAllText($bridgeCounter, '', [Text.UTF8Encoding]::new($false))
+    $processArguments = @(
+      "`"$recorder`" --session-id $concurrentSession --turn-id $concurrentTurn --execute-route `"$concurrentRoutePath`" --prompt test",
+      "`"$recorder`" --session-id $concurrentSession --turn-id $concurrentTurn2 --execute-route `"$concurrentRoutePath2`" --prompt test"
+    )
+    $children = @()
+    foreach ($processArgs in $processArguments) {
+      $start = [Diagnostics.ProcessStartInfo]::new()
+      $start.FileName = $nodePath
+      $start.Arguments = $processArgs
+      $start.UseShellExecute = $false
+      $start.RedirectStandardOutput = $true
+      $start.RedirectStandardError = $true
+      $children += [Diagnostics.Process]::Start($start)
+    }
+    foreach ($child in $children) { $child.WaitForExit() }
+    $exitCodes = @($children | ForEach-Object { $_.ExitCode } | Sort-Object)
+    if (($exitCodes -join ',') -ne '0,1') { throw "Concurrent managed bridge did not produce one winner and one denial: $($exitCodes -join ',')" }
+    if (@(Get-Content -LiteralPath $bridgeCounter).Count -ne 1) { throw 'Concurrent managed bridge reached the external dispatcher more than once.' }
+  } finally {
+    Remove-Item Env:UEEF_TEST_BRIDGE_COUNTER -ErrorAction SilentlyContinue
+  }
 
   $protectedEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='Bash';tool_use_id='tool-3';tool_input=@{command="Set-Content '$requirementsPath' 'tamper'"}})
   Assert-Denied $protectedEdit 'Protected requirements mutation'
@@ -347,6 +489,15 @@ try {
   $frontendTranscript = Join-Path $sandbox 'session-frontend.jsonl'
   [IO.File]::WriteAllText($frontendTranscript, '', [Text.UTF8Encoding]::new($false))
   $frontendBase = @{session_id=$frontendSession;turn_id=$frontendTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$frontendTranscript}
+
+  $frontendReviewTurn = 'turn-frontend-review'
+  $frontendReviewBase = $frontendBase.Clone(); $frontendReviewBase.turn_id = $frontendReviewTurn
+  Invoke-Hook $nodePath $hook ($frontendReviewBase + @{hook_event_name='UserPromptSubmit';prompt='Review the frontend page architecture and report findings without changing files'}) | Out-Null
+  Record-UeefRoute $nodePath $recorder $modelCatalog $frontendSession $frontendReviewTurn T1 'read-only frontend review' 'frontend-review' $frontendTranscript | Out-Null
+  Invoke-Hook $nodePath $hook ($frontendReviewBase + @{hook_event_name='PostToolUse';tool_name='shell_command';tool_use_id='frontend-review-1';tool_input=@{command='git status --short'};tool_response='Exit code: 0'}) | Out-Null
+  $frontendReviewStop = Invoke-Hook $nodePath $hook ($frontendReviewBase + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message='The read-only review found no frontend mutations.'})
+  if ([string]$frontendReviewStop.decision -eq 'block') { throw "Read-only frontend review was incorrectly forced through frontend execution evidence: $($frontendReviewStop.reason)" }
+
   Invoke-Hook $nodePath $hook ($frontendBase + @{hook_event_name='UserPromptSubmit';prompt='Implement a responsive frontend component'}) | Out-Null
   Record-UeefRoute $nodePath $recorder $modelCatalog $frontendSession $frontendTurn T2 'frontend component' 'frontend-implementation' $frontendTranscript 'not required until visual verification' | Out-Null
   Complete-HostDispatch $nodePath $hook $stateRoot $frontendBase $frontendSession $frontendTurn $frontendTranscript | Out-Null
@@ -410,6 +561,13 @@ try {
   [IO.File]::WriteAllText($newTaskTranscript, '', [Text.UTF8Encoding]::new($false))
   $newTaskBase = @{session_id=$newTaskSession;turn_id=$newTaskTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$newTaskTranscript}
   Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='UserPromptSubmit';prompt='Create a new task for the separate requested work'}) | Out-Null
+  $preRouteRead = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='pre-route-read';tool_input=@{command='git status --short';workdir=$root;timeout_ms=10000}})
+  if ([string]$preRouteRead.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Allowlisted read-only intake was denied before route selection.' }
+  Assert-Denied (Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='mcp__browser__get';tool_use_id='pre-route-browser-get';tool_input=@{url='https://example.com'}})) 'Prohibited browser get before route'
+  Assert-Denied (Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='mcp__playwright__list';tool_use_id='pre-route-browser-list';tool_input=@{}})) 'Prohibited browser list before route'
+  Assert-Denied (Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='connector__get';tool_use_id='pre-route-generic-get';tool_input=@{}})) 'Unallowlisted generic get before route'
+  $preRouteMutation = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='pre-route-mutation';tool_input=@{patch='*** Begin Patch'}})
+  if ([string]$preRouteMutation.hookSpecificOutput.permissionDecision -ne 'deny') { throw 'Mutation was allowed before route selection.' }
   Record-UeefRoute $nodePath $recorder $modelCatalog $newTaskSession $newTaskTurn T1 'explicit new task' 'explicit-new-task' $newTaskTranscript | Out-Null
   $newTaskState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-explicit-new-task.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
   $t1LeadRead = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='t1-lead-read';tool_input=@{command='Get-Content .\docs\PROJECT-HANDOFF.md';workdir=$root;timeout_ms=10000}})
@@ -417,7 +575,7 @@ try {
   $t1RuntimeRead = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='t1-runtime-read';tool_input=@{command="& 'D:\shared folder\codex-home\ueef\codex\scripts\ueef-status.ps1'";workdir=$root;timeout_ms=10000}})
   if ([string]$t1RuntimeRead.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'T1 quoted Windows runtime status read was denied before model dispatch.' }
   $t1LeadMutation = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='t1-lead-mutation';tool_input=@{patch='*** Begin Patch'}})
-  if ([string]$t1LeadMutation.hookSpecificOutput.permissionDecision -ne 'deny') { throw 'T1 lead-agent mutation was allowed before model dispatch.' }
+  if ([string]$t1LeadMutation.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'T1 host-native lead mutation required a duplicate model dispatch.' }
   $explicitVisibleTask = Invoke-Hook $nodePath $hook ($newTaskBase + @{hook_event_name='PreToolUse';tool_name='codex_app__create_thread';tool_use_id='visible-task-explicit';tool_input=@{model=$newTaskState.route.preferredModel;thinking=$newTaskState.route.hostReasoning;prompt='requested task'}})
   if ([string]$explicitVisibleTask.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'Explicitly requested user-visible task creation was denied.' }
 
@@ -488,6 +646,16 @@ try {
 
   $negativeCompletionMention = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message="Understanding: explaining hook behavior`nPhase: diagnosis`nCurrent step: describe why the guard fired`nCurrent-step percent: 100%`nOverall percent: 50%`nNew evidence: stop-hook output`nCurrent action: no completion claim`nNext gate: implementation`nUEEF: ACTIVE`nLoaded: boot-loader, core-system`nSelected: runtime; Model used: test-model / Medium label (host: medium)`nGates: active`nTools: PowerShell`nSkills: none`nUIUX: NA`nStatus: ACTIVE - the goal is not COMPLETE and still requires an audit"})
   if ($negativeCompletionMention.continue -eq $false -or [string]$negativeCompletionMention.decision -eq 'block') { throw "A negated completion explanation was incorrectly blocked: $($negativeCompletionMention.reason)" }
+  $completionQuestions = @('Is the project complete?', 'هل المشروع كامل؟', 'المشروع مش كامل', 'المشروع ما اكتمل')
+  foreach ($completionQuestion in $completionQuestions) {
+    $questionStop = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message=$completionQuestion})
+    if ($questionStop.continue -eq $false -or [string]$questionStop.decision -eq 'block') { throw "A completion question or negation was incorrectly treated as a claim: $completionQuestion :: $($questionStop.reason)" }
+  }
+  $statementThenQuestions = @('The implementation is COMPLETE. Any questions?', 'التنفيذ مكتمل. هل لديك أسئلة؟')
+  foreach ($statementThenQuestion in $statementThenQuestions) {
+    $statementThenQuestionStop = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='Stop';stop_hook_active=$false;last_assistant_message=$statementThenQuestion})
+    Assert-StopBlocked $statementThenQuestionStop "Completion statement followed by a question: $statementThenQuestion"
+  }
 
   Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='Bash';tool_use_id='tool-8';tool_input=@{command='.\scripts\validate-completion-audit.ps1 -Path .\.ueef\completion-audit\x.json'};tool_response="Exit code: 0`nstatus : PASS`ntaskId : x"}) | Out-Null
   Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PostToolUse';tool_name='Bash';tool_use_id='tool-9';tool_input=@{command='.\scripts\validate-goal-lifecycle.ps1 -GoalStatus COMPLETE -CompletionAuditPath .\.ueef\completion-audit\x.json'};tool_response="Exit code: 0`nGoalStatus : COMPLETE`nCompleteAllowed : True`nCompletionAuditPassed : True"}) | Out-Null

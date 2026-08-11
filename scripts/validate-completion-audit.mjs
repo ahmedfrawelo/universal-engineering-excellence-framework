@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import nodePath from 'node:path';
 
-const path = process.argv[2];
-if (!path || !fs.existsSync(path)) throw new Error(`Completion audit not found: ${path ?? ''}`);
-const audit = JSON.parse(fs.readFileSync(path, 'utf8').replace(/^\uFEFF/, ''));
+const auditPath = process.argv[2];
+if (!auditPath || !fs.existsSync(auditPath)) throw new Error(`Completion audit not found: ${auditPath ?? ''}`);
+const audit = JSON.parse(fs.readFileSync(auditPath, 'utf8').replace(/^\uFEFF/, ''));
 const text = (value, name) => {
   if (typeof value !== 'string' || !value.trim() || /^(replace-me|todo|tbd)$/i.test(value.trim())) throw new Error(`Completion audit requires substantive ${name}.`);
 };
@@ -90,4 +91,15 @@ if ((goalUpdates.pendingUpdates ?? []).length || (goalUpdates.openResumePoints ?
 const updateIds = new Set();
 for (const route of updateRoutes) { text(route.id, 'goal update route id'); text(route.summary, 'goal update route summary'); text(route.targetStep, 'goal update target step'); text(route.resolutionEvidence, 'goal update resolution evidence'); const id=String(route.id).toLowerCase(); if(updateIds.has(id)) throw new Error(`Duplicate goal update route id: ${route.id}`); updateIds.add(id); if(!['CURRENT_STEP','PRIOR_STEP_CORRECTION','FUTURE_STEP','INVALIDATES_CURRENT_WORK','CONFLICT_OR_AMBIGUOUS'].includes(route.relation) || route.status !== 'PASS') throw new Error(`Invalid goal update route: ${route.id}`); }
 if ((audit.remainingWork ?? []).length || (audit.knownProblems ?? []).length || audit.conclusion !== 'COMPLETE') throw new Error('Completion audit is not COMPLETE.');
-console.log(JSON.stringify({ schemaVersion: 2, status: 'PASS', taskId: audit.taskId, requirements: requirements.length, acceptanceCriteria: criteria.length, reviewUnits: units.length, checklistItems: checklist.length, path: path }));
+console.log(JSON.stringify({
+  schemaVersion: 2,
+  status: 'PASS',
+  taskId: audit.taskId,
+  requirements: requirements.length,
+  acceptanceCriteria: criteria.length,
+  reviewUnits: units.length,
+  checklistItems: checklist.length,
+  taskCausedRegressions: (regressions.taskCausedRegressions ?? []).length,
+  unrelatedFindings: (regressions.unrelatedFindings ?? []).length,
+  path: nodePath.resolve(auditPath),
+}));
