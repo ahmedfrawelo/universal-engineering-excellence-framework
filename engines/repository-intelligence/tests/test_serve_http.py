@@ -7,7 +7,9 @@ unchanged and covered elsewhere.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -126,6 +128,25 @@ def test_blank_api_key_means_no_auth(tmp_path):
         assert resp.status_code == 200
 
 
+@pytest.mark.parametrize("host", ["0.0.0.0", "::", "", "192.168.1.10", "graph.internal"])
+def test_non_loopback_bind_without_api_key_fails_closed(tmp_path, host):
+    with pytest.raises(ValueError, match="non-loopback.*API key"):
+        serve_mod._build_http_app(
+            _graph_file(tmp_path), host=host, api_key="   ", json_response=True
+        )
+
+
+@pytest.mark.parametrize("host", ["127.0.0.1", "127.42.0.7", "::1", "localhost"])
+def test_loopback_bind_without_api_key_is_allowed(tmp_path, host):
+    serve_mod._build_http_app(_graph_file(tmp_path), host=host, json_response=True)
+
+
+def test_non_loopback_bind_with_api_key_is_allowed(tmp_path):
+    serve_mod._build_http_app(
+        _graph_file(tmp_path), host="0.0.0.0", api_key="s3cret", json_response=True
+    )
+
+
 def test_api_key_bearer_scheme_case_insensitive(tmp_path):
     app = serve_mod._build_http_app(_graph_file(tmp_path), api_key="s3cret", json_response=True)
     with _client(app) as client:
@@ -225,6 +246,100 @@ def test_project_path_routes_to_that_projects_graph(tmp_path):
         assert "Nodes: 3" in _call_tool(client, headers, "graph_stats", {"project_path": proj}, rid=3)
         # Falling back to the default afterwards still works (no state leak).
         assert "Nodes: 2" in _call_tool(client, headers, "graph_stats", {}, rid=4)
+
+
+def test_project_path_outside_allowed_roots_is_rejected(tmp_path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    default_graph = _graph_file(allowed)
+    outside = _project_with_graph(tmp_path, node_count=9, name="outside")
+    app = serve_mod._build_http_app(default_graph, json_response=True)
+    with _client(app) as client:
+        headers = _init_session(client)
+        denied = _call_tool(
+            client, headers, "graph_stats", {"project_path": outside}, rid=2
+        )
+        assert "outside the allowed project roots" in denied.lower()
+        assert "Nodes: 2" in _call_tool(client, headers, "graph_stats", {}, rid=3)
+
+
+def test_explicit_allowed_project_root_enables_shared_projects(tmp_path):
+    default_root = tmp_path / "default"
+    default_root.mkdir()
+    shared_root = tmp_path / "shared"
+    shared_root.mkdir()
+    project = _project_with_graph(shared_root, node_count=7)
+    app = serve_mod._build_http_app(
+        _graph_file(default_root),
+        allowed_project_roots=[shared_root],
+        json_response=True,
+    )
+    with _client(app) as client:
+        headers = _init_session(client)
+        assert "Nodes: 7" in _call_tool(
+            client, headers, "graph_stats", {"project_path": project}, rid=2
+        )
+
+
+def test_project_path_symlink_cannot_escape_allowed_root(tmp_path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    outside = Path(_project_with_graph(tmp_path, node_count=9, name="outside"))
+    link = allowed / "linked-project"
+    try:
+        link.symlink_to(outside, target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlinks unavailable: {exc}")
+    app = serve_mod._build_http_app(_graph_file(allowed), json_response=True)
+    with _client(app) as client:
+        headers = _init_session(client)
+        denied = _call_tool(
+            client, headers, "graph_stats", {"project_path": str(link)}, rid=2
+        )
+        assert "outside the allowed project roots" in denied.lower()
+
+
+def test_project_graph_directory_symlink_cannot_escape_allowed_root(tmp_path):
+    allowed = tmp_path / "allowed"
+    project = allowed / "project"
+    project.mkdir(parents=True)
+    outside = Path(_project_with_graph(tmp_path, node_count=9, name="outside"))
+    link = project / "graphify-out"
+    try:
+        link.symlink_to(outside / "graphify-out", target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlinks unavailable: {exc}")
+    app = serve_mod._build_http_app(_graph_file(allowed), json_response=True)
+    with _client(app) as client:
+        headers = _init_session(client)
+        denied = _call_tool(
+            client, headers, "graph_stats", {"project_path": str(project)}, rid=2
+        )
+        assert "outside the allowed project roots" in denied.lower()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction regression test")
+def test_project_graph_directory_junction_cannot_escape_allowed_root(tmp_path):
+    allowed = tmp_path / "allowed"
+    project = allowed / "project"
+    project.mkdir(parents=True)
+    outside = Path(_project_with_graph(tmp_path, node_count=9, name="outside"))
+    junction = project / "graphify-out"
+    result = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(junction), str(outside / "graphify-out")],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        pytest.skip(f"directory junctions unavailable: {result.stderr or result.stdout}")
+    app = serve_mod._build_http_app(_graph_file(allowed), json_response=True)
+    with _client(app) as client:
+        headers = _init_session(client)
+        denied = _call_tool(
+            client, headers, "graph_stats", {"project_path": str(project)}, rid=2
+        )
+        assert "outside the allowed project roots" in denied.lower()
 
 
 @pytest.mark.parametrize(
@@ -347,12 +462,14 @@ def test_cli_http_passes_flags(monkeypatch):
     serve_mod._main([
         "g.json", "--transport", "http", "--host", "0.0.0.0",
         "--port", "9000", "--api-key", "k", "--stateless",
+        "--allow-project-root", "D:/projects", "--allow-project-root", "E:/shared",
     ])
     assert captured["gp"] == "g.json"
     assert captured["host"] == "0.0.0.0"
     assert captured["port"] == 9000
     assert captured["api_key"] == "k"
     assert captured["stateless"] is True
+    assert captured["allowed_project_roots"] == ["D:/projects", "E:/shared"]
 
 
 def test_cli_api_key_from_env(monkeypatch):

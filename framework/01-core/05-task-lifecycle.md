@@ -20,6 +20,8 @@ This module defines when a task starts, continues, completes, or becomes blocked
 
 ## Execution Contract
 
+Before substantial work, make the operating contract visible: `Mode` states whether the current request authorizes review or implementation; `Spec` states `NONE`, `LIGHT`, or `FULL_REQUIRED` from the routed tier; and `Team` states `NONE`, `AUTHORIZATION_REQUIRED`, or `SPAWN` with its reason. Review language does not authorize mutation. Implementation language does. A positive team benefit does not authorize spawning by itself.
+
 T0/T1 use the host-native compact lifecycle: record route metadata before mutation or non-read execution, perform the bounded work in the current lead, run the nearest focused verification, report the direct outcome, and stop. They do not require a duplicate App Server dispatch, schema-version-2 completion audit, or eight-label final block. Steps 5 through 9 below are the evidence-managed lifecycle for T2+ and any task escalated to that tier by risk or scope.
 
 1. Translate the request into observable acceptance criteria and exclusions.

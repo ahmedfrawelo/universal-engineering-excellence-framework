@@ -26,6 +26,11 @@ try{
   $path=Join-Path $temp 'audit.json';$valid|ConvertTo-Json -Depth 8|Set-Content $path -Encoding utf8
   & $validator -Path $path|Out-Null
   if(!(Test-NodeAudit $path)){throw 'Portable completion validator rejected the valid fixture.'}
+  $refreshFixture=Get-Content -LiteralPath $path -Raw|ConvertFrom-Json
+  $refreshFixture.sourceReview.sourceSha256='STALE-HASH'
+  [IO.File]::WriteAllText($path,($refreshFixture|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
+  & $validator -Path $path -RefreshSourceHash|Out-Null
+  if(!(Test-NodeAudit $path)){throw 'Explicit source-hash refresh did not produce a valid completion audit.'}
   $arabicText=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('2YrYrNioINi52LHYtiDZhtiz2KjYqSDYp9mE2K7Yt9mI2Kkg2KfZhNit2KfZhNmK2Kkg2YjYp9mE2YbYs9io2Kkg2KfZhNmD2YTZitipLg=='))
   $arabicHash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash([Text.Encoding]::UTF8.GetBytes($arabicText))).Replace('-','')).ToUpperInvariant()
   $arabic=$valid|ConvertTo-Json -Depth 8|ConvertFrom-Json

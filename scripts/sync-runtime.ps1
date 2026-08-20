@@ -5,6 +5,7 @@ param(
   [string]$BackupRoot = '',
   [string]$ManagedRequirementsPath = '',
   [switch]$TestFailAfterState,
+  [switch]$TestFailRollbackCleanup,
   [switch]$InstallOpenDesignSkills,
   [switch]$SkipOpenDesignSkills,
   [switch]$SkipValidation,
@@ -97,6 +98,7 @@ if ($requireManagedEnforcement -and [string]::IsNullOrWhiteSpace($ManagedRequire
   $defaultCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath (Resolve-CodexHome)).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
   $ManagedRequirementsPath = if ($resolvedCodexHome -eq $defaultCodexHome) { Get-UeefManagedRequirementsPath -CodexHome $resolvedCodexHome } else { Join-Path $resolvedCodexHome 'managed-requirements\requirements.toml' }
 }
+
 $resolvedBackupRoot = Resolve-UeefBackupRoot -CodexHome $resolvedCodexHome -BackupRoot $BackupRoot
 $resolvedSource = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePrefix = $resolvedCodexHome + [IO.Path]::DirectorySeparatorChar
@@ -202,11 +204,12 @@ if ($managedHooksExisted) {
 }
 $managedRequirementsExisted = $requireManagedEnforcement -and (Test-Path -LiteralPath $ManagedRequirementsPath -PathType Leaf)
 $managedRequirementsBefore = if ($managedRequirementsExisted) { [IO.File]::ReadAllText($ManagedRequirementsPath, [Text.Encoding]::UTF8) } else { $null }
+$committed = $false
 try {
   if (Test-Path -LiteralPath $runtimePath) {
-    Move-Item -LiteralPath $runtimePath -Destination $rollbackPath
+    [IO.Directory]::Move($runtimePath, $rollbackPath)
   }
-  Move-Item -LiteralPath $stagingPath -Destination $runtimePath
+  [IO.Directory]::Move($stagingPath, $runtimePath)
   $runtimeSwapped = $true
 
 # Keep the globally injected AGENTS block compact. Detailed guidance remains in the
@@ -276,8 +279,41 @@ if ($requireManagedEnforcement) {
 if ($Quiet) { $stateParameters.Quiet = $true }
 & (Join-Path $runtimePath "scripts\write-active-state.ps1") @stateParameters | Out-Null
 if ($TestFailAfterState) { throw 'Injected test failure after active-state write.' }
-if (Test-Path -LiteralPath $rollbackPath) { Remove-Item -LiteralPath $rollbackPath -Recurse -Force }
+$runtimePolicyPath = Join-Path $runtimePath 'scripts\runtime-file-policy.ps1'
+. $runtimePolicyPath
+$activeState = Get-Content -LiteralPath (Join-Path $resolvedRuntimeRoot 'UEEF-ACTIVE.json') -Raw | ConvertFrom-Json
+$driftContentSignature = Get-UeefRuntimeContentSignature -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256)
+$driftMetadataSignatureBefore = Get-UeefRuntimeMetadataSignature -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256)
+$driftMismatches = @(Get-UeefRuntimeDriftMismatches -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256))
+$driftMetadataSignature = Get-UeefRuntimeMetadataSignature -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256)
+if ($driftMismatches.Count -or $driftMetadataSignatureBefore -cne $driftMetadataSignature) {
+  throw "Runtime drift proof changed during cache seeding: $($driftMismatches -join '; ')"
+}
+$driftCachePath = Join-Path $resolvedRuntimeRoot 'logs\runtime-drift-cache.json'
+New-Item -ItemType Directory -Path (Split-Path -Parent $driftCachePath) -Force | Out-Null
+$driftCacheDocument = [ordered]@{
+  schemaVersion=3
+  generatedAt=(Get-Date).ToUniversalTime().ToString('o')
+  sourcePath=$resolvedSource
+  runtimePath=$runtimePath
+  metadataSignature=$driftMetadataSignature
+  contentSignature=$driftContentSignature
+  result='PASS'
+}
+$temporaryDriftCache = "$driftCachePath.$([guid]::NewGuid().ToString('N')).tmp"
+[IO.File]::WriteAllText($temporaryDriftCache, ($driftCacheDocument | ConvertTo-Json -Depth 3), [Text.UTF8Encoding]::new($false))
+Move-Item -LiteralPath $temporaryDriftCache -Destination $driftCachePath -Force
 $runtimeSwapped = $false
+$committed = $true
+$committedRollbackPath = $rollbackPath
+$rollbackPath = $null
+if (Test-Path -LiteralPath $committedRollbackPath) {
+  try {
+    if ($TestFailRollbackCleanup) { throw 'Injected rollback cleanup failure.' }
+    Remove-Item -LiteralPath $committedRollbackPath -Recurse -Force -ErrorAction Stop
+  }
+  catch { Write-Warning "Runtime was committed, but old rollback cleanup is pending: $committedRollbackPath" }
+}
 if ($stateBackup -and (Test-Path -LiteralPath $stateBackup)) { Remove-Item -LiteralPath $stateBackup -Force -ErrorAction SilentlyContinue }
 if ($managedHooksBackup -and (Test-Path -LiteralPath $managedHooksBackup)) { Remove-Item -LiteralPath $managedHooksBackup -Recurse -Force -ErrorAction SilentlyContinue }
 Write-Output "UEEF runtime synced to $runtimePath"
@@ -285,13 +321,17 @@ Write-Output "Codex AGENTS updated at $agents"
 if ($requireManagedEnforcement) { Write-Output "Codex managed enforcement installed at $managedHooksPath" }
 } catch {
   $failure = $_
+  if ($committed) {
+    [Console]::Error.WriteLine("UEEF runtime is committed; skipped obsolete rollback after a post-commit error: $($failure.Exception.Message)")
+    return
+  }
   $rollbackFailure = $null
   try {
     if ($runtimeSwapped -and (Test-Path -LiteralPath $runtimePath)) {
       Remove-Item -LiteralPath $runtimePath -Recurse -Force
     }
-    if (Test-Path -LiteralPath $rollbackPath) {
-      Move-Item -LiteralPath $rollbackPath -Destination $runtimePath
+    if ($rollbackPath -and (Test-Path -LiteralPath $rollbackPath)) {
+      [IO.Directory]::Move($rollbackPath, $runtimePath)
     }
   } catch { $rollbackFailure = $_ }
   if ($agentsBackup -and (Test-Path -LiteralPath $agentsBackup)) {

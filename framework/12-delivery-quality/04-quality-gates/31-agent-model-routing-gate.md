@@ -3,6 +3,7 @@
 Pass when every applicable item is true:
 
 - Task complexity and risk were classified from current evidence.
+- The visible decision contract reports `Mode`, `Spec`, and `Team` with reasons before substantial work; its values match the selected tier and current authorization.
 - The selected model and reasoning match the versioned route policy. T0/T1 are host-native in the current lead and require no duplicate host-agent creation receipt; T2+ actual host-agent creation evidence proves which model executed.
 - Every materially different work unit was re-routed and every route change was visible before changed execution. T0/T1 route metadata is visible before mutation or non-read execution; T2+ also shows the complete technical model identifier and host-provided effort before dispatch. Recorder output alone does not satisfy visibility.
 - The live catalog supplies all concrete model names and per-model efforts; every entry appears in coverage with an eligibility decision, and repository policy contains no account catalog or translated effort map.
@@ -10,6 +11,7 @@ Pass when every applicable item is true:
 - For T2+, execution receipts derive actual model/effort/result from matching host completion evidence; pre-thread capacity uses an attempt/request ID and fallback receipts are hash-bound to that failure.
 - A current-picker constraint and any above-`high` or model-constraint override have explicit user authorization and corresponding route flags.
 - The topology is the smallest one with a positive delegation benefit.
+- `spawnAgents=true` has a current authorization source of `USER`, `PLATFORM_POLICY`, or `TASK_INSTRUCTION`; otherwise a beneficial team is reported as `AUTHORIZATION_REQUIRED`. `PLATFORM_POLICY` grants only the narrow `INDEPENDENT_VERIFIER` scope; implementation workers require user or task authorization with `WORKERS` scope.
 - Parallel topology is backed by at least two independently owned workstreams.
 - A capacity failure triggers exactly one declared named-model fallback, with the primary failure and actual fallback result recorded. Account, cookie, and profile rotation are forbidden.
 - Child ownership and context packets are bounded and non-overlapping.

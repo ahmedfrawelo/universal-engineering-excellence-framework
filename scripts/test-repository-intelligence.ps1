@@ -27,8 +27,9 @@ def run():
   Set-Content -LiteralPath (Join-Path $fixture '.env') -Encoding utf8 -Value 'api_key=UEEF_TEST_SECRET_DO_NOT_INDEX'
   Set-Content -LiteralPath (Join-Path $fixture 'vendor\ignored-package\ignored.py') -Encoding utf8 -Value 'def must_not_be_indexed(): return "ignored"'
 
-  # The wrapper owns one-time dependency bootstrap. The adapter's durationMs
-  # remains the graph-build budget, while later commands must use --no-sync.
+  # Dependency mutation is explicit. Diagnostics and graph commands never run
+  # uv sync as an implicit side effect.
+  & $entrypoint -Command bootstrap -Root $fixture | Out-Null
   $build = & $entrypoint -Command build -Root $fixture -Json | ConvertFrom-Json
   if ($build.status -ne 'PASS') { throw "Build did not pass: $($build | ConvertTo-Json -Compress)" }
   if ($build.durationMs -gt 30000) { throw "Cold fixture build exceeded 30000 ms: $($build.durationMs)" }
@@ -127,9 +128,13 @@ foreach ($notice in @('LICENSE', 'LICENSE-MIT', 'NOTICE', 'UEEF-UPSTREAM.json', 
 }
 $workflowPath = Join-Path $root '.github\workflows\validate.yml'
 $workflowText = Get-Content -LiteralPath $workflowPath -Raw
-foreach ($engineCiContract in @('repository-engine', 'uv sync --group dev --locked', 'uv run --frozen pytest', 'uv run --frozen ruff check .')) {
+foreach ($engineCiContract in @('repository-engine', 'uv sync --group dev --locked', 'uv run --frozen pytest --cov=graphify', '--cov-fail-under=75', 'uv run --frozen ruff check .', 'check-repository-engine-quality.py pyright', 'check-repository-engine-quality.py bandit', 'uv export --quiet --frozen --no-dev --no-emit-project', 'pip-audit --requirement', 'pip-audit --local')) {
   if ($workflowText -notmatch [regex]::Escape($engineCiContract)) { throw "Repository engine CI coverage missing: $engineCiContract" }
 }
+$wrapperText = Get-Content -LiteralPath $entrypoint -Raw
+if ($wrapperText -notmatch "Command -eq 'bootstrap'" -or $wrapperText -notmatch 'dependencies are missing or stale') { throw 'PowerShell wrapper does not expose explicit dependency bootstrap.' }
+$shellWrapperText = Get-Content -LiteralPath $shellEntrypoint -Raw
+if ($shellWrapperText -notmatch '\[\[ "\$1" == bootstrap \]\]' -or $shellWrapperText -notmatch 'dependencies are missing or stale') { throw 'Shell wrapper does not expose explicit dependency bootstrap.' }
 $engineEvidence = & node (Join-Path $root 'scripts\verify-repository-intelligence-engine.mjs') $root | ConvertFrom-Json
 if ($engineEvidence.status -ne 'PASS' -or $engineEvidence.upstreamFiles -ne 776 -or $engineEvidence.nestedGit) { throw 'Engine inventory verification failed.' }
 

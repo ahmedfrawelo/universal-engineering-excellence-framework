@@ -55,15 +55,16 @@ neither can activate one. UEEF-native parity is semantic rather than format-wide
 | Reference capability | UEEF-native production semantic |
 |---|---|
 | conditions | named, explicitly supplied booleans; unknown expressions fail closed |
-| while / do-while | statically bounded expansion, at most 20 iterations |
+| while / do-while | bounded expansion with either one static boolean or a per-iteration boolean sequence, at most 20 iterations |
 | fan-out / fan-in | at most 16 explicit branches followed by dependency-joined gates |
 | workflow overlays | bounded anchor edits with deterministic layer precedence and digest |
 | extensions / presets | permission- and route-clamped catalog items |
 | bundles | dependency-expanded, cycle-checked activation groups |
 | catalogs | bounded sources with install-allowed or discovery-only policy |
 
-Executable steps, arbitrary expressions, runtime plug-in imports, and unbounded expansion are
-not compatibility gaps: they are deliberately outside the production grammar.
+Executable steps, executable fields hidden on declarative tasks, arbitrary expressions,
+runtime plug-in imports, oversized documents, and unbounded expansion are not compatibility
+gaps: they are deliberately outside the production grammar.
 
 The local catalog lifecycle is fully owned by UEEF. `catalog-query` provides bounded
 list/search/info discovery. `catalog-registry` atomically initializes, validates, reconciles,

@@ -146,6 +146,31 @@ class CatalogCompositionTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(WorkflowError, "forbidden"):
             compose_safe_workflow(unsafe, [], adapter="spec-kit/v0.16")
+        hidden_command = {
+            "schemaVersion": 1,
+            "workflowId": "hidden-command",
+            "steps": [{"type": "task", "id": "run", "command": "dangerous"}],
+        }
+        with self.assertRaisesRegex(WorkflowError, "unsupported fields: command"):
+            compose_safe_workflow(hidden_command, [])
+        with self.assertRaisesRegex(WorkflowError, "task title"):
+            compose_safe_workflow(
+                {
+                    "schemaVersion": 1,
+                    "workflowId": "bad-title",
+                    "steps": [{"type": "task", "id": "task", "title": " "}],
+                },
+                [],
+            )
+        with self.assertRaisesRegex(WorkflowError, "1048576-byte limit"):
+            compose_safe_workflow(
+                {
+                    "schemaVersion": 1,
+                    "workflowId": "oversized",
+                    "steps": [{"type": "task", "id": "task", "title": "x" * 1048576}],
+                },
+                [],
+            )
         human_gate = {
             "schema_version": "1.0",
             "workflow": {"id": "approval", "name": "Approval", "version": "1.0.0"},
@@ -284,6 +309,40 @@ class CatalogCompositionTests(unittest.TestCase):
         for invalid in (0, 21):
             with self.assertRaisesRegex(WorkflowError, "1 through 20"):
                 expand("while", True, invalid)
+
+    def test_bounded_loops_stop_on_per_iteration_boolean_sequences(self) -> None:
+        def expanded_ids(kind: str, values: list[bool]) -> list[str]:
+            workflow = {
+                "schemaVersion": 1,
+                "workflowId": "dynamic-loop",
+                "steps": [{
+                    "type": kind,
+                    "condition": "continueLoop",
+                    "maxIterations": 5,
+                    "steps": [{"type": "task", "id": "body"}],
+                }],
+            }
+            return [
+                step["id"]
+                for step in compose_safe_workflow(
+                    workflow, [], context={"continueLoop": values}
+                )["expanded"]
+            ]
+
+        self.assertEqual(
+            expanded_ids("while", [True, True, False, True]),
+            ["I1-body", "I2-body"],
+        )
+        self.assertEqual(
+            expanded_ids("do-while", [True, False, True]),
+            ["I1-body", "I2-body"],
+        )
+        with self.assertRaisesRegex(WorkflowError, "bounded boolean sequences"):
+            compose_safe_workflow(
+                {"schemaVersion": 1, "workflowId": "bad", "steps": []},
+                [],
+                context={"continueLoop": [True] * 21},
+            )
 
 
 if __name__ == "__main__":

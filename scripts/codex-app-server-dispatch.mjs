@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { appServerSandboxPolicy, resolveCodexExecutable } from './codex-app-server-client-lib.mjs';
+import { assertExecutionDecision } from './codex-hooks/ueef-hook-common.mjs';
 
 const args = process.argv.slice(2);
 const valueAfter = (flag) => { const index = args.indexOf(flag); return index === -1 ? null : args[index + 1] || null; };
@@ -26,6 +27,7 @@ if (!Number.isFinite(timeoutMs) || timeoutMs < 1_000 || timeoutMs > 60 * 60 * 10
 if (responseLanguage !== 'auto' && !/^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/u.test(responseLanguage)) throw new Error('--response-language must be auto or a BCP-47 language tag.');
 
 const route = JSON.parse(fs.readFileSync(routePath, 'utf8'));
+assertExecutionDecision(route.decision, 'Dispatch route', route);
 const catalogIdentity = (route.catalogCoverage || []).map((entry) => ({
   model: entry.model,
   hidden: entry.hidden,
@@ -45,6 +47,7 @@ const computedRouteDigest = crypto.createHash('sha256').update(JSON.stringify({
   fallbackModel: route.fallbackModel || null,
   fallbackHostReasoning: route.fallbackHostReasoning || null,
   tokenEconomy: route.tokenEconomy || null,
+  decision: route.decision,
   catalogDigest: route.catalogDigest,
   catalogProvider: route.catalogProvider,
   catalogDiscoveredAt: route.catalogDiscoveredAt

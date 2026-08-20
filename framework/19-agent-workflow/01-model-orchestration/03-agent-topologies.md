@@ -26,7 +26,7 @@ The lead plans and reviews; workers execute scoped tasks. The verifier challenge
 
 ## Delegation Benefit Test
 
-Spawn only when all applicable benefit conditions are true; T4 retains independent verification.
+Spawn only when all applicable benefit conditions are true **and** current authorization comes from the user, platform policy, or an applicable task instruction; T4 retains independent verification. A topology recommendation is not permission to create workers. If authorization is absent, record `Team: AUTHORIZATION_REQUIRED` and the useful workstreams instead of waiting silently for the user to guess a magic phrase.
 
 - the subtask is concrete and self-contained;
 - it materially advances the requested outcome;

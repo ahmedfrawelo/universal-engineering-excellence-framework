@@ -22,6 +22,13 @@ done
 [ -f "$ROOT/scripts/validate-spec-workflow.ps1" ] || { echo "Missing spec workflow validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/verify-spec-workflow-upstream.mjs" ] || { echo "Missing spec workflow upstream integrity verifier" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-spec-workflow-upstream.mjs" ] || { echo "Missing spec workflow upstream integrity tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/verify-spec-workflow-boundary.mjs" ] || { echo "Missing Spec Kit production dependency boundary verifier" >&2; exit 1; }
+[ -f "$ROOT/scripts/promote-ueef-evidence.ps1" ] || { echo "Missing durable UEEF evidence promotion command" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-evidence-promotion.ps1" ] || { echo "Missing durable UEEF evidence promotion tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/check-repository-engine-quality.py" ] || { echo "Missing repository engine quality ratchet" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-repository-engine-quality.py" ] || { echo "Missing repository engine quality ratchet tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/runtime-metadata-signature.mjs" ] || { echo "Missing runtime metadata signature helper" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-runtime-metadata-signature.ps1" ] || { echo "Missing runtime metadata signature tests" >&2; exit 1; }
 node "$ROOT/scripts/verify-spec-workflow-upstream.mjs" --engine-root "$ROOT/engines/spec-workflow" --json >/dev/null || { echo "Spec workflow upstream integrity verification failed" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-capability-health.ps1" ] || { echo "Missing capability health doctor" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-ueef-health.ps1" ] || { echo "Missing unified UEEF health report" >&2; exit 1; }
@@ -337,7 +344,7 @@ grep -q '25-skeleton-loading-gate' "$ROOT/scripts/select-quality-gates.ps1" || {
 grep -q 'superpowers' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing Superpowers route" >&2; exit 1; }
 grep -q '32-skill-invocation-protocol-gate' "$ROOT/scripts/select-quality-gates.ps1" || { echo "Quality gate selector missing skill protocol gate" >&2; exit 1; }
 grep -qi 'skill invocation' "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/00-skill-invocation-protocol-system.md" || { echo "Canonical skill protocol missing" >&2; exit 1; }
-grep -q 'TDD or an equivalent evidence loop' "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/04-tdd-and-evidence-loop.md" || { echo "Canonical skill evidence loop missing" >&2; exit 1; }
+grep -q 'TDD is required when the risk and project tooling make it practical; otherwise the assistant must still create an evidence loop' "$ROOT/framework/19-agent-workflow/02-skill-invocation-protocol/04-tdd-and-evidence-loop.md" || { echo "Canonical skill evidence loop missing" >&2; exit 1; }
 grep -q 'Skill candidates:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing skill candidates" >&2; exit 1; }
 grep -q 'Red flags checked:' "$ROOT/framework/03-runtime/00-runtime-sequence.md" || { echo "Runtime sequence missing red flag field" >&2; exit 1; }
 grep -q 'MIT License' "$ROOT/docs/third-party/superpowers-attribution.md" || { echo "Superpowers attribution missing MIT License" >&2; exit 1; }
@@ -474,7 +481,13 @@ if [ "$SKIP_NESTED_TESTS" = 0 ]; then
   sh "$ROOT/scripts/test-evidence-export.sh" >/dev/null || { echo "Unix evidence export tests failed" >&2; exit 1; }
   sh "$ROOT/scripts/test-project-modernization-contract.sh" "$ROOT" >/dev/null || { echo "Unix project modernization tests failed" >&2; exit 1; }
 fi
-route="$("$ROOT/scripts/select-agent-route.sh" --risk-floor Privacy)"
+route="$("$ROOT/scripts/select-agent-route.sh" \
+  --risk-floor Privacy \
+  --delegation-benefit \
+  --delegation-authorized \
+  --delegation-authorization-source PLATFORM_POLICY \
+  --model-catalog "$ROOT/scripts/fixtures/model-catalog.json" \
+  --test-model-catalog)"
 printf '%s' "$route" | grep -q '"tier":"T4"' || { echo "Unix agent route risk floor failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"spawnAgents":true' || { echo "Unix agent route T4 verifier guard failed" >&2; exit 1; }
 printf '%s' "$route" | grep -q '"independentVerificationRequired":true' || { echo "Unix agent route T4 evidence guard failed" >&2; exit 1; }

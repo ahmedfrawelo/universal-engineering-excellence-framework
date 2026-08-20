@@ -1,19 +1,30 @@
 import { spawn } from 'node:child_process';
-import { resolveCodexExecutable } from './codex-app-server-client-lib.mjs';
+import { acquireAppServerDiscoveryLock, resolveAppServerDiscoveryLockRoot, resolveCodexExecutable } from './codex-app-server-client-lib.mjs';
 
 const args = process.argv.slice(2);
 const valueAfter = (flag) => { const i = args.indexOf(flag); return i === -1 ? null : args[i + 1] || null; };
 const { executable, executableSource } = resolveCodexExecutable(valueAfter('--executable'));
 const timeoutMs = Number(valueAfter('--timeout-ms') || 15000);
+const discoveryLockWaitMs = Number(valueAfter('--discovery-lock-wait-ms') || 60000);
+if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300_000) {
+  throw new Error('--timeout-ms requires an integer from 1 to 300000.');
+}
+if (!Number.isInteger(discoveryLockWaitMs) || discoveryLockWaitMs < 1 || discoveryLockWaitMs > 300_000) {
+  throw new Error('--discovery-lock-wait-ms requires an integer from 1 to 300000.');
+}
 const includeHidden = !args.includes('--picker-visible-only');
+const releaseDiscoveryLock = acquireAppServerDiscoveryLock({ waitMs: discoveryLockWaitMs, root: resolveAppServerDiscoveryLockRoot() });
 let child;
 try {
   child = spawn(executable, ['app-server'], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
 } catch (error) {
+  releaseDiscoveryLock();
   process.stderr.write(`Codex App Server catalog discovery failed: ${error.message}\n`);
   process.exit(1);
 }
 let complete = false;
+let lockReleased = false;
+let shutdownTimer = null;
 let buffer = '';
 const collectedModels = [];
 const seenCursors = new Set();
@@ -26,12 +37,29 @@ const finish = (error) => {
   if (complete) return;
   complete = true;
   clearTimeout(timer);
-  child.kill();
   if (error) { process.stderr.write(`Codex App Server catalog discovery failed: ${error.message}\n`); process.exitCode = 1; }
+  if (child.exitCode === null && child.signalCode === null) {
+    child.kill();
+    shutdownTimer = setTimeout(() => {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    }, 5000);
+    shutdownTimer.unref();
+  }
+  else releaseLockOnce();
+};
+const releaseLockOnce = () => {
+  if (lockReleased) return;
+  lockReleased = true;
+  if (shutdownTimer) clearTimeout(shutdownTimer);
+  releaseDiscoveryLock();
+  child.stdin.destroy();
+  child.stdout.destroy();
+  child.stderr.destroy();
 };
 const send = (message) => child.stdin.write(`${JSON.stringify(message)}\n`);
 const timer = setTimeout(() => finish(new Error(`Timed out after ${timeoutMs} ms`)), timeoutMs);
-child.on('error', (error) => finish(error));
+child.once('close', releaseLockOnce);
+child.on('error', (error) => { finish(error); if (!child.pid) releaseLockOnce(); });
 child.stderr.on('data', () => {});
 child.stdout.on('data', (chunk) => {
   buffer += chunk;

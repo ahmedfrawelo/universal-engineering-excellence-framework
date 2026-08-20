@@ -21,6 +21,9 @@ assert_contains "$route" '"reasoningCeiling":"high"'
 assert_contains "$route" '"catalogModelCount":8'
 assert_contains "$route" '"generalModelCount":7'
 assert_contains "$route" '"spawnAgents":false'
+assert_contains "$route" '"mode":"REVIEW"'
+assert_contains "$route" '"spec":"NONE"'
+assert_contains "$route" '"team":"NONE"'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --code-change)"
 assert_contains "$route" '"tier":"T1"'
@@ -33,13 +36,19 @@ assert_contains "$route" '"routeEvidenceRequired":true'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --code-change --agents-unavailable)"
 assert_contains "$route" '"spawnAgents":false'
-assert_contains "$route" '"noSpawnReason":"TOOL_UNAVAILABLE"'
+assert_contains "$route" '"noSpawnReason":"NO_INDEPENDENT_WORK"'
 
 route="$("$selector" --model-catalog "$catalog" --test-model-catalog --scope 2 --ambiguity 2 --coupling 1 --risk 1 --verification 1 --delegation-benefit)"
 assert_contains "$route" '"tier":"T2"'
-assert_contains "$route" '"topology":"lead-plus-sidecar"'
+assert_contains "$route" '"team":"AUTHORIZATION_REQUIRED"'
+assert_contains "$route" '"topology":"single-agent"'
 
-route="$("$selector" --model-catalog "$catalog" --test-model-catalog --risk-floor Payment --delegation-benefit --independent-workstreams 2)"
+route="$("$selector" --model-catalog "$catalog" --test-model-catalog --scope 2 --ambiguity 2 --coupling 1 --risk 1 --verification 1 --delegation-benefit --delegation-authorized --delegation-authorization-source USER)"
+assert_contains "$route" '"tier":"T2"'
+assert_contains "$route" '"topology":"lead-plus-sidecar"'
+assert_contains "$route" '"team":"SPAWN"'
+
+route="$("$selector" --model-catalog "$catalog" --test-model-catalog --risk-floor Payment --delegation-benefit --delegation-authorized --delegation-authorization-source TASK_INSTRUCTION --independent-workstreams 2)"
 assert_contains "$route" '"tier":"T4"'
 assert_contains "$route" '"reasoning":"medium"'
 assert_contains "$route" '"preferredModel":"gpt-5.6-sol"'
@@ -72,6 +81,7 @@ assert_contains "$route" '"aboveCeilingAuthorized":true'
 assert_contains "$route" '"currentModelConstraintOverridden":true'
 
 if "$selector" --risk 3 >/dev/null 2>&1; then echo 'Risk 3 without floor was accepted' >&2; exit 1; fi
+if "$selector" --delegation-authorized --model-catalog "$catalog" --test-model-catalog >/dev/null 2>&1; then echo 'Partial delegation authorization was accepted' >&2; exit 1; fi
 for route in \
   "$("$selector" --model-catalog "$catalog" --test-model-catalog)" \
   "$("$selector" --model-catalog "$catalog" --test-model-catalog --scope 1 --ambiguity 1 --coupling 1 --risk 1 --verification 1)" \

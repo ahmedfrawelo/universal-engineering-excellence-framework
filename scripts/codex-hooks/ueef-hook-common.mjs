@@ -3,6 +3,43 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const EXECUTION_MODES = new Set(['REVIEW', 'IMPLEMENTATION']);
+const EXECUTION_SPECS = new Set(['NONE', 'LIGHT', 'FULL_REQUIRED']);
+const EXECUTION_TEAMS = new Set(['NONE', 'AUTHORIZATION_REQUIRED', 'SPAWN']);
+const AUTHORIZATION_SOURCES = new Set(['NONE', 'USER', 'PLATFORM_POLICY', 'TASK_INSTRUCTION']);
+const DELEGATION_SCOPES = new Set(['NONE', 'WORKERS', 'INDEPENDENT_VERIFIER']);
+const boundedDecisionReason = (value) => typeof value === 'string' && value === value.trim() && value.length > 0 && value.length <= 256;
+
+export function executionDecisionValid(decision, route = null) {
+  const structurallyValid = Boolean(
+    decision && typeof decision === 'object' && !Array.isArray(decision) &&
+    EXECUTION_MODES.has(decision.mode) && EXECUTION_SPECS.has(decision.spec) && boundedDecisionReason(decision.specReason) &&
+    EXECUTION_TEAMS.has(decision.team) && boundedDecisionReason(decision.teamReason) &&
+    typeof decision.delegationAuthorized === 'boolean' && AUTHORIZATION_SOURCES.has(decision.delegationAuthorizationSource) &&
+    DELEGATION_SCOPES.has(decision.delegationScope) &&
+    decision.delegationAuthorized === (decision.delegationAuthorizationSource !== 'NONE') &&
+    decision.delegationAuthorized === (decision.delegationScope !== 'NONE') &&
+    (decision.delegationAuthorizationSource !== 'PLATFORM_POLICY' || decision.delegationScope === 'INDEPENDENT_VERIFIER') &&
+    (decision.team !== 'SPAWN' || decision.delegationAuthorized === true) &&
+    (decision.team !== 'AUTHORIZATION_REQUIRED' || decision.delegationAuthorized === false) &&
+    (decision.team !== 'NONE' || decision.delegationAuthorized === false)
+  );
+  if (!structurallyValid || route === null) return structurallyValid;
+  if (!['T0', 'T1', 'T2', 'T3', 'T4'].includes(route.tier) || !route.tokenEconomy || typeof route.tokenEconomy !== 'object' ||
+      typeof route.tokenEconomy.specRequired !== 'boolean' || !Number.isInteger(route.tokenEconomy.maxWorkerCount) ||
+      route.tokenEconomy.maxWorkerCount < 0 || route.tokenEconomy.maxWorkerCount > 16) return false;
+  const expectedSpec = ['T3', 'T4'].includes(route.tier) ? 'FULL_REQUIRED' : route.tokenEconomy.specRequired ? 'LIGHT' : 'NONE';
+  const workerBudget = route.tokenEconomy.maxWorkerCount;
+  const userRequestedSingleAgent = decision.teamReason === 'USER_REQUESTED_SINGLE_AGENT' && decision.delegationAuthorized === false;
+  const expectedTeam = workerBudget <= 0 || userRequestedSingleAgent ? 'NONE' : decision.delegationAuthorized ? 'SPAWN' : 'AUTHORIZATION_REQUIRED';
+  return decision.spec === expectedSpec && decision.team === expectedTeam && (workerBudget > 0 || decision.delegationScope === 'NONE');
+}
+
+export function assertExecutionDecision(decision, label = 'route', route = null) {
+  if (!executionDecisionValid(decision, route)) throw new Error(`${label} has an invalid canonical execution decision.`);
+  return decision;
+}
+
 export const hookRoot = path.dirname(fileURLToPath(import.meta.url));
 export const runtimeRoot = path.dirname(hookRoot);
 export const runtimePath = path.join(runtimeRoot, 'codex');
@@ -58,6 +95,7 @@ export function inheritValidatedHostRoute(
     upgrade: entry.upgrade
   }));
   const catalogDigest = sha256Text(JSON.stringify(catalogIdentity));
+  if (!executionDecisionValid(route.decision, route)) { state.hostRouteInheritanceError = 'ROUTE_DECISION_INVALID'; return state; }
   const routeDigest = sha256Text(JSON.stringify({
     tier: route.tier,
     workUnitId: route.workUnitId || null,
@@ -67,6 +105,7 @@ export function inheritValidatedHostRoute(
     fallbackModel: route.fallbackModel || null,
     fallbackHostReasoning: route.fallbackHostReasoning || null,
     tokenEconomy: route.tokenEconomy || null,
+    decision: route.decision,
     catalogDigest: route.catalogDigest,
     catalogProvider: route.catalogProvider,
     catalogDiscoveredAt: route.catalogDiscoveredAt
@@ -111,6 +150,24 @@ export function inheritValidatedHostRoute(
 export function safeId(value) {
   const text = String(value || 'missing');
   return /^[A-Za-z0-9._-]{1,128}$/.test(text) ? text : sha256Text(text).slice(0, 32);
+}
+
+export function currentCodexThreadId() {
+  const value = String(process.env.CODEX_THREAD_ID || '').trim();
+  return value ? safeId(value) : null;
+}
+
+export function assertTurnOwner(state, sessionId) {
+  const expected = state?.ownerThreadId || null;
+  const actual = currentCodexThreadId();
+  if (expected && actual && expected !== actual) {
+    throw new Error(`UEEF turn route belongs to a different Codex thread (${expected}); cross-agent overwrite denied.`);
+  }
+  if (expected && !actual && expected !== safeId(sessionId)) throw new Error('UEEF turn route ownership cannot be verified because CODEX_THREAD_ID is missing.');
+  if (!expected && actual && actual !== safeId(sessionId)) {
+    throw new Error('Legacy UEEF turn state cannot be claimed by a different Codex thread.');
+  }
+  return true;
 }
 
 function assertStateRoot() {
@@ -187,10 +244,14 @@ function reclaimAbandonedLock(lockPath) {
   }
 }
 
-export function withLock(sessionId, turnId, action) {
-  assertStateRoot();
-  const lockPath = path.join(stateRoot, `${sha256Text(`${sessionId}\n${turnId}`).slice(0, 32)}.lock`);
-  const deadline = Date.now() + 5000;
+export function acquireLock(sessionId, turnId, { waitMs = 5000, root = stateRoot } = {}) {
+  if (!Number.isInteger(waitMs) || waitMs < 1 || waitMs > 300_000) throw new Error('UEEF lock wait must be an integer from 1 to 300000 ms.');
+  const resolvedRoot = path.resolve(root);
+  fs.mkdirSync(resolvedRoot, { recursive: true });
+  const rootStat = fs.lstatSync(resolvedRoot);
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) throw new Error(`Refusing unsafe UEEF lock root: ${resolvedRoot}`);
+  const lockPath = path.join(resolvedRoot, `${sha256Text(`${sessionId}\n${turnId}`).slice(0, 32)}.lock`);
+  const deadline = Date.now() + waitMs;
   const token = crypto.randomBytes(16).toString('hex');
   let handle;
   while (handle === undefined) {
@@ -210,12 +271,20 @@ export function withLock(sessionId, turnId, action) {
       Atomics.wait(sleepBuffer, 0, 0, 25);
     }
   }
-  try { return action(); }
-  finally {
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
     fs.closeSync(handle);
     const owner = readLockOwner(lockPath);
     if (owner?.token === token && owner.pid === process.pid) fs.rmSync(lockPath, { force: true });
-  }
+  };
+}
+
+export function withLock(sessionId, turnId, action) {
+  const release = acquireLock(sessionId, turnId);
+  try { return action(); }
+  finally { release(); }
 }
 
 export function cleanupHookState({
@@ -298,7 +367,11 @@ export function readTurnState(sessionId, turnId) {
 }
 
 export function writeTurnState(sessionId, turnId, state) {
-  return withLock(sessionId, turnId, () => atomicWrite(turnStatePath(sessionId, turnId), state));
+  return withLock(sessionId, turnId, () => {
+    const file = turnStatePath(sessionId, turnId);
+    if (fs.existsSync(file)) assertTurnOwner(JSON.parse(fs.readFileSync(file, 'utf8')), sessionId);
+    atomicWrite(file, state);
+  });
 }
 
 export function updateTurnState(sessionId, turnId, update) {
@@ -471,13 +544,17 @@ export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
     return false;
   };
   authorizations.useCurrentModel = explicitlyPositive(/(use|keep|stick to).{0,30}(current|selected|picker).{0,20}model|استخدم.{0,20}(الموديل الحالي|الموديل المختار)|اشتغل.{0,20}(بالموديل الحالي|بالموديل المختار)/iu);
+  authorizations.singleAgent = explicitlyPositive(/\b(?:single[ -]?agent|lead only|no (?:team|workers?|subagents?))\b|(?:استخدم|نفذ|اشتغل).{0,30}(?:المسار|الطريق).{0,20}(?:المختار|الحالي).{0,10}(?:فقط|بس)|(?:بدون|من غير).{0,20}(?:فريق|وكلاء)|(?:وكيل|المساعد).{0,10}(?:واحد|فقط)/iu);
   authorizations.allowModelConstraintOverride = explicitlyPositive(/(allow|permit|authorize).{0,40}(model constraint|override|break constraint)|اسمح.{0,30}(بتجاوز|بكسر).{0,20}(قيد|الموديل)/iu);
   authorizations.allowAboveHigh = explicitlyPositive(/\b(xhigh|max|ultra|extra[ -]?high|above[ -]?high)\b|أعلى من هاي|تجاوز هاي|فوق هاي/iu);
   authorizations.newUserTask = explicitlyPositive(/(?:\b(?:create|open|start|fork|handoff|move)\b.{0,50}\b(?:new\s+)?(?:task|thread|chat)\b|\bnew\s+(?:task|thread|chat)\b|(?:\u0627\u0641\u062a\u062d|\u0627\u0639\u0645\u0644|\u0627\u0646\u0634\u0626|\u0623\u0646\u0634\u0626|\u0633\u0644\u0645|\u062d\u0648\u0644|\u062d\u0648\u0651\u0644).{0,60}(?:(?:\u062a\u0627\u0633\u0643|\u0645\u0647\u0645\u0629|\u062b\u0631\u064a\u062f|\u0634\u0627\u062a).{0,20}\u062c\u062f\u064a\u062f(?:\u0629|\u0647)?|\u062c\u062f\u064a\u062f(?:\u0629|\u0647)?.{0,20}(?:\u062a\u0627\u0633\u0643|\u0645\u0647\u0645\u0629|\u062b\u0631\u064a\u062f|\u0634\u0627\u062a)))/iu);
+  authorizations.delegation = explicitlyPositive(/(?:\b(?:use|create|form|spawn|delegate)\b.{0,40}\b(?:team|subagents?|workers?|agents?)\b|\b(?:team|subagents?|workers?)\b.{0,30}\b(?:please|now|required)\b|(?:كون|كوّن|اعمل|استخدم|شكل|شكّل|فوض).{0,30}(?:فريق|وكلاء|عمال)|(?:فريق|وكلاء).{0,20}(?:مطلوب|لازم))/iu);
+  if (authorizations.singleAgent) authorizations.delegation = false;
   return {
     schemaVersion: 1,
     sessionId: safeId(sessionId),
     turnId: safeId(turnId),
+    ownerThreadId: currentCodexThreadId() || safeId(sessionId),
     promptSha256: sha256Text(text),
     promptLength: text.length,
     cwdSha256: sha256Text(cwd || ''),

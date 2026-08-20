@@ -34,6 +34,21 @@
     "recordActualExecution": true,
     "executionMode": "ROUTED_LEAD_REQUIRED"
   },
+  "visibleDecisionContract": {
+    "requiredFields": ["mode", "spec", "team"],
+    "modeValues": ["REVIEW", "IMPLEMENTATION"],
+    "specModeByTier": {
+      "T0": "NONE",
+      "T1": "NONE",
+      "T2": "LIGHT",
+      "T3": "FULL_REQUIRED",
+      "T4": "FULL_REQUIRED"
+    },
+    "teamValues": ["NONE", "AUTHORIZATION_REQUIRED", "SPAWN"],
+    "requireDelegationAuthorization": true,
+    "delegationAuthorizationSources": ["USER", "PLATFORM_POLICY", "TASK_INSTRUCTION"],
+    "delegationScopes": ["NONE", "WORKERS", "INDEPENDENT_VERIFIER"]
+  },
   "tokenEconomy": {
     "specFirstForTiers": ["T2", "T3", "T4"],
     "budgetModes": ["minimal", "bounded", "expanded"],

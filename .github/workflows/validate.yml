@@ -50,9 +50,23 @@ jobs:
       - name: Lint embedded repository engine
         working-directory: engines/repository-intelligence
         run: uv run --frozen ruff check .
+      - name: Prevent repository-engine type debt from increasing
+        working-directory: engines/repository-intelligence
+        run: uv run --frozen python ../../scripts/check-repository-engine-quality.py pyright
+      - name: Prevent repository-engine security debt from increasing
+        working-directory: engines/repository-intelligence
+        run: uv run --frozen python ../../scripts/check-repository-engine-quality.py bandit
+      - name: Audit locked repository-engine dependencies
+        working-directory: engines/repository-intelligence
+        run: |
+          uv export --quiet --frozen --no-dev --no-emit-project --format requirements-txt --output-file "${RUNNER_TEMP}/repository-engine-requirements.txt"
+          uv run --frozen pip-audit --requirement "${RUNNER_TEMP}/repository-engine-requirements.txt"
+      - name: Audit repository-engine development and build tooling
+        working-directory: engines/repository-intelligence
+        run: uv run --frozen pip-audit --local
       - name: Run embedded repository engine tests
         working-directory: engines/repository-intelligence
-        run: uv run --frozen pytest
+        run: uv run --frozen pytest --cov=graphify --cov-report=term --cov-report=xml --cov-fail-under=75
 
   windows:
     name: Windows validation

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
@@ -49,16 +50,63 @@ Status: READY
 
 
 def route(max_workers: int = 4) -> dict[str, object]:
-    return {
+    execution_spec: dict[str, object] = {
+        "schemaVersion": 1,
+        "tier": "T4",
+        "workUnitId": "demo-flow",
+        "promptSha256": "c" * 64,
+        "outcome": "compile the demo workflow",
+        "acceptanceCriteria": "tests pass",
+        "ownerPaths": "tests",
+        "nonGoals": "no production mutation",
+        "tokenEconomy": {"budgetMode": "expanded", "maxWorkerCount": max_workers},
+        "requiredEvidence": ["tests"],
+        "createdAtUtc": "2026-08-11T00:00:00.000Z",
+    }
+    execution_spec["digest"] = hashlib.sha256(
+        json.dumps(execution_spec, separators=(",", ":")).encode()
+    ).hexdigest()
+    result: dict[str, object] = {
         "schemaVersion": 3,
         "tier": "T4",
-        "routeDigest": "a" * 64,
+        "workUnitId": "demo-flow",
+        "invocationIndex": 0,
+        "preferredModel": "gpt-test",
+        "hostReasoning": "medium",
+        "fallbackModel": None,
+        "fallbackHostReasoning": None,
         "tokenEconomy": {
             "budgetMode": "expanded",
             "maxWorkerCount": max_workers,
         },
-        "executionSpec": {"digest": "b" * 64},
+        "decision": {
+            "mode": "IMPLEMENTATION",
+            "spec": "FULL_REQUIRED",
+            "specReason": "FULL_SPEC_REQUIRED_BY_SCOPE_OR_RISK",
+            "team": "SPAWN",
+            "teamReason": "USER_AUTHORIZED",
+            "delegationAuthorized": True,
+            "delegationAuthorizationSource": "USER",
+            "delegationScope": "WORKERS",
+        },
+        "catalogDigest": "d" * 64,
+        "catalogProvider": "test-catalog",
+        "catalogDiscoveredAt": "2026-08-11T00:00:00.000Z",
+        "executionSpec": execution_spec,
     }
+    identity = {
+        key: result[key]
+        for key in (
+            "tier", "workUnitId", "invocationIndex", "preferredModel",
+            "hostReasoning", "fallbackModel", "fallbackHostReasoning",
+            "tokenEconomy", "decision", "catalogDigest", "catalogProvider",
+            "catalogDiscoveredAt",
+        )
+    }
+    result["routeDigest"] = hashlib.sha256(
+        json.dumps(identity, separators=(",", ":")).encode()
+    ).hexdigest()
+    return result
 
 
 class CompilerTests(unittest.TestCase):
@@ -69,7 +117,7 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(first["schemaVersion"], 2)
         self.assertEqual(first["policy"]["maxWorkers"], 4)
         self.assertEqual(first["policy"]["tokenBudgetMode"], "expanded")
-        self.assertEqual(first["routeBinding"]["routeDigest"], "a" * 64)
+        self.assertEqual(first["routeBinding"]["routeDigest"], route()["routeDigest"])
         self.assertEqual(first["tasks"][1]["dependsOn"], ["TASK-001"])
         self.assertTrue(first["tasks"][1]["readOnly"])
         self.assertEqual(TaskGraph.from_dict(first).schema_version, 2)
@@ -77,6 +125,18 @@ class CompilerTests(unittest.TestCase):
     def test_requested_worker_cap_cannot_widen_route(self) -> None:
         with self.assertRaisesRegex(WorkflowError, "cannot exceed route maximum"):
             compile_plan(TASKS, "demo-flow", route(3), requested_max_workers=4)
+
+    def test_route_and_execution_spec_tampering_are_rejected(self) -> None:
+        tampered_route = route()
+        tampered_route["preferredModel"] = "attacker-model"
+        with self.assertRaisesRegex(WorkflowError, "canonical identity"):
+            compile_plan(TASKS, "demo-flow", tampered_route)
+
+        tampered_spec = route()
+        assert isinstance(tampered_spec["executionSpec"], dict)
+        tampered_spec["executionSpec"]["outcome"] = "different outcome"
+        with self.assertRaisesRegex(WorkflowError, "canonical content"):
+            compile_plan(TASKS, "demo-flow", tampered_spec)
 
     def test_evidence_is_structured_and_bound_to_every_acceptance_criterion(self) -> None:
         invalid = TASKS.replace(

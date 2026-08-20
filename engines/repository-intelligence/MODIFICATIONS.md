@@ -93,5 +93,8 @@ UEEF changes after import:
   Windows holds the process CWD open and cannot represent the POSIX scenario.
 - Normalized persisted watch pending-change paths to POSIX separators, so the
   queue is portable across runtime processes and operating systems.
+- Hardened the embedded MCP HTTP server so non-loopback binds require an API
+  key and client-selected graph paths remain within operator-allowed roots,
+  including when nested graph directories are links or junctions.
 
 No upstream copyright, license, or notice file was removed or rewritten.
