@@ -34,6 +34,8 @@ const recorderScript = path.join(scripts, 'codex-hooks', 'record-ueef-route.mjs'
   assert.equal(route.modelAvailability, 'CATALOG_DISCOVERY_FAILED');
   assert.equal(route.modelSelectionMode, 'CATALOG_DISCOVERY_REQUIRED');
   assert.match(route.catalogDiscoveryError, /(?:Timed out after 1 ms|spawn codex ENOENT)/u);
+  assert.match(route.catalogDiscoveryError, /attempt 1:/u);
+  assert.match(route.catalogDiscoveryError, /attempt 2:/u);
 
   const fallback = JSON.parse(execFileSync(process.execPath, [resolverScript, '--tier', 'T3', '--models-unavailable'], {
     encoding: 'utf8',
@@ -44,7 +46,13 @@ const recorderScript = path.join(scripts, 'codex-hooks', 'record-ueef-route.mjs'
   assert.equal(fallback.modelSelectionMode, 'CAPACITY_FALLBACK_REQUIRED');
 
   const recorderSource = fs.readFileSync(recorderScript, 'utf8');
-  assert.match(recorderSource, /timeout:\s*catalogTimeoutMs \+ resolverProcessGraceMs/u);
+  assert.match(recorderSource, /timeout:\s*\(\(catalogDiscoveryLockWaitMs \+ catalogTimeoutMs \+ catalogProcessGraceMs \+ catalogParentMarginMs\) \* catalogDiscoveryAttempts\) \+ resolverProcessGraceMs/u);
+  assert.match(recorderSource, /const catalogTimeoutMs = 10_000;/u);
+  assert.match(recorderSource, /const catalogDiscoveryLockWaitMs = 10_000;/u);
+  assert.match(recorderSource, /const catalogProcessGraceMs = 3_000;/u);
+  assert.match(recorderSource, /const catalogParentMarginMs = 2_000;/u);
+  assert.match(recorderSource, /const resolverProcessGraceMs = 5_000;/u);
+  assert.match(recorderSource, /bounded to 55 seconds/u);
   assert.match(recorderSource, /resolverArgs\.push\('--catalog-timeout-ms', String\(catalogTimeoutMs\)\)/u);
 
   process.stdout.write('Routing timeout recovery tests passed\n');

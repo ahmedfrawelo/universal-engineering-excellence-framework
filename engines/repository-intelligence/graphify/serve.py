@@ -1,5 +1,6 @@
 # MCP stdio server - exposes graph query tools to Claude and other agents
 from __future__ import annotations
+import ipaddress
 import json
 import math
 import os
@@ -1272,7 +1273,11 @@ def _community_header(cid: int, community_name) -> str:
     return base
 
 
-def _build_server(graph_path: str):
+def _build_server(
+    graph_path: str,
+    *,
+    allowed_project_roots: list[str | os.PathLike[str]] | None = None,
+):
     """Build the configured low-level MCP Server (shared by every transport).
 
     All graph query tools and resources are registered here over a single
@@ -1300,6 +1305,23 @@ def _build_server(graph_path: str):
     _default_graph_path = str(Path(graph_path).resolve())
     _ctx_cache = _GraphContextCache(_max_server_contexts())
 
+    # A client-controlled project_path must never turn this shared server into
+    # an arbitrary local-file reader. By default, projects are confined to the
+    # configured graph's project root. Operators may add explicit shared roots
+    # for multi-project servers.
+    _default_graph = Path(_default_graph_path)
+    _default_project_root = (
+        _default_graph.parent.parent
+        if _default_graph.parent.name == Path(_paths.GRAPHIFY_OUT).name
+        else _default_graph.parent
+    )
+    _allowed_project_roots = tuple(
+        dict.fromkeys(
+            Path(root).expanduser().resolve()
+            for root in [_default_project_root, *(allowed_project_roots or [])]
+        )
+    )
+
     def _load_ctx(path: str):
         """Return the current default or project graph context as a tool error.
 
@@ -1317,7 +1339,14 @@ def _build_server(graph_path: str):
         GRAPHIFY_OUT override so worktree/shared-output setups keep working."""
         if not project_path:
             return _default_graph_path
-        return str(Path(project_path) / _paths.GRAPHIFY_OUT / "graph.json")
+        project = Path(project_path).expanduser().resolve()
+        graph = (project / _paths.GRAPHIFY_OUT / "graph.json").resolve()
+        if not any(
+            project.is_relative_to(root) and graph.is_relative_to(root)
+            for root in _allowed_project_roots
+        ):
+            raise PermissionError("project_path is outside the allowed project roots")
+        return str(graph)
 
     # Active per-request context, rebound by _select_graph() and read by the tool
     # handlers below. No lock needed on the hot path: _select_graph and the
@@ -1483,8 +1512,8 @@ def _build_server(graph_path: str):
                 "type": "string",
                 "description": (
                     "Absolute path to a project directory containing "
-                    "graphify-out/graph.json. Optional — defaults to the graph "
-                    "this server was started with."
+                    "graphify-out/graph.json beneath an operator-allowed root. "
+                    "Optional — defaults to the graph this server was started with."
                 ),
             }
         return _tools
@@ -1996,6 +2025,22 @@ class _ApiKeyMiddleware:
         await self.app(scope, receive, send)
 
 
+def _is_loopback_host(host: str) -> bool:
+    """Return whether an HTTP bind target is confined to this machine.
+
+    Hostnames other than the explicit localhost alias fail closed: resolving a
+    name here would introduce DNS-dependent startup behavior and a rebinding
+    opportunity between validation and socket bind.
+    """
+    normalized = host.strip().lower()
+    if normalized == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(normalized).is_loopback
+    except ValueError:
+        return False
+
+
 def _build_http_app(
     graph_path: str,
     *,
@@ -2006,6 +2051,7 @@ def _build_http_app(
     json_response: bool = False,
     stateless: bool = False,
     session_timeout: float | None = 3600.0,
+    allowed_project_roots: list[str | os.PathLike[str]] | None = None,
 ):
     """Build the Starlette ASGI app for the Streamable HTTP transport.
 
@@ -2035,14 +2081,17 @@ def _build_http_app(
     # A blank key (e.g. --api-key "" or an empty GRAPHIFY_API_KEY) must not be
     # mistaken for "auth on" — normalize it to None so the gate is unambiguous.
     api_key = (api_key or "").strip() or None
+    if not _is_loopback_host(host) and not api_key:
+        raise ValueError("A non-loopback HTTP bind requires a non-empty API key")
 
-    server = _build_server(graph_path)
+    server = _build_server(graph_path, allowed_project_roots=allowed_project_roots)
 
-    # DNS-rebinding protection. When the operator binds a wildcard address they
-    # are intentionally exposing the server, so accept any Host header; for a
-    # loopback/specific bind, restrict Host to that address (with and without
-    # the port) plus the localhost aliases.
-    if host in ("0.0.0.0", "::", ""):
+    # Authenticated wildcard binds accept any Host header because the bind has
+    # no single host name. Loopback/specific binds keep DNS-rebinding protection
+    # restricted to the configured address and localhost aliases.
+    # These literals are compared here; the actual bind happens later via the
+    # validated ``host`` value passed to uvicorn.
+    if host in ("0.0.0.0", "::", ""):  # nosec B104
         security = TransportSecuritySettings(enable_dns_rebinding_protection=False)
     else:
         allowed = {host, "localhost", "127.0.0.1"}
@@ -2088,6 +2137,7 @@ def serve_http(
     json_response: bool = False,
     stateless: bool = False,
     session_timeout: float | None = 3600.0,
+    allowed_project_roots: list[str | os.PathLike[str]] | None = None,
 ) -> None:
     """Start the MCP server over Streamable HTTP (MCP spec 2025-03-26).
 
@@ -2097,8 +2147,9 @@ def serve_http(
 
     ``api_key`` (or the ``GRAPHIFY_API_KEY`` env var) enables a simple header
     check (``Authorization: Bearer <key>`` or ``X-API-Key: <key>``). OAuth is a
-    deliberate follow-up. Binding ``0.0.0.0`` exposes the server beyond
-    localhost — set an api_key when you do.
+    deliberate follow-up. Any non-loopback bind requires a non-empty API key.
+    Client-selected projects are confined to the configured graph's project
+    root plus any explicitly supplied ``allowed_project_roots``.
     """
     graph_path = graph_path or _default_graph_json()
     try:
@@ -2120,6 +2171,7 @@ def serve_http(
         json_response=json_response,
         stateless=stateless,
         session_timeout=session_timeout,
+        allowed_project_roots=allowed_project_roots,
     )
 
     auth_note = "api-key required" if api_key else "no auth (set --api-key to require one)"
@@ -2127,12 +2179,6 @@ def serve_http(
         f"graphify MCP server (streamable-http) on http://{host}:{port}{path} - {auth_note}",
         file=sys.stderr,
     )
-    if host in ("0.0.0.0", "::", "") and not api_key:
-        print(
-            f"WARNING: binding {host or '0.0.0.0'} with no api-key exposes the graph "
-            "unauthenticated on the network. Set --api-key (or GRAPHIFY_API_KEY).",
-            file=sys.stderr,
-        )
     uvicorn.run(app, host=host, port=port)
 
 
@@ -2170,6 +2216,16 @@ def _main(argv: list[str] | None = None) -> None:
         default=os.environ.get("GRAPHIFY_API_KEY"),
         help="Require this key on the HTTP transport (env: GRAPHIFY_API_KEY)",
     )
+    parser.add_argument(
+        "--allow-project-root",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help=(
+            "Allow client project_path values beneath this root (repeatable; "
+            "the configured graph's project root is always allowed)"
+        ),
+    )
     parser.add_argument("--path", default="/mcp", help="HTTP mount path (default: /mcp)")
     parser.add_argument(
         "--json-response",
@@ -2200,6 +2256,7 @@ def _main(argv: list[str] | None = None) -> None:
             json_response=args.json_response,
             stateless=args.stateless,
             session_timeout=args.session_timeout,
+            allowed_project_roots=args.allow_project_root,
         )
     else:
         serve(graph_path)

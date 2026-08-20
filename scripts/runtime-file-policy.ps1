@@ -119,30 +119,54 @@ function Get-UeefContentHashes {
     [Parameter(Mandatory)][string[]]$RelativePaths
   )
   if (!$RelativePaths.Count) { return @() }
-  $git = Get-Command git -ErrorAction SilentlyContinue
-  if ($git) {
+  foreach ($relative in $RelativePaths) {
+    if ([IO.Path]::IsPathRooted($relative) -or $relative.Replace('\','/').Split('/') -contains '..') {
+      throw "Unsafe content-hash path: $relative"
+    }
+  }
+  $node = Get-Command node -ErrorAction SilentlyContinue
+  $helper = Join-Path $PSScriptRoot 'batch-file-hashes.mjs'
+  if ($node -and (Test-Path -LiteralPath $helper -PathType Leaf)) {
     try {
       $psi = [Diagnostics.ProcessStartInfo]::new()
-      $psi.FileName = $git.Source
+      $psi.FileName = $node.Source
       $psi.UseShellExecute = $false
       $psi.RedirectStandardInput = $true
       $psi.RedirectStandardOutput = $true
       $psi.RedirectStandardError = $true
-      [void]$psi.ArgumentList.Add('-C')
+      [void]$psi.ArgumentList.Add($helper)
       [void]$psi.ArgumentList.Add($RootPath)
-      [void]$psi.ArgumentList.Add('hash-object')
-      [void]$psi.ArgumentList.Add('--stdin-paths')
       $process = [Diagnostics.Process]::Start($psi)
+      $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+      $stderrTask = $process.StandardError.ReadToEndAsync()
       foreach ($relative in $RelativePaths) { $process.StandardInput.WriteLine($relative) }
       $process.StandardInput.Close()
-      $stdout = $process.StandardOutput.ReadToEnd()
-      $process.StandardError.ReadToEnd() | Out-Null
       $process.WaitForExit()
+      $stdout = $stdoutTask.GetAwaiter().GetResult()
+      $stderrTask.GetAwaiter().GetResult() | Out-Null
       $hashes = @($stdout -split "`r?`n" | Where-Object { $_ })
       if ($process.ExitCode -eq 0 -and $hashes.Count -eq $RelativePaths.Count) { return $hashes }
     } catch {}
   }
   return @($RelativePaths | ForEach-Object { (Get-FileHash -LiteralPath (Join-Path $RootPath $_) -Algorithm SHA256).Hash })
+}
+
+function Get-UeefRuntimeItemsFast {
+  param([Parameter(Mandatory)][string]$RuntimePath)
+  $root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RuntimePath).Path).TrimEnd('\','/')
+  $items = [Collections.Generic.List[IO.FileSystemInfo]]::new()
+  $pending = [Collections.Generic.Stack[IO.DirectoryInfo]]::new()
+  $pending.Push((Get-Item -LiteralPath $root -Force))
+  while ($pending.Count) {
+    $directory = $pending.Pop()
+    foreach ($item in Get-ChildItem -LiteralPath $directory.FullName -Force) {
+      $relative = $item.FullName.Substring($root.Length).TrimStart('\','/').Replace('\','/')
+      if (Test-UeefRuntimeGeneratedRelativePath $relative) { continue }
+      $items.Add($item)
+      if ($item.PSIsContainer -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0) { $pending.Push($item) }
+    }
+  }
+  return $items.ToArray()
 }
 
 function Get-UeefRuntimeDriftMismatches {
@@ -165,7 +189,7 @@ function Get-UeefRuntimeDriftMismatches {
   for ($index = 0; $index -lt $comparable.Count; $index++) {
     if ($sourceHashes[$index] -cne $runtimeHashes[$index]) { $mismatches.Add("Different: $($comparable[$index])") }
   }
-  foreach ($runtimeItem in Get-ChildItem -LiteralPath $runtimeRoot -Recurse -Force) {
+  foreach ($runtimeItem in Get-UeefRuntimeItemsFast -RuntimePath $runtimeRoot) {
     $relative = $runtimeItem.FullName.Substring($runtimeRoot.Length).TrimStart('\','/').Replace('\','/')
     if (($runtimeItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
       $mismatches.Add("Unsafe runtime reparse point: $relative")
@@ -202,7 +226,7 @@ function Get-UeefRuntimeContentSignature {
   $runtimeRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RuntimePath).Path).TrimEnd('\','/')
   $records = [Collections.Generic.List[string]]::new()
   $releaseFiles = @(Get-UeefReleaseRelativeFilesFast -SourcePath $sourceRoot)
-  $runtimeItems = @(Get-ChildItem -LiteralPath $runtimeRoot -Recurse -Force)
+  $runtimeItems = @(Get-UeefRuntimeItemsFast -RuntimePath $runtimeRoot)
   $runtimeByRelativePath = @{}
   foreach ($runtimeItem in $runtimeItems) {
     $relative = $runtimeItem.FullName.Substring($runtimeRoot.Length).TrimStart('\','/').Replace('\','/')
@@ -230,6 +254,22 @@ function Get-UeefRuntimeContentSignature {
   $sha = [Security.Cryptography.SHA256]::Create()
   try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace('-','') } finally { $sha.Dispose() }
 }
+
+function Get-UeefRuntimeMetadataSignature {
+  param(
+    [Parameter(Mandatory)][string]$SourcePath,
+    [Parameter(Mandatory)][string]$RuntimePath,
+    [string]$ExpectedLoaderHash = ''
+  )
+  $node = Get-Command node -ErrorAction Stop
+  $helper = Join-Path $PSScriptRoot 'runtime-metadata-signature.mjs'
+  if (!(Test-Path -LiteralPath $helper -PathType Leaf)) { throw "Runtime metadata signature helper is missing: $helper" }
+  $relativeFiles = @(Get-UeefReleaseRelativeFilesFast -SourcePath $SourcePath)
+  $signature = ($relativeFiles | & $node.Source $helper $SourcePath $RuntimePath $ExpectedLoaderHash | Select-Object -Last 1)
+  if ($LASTEXITCODE -ne 0 -or $signature -notmatch '^[A-F0-9]{64}$') { throw 'Runtime metadata signature failed.' }
+  return $signature
+}
+
 
 function Copy-UeefReleaseFiles {
   param(

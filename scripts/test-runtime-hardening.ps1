@@ -7,6 +7,8 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ("ueef-rt-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
 $codexHome = Join-Path $sandbox 'codex-home'
+$previousGitIndexFile = $env:GIT_INDEX_FILE
+$testGitIndexFile = Join-Path $sandbox 'test-release.index'
 
 function Initialize-FakeSkillInstaller([string]$TargetHome) {
   $installer = Join-Path $TargetHome 'skills\.system\skill-installer\scripts\install-skill-from-github.py'
@@ -41,10 +43,41 @@ function Invoke-TestRuntimeSync {
   if (!$WithValidation) { $syncParams.SkipValidation = $true }
   if ($TestFailAfterState) { $syncParams.TestFailAfterState = $true }
   if ($TestFailRollbackCleanup) { $syncParams.TestFailRollbackCleanup = $true }
-  & (Join-Path $root 'scripts\sync-runtime.ps1') @syncParams | Out-Null
+  $savedIndex = $env:GIT_INDEX_FILE
+  try {
+    if ([IO.Path]::GetFullPath($SyncSourcePath) -eq [IO.Path]::GetFullPath($root)) { $env:GIT_INDEX_FILE = $testGitIndexFile }
+    else { Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue }
+    & (Join-Path $root 'scripts\sync-runtime.ps1') @syncParams | Out-Null
+  } finally {
+    if ($null -eq $savedIndex) { Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue }
+    else { $env:GIT_INDEX_FILE = $savedIndex }
+  }
 }
 
 try {
+  # Release policy intentionally enumerates tracked paths. Use an isolated
+  # temporary index so newly added test/validator files participate in this
+  # pre-commit worktree test without changing the user's real Git index.
+  New-Item -ItemType Directory -Path $sandbox -Force | Out-Null
+  $env:GIT_INDEX_FILE = $testGitIndexFile
+  & git -C $root read-tree HEAD
+  if ($LASTEXITCODE -ne 0) { throw 'Unable to initialize the isolated release-test index.' }
+  $newReleaseFiles = @(
+    'docs/evidence-promotion.md',
+    'scripts/batch-file-hashes.mjs',
+    'scripts/check-repository-engine-quality.py',
+    'scripts/promote-ueef-evidence.ps1',
+    'scripts/runtime-metadata-signature.mjs',
+    'scripts/test-app-server-discovery-lock.mjs',
+    'scripts/test-evidence-promotion.ps1',
+    'scripts/test-repository-engine-quality.py',
+    'scripts/test-runtime-metadata-signature.ps1',
+    'scripts/verify-spec-workflow-boundary.mjs'
+  )
+  & git -C $root add -- @newReleaseFiles
+  if ($LASTEXITCODE -ne 0) { throw 'Unable to add new release files to the isolated release-test index.' }
+  if ($null -eq $previousGitIndexFile) { Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue }
+  else { $env:GIT_INDEX_FILE = $previousGitIndexFile }
   Write-Host 'Runtime hardening: policy rejection checks'
   . (Join-Path $root 'scripts\runtime-file-policy.ps1')
   $unsafeRejected = $false
@@ -361,15 +394,35 @@ try {
   }
   $restoredIntegrityStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
   if ($restoredIntegrityStatus -notcontains 'Overall: ACTIVE') { throw 'Runtime did not recover after restoring valid Codex state and AGENTS.' }
+  # Drift checks must use the same pre-commit release set as runtime sync.
+  # Keep the isolated index selected without touching the user's real index.
+  $env:GIT_INDEX_FILE = $testGitIndexFile
   Set-Content -LiteralPath (Join-Path $runtime 'README.md') -Value 'intentional runtime drift' -Encoding utf8
   $driftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
-  if ($driftStatus -notcontains 'Runtime drift: FAIL' -or $driftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime drift did not invalidate ACTIVE status.' }
+  if ($LASTEXITCODE -ne 1 -or $driftStatus -notcontains 'Runtime drift: FAIL' -or $driftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime drift did not invalidate ACTIVE status with a failing process result.' }
   Add-Content -LiteralPath (Join-Path $runtime 'UEEF-LOADER.md') -Value "`nUnauthorized loader mutation." -Encoding utf8
   $loaderDriftStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
   if ($loaderDriftStatus -notcontains 'Runtime drift: FAIL' -or $loaderDriftStatus -notcontains 'Overall: INACTIVE') { throw 'Runtime status accepted a tampered loader.' }
+  $driftCache = Join-Path $codexHome 'ueef\logs\runtime-drift-cache.json'
   Invoke-TestRuntimeSync
   $statusAfterRepair = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
-  if ($statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw "Runtime resync did not repair drift status.`n$($statusAfterRepair -join [Environment]::NewLine)" }
+  if ($LASTEXITCODE -ne 0 -or $statusAfterRepair -notcontains 'Runtime drift: PASS' -or $statusAfterRepair -notcontains 'Overall: ACTIVE') { throw "Runtime resync did not seed a valid drift status.`n$($statusAfterRepair -join [Environment]::NewLine)" }
+  Remove-Item -LiteralPath $driftCache -Force -ErrorAction SilentlyContinue
+  $statusWithoutCache = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
+  if ($LASTEXITCODE -ne 1 -or $statusWithoutCache -notcontains 'Runtime drift mode: REFRESH_REQUIRED' -or $statusWithoutCache -notcontains 'Overall: INACTIVE') { throw 'Cache miss did not fail closed with an explicit refresh requirement.' }
+  if (Test-Path -LiteralPath $driftCache) { throw 'Default runtime status mutated the drift cache.' }
+  $refreshedStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -RefreshRuntimeDrift)
+  if ($LASTEXITCODE -ne 0 -or !(Test-Path -LiteralPath $driftCache)) { throw 'Explicit runtime drift refresh did not update the cache.' }
+  $freshStateText = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
+  try {
+    $staleState = $freshStateText | ConvertFrom-Json
+    $staleState.sourceCommit = '0000000000000000000000000000000000000000'
+    $staleState | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $statePath -Encoding utf8
+    $staleStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef'))
+    if ($LASTEXITCODE -ne 1 -or $staleStatus -notcontains 'Runtime source revision: WARN_OUTDATED' -or $staleStatus -notcontains 'Overall: INACTIVE') { throw 'A stale source revision still produced an ACTIVE or successful status claim.' }
+  } finally {
+    [IO.File]::WriteAllText($statePath, $freshStateText, [Text.UTF8Encoding]::new($false))
+  }
   $untrackedStatusFixture = Join-Path $root 'docs\.ueef-untracked-runtime-test.tmp'
   try {
     Set-Content -LiteralPath $untrackedStatusFixture -Value 'untracked files are outside the release policy'
@@ -396,7 +449,10 @@ try {
   $invalidStatus = @(& (Join-Path $runtime 'scripts\ueef-status.ps1') -RepositoryPath $runtime -GlobalPath (Join-Path $codexHome 'ueef') -SkipRuntimeDrift)
   if ($invalidStatus -notcontains 'Overall: INACTIVE') { throw 'Malformed/inactive state was accepted.' }
   Write-Host 'Runtime hardening tests passed'
+  $global:LASTEXITCODE = 0
 } finally {
+  if ($null -eq $previousGitIndexFile) { Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue }
+  else { $env:GIT_INDEX_FILE = $previousGitIndexFile }
   for ($cleanupAttempt = 1; $cleanupAttempt -le 10 -and (Test-Path -LiteralPath $sandbox); $cleanupAttempt++) {
     try { Remove-Item -LiteralPath $sandbox -Recurse -Force -ErrorAction Stop }
     catch {

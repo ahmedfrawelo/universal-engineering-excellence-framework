@@ -56,6 +56,13 @@ $requiredAcceptance = @(
   "scripts/test-spec-workflow-engine.ps1",
   "scripts/verify-spec-workflow-upstream.mjs",
   "scripts/test-spec-workflow-upstream.mjs",
+  "scripts/verify-spec-workflow-boundary.mjs",
+  "scripts/promote-ueef-evidence.ps1",
+  "scripts/test-evidence-promotion.ps1",
+  "scripts/check-repository-engine-quality.py",
+  "scripts/test-repository-engine-quality.py",
+  "scripts/runtime-metadata-signature.mjs",
+  "scripts/test-runtime-metadata-signature.ps1",
   "engines/spec-workflow/UPSTREAM.json",
   "engines/spec-workflow/pyproject.toml",
   "engines/spec-workflow/uv.lock",
@@ -548,6 +555,12 @@ $specDrivenTerms = @("Spec-driven applicability:","Specification artifact:","Ope
 foreach ($term in $specDrivenTerms) { if ($runtimeText -notmatch [regex]::Escape($term)) { throw "Runtime sequence missing spec-driven field: $term" } }
 if (!$SkipNestedTests) {
   Invoke-NodeChecked @((Join-Path $Root "scripts/test-spec-workflow-upstream.mjs")) | Out-Null
+  & (Join-Path $Root "scripts/test-evidence-promotion.ps1") | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'Durable evidence promotion tests failed.' }
+  & python (Join-Path $Root "scripts/test-repository-engine-quality.py") | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'Repository engine quality ratchet tests failed.' }
+  & (Join-Path $Root "scripts/test-runtime-metadata-signature.ps1") | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'Runtime metadata signature tests failed.' }
   & (Join-Path $Root "scripts/test-spec-workflow.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-spec-workflow-engine.ps1") | Out-Null
   & (Join-Path $Root "scripts/test-capability-health.ps1") | Out-Null

@@ -127,6 +127,14 @@ try {
   foreach ($path in @($hook,$recorder,(Join-Path $install.hooksPath 'ueef-hook-common.mjs'),(Join-Path $install.hooksPath 'codex-enforcement-policy.json'),(Join-Path $install.hooksPath 'model-routing-policy.json'),(Join-Path $install.hooksPath 'resolve-model-route.mjs'),(Join-Path $install.hooksPath 'codex-app-server-models.mjs'),(Join-Path $install.hooksPath 'codex-app-server-client-lib.mjs'),$nodePath)) {
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Managed hook payload missing: $path" }
   }
+  foreach ($appServerModuleName in @('codex-app-server-models.mjs','codex-app-server-requirements.mjs')) {
+    $sourceModule = Join-Path $root "scripts\$appServerModuleName"
+    $sourceText = Get-Content -LiteralPath $sourceModule -Raw
+    if ($sourceText -match "from './codex-hooks/" -or $sourceText -match "import\('./codex-hooks/") {
+      throw "$appServerModuleName depends on a source-only nested path that is absent from the flat managed runtime layout."
+    }
+    if ($sourceText -notmatch "from './codex-app-server-client-lib\.mjs'") { throw "$appServerModuleName does not use the flat-layout shared App Server client module." }
+  }
   $modelCatalog = Join-Path $sandbox 'live-host-model-catalog.json'
   $catalogDocument = [ordered]@{
     schemaVersion = 1
@@ -170,6 +178,21 @@ try {
   Invoke-Hook $nodePath $hook ($negatedBase + @{hook_event_name='UserPromptSubmit';prompt='Do not use the current model. Do not allow a model constraint override. Do not use xhigh. Do not use a team.'}) | Out-Null
   $negatedState = Get-Content -LiteralPath (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-negated-authorizations.json' -File | Select-Object -First 1).FullName -Raw | ConvertFrom-Json
   if ($negatedState.authorizations.useCurrentModel -or $negatedState.authorizations.allowModelConstraintOverride -or $negatedState.authorizations.allowAboveHigh -or $negatedState.authorizations.delegation) { throw 'Negated model-routing or delegation language was treated as authorization.' }
+
+  $singleAgentSession = 'session-arabic-single-agent'
+  $singleAgentTurn = 'turn-arabic-single-agent'
+  $singleAgentTranscript = Join-Path $sandbox 'arabic-single-agent.jsonl'
+  [IO.File]::WriteAllText($singleAgentTranscript, '', [Text.UTF8Encoding]::new($false))
+  $singleAgentBase = @{session_id=$singleAgentSession;turn_id=$singleAgentTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$singleAgentTranscript}
+  Invoke-Hook $nodePath $hook ($singleAgentBase + @{hook_event_name='UserPromptSubmit';prompt='استخدم المسار المختار فقط'}) | Out-Null
+  $singleAgentStatePath = (Get-ChildItem -LiteralPath $stateRoot -Filter '*.turn-arabic-single-agent.json' -File | Select-Object -First 1).FullName
+  $singleAgentState = Get-Content -LiteralPath $singleAgentStatePath -Raw | ConvertFrom-Json
+  if ($singleAgentState.authorizations.singleAgent -ne $true -or $singleAgentState.authorizations.delegation -eq $true) { throw 'Arabic selected-route-only instruction did not select single-agent execution.' }
+  Record-UeefRoute $nodePath $recorder $modelCatalog $singleAgentSession $singleAgentTurn T2 'selected route only' 'arabic-single-agent' $singleAgentTranscript | Out-Null
+  $singleAgentState = Get-Content -LiteralPath $singleAgentStatePath -Raw | ConvertFrom-Json
+  if ($singleAgentState.route.decision.team -ne 'NONE' -or $singleAgentState.route.decision.teamReason -ne 'USER_REQUESTED_SINGLE_AGENT' -or $singleAgentState.route.decision.delegationAuthorizationSource -ne 'NONE') { throw 'Arabic selected-route-only instruction produced a worker authorization conflict.' }
+  $singleAgentMutation = Invoke-Hook $nodePath $hook ($singleAgentBase + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='single-agent-valid-decision';tool_input=@{command='*** Begin Patch'}})
+  if ([string]$singleAgentMutation.hookSpecificOutput.permissionDecisionReason -match 'canonical execution decision') { throw 'Arabic selected-route-only instruction produced a non-canonical route decision.' }
 
   $freeModeSession = 'session-free-mode'
   $freeModeTurn = 'turn-free-mode'
@@ -236,6 +259,11 @@ try {
   Record-UeefRoute $nodePath $recorder $modelCatalog $hostNativeSession $policyReviewTurn T4 'critical architecture audit' 'policy-review-only' $policyReviewTranscript | Out-Null
   $policyReviewState = Complete-HostDispatch $nodePath $hook $stateRoot $policyReviewBase $hostNativeSession $policyReviewTurn $policyReviewTranscript
   if ($policyReviewState.route.decision.delegationAuthorizationSource -ne 'PLATFORM_POLICY' -or $policyReviewState.route.decision.delegationScope -ne 'INDEPENDENT_VERIFIER') { throw 'T4 mandatory fresh review did not receive its narrowly scoped platform authorization.' }
+  $binding = (& $nodePath $recorder --session-id $hostNativeSession --turn-id $policyReviewTurn --print-binding | ConvertFrom-Json)
+  if ($binding.workUnitId -ne 'policy-review-only' -or $binding.tier -ne 'T4' -or $binding.routeBinding.routeDigest -ne $policyReviewState.route.routeDigest -or $binding.routeBinding.executionSpecDigest -ne $policyReviewState.executionSpec.digest) {
+    throw 'Protected-path-free route binding export did not match the current turn.'
+  }
+  if ($binding.PSObject.Properties.Name -contains 'routePath') { throw 'Route binding export leaked a protected state path.' }
   $policyImplementationWorker = Invoke-Hook $nodePath $hook ($policyReviewBase + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='policy-implementation-worker';tool_input=@{task_name='implementation_worker';model='gpt-5.6-sol';reasoning_effort='medium';message='Implement the remaining changes.'}})
   Assert-Denied $policyImplementationWorker 'Implementation worker using verifier-only platform authorization'
   $contradictoryPolicyReviewer = Invoke-Hook $nodePath $hook ($policyReviewBase + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='policy-contradictory-reviewer';tool_input=@{task_name='independent_review';model='gpt-5.6-sol';reasoning_effort='medium';message='Review read-only; do not modify files. Then implement the fixes.'}})
@@ -255,6 +283,21 @@ try {
   Assert-Denied $omittedForkPolicyReviewer 'Implicit full-history inheritance using fresh verifier-only platform authorization'
   $policyReviewer = Invoke-Hook $nodePath $hook ($policyReviewBase + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='policy-independent-reviewer';tool_input=@{task_name='independent_review';fork_turns='none';model='gpt-5.6-sol';reasoning_effort='medium';message=$reviewContract}})
   if ([string]$policyReviewer.hookSpecificOutput.permissionDecision -eq 'deny') { throw "T4 mandatory independent reviewer was denied despite bounded platform authorization: $($policyReviewer.hookSpecificOutput.permissionDecisionReason)" }
+  $reviewContractWithHostMetadata = @{schemaVersion=1;kind='UEEF_INDEPENDENT_REVIEW';readOnly=$true;objective='CURRENT_WORKTREE_DIFF';checks=@('CORRECTNESS');hostMetadata=@{requestId='fixture'}} | ConvertTo-Json -Compress -Depth 4
+  $metadataPolicyReviewer = Invoke-Hook $nodePath $hook ($policyReviewBase + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='policy-metadata-reviewer';tool_input=@{task_name='independent_review';fork_turns='none';model='gpt-5.6-sol';reasoning_effort='medium';message=$reviewContractWithHostMetadata}})
+  if ([string]$metadataPolicyReviewer.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'T4 bounded reviewer was denied because of harmless additive host metadata.' }
+  $fencedReviewContract = [string]::Concat('```json', "`n", $reviewContract, "`n", '```')
+  $fencedPolicyReviewer = Invoke-Hook $nodePath $hook ($policyReviewBase + @{hook_event_name='PreToolUse';tool_name='spawn_agent';tool_use_id='policy-fenced-reviewer';tool_input=@{task_name='independent_review';fork_turns='none';model='gpt-5.6-sol';reasoning_effort='medium';message=$fencedReviewContract}})
+  if ([string]$fencedPolicyReviewer.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'T4 bounded reviewer was denied because the JSON contract was fenced by the host.' }
+
+  $preDispatchReadTurn = 'turn-t4-pre-dispatch-read'
+  $preDispatchReadTranscript = Join-Path $sandbox 't4-pre-dispatch-read.jsonl'
+  [IO.File]::WriteAllText($preDispatchReadTranscript, '', [Text.UTF8Encoding]::new($false))
+  $preDispatchReadBase = @{session_id=$hostNativeSession;turn_id=$preDispatchReadTurn;cwd=$root;model='test-model';permission_mode='default';transcript_path=$preDispatchReadTranscript}
+  Invoke-Hook $nodePath $hook ($preDispatchReadBase + @{hook_event_name='UserPromptSubmit';prompt='Audit a critical change'}) | Out-Null
+  Record-UeefRoute $nodePath $recorder $modelCatalog $hostNativeSession $preDispatchReadTurn T4 'critical read recovery' 't4-pre-dispatch-read' $preDispatchReadTranscript | Out-Null
+  $preDispatchRead = Invoke-Hook $nodePath $hook ($preDispatchReadBase + @{hook_event_name='PreToolUse';tool_name='shell_command';tool_use_id='t4-recovery-read';tool_input=@{command='git status --short'}})
+  if ([string]$preDispatchRead.hookSpecificOutput.permissionDecision -eq 'deny') { throw 'T4 route failure deadlocked safe read-only recovery tools.' }
 
   $unroutedEdit = Invoke-Hook $nodePath $hook ($base + @{hook_event_name='PreToolUse';tool_name='apply_patch';tool_use_id='tool-1';tool_input=@{command='*** Begin Patch'}})
   Assert-Denied $unroutedEdit 'Unrouted edit'

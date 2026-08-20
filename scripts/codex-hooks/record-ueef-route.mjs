@@ -18,6 +18,21 @@ const has = (name) => args.includes(name);
 
 const sessionId = value('--session-id');
 const turnId = value('--turn-id');
+if (has('--print-binding')) {
+  const state = readTurnState(sessionId, turnId);
+  if (!state?.route?.modelRouteVerified || !state.executionSpec?.digest) throw new Error('No verified route binding exists for the requested UEEF turn.');
+  assertTurnOwner(state, sessionId);
+  process.stdout.write(`${JSON.stringify({
+    schemaVersion: 1,
+    workUnitId: state.route.workUnitId,
+    tier: state.route.tier,
+    routeBinding: {
+      routeDigest: state.route.routeDigest,
+      executionSpecDigest: state.executionSpec.digest
+    }
+  })}\n`);
+  process.exit(0);
+}
 const executeRoute = optional('--execute-route');
 if (executeRoute) {
   const routePath = path.resolve(executeRoute);
@@ -146,8 +161,12 @@ const nonGoals = optional('--non-goals');
 const modelCatalog = optional('--model-catalog');
 const routeOutput = optional('--route-output');
 const specialistPurpose = optional('--specialist-purpose');
-const catalogTimeoutMs = 15_000;
-const resolverProcessGraceMs = 10_000;
+const catalogTimeoutMs = 10_000;
+const catalogDiscoveryAttempts = 2;
+const catalogDiscoveryLockWaitMs = 10_000;
+const catalogProcessGraceMs = 3_000;
+const catalogParentMarginMs = 2_000;
+const resolverProcessGraceMs = 5_000;
 
 if (!/^T[0-4]$/.test(tier)) throw new Error(`Invalid tier: ${tier}`);
 for (const [name, item] of Object.entries({ workUnitId, intent, agentRoute, browserReason })) {
@@ -196,11 +215,13 @@ if (reasoningOverride) resolverArgs.push('--reasoning-override', reasoningOverri
 if (has('--allow-exceed') || stateBefore.authorizations?.allowAboveHigh === true) resolverArgs.push('--allow-exceed');
 if (has('--allow-model-constraint-override') || stateBefore.authorizations?.allowModelConstraintOverride === true) resolverArgs.push('--allow-model-constraint-override');
 
+if (!modelCatalog) process.stderr.write('UEEF route: discovering the current model catalog (bounded to 55 seconds).\n');
 const modelRoute = JSON.parse(execFileSync(process.execPath, resolverArgs, {
   encoding: 'utf8',
-  timeout: catalogTimeoutMs + resolverProcessGraceMs,
+  timeout: ((catalogDiscoveryLockWaitMs + catalogTimeoutMs + catalogProcessGraceMs + catalogParentMarginMs) * catalogDiscoveryAttempts) + resolverProcessGraceMs,
   windowsHide: true
 }));
+if (!modelCatalog) process.stderr.write('UEEF route: model catalog resolved; recording the route.\n');
 const effectiveReasoning = modelRoute.displayReasoning || modelRoute.hostReasoning || modelRoute.reasoning || null;
 const testRoute = modelRoute.testCatalogAllowed === true && has('--allow-test-catalog');
 if ((!testRoute && (modelRoute.accountCatalogVerified !== true || modelRoute.catalogFresh !== true || modelRoute.catalogContractValid !== true)) || !modelRoute.preferredModel || !modelRoute.hostReasoning) {
@@ -212,12 +233,13 @@ const mode = reviewIntent && !implementationIntent ? 'REVIEW' : 'IMPLEMENTATION'
 const spec = ['T3', 'T4'].includes(tier) ? 'FULL_REQUIRED' : modelRoute.tokenEconomy?.specRequired === true ? 'LIGHT' : 'NONE';
 const specReason = spec === 'FULL_REQUIRED' ? 'FULL_SPEC_REQUIRED_BY_SCOPE_OR_RISK' : spec === 'LIGHT' ? 'EXECUTION_SPEC_REQUIRED' : 'TIER_DOES_NOT_REQUIRE_SPEC';
 const userDelegationAuthorized = stateBefore.authorizations?.delegation === true;
+const userSingleAgent = stateBefore.authorizations?.singleAgent === true && tier !== 'T4';
 const policyVerifierAuthorized = tier === 'T4' && !userDelegationAuthorized;
 const delegationAuthorized = userDelegationAuthorized || policyVerifierAuthorized;
 const delegationAuthorizationSource = userDelegationAuthorized ? 'USER' : policyVerifierAuthorized ? 'PLATFORM_POLICY' : 'NONE';
 const delegationScope = userDelegationAuthorized ? 'WORKERS' : policyVerifierAuthorized ? 'INDEPENDENT_VERIFIER' : 'NONE';
-const team = Number(modelRoute.tokenEconomy?.maxWorkerCount || 0) > 0 && delegationAuthorized ? 'SPAWN' : Number(modelRoute.tokenEconomy?.maxWorkerCount || 0) > 0 ? 'AUTHORIZATION_REQUIRED' : 'NONE';
-const teamReason = userDelegationAuthorized ? 'USER_AUTHORIZED' : policyVerifierAuthorized ? 'MANDATORY_FRESH_REVIEW' : team === 'AUTHORIZATION_REQUIRED' ? 'AUTHORIZATION_REQUIRED' : 'NO_INDEPENDENT_WORK';
+const team = userSingleAgent ? 'NONE' : Number(modelRoute.tokenEconomy?.maxWorkerCount || 0) > 0 && delegationAuthorized ? 'SPAWN' : Number(modelRoute.tokenEconomy?.maxWorkerCount || 0) > 0 ? 'AUTHORIZATION_REQUIRED' : 'NONE';
+const teamReason = userSingleAgent ? 'USER_REQUESTED_SINGLE_AGENT' : userDelegationAuthorized ? 'USER_AUTHORIZED' : policyVerifierAuthorized ? 'MANDATORY_FRESH_REVIEW' : team === 'AUTHORIZATION_REQUIRED' ? 'AUTHORIZATION_REQUIRED' : 'NO_INDEPENDENT_WORK';
 const decision = { mode, spec, specReason, team, teamReason, delegationAuthorized, delegationAuthorizationSource, delegationScope };
 const routeDigest = sha256Text(JSON.stringify({
   tier,

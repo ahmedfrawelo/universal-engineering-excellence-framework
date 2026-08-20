@@ -98,6 +98,7 @@ if ($requireManagedEnforcement -and [string]::IsNullOrWhiteSpace($ManagedRequire
   $defaultCodexHome = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath (Resolve-CodexHome)).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
   $ManagedRequirementsPath = if ($resolvedCodexHome -eq $defaultCodexHome) { Get-UeefManagedRequirementsPath -CodexHome $resolvedCodexHome } else { Join-Path $resolvedCodexHome 'managed-requirements\requirements.toml' }
 }
+
 $resolvedBackupRoot = Resolve-UeefBackupRoot -CodexHome $resolvedCodexHome -BackupRoot $BackupRoot
 $resolvedSource = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SourcePath).Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $runtimePrefix = $resolvedCodexHome + [IO.Path]::DirectorySeparatorChar
@@ -278,6 +279,30 @@ if ($requireManagedEnforcement) {
 if ($Quiet) { $stateParameters.Quiet = $true }
 & (Join-Path $runtimePath "scripts\write-active-state.ps1") @stateParameters | Out-Null
 if ($TestFailAfterState) { throw 'Injected test failure after active-state write.' }
+$runtimePolicyPath = Join-Path $runtimePath 'scripts\runtime-file-policy.ps1'
+. $runtimePolicyPath
+$activeState = Get-Content -LiteralPath (Join-Path $resolvedRuntimeRoot 'UEEF-ACTIVE.json') -Raw | ConvertFrom-Json
+$driftContentSignature = Get-UeefRuntimeContentSignature -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256)
+$driftMetadataSignatureBefore = Get-UeefRuntimeMetadataSignature -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256)
+$driftMismatches = @(Get-UeefRuntimeDriftMismatches -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256))
+$driftMetadataSignature = Get-UeefRuntimeMetadataSignature -SourcePath $resolvedSource -RuntimePath $runtimePath -ExpectedLoaderHash ([string]$activeState.runtimeLoaderSha256)
+if ($driftMismatches.Count -or $driftMetadataSignatureBefore -cne $driftMetadataSignature) {
+  throw "Runtime drift proof changed during cache seeding: $($driftMismatches -join '; ')"
+}
+$driftCachePath = Join-Path $resolvedRuntimeRoot 'logs\runtime-drift-cache.json'
+New-Item -ItemType Directory -Path (Split-Path -Parent $driftCachePath) -Force | Out-Null
+$driftCacheDocument = [ordered]@{
+  schemaVersion=3
+  generatedAt=(Get-Date).ToUniversalTime().ToString('o')
+  sourcePath=$resolvedSource
+  runtimePath=$runtimePath
+  metadataSignature=$driftMetadataSignature
+  contentSignature=$driftContentSignature
+  result='PASS'
+}
+$temporaryDriftCache = "$driftCachePath.$([guid]::NewGuid().ToString('N')).tmp"
+[IO.File]::WriteAllText($temporaryDriftCache, ($driftCacheDocument | ConvertTo-Json -Depth 3), [Text.UTF8Encoding]::new($false))
+Move-Item -LiteralPath $temporaryDriftCache -Destination $driftCachePath -Force
 $runtimeSwapped = $false
 $committed = $true
 $committedRollbackPath = $rollbackPath

@@ -1,6 +1,10 @@
 # UEEF Project Handoff
 
 > **Current handoff:** [`docs/handoffs/2026-08-11-orchestration-repair.md`](handoffs/2026-08-11-orchestration-repair.md) for the current orchestration repair branch, green draft PR, installed runtime state, exact Spec Kit boundaries, and receiving-task instructions.
+
+> **Current supplemental repair note:** [`docs/handoffs/2026-08-16-independent-review-deadlock-repair.md`](handoffs/2026-08-16-independent-review-deadlock-repair.md) records the uncommitted T4 independent-review contract and safe-read deadlock repair. It supersedes only the older exact-key contract statement; live Git and runtime state remain authoritative.
+>
+> **Current issues closeout:** [`docs/handoffs/2026-08-17-ueef-issues-fixes-closeout.md`](handoffs/2026-08-17-ueef-issues-fixes-closeout.md) records the observed UEEF/runtime, filesystem, Git, Vitest, Angular CLI, Toast, and Engineering Units problems, separating fixed UEEF defects from project-specific follow-up.
 >
 > The preceding schema-v2 dynamic-runtime handoff remains at [`docs/handoffs/2026-08-09-dynamic-runtime-repair.md`](handoffs/2026-08-09-dynamic-runtime-repair.md).
 >
@@ -11,8 +15,8 @@
 **Snapshot date:** 2026-08-02
 **Repository:** `E:\MY DATA\div\universal-engineering-excellence-framework`
 **Upstream:** `https://github.com/ahmedfrawelo/universal-engineering-excellence-framework`
-**Version:** `2.25.0`
-**Authoritative commit:** resolve `v2.25.0` or run `git rev-parse HEAD`; do not rely on a copied hash in this handoff.
+**Version:** `2.27.0`
+**Authoritative commit:** resolve the version declared by `release-manifest.json` or run `git rev-parse HEAD`; do not rely on a copied hash in this handoff.
 
 ## 1. What this project is
 
@@ -130,7 +134,7 @@ The completion audit is now an executable gate. Validate it with:
 - `framework/12-delivery-quality/04-quality-gates/final-gate.md`: final completion/release gate.
 - `config/enforcement-registry.json`: T2+ domain/gate mapping and required fields.
 - `release-manifest.json`: version, tracked Markdown count, pack count, entrypoints, and release notes.
-- `docs/releases/v2.25.0.md`: current release notes.
+- `docs/releases/v2.27.0.md`: current release notes, matching `release-manifest.json`.
 
 ## 6. Important current behavior
 

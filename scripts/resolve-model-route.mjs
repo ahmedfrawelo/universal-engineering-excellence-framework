@@ -27,6 +27,9 @@ const allowModelConstraintOverride = has('--allow-model-constraint-override');
 const allowExceed = has('--allow-exceed');
 const catalogTimeoutMs = Number(valueAfter('--catalog-timeout-ms') || 15000);
 const catalogProcessGraceMs = 5000;
+const catalogParentMarginMs = 5000;
+const catalogDiscoveryAttempts = 2;
+const catalogDiscoveryLockWaitMs = 60_000;
 
 if (!Number.isInteger(catalogTimeoutMs) || catalogTimeoutMs < 1 || catalogTimeoutMs > 300_000) {
   throw new Error('--catalog-timeout-ms requires an integer from 1 to 300000.');
@@ -121,20 +124,25 @@ if (has('--models-unavailable')) {
 const readJson = (file, fallback) => fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : fallback;
 let discoveryError = null;
 const discoverLiveCatalog = () => {
-  try {
-    return JSON.parse(execFileSync(process.execPath, [
-      path.join(here, 'codex-app-server-models.mjs'),
-      '--timeout-ms', String(catalogTimeoutMs)
-    ], {
-      encoding: 'utf8',
-      timeout: catalogTimeoutMs + catalogProcessGraceMs,
-      windowsHide: true
-    }));
-  } catch (error) {
-    const stderr = String(error.stderr || '').trim();
-    discoveryError = stderr || error.message;
-    return null;
+  const failures = [];
+  for (let attempt = 1; attempt <= catalogDiscoveryAttempts; attempt += 1) {
+    try {
+      return JSON.parse(execFileSync(process.execPath, [
+        path.join(here, 'codex-app-server-models.mjs'),
+        '--timeout-ms', String(catalogTimeoutMs),
+        '--discovery-lock-wait-ms', String(catalogDiscoveryLockWaitMs)
+      ], {
+        encoding: 'utf8',
+        timeout: catalogDiscoveryLockWaitMs + catalogTimeoutMs + catalogProcessGraceMs + catalogParentMarginMs,
+        windowsHide: true
+      }));
+    } catch (error) {
+      const stderr = String(error.stderr || '').trim();
+      failures.push(`attempt ${attempt}: ${stderr || error.message}`);
+    }
   }
+  discoveryError = failures.join(' | ');
+  return null;
 };
 // The caller may pass an envelope taken directly from host metadata.  Without
 // one, actively ask the local App Server; never fall back to a saved catalog.

@@ -72,11 +72,17 @@ function executionPolicyLine(state) {
 function independentVerifierContractValid(taskName, message) {
   if (String(taskName || '') !== 'independent_review') return false;
   let contract;
-  try { contract = JSON.parse(String(message || '')); } catch { return false; }
+  const rawMessage = String(message || '').trim();
+  try { contract = JSON.parse(rawMessage); } catch {
+    // Some hosts wrap an otherwise valid machine contract in a JSON fence.
+    // Accept only a single fenced JSON object; free-form prose remains denied.
+    const fenced = rawMessage.match(/^```json\s*([\s\S]*?)\s*```$/iu);
+    if (!fenced) return false;
+    try { contract = JSON.parse(fenced[1]); } catch { return false; }
+  }
   if (!contract || typeof contract !== 'object' || Array.isArray(contract)) return false;
-  const keys = Object.keys(contract).sort();
-  const expectedKeys = ['checks', 'kind', 'objective', 'readOnly', 'schemaVersion'];
-  if (JSON.stringify(keys) !== JSON.stringify(expectedKeys)) return false;
+  // Validate the security-bearing fields, but tolerate additive host metadata.
+  // Exact-key matching made harmless serialization metadata a fatal dead end.
   if (contract.schemaVersion !== 1 || contract.kind !== 'UEEF_INDEPENDENT_REVIEW' || contract.readOnly !== true) return false;
   if (contract.objective !== 'CURRENT_WORKTREE_DIFF') return false;
   const allowedChecks = new Set(['ARCHITECTURE', 'CLAIM_ACCURACY', 'CORRECTNESS', 'SECURITY', 'TEST_EVIDENCE']);
@@ -183,7 +189,6 @@ function isolatedSpecValidator(command, cwd) {
 }
 
 function isEconomicalLeadRead(toolName, event, tier) {
-  if (!['T0', 'T1'].includes(String(tier))) return false;
   if (/^(?:view_image|codex_app__read_thread_terminal)$/iu.test(String(toolName))) return true;
   const command = shellCommandFromTool(toolName, event);
   if (!command || hasUnquotedShellControl(command)) return false;

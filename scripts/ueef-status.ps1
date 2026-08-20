@@ -3,6 +3,7 @@ param(
   [string]$GlobalPath = "",
   [switch]$SkipRuntimeDrift,
   [switch]$RefreshRuntimeDrift,
+  [switch]$ReportOnly,
   [switch]$Json
 )
 $ErrorActionPreference = "Stop"
@@ -64,7 +65,14 @@ function Test-EffectiveManagedEnforcement([string]$Executable, [string]$Expected
   try {
     if (!(Test-Path -LiteralPath $Executable -PathType Leaf) -or !(Test-Path -LiteralPath $ProbePath -PathType Leaf)) { return $false }
     $node = Get-Command node -ErrorAction Stop
-    $json = (& $node.Source $ProbePath --executable $Executable --timeout-ms 15000 | Select-Object -Last 1)
+    $json = $null
+    foreach ($attempt in 1..2) {
+      $candidate = (& $node.Source $ProbePath --executable $Executable --timeout-ms 5000 --discovery-lock-wait-ms 2000 | Select-Object -Last 1)
+      if ($LASTEXITCODE -eq 0 -and ![string]::IsNullOrWhiteSpace($candidate)) {
+        $json = $candidate
+        break
+      }
+    }
     if ([string]::IsNullOrWhiteSpace($json)) { return $false }
     $probe = $json | ConvertFrom-Json
     $requirements = $probe.data.requirements.requirements
@@ -186,26 +194,38 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
     if (![string]::IsNullOrWhiteSpace($sourceForDrift) -and (Test-Item $sourceForDrift)) {
       . (Join-Path $RepositoryPath 'scripts\runtime-file-policy.ps1')
       $expectedLoaderHash = [string]$stateForDrift.runtimeLoaderSha256
-      $contentSignature = Get-UeefRuntimeContentSignature -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash $expectedLoaderHash
       $cachePath = Join-Path $GlobalPath 'logs\runtime-drift-cache.json'
       $cacheHit = $false
+      $metadataSignature = Get-UeefRuntimeMetadataSignature -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash $expectedLoaderHash
       if (!$RefreshRuntimeDrift -and (Test-Path -LiteralPath $cachePath -PathType Leaf)) {
         try {
           $cache = Get-Content -LiteralPath $cachePath -Raw | ConvertFrom-Json
-          $cacheHit = $cache.schemaVersion -eq 2 -and $cache.runtimePath -eq $RepositoryPath -and
-            $cache.sourcePath -eq $sourceForDrift -and $cache.contentSignature -ceq $contentSignature -and $cache.result -eq 'PASS'
+          $cacheHit = $cache.schemaVersion -eq 3 -and $cache.runtimePath -eq $RepositoryPath -and
+            $cache.sourcePath -eq $sourceForDrift -and $cache.metadataSignature -ceq $metadataSignature -and $cache.result -eq 'PASS' -and
+            [string]$cache.contentSignature -match '^[A-F0-9]{64}$'
+          if ($cacheHit) {
+            $metadataSignatureAfterCacheRead = Get-UeefRuntimeMetadataSignature -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash $expectedLoaderHash
+            $cacheHit = $metadataSignatureAfterCacheRead -ceq $metadataSignature
+          }
         } catch { $cacheHit = $false }
       }
       if ($cacheHit) {
         $runtimeDriftPass = $true
         $runtimeDriftMode = 'CACHED_CONTENT_VERIFIED'
+      } elseif (!$RefreshRuntimeDrift) {
+        # A normal status query must stay read-only and bounded. A missing or
+        # stale cache cannot prove content integrity, so require an explicit
+        # refresh instead of performing an unbounded full-tree hash here.
+        $runtimeDriftPass = $false
+        $runtimeDriftMode = 'REFRESH_REQUIRED'
       } else {
+        $contentSignature = Get-UeefRuntimeContentSignature -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash $expectedLoaderHash
         $runtimeDriftPass = !(@(Get-UeefRuntimeDriftMismatches -SourcePath $sourceForDrift -RuntimePath $RepositoryPath -ExpectedLoaderHash $expectedLoaderHash).Count)
         $runtimeDriftMode = 'FULL_CONTENT_HASH'
-        if ($runtimeDriftPass) {
+        if ($runtimeDriftPass -and $RefreshRuntimeDrift) {
           $cacheDirectory = Split-Path -Parent $cachePath
           New-Item -ItemType Directory -Path $cacheDirectory -Force | Out-Null
-          $cacheDocument = [ordered]@{ schemaVersion=2; generatedAt=(Get-Date).ToUniversalTime().ToString('o'); sourcePath=$sourceForDrift; runtimePath=$RepositoryPath; contentSignature=$contentSignature; result='PASS' }
+          $cacheDocument = [ordered]@{ schemaVersion=3; generatedAt=(Get-Date).ToUniversalTime().ToString('o'); sourcePath=$sourceForDrift; runtimePath=$RepositoryPath; metadataSignature=$metadataSignature; contentSignature=$contentSignature; result='PASS' }
           $temporaryCache = "$cachePath.$([guid]::NewGuid().ToString('N')).tmp"
           [IO.File]::WriteAllText($temporaryCache, ($cacheDocument | ConvertTo-Json -Depth 3), [Text.UTF8Encoding]::new($false))
           Move-Item -LiteralPath $temporaryCache -Destination $cachePath -Force
@@ -217,6 +237,8 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
       try { $currentSourceCommit = (git -c "safe.directory=$sourceForDrift" -C $sourceForDrift rev-parse HEAD 2>$null | Select-Object -First 1).Trim() } catch { $currentSourceCommit = '' }
       if ($recordedSourceCommit -and $recordedSourceCommit -ne 'UNKNOWN' -and $currentSourceCommit) {
         $sourceRevisionStatus = if ($recordedSourceCommit -eq $currentSourceCommit) { 'PASS' } else { 'WARN_OUTDATED' }
+      } else {
+        $sourceRevisionStatus = 'UNKNOWN'
       }
     }
   } catch {
@@ -225,7 +247,16 @@ if (!$SkipRuntimeDrift -and $isManagedRuntime -and (Test-Item $activeStatePath))
   }
 }
 $engineGeneratedPattern = '[\\/]engines[\\/](?:repository-intelligence|spec-workflow)[\\/](?:\.venv|build|[^\\/]+\.egg-info|__pycache__|\.pytest_cache|\.hypothesis|\.ruff_cache|\.mypy_cache)(?:[\\/]|$)'
-$markdownCount = if ($repoExists) { (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $engineGeneratedPattern }).Count } else { 0 }
+$markdownCount = if (!$repoExists) {
+  0
+} elseif (Test-Path -LiteralPath (Join-Path $RepositoryPath '.git')) {
+  @(
+    git -C $RepositoryPath ls-files -- '*.md' 2>$null |
+      Where-Object { $_ -and $_ -notmatch '^(?:\.ueef)/' -and $_ -notmatch $engineGeneratedPattern }
+  ).Count
+} else {
+  (Get-ChildItem -LiteralPath $RepositoryPath -Recurse -Filter *.md -File | Where-Object { $_.FullName -notmatch '[\\/](?:\.git|\.ueef)[\\/]' -and $_.FullName -notmatch $engineGeneratedPattern }).Count
+}
 $globalExists = Test-Item $GlobalPath
 $loaderCandidates = @()
 if ($globalExists) {
@@ -234,7 +265,8 @@ if ($globalExists) {
 $globalLoaderStatus = if (!$globalExists) { "UNKNOWN" } elseif ($loaderCandidates.Count -gt 0) { "PASS" } else { "FAIL" }
 $installed = if ($isManagedRuntime -and $repoExists -and $globalExists -and $loaderCandidates.Count -gt 0) { "YES" } else { "NO" }
 $sourceValidationPass = $repoExists -and $rootPass -and $corePass -and $masterLoaderPass -and $masterIndexPass -and $activationProofPass -and $activationGatePass -and $qualityGatesPass -and $validationPass -and $agentRoutingPass -and $repositoryIntelligencePass
-$managedIntegrityPass = $agentsPass -and $activeStatePass -and $managedEnforcementPass -and $managedEnforcementEffectivePass -and $oldHomeAbsent -and $runtimeDriftPass
+$sourceRevisionPass = if ($isManagedRuntime -and !$SkipRuntimeDrift) { $sourceRevisionStatus -eq 'PASS' } else { $sourceRevisionStatus -in @('PASS','SKIPPED') }
+$managedIntegrityPass = $agentsPass -and $activeStatePass -and $managedEnforcementPass -and $managedEnforcementEffectivePass -and $oldHomeAbsent -and $runtimeDriftPass -and $sourceRevisionPass
 $overall = if ($isManagedRuntime) {
   if ($installed -eq "YES" -and $sourceValidationPass -and $managedIntegrityPass) { "ACTIVE" } else { "INACTIVE" }
 } elseif ($sourceValidationPass) {
@@ -274,7 +306,9 @@ $statusResult = [ordered]@{
     validationScript = (PassFail $validationPass)
   }
 }
-if ($Json) { $statusResult | ConvertTo-Json -Depth 5; exit 0 }
+$statusExitCode = if ($overall -in @('ACTIVE','SOURCE_VALIDATED')) { 0 } else { 1 }
+if ($ReportOnly) { $statusExitCode = 0 }
+if ($Json) { $statusResult | ConvertTo-Json -Depth 5; exit $statusExitCode }
 
 Write-Output "UEEF Status"
 Write-Output "-----------"
@@ -310,3 +344,4 @@ if (!$isManagedRuntime -and $overall -eq 'SOURCE_VALIDATED') {
 }
 Write-Output "Validation script: $(PassFail $validationPass)"
 Write-Output "Overall: $overall"
+exit $statusExitCode

@@ -119,6 +119,7 @@ function Invoke-RequiredNodeTest([string]$Name) {
 
 Invoke-RequiredNodeTest 'test-model-routing-policy.mjs'
 Invoke-RequiredNodeTest 'test-routing-timeout-recovery.mjs'
+Invoke-RequiredNodeTest 'test-app-server-discovery-lock.mjs'
 Invoke-RequiredNodeTest 'test-cross-agent-route-ownership.mjs'
 
 Write-Host 'Agent route tests passed'

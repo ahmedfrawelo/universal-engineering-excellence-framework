@@ -30,7 +30,8 @@ export function executionDecisionValid(decision, route = null) {
       route.tokenEconomy.maxWorkerCount < 0 || route.tokenEconomy.maxWorkerCount > 16) return false;
   const expectedSpec = ['T3', 'T4'].includes(route.tier) ? 'FULL_REQUIRED' : route.tokenEconomy.specRequired ? 'LIGHT' : 'NONE';
   const workerBudget = route.tokenEconomy.maxWorkerCount;
-  const expectedTeam = workerBudget <= 0 ? 'NONE' : decision.delegationAuthorized ? 'SPAWN' : 'AUTHORIZATION_REQUIRED';
+  const userRequestedSingleAgent = decision.teamReason === 'USER_REQUESTED_SINGLE_AGENT' && decision.delegationAuthorized === false;
+  const expectedTeam = workerBudget <= 0 || userRequestedSingleAgent ? 'NONE' : decision.delegationAuthorized ? 'SPAWN' : 'AUTHORIZATION_REQUIRED';
   return decision.spec === expectedSpec && decision.team === expectedTeam && (workerBudget > 0 || decision.delegationScope === 'NONE');
 }
 
@@ -243,10 +244,14 @@ function reclaimAbandonedLock(lockPath) {
   }
 }
 
-export function withLock(sessionId, turnId, action) {
-  assertStateRoot();
-  const lockPath = path.join(stateRoot, `${sha256Text(`${sessionId}\n${turnId}`).slice(0, 32)}.lock`);
-  const deadline = Date.now() + 5000;
+export function acquireLock(sessionId, turnId, { waitMs = 5000, root = stateRoot } = {}) {
+  if (!Number.isInteger(waitMs) || waitMs < 1 || waitMs > 300_000) throw new Error('UEEF lock wait must be an integer from 1 to 300000 ms.');
+  const resolvedRoot = path.resolve(root);
+  fs.mkdirSync(resolvedRoot, { recursive: true });
+  const rootStat = fs.lstatSync(resolvedRoot);
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) throw new Error(`Refusing unsafe UEEF lock root: ${resolvedRoot}`);
+  const lockPath = path.join(resolvedRoot, `${sha256Text(`${sessionId}\n${turnId}`).slice(0, 32)}.lock`);
+  const deadline = Date.now() + waitMs;
   const token = crypto.randomBytes(16).toString('hex');
   let handle;
   while (handle === undefined) {
@@ -266,12 +271,20 @@ export function withLock(sessionId, turnId, action) {
       Atomics.wait(sleepBuffer, 0, 0, 25);
     }
   }
-  try { return action(); }
-  finally {
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
     fs.closeSync(handle);
     const owner = readLockOwner(lockPath);
     if (owner?.token === token && owner.pid === process.pid) fs.rmSync(lockPath, { force: true });
-  }
+  };
+}
+
+export function withLock(sessionId, turnId, action) {
+  const release = acquireLock(sessionId, turnId);
+  try { return action(); }
+  finally { release(); }
 }
 
 export function cleanupHookState({
@@ -531,10 +544,12 @@ export function newTurnState(sessionId, turnId, prompt, cwd, pickerModel = '') {
     return false;
   };
   authorizations.useCurrentModel = explicitlyPositive(/(use|keep|stick to).{0,30}(current|selected|picker).{0,20}model|استخدم.{0,20}(الموديل الحالي|الموديل المختار)|اشتغل.{0,20}(بالموديل الحالي|بالموديل المختار)/iu);
+  authorizations.singleAgent = explicitlyPositive(/\b(?:single[ -]?agent|lead only|no (?:team|workers?|subagents?))\b|(?:استخدم|نفذ|اشتغل).{0,30}(?:المسار|الطريق).{0,20}(?:المختار|الحالي).{0,10}(?:فقط|بس)|(?:بدون|من غير).{0,20}(?:فريق|وكلاء)|(?:وكيل|المساعد).{0,10}(?:واحد|فقط)/iu);
   authorizations.allowModelConstraintOverride = explicitlyPositive(/(allow|permit|authorize).{0,40}(model constraint|override|break constraint)|اسمح.{0,30}(بتجاوز|بكسر).{0,20}(قيد|الموديل)/iu);
   authorizations.allowAboveHigh = explicitlyPositive(/\b(xhigh|max|ultra|extra[ -]?high|above[ -]?high)\b|أعلى من هاي|تجاوز هاي|فوق هاي/iu);
   authorizations.newUserTask = explicitlyPositive(/(?:\b(?:create|open|start|fork|handoff|move)\b.{0,50}\b(?:new\s+)?(?:task|thread|chat)\b|\bnew\s+(?:task|thread|chat)\b|(?:\u0627\u0641\u062a\u062d|\u0627\u0639\u0645\u0644|\u0627\u0646\u0634\u0626|\u0623\u0646\u0634\u0626|\u0633\u0644\u0645|\u062d\u0648\u0644|\u062d\u0648\u0651\u0644).{0,60}(?:(?:\u062a\u0627\u0633\u0643|\u0645\u0647\u0645\u0629|\u062b\u0631\u064a\u062f|\u0634\u0627\u062a).{0,20}\u062c\u062f\u064a\u062f(?:\u0629|\u0647)?|\u062c\u062f\u064a\u062f(?:\u0629|\u0647)?.{0,20}(?:\u062a\u0627\u0633\u0643|\u0645\u0647\u0645\u0629|\u062b\u0631\u064a\u062f|\u0634\u0627\u062a)))/iu);
   authorizations.delegation = explicitlyPositive(/(?:\b(?:use|create|form|spawn|delegate)\b.{0,40}\b(?:team|subagents?|workers?|agents?)\b|\b(?:team|subagents?|workers?)\b.{0,30}\b(?:please|now|required)\b|(?:كون|كوّن|اعمل|استخدم|شكل|شكّل|فوض).{0,30}(?:فريق|وكلاء|عمال)|(?:فريق|وكلاء).{0,20}(?:مطلوب|لازم))/iu);
+  if (authorizations.singleAgent) authorizations.delegation = false;
   return {
     schemaVersion: 1,
     sessionId: safeId(sessionId),

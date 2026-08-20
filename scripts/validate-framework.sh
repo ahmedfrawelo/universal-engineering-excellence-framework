@@ -22,6 +22,13 @@ done
 [ -f "$ROOT/scripts/validate-spec-workflow.ps1" ] || { echo "Missing spec workflow validator" >&2; exit 1; }
 [ -f "$ROOT/scripts/verify-spec-workflow-upstream.mjs" ] || { echo "Missing spec workflow upstream integrity verifier" >&2; exit 1; }
 [ -f "$ROOT/scripts/test-spec-workflow-upstream.mjs" ] || { echo "Missing spec workflow upstream integrity tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/verify-spec-workflow-boundary.mjs" ] || { echo "Missing Spec Kit production dependency boundary verifier" >&2; exit 1; }
+[ -f "$ROOT/scripts/promote-ueef-evidence.ps1" ] || { echo "Missing durable UEEF evidence promotion command" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-evidence-promotion.ps1" ] || { echo "Missing durable UEEF evidence promotion tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/check-repository-engine-quality.py" ] || { echo "Missing repository engine quality ratchet" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-repository-engine-quality.py" ] || { echo "Missing repository engine quality ratchet tests" >&2; exit 1; }
+[ -f "$ROOT/scripts/runtime-metadata-signature.mjs" ] || { echo "Missing runtime metadata signature helper" >&2; exit 1; }
+[ -f "$ROOT/scripts/test-runtime-metadata-signature.ps1" ] || { echo "Missing runtime metadata signature tests" >&2; exit 1; }
 node "$ROOT/scripts/verify-spec-workflow-upstream.mjs" --engine-root "$ROOT/engines/spec-workflow" --json >/dev/null || { echo "Spec workflow upstream integrity verification failed" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-capability-health.ps1" ] || { echo "Missing capability health doctor" >&2; exit 1; }
 [ -f "$ROOT/scripts/get-ueef-health.ps1" ] || { echo "Missing unified UEEF health report" >&2; exit 1; }

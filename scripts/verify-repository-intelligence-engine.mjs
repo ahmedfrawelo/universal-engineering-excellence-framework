@@ -48,7 +48,7 @@ for (const entry of inventory.files) {
 
 function walk(directory, prefix = '') {
   const files = [];
-  const generatedDirectories = new Set(['.venv', '.pytest_cache', '.hypothesis', '.ruff_cache', '.mypy_cache', '__pycache__', 'build', 'dist']);
+  const generatedDirectories = new Set(['.venv', '.pytest_cache', '.hypothesis', '.ruff_cache', '.mypy_cache', '__pycache__', 'build', 'dist', 'graphify-out']);
   for (const item of fs.readdirSync(directory, { withFileTypes: true })) {
     if (item.isDirectory() && (generatedDirectories.has(item.name) || item.name.endsWith('.egg-info'))) continue;
     const relative = prefix ? `${prefix}/${item.name}` : item.name;

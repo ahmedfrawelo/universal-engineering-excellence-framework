@@ -9,6 +9,7 @@ import { calculateAggregate } from './verify-spec-workflow-upstream.mjs';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const verifier = path.join(repositoryRoot, 'scripts', 'verify-spec-workflow-upstream.mjs');
+const boundaryVerifier = path.join(repositoryRoot, 'scripts', 'verify-spec-workflow-boundary.mjs');
 const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'ueef-spec-upstream-'));
 const algorithm = 'sha256(sorted-utf8(uint32be(path-length) + path-utf8 + uint64be(content-length) + raw-bytes))';
 
@@ -90,6 +91,76 @@ function expectFailure(engineRoot, pattern) {
 }
 
 try {
+  {
+    const boundary = spawnSync(process.execPath, [boundaryVerifier, repositoryRoot], { cwd: repositoryRoot, encoding: 'utf8' });
+    assert.equal(boundary.status, 0, boundary.stderr);
+    assert.equal(JSON.parse(boundary.stdout).status, 'PASS');
+
+    const boundaryFixture = path.join(sandbox, 'boundary-fixture');
+    fs.mkdirSync(path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef'), { recursive: true });
+    fs.writeFileSync(path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef', 'runtime.py'), "from '../../../upstream/spec-kit/src' import unsafe\n", 'utf8');
+    const rejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+    assert.notEqual(rejected.status, 0, 'synthetic production dependency on Spec Kit must fail');
+    assert.match(rejected.stderr, /must not import or execute/u);
+
+    fs.writeFileSync(
+      path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef', 'runtime.py'),
+      "Path('engines/spec-workflow/upstream/spec-kit/LICENSE').read_text()\n",
+      'utf8',
+    );
+    const directReadRejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+    assert.notEqual(directReadRejected.status, 0, 'synthetic direct read of Spec Kit must fail');
+
+    fs.writeFileSync(
+      path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef', 'runtime.py'),
+      "Path('upstream' + '/spec-kit/LICENSE').read_text()\n",
+      'utf8',
+    );
+    const assembledReadRejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+    assert.notEqual(assembledReadRejected.status, 0, 'synthetic assembled read of Spec Kit must fail');
+
+    const misleadingDirectory = path.join(boundaryFixture, 'framework', 'testimony');
+    fs.mkdirSync(misleadingDirectory, { recursive: true });
+    fs.writeFileSync(path.join(misleadingDirectory, 'testament.py'), "Path('upstream/spec-kit/LICENSE').read_text()\n", 'utf8');
+    const misleadingNameRejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+    assert.notEqual(misleadingNameRejected.status, 0, 'production files with test-like names must still be scanned');
+
+    fs.rmSync(path.join(boundaryFixture, 'framework'), { recursive: true, force: true });
+    fs.writeFileSync(
+      path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef', 'runtime.py'),
+      "p='up'+'stream'+'/'+'spec'+'-'+'kit'+'/LICENSE'; open(p).read()\n",
+      'utf8',
+    );
+    const fragmentedReadRejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+    assert.notEqual(fragmentedReadRejected.status, 0, 'fragmented snapshot path must fail');
+
+    fs.writeFileSync(
+      path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef', 'runtime.py'),
+      'p="upstream/spec\\u002dkit/LICENSE"; open(p).read()\n',
+      'utf8',
+    );
+    const escapedReadRejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+    assert.notEqual(escapedReadRejected.status, 0, 'escaped snapshot path must fail');
+
+    for (const escapedPath of ['upstream/spec\\055kit/LICENSE', 'upstream/spec\\N{HYPHEN-MINUS}kit/LICENSE']) {
+      fs.writeFileSync(
+        path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef', 'runtime.py'),
+        `p=${JSON.stringify(escapedPath)}; open(p).read()\n`,
+        'utf8',
+      );
+      const pythonEscapeRejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+      assert.notEqual(pythonEscapeRejected.status, 0, `Python escape must fail: ${escapedPath}`);
+    }
+
+    fs.writeFileSync(
+      path.join(boundaryFixture, 'engines', 'spec-workflow', 'ueef', 'runtime.py'),
+      "a='up'; b='stream'; c='spec'; d='kit'; open(a+b+'/'+c+'-'+d+'/LICENSE').read()\n",
+      'utf8',
+    );
+    const distributedFragmentsRejected = spawnSync(process.execPath, [boundaryVerifier, boundaryFixture], { encoding: 'utf8' });
+    assert.notEqual(distributedFragmentsRejected.status, 0, 'distributed snapshot path fragments must fail');
+  }
+
   {
     const { engineRoot } = fixture('valid');
     const first = run(engineRoot);
